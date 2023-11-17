@@ -53,6 +53,50 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
 
+  fonts:
+    - family: SfProDisplay
+      fonts:
+        - asset: fonts/sfprodisplay_black.ttf
+          weight: 900
+        - asset: fonts/sfprodisplay_blackitalic.ttf
+          weight: 900
+          style: italic
+        - asset: fonts/sfprodisplay_bold.ttf
+          weight: 800
+        - asset: fonts/sfprodisplay_bolditalic.ttf
+          weight: 800
+          style: italic
+        - asset: fonts/sfprodisplay_heavy.ttf
+          weight: 700
+        - asset: fonts/sfprodisplay_heavyitalic.ttf
+          weight: 700
+          style: italic
+        - asset: fonts/sfprodisplay_medium.ttf
+          weight: 500
+        - asset: fonts/sfprodisplay_mediumitalic.ttf
+          weight: 500
+          style: italic
+        - asset: fonts/sfprodisplay_regular.ttf
+          weight: 400
+        - asset: fonts/sfprodisplay_regularitalic.ttf
+          weight: 400
+          style: italic
+        - asset: fonts/sfprodisplay_semibold.ttf
+          weight: 600
+        - asset: fonts/sfprodisplay_semibolditalic.ttf
+          weight: 600
+          style: italic
+        - asset: fonts/sfprodisplay_thin.ttf
+          weight: 300
+        - asset: fonts/sfprodisplay_thinitalic.ttf
+          weight: 300
+          style: italic
+        - asset: fonts/sfprodisplay_light.ttf
+          weight: 100
+        - asset: fonts/sfprodisplay_lightitalic.ttf
+          weight: 100
+          style: italic
+
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
