@@ -6,6 +6,7 @@ import 'screens/events/events_page.dart';
 import 'screens/places/places_page.dart';
 import 'screens/promotions/promotions_page.dart';
 import 'screens/profile/profile_page.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 void main() {
   runApp(
@@ -58,30 +59,68 @@ class _BottomNavBarDemoState extends State<BottomNavBarDemo> with SingleTickerPr
             _tabController.index = index;
           });
         },
-        items: const [
+        items: [
 
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Профиль',
             backgroundColor: AppColors.greyOnBackground
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.event),
+              icon: SvgIcon(
+                assetPath: 'assets/icon_celebration.svg',
+                width: 24.0,
+                height: 24.0,
+                color: _tabController.index == 1
+                    ? AppColors.brandColor // Цвет для выбранного элемента
+                    : AppColors.greyText, // Цвет для не выбранного элемента,
+              ),
             label: 'Мероприятия',
             backgroundColor: AppColors.greyOnBackground
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.location_on),
             label: 'Места',
             backgroundColor: AppColors.greyOnBackground
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.fireplace_sharp),
+              icon: SvgIcon(
+                assetPath: 'assets/fire_solid.svg',
+                width: 24.0,
+                height: 24.0,
+                color: _tabController.index == 3
+                    ? AppColors.brandColor // Цвет для выбранного элемента
+                    : AppColors.greyText, // Цвет для не выбранного элемента,
+              ),
             label: 'Акции',
             backgroundColor: AppColors.greyOnBackground
           ),
         ],
       ),
+    );
+  }
+}
+
+class SvgIcon extends StatelessWidget {
+  final String assetPath;
+  final double width;
+  final double height;
+  final Color color;
+
+  const SvgIcon({super.key,
+    required this.assetPath,
+    required this.width,
+    required this.height,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SvgPicture.asset(
+      assetPath,
+      width: width,
+      height: height,
+      color: color,
     );
   }
 }

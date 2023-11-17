@@ -38,6 +38,9 @@ class CustomTheme {
         ),
         selectedIconTheme: IconThemeData(
           size: 25
+        ),
+        unselectedIconTheme: IconThemeData(
+          color: AppColors.greyText
         )
 
 
