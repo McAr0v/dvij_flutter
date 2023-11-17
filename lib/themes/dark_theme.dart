@@ -27,6 +27,23 @@ class CustomTheme {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
           buttonColor: AppColors.brandColor,
         ),
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: AppColors.greyOnBackground,
+        selectedItemColor: AppColors.brandColor,
+        unselectedItemColor: AppColors.greyText,
+        selectedLabelStyle: TextStyle(
+          fontSize: 12,
+          fontFamily: 'SfProDisplay',
+          fontWeight: FontWeight.normal
+        ),
+        selectedIconTheme: IconThemeData(
+          size: 25
+        )
+
+
+
+      ),
+
     );
   }
 
