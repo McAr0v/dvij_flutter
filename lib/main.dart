@@ -6,42 +6,100 @@ import 'screens/events/events_page.dart';
 import 'screens/places/places_page.dart';
 import 'screens/promotions/promotions_page.dart';
 import 'screens/profile/profile_page.dart';
+import 'screens/otherPages/about_ad_page.dart';
+import 'screens/otherPages/about_app_page.dart';
+import 'screens/otherPages/feedback_page.dart';
+import 'screens/otherPages/privacy_policy_page.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 void main() {
   runApp(
     MaterialApp(
-      home: const BottomNavBarDemo(),
+      home: const CustomNavContainer(),
       theme: CustomTheme.darkTheme,
     ),
   );
 }
 
-class BottomNavBarDemo extends StatefulWidget {
-  const BottomNavBarDemo({super.key});
+class CustomNavContainer extends StatefulWidget {
+  const CustomNavContainer({super.key});
 
   @override
-  _BottomNavBarDemoState createState() => _BottomNavBarDemoState();
+  _CustomNavContainerState createState() => _CustomNavContainerState();
 }
 
-class _BottomNavBarDemoState extends State<BottomNavBarDemo> with SingleTickerProviderStateMixin {
+class _CustomNavContainerState extends State<CustomNavContainer>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final List<String> _tabTitles = ['Профиль', 'Мероприятия', 'Места', 'Акции'];
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: _tabTitles.length, vsync: this);
+    _tabController =
+        TabController(length: _tabTitles.length, vsync: this, initialIndex: 1);
   }
-
-// остальной код остается без изменений
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(_tabTitles[_tabController.index]),
+      ),
+      drawer: Drawer(
+        child: Container(
+          color: AppColors.greyOnBackground,
+          child: ListView(
+            padding: EdgeInsets.all(5.0),
+            children: [
+              ListTile(
+                leading: Icon(Icons.info),
+                title: Text('О приложении'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AboutAppPage()),
+                  );
+                },
+              ),
+              ListTile(
+                title: Text('Написать разработчику'),
+                leading: Icon(Icons.feedback),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => FeedbackPage()),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.ad_units),
+                title: Text('Реклама в приложении'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AboutAdPage()),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.privacy_tip),
+                title: Text('Политика конфиденциальности'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => PrivacyPolicyPage()),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
       ),
       body: TabBarView(
         controller: _tabController,
@@ -60,40 +118,39 @@ class _BottomNavBarDemoState extends State<BottomNavBarDemo> with SingleTickerPr
           });
         },
         items: [
-
           const BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Профиль',
-            backgroundColor: AppColors.greyOnBackground
+            backgroundColor: AppColors.greyOnBackground,
           ),
           BottomNavigationBarItem(
-              icon: SvgIcon(
-                assetPath: 'assets/icon_celebration.svg',
-                width: 24.0,
-                height: 24.0,
-                color: _tabController.index == 1
-                    ? AppColors.brandColor // Цвет для выбранного элемента
-                    : AppColors.greyText, // Цвет для не выбранного элемента,
-              ),
+            icon: SvgIcon(
+              assetPath: 'assets/icon_celebration.svg',
+              width: 24.0,
+              height: 24.0,
+              color: _tabController.index == 1
+                  ? AppColors.brandColor
+                  : AppColors.greyText,
+            ),
             label: 'Мероприятия',
-            backgroundColor: AppColors.greyOnBackground
+            backgroundColor: AppColors.greyOnBackground,
           ),
           const BottomNavigationBarItem(
             icon: Icon(Icons.location_on),
             label: 'Места',
-            backgroundColor: AppColors.greyOnBackground
+            backgroundColor: AppColors.greyOnBackground,
           ),
           BottomNavigationBarItem(
-              icon: SvgIcon(
-                assetPath: 'assets/fire_solid.svg',
-                width: 24.0,
-                height: 24.0,
-                color: _tabController.index == 3
-                    ? AppColors.brandColor // Цвет для выбранного элемента
-                    : AppColors.greyText, // Цвет для не выбранного элемента,
-              ),
+            icon: SvgIcon(
+              assetPath: 'assets/fire_solid.svg',
+              width: 24.0,
+              height: 24.0,
+              color: _tabController.index == 3
+                  ? AppColors.brandColor
+                  : AppColors.greyText,
+            ),
             label: 'Акции',
-            backgroundColor: AppColors.greyOnBackground
+            backgroundColor: AppColors.greyOnBackground,
           ),
         ],
       ),
@@ -107,7 +164,8 @@ class SvgIcon extends StatelessWidget {
   final double height;
   final Color color;
 
-  const SvgIcon({super.key,
+  const SvgIcon({
+    super.key,
     required this.assetPath,
     required this.width,
     required this.height,
@@ -124,6 +182,8 @@ class SvgIcon extends StatelessWidget {
     );
   }
 }
+
+
 
 /* void main() {
   runApp(const MyApp());

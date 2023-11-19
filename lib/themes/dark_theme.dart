@@ -10,6 +10,7 @@ class CustomTheme {
         backgroundColor: AppColors.greyOnBackground,
         titleTextStyle: TextStyle(color: AppColors.white, fontSize: 22, fontFamily: 'SfProDisplay', fontWeight: FontWeight.bold)
       ),
+
         primaryColor: AppColors.brandColor,
         scaffoldBackgroundColor: AppColors.greyBackground,
         textTheme: const TextTheme(
@@ -42,10 +43,19 @@ class CustomTheme {
         unselectedIconTheme: IconThemeData(
           color: AppColors.greyText
         )
-
-
-
       ),
+      drawerTheme: DrawerThemeData(
+        backgroundColor: AppColors.greyOnBackground
+      ),
+
+      // Настройки для Drawer
+      // Заголовок и иконка
+      listTileTheme: const ListTileThemeData(
+        textColor: AppColors.white,
+        iconColor: AppColors.white,
+        titleTextStyle: TextStyle(color: AppColors.white, fontSize: 16, fontFamily: 'SfProDisplay', fontWeight: FontWeight.normal),
+      ),
+
 
     );
   }
