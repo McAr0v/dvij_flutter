@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+// Кастомные цвета, используемые в приложении
+
 class AppColors {
   static const Color brandColor = Color(0xFFFED32C);
   static const Color greyOnBackground = Color(0xFF1A1E23);
@@ -8,5 +10,5 @@ class AppColors {
   static const Color greyText = Color(0xFF6E7177);
   static const Color white = Color(0xFFFCFDFE);
   static const Color attentionRed = Color(0xFFFA5C47);
-// Добавьте свои цвета по мере необходимости
+
 }
