@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthWithEmail {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  get user => _auth.currentUser;
+
 
 
   Future<void> signOut() async {
@@ -44,7 +46,7 @@ class AuthWithEmail {
         print('No user found for that email.');
       } else if (e.code == 'wrong-password') {
         print('Wrong password provided for that user.');
-      }
+      } return null;
     } catch (e) {
       print(e);
       return null;

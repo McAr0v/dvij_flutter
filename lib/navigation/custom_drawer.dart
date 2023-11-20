@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:dvij_flutter/screens/otherPages/about_app_page.dart';
@@ -9,7 +10,9 @@ import 'package:dvij_flutter/screens/otherPages/privacy_policy_page.dart';
 // --- КАСТОМНАЯ БОКОВАЯ ШТОРКА -----
 
 class CustomDrawer extends StatelessWidget {
-  const CustomDrawer({super.key});
+  CustomDrawer({super.key});
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +29,7 @@ class CustomDrawer extends StatelessWidget {
           //padding: EdgeInsets.all(5.0),
           padding: EdgeInsets.fromLTRB(5.0, 20.0, 5.0, 5.0),
           children: [
+            Text(_auth.currentUser?.uid ?? "N/A"),
             ListTile(
               leading: Icon(Icons.info),
               title: Text('О приложении'),

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/authentication/auth_with_email.dart';
 import 'package:provider/provider.dart';
@@ -70,6 +71,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
 class UserProfileScreen extends StatelessWidget {
 
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   final AuthWithEmail authWithEmail = AuthWithEmail();
 
 
@@ -77,7 +80,7 @@ class UserProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // Получение uid из AppState
 
-    String? uid = Provider.of<AppState>(context).uid;
+    String? uid = _auth.currentUser?.uid;
 
     return Scaffold(
       appBar: AppBar(

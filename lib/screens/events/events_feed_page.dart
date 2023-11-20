@@ -8,12 +8,7 @@ import '../../authentication/auth_with_email.dart'; // Импортируем в
 
 class EventsFeedPage extends StatelessWidget {
 
-  EventsFeedPage({Key? key}) : super(key: key);
-
-  String? uid; // UID пользователя
-
-  final AuthWithEmail authWithEmail = AuthWithEmail();
-
+  const EventsFeedPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
