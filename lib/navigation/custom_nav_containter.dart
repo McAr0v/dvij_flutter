@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../app_state/appstate.dart';
 import 'custom_drawer.dart';
 import 'custom_bottom_navigation_bar.dart';
 import 'package:dvij_flutter/screens/profile/profile_page.dart';
@@ -9,7 +10,8 @@ import 'package:dvij_flutter/screens/promotions/promotions_page.dart';
 // ---- ВСЯ НАВИГАЦИЯ ЗДЕСЬ! ----
 
 class CustomNavContainer extends StatefulWidget {
-  const CustomNavContainer({super.key});
+  final AppState appState;
+  const CustomNavContainer({super.key, required this.appState});
 
   @override
   _CustomNavContainerState createState() => _CustomNavContainerState();

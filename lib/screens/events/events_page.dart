@@ -1,13 +1,15 @@
 // events/events_page.dart
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:flutter/material.dart';
+import '../../app_state/appstate.dart';
 import 'events_fav_page.dart';
 import 'events_feed_page.dart';
 import 'events_my_page.dart';
 
 
 class EventsPage extends StatelessWidget {
-  const EventsPage({Key? key}) : super(key: key);
+  final AppState appState;
+  const EventsPage({Key? key, required this.appState}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -26,9 +28,9 @@ class EventsPage extends StatelessWidget {
               ],
             ),
             Expanded(
-              child: const TabBarView(
+              child: TabBarView(
                 children: [
-                  EventsFeedPage(),
+                  EventsFeedPage(appState: appState,),
                   EventsFavPage(),
                   EventsMyPage()
                 ],

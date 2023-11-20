@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "398897716420",
+    "project_id": "dvij-flutter",
+    "storage_bucket": "dvij-flutter.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:398897716420:android:35f49411212c68b8123d91",
+        "android_client_info": {
+          "package_name": "com.example.dvij_flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAi7GAVkgBhwrL4Km6VyW9QBmFf88D7u1g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
