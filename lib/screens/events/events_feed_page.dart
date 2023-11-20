@@ -9,7 +9,7 @@ class EventsFeedPage extends StatelessWidget {
     return Container(
       color: AppColors.greyBackground,
       child: Center(
-          child: Text('Содержимое для Ленты')
+          child: Text('Мероприятия лента')
       ),
     );
 

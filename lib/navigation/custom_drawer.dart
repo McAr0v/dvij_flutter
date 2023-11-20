@@ -18,10 +18,13 @@ class CustomDrawer extends StatelessWidget {
       // Помещаем в контейнер, чтобы окрасить в нужный цвет
 
       child: Container(
+
+        padding: EdgeInsets.fromLTRB(5.0, 50.0, 5.0, 5.0),
         color: AppColors.greyOnBackground,
         child: ListView(
           // ListView Чтобы все элементы шли друг за другом
-          padding: EdgeInsets.all(5.0),
+          //padding: EdgeInsets.all(5.0),
+          padding: EdgeInsets.fromLTRB(5.0, 20.0, 5.0, 5.0),
           children: [
             ListTile(
               leading: Icon(Icons.info),

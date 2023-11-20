@@ -5,6 +5,6 @@ class EventsMyPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text('Содержимое для Моих'));
+    return Center(child: Text('Мероприятия мои'));
   }
 }
