@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/authentication/auth_with_email.dart';
+import 'package:provider/provider.dart';
 
 import '../../app_state/appstate.dart';
 import '../../navigation/custom_nav_containter.dart';
@@ -51,7 +52,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   // Регистрация успешна, переходим на экран профиля пользователя
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => UserProfileScreen(appState)),
+                    MaterialPageRoute(builder: (context) => UserProfileScreen()),
                   );
                 } else {
                   // Обработка случая, когда создание пользователя не удалось
@@ -68,16 +69,15 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 }
 
 class UserProfileScreen extends StatelessWidget {
-  final AppState appState;
+
   final AuthWithEmail authWithEmail = AuthWithEmail();
 
-
-  UserProfileScreen(this.appState);
 
   @override
   Widget build(BuildContext context) {
     // Получение uid из AppState
-    String? uid = AppState().getUid();
+
+    String? uid = Provider.of<AppState>(context).uid;
 
     return Scaffold(
       appBar: AppBar(
@@ -93,9 +93,11 @@ class UserProfileScreen extends StatelessWidget {
               onPressed: () async {
                 await authWithEmail.signOut();
 
+                Provider.of<AppState>(context, listen: false).setUid(null);
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => CustomNavContainer(appState: AppState(),)),
+                  MaterialPageRoute(
+                      builder: (context) => CustomNavContainer()),
                 );
                 // Выход из авторизации
                 // Вам нужно добавить соответствующий код для выхода пользователя из авторизации

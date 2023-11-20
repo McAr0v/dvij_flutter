@@ -8,8 +8,7 @@ import 'events_my_page.dart';
 
 
 class EventsPage extends StatelessWidget {
-  final AppState appState;
-  const EventsPage({Key? key, required this.appState}) : super(key: key);
+  const EventsPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +29,7 @@ class EventsPage extends StatelessWidget {
             Expanded(
               child: TabBarView(
                 children: [
-                  EventsFeedPage(appState: appState,),
+                  EventsFeedPage(),
                   EventsFavPage(),
                   EventsMyPage()
                 ],

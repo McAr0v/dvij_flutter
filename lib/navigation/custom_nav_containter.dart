@@ -10,8 +10,8 @@ import 'package:dvij_flutter/screens/promotions/promotions_page.dart';
 // ---- ВСЯ НАВИГАЦИЯ ЗДЕСЬ! ----
 
 class CustomNavContainer extends StatefulWidget {
-  final AppState appState;
-  const CustomNavContainer({super.key, required this.appState});
+
+  const CustomNavContainer({super.key});
 
   @override
   _CustomNavContainerState createState() => _CustomNavContainerState();

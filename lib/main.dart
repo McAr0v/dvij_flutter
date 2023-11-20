@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'app_state/appstate.dart';
 import 'themes/dark_theme.dart';
 import 'navigation/custom_nav_containter.dart';
@@ -8,15 +9,22 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform); // Инициализация Firebase
-
-  // Создаем экземпляр AppState
-  AppState appState = AppState();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(
-    MaterialApp(
-      home: CustomNavContainer(appState: appState),
-      theme: CustomTheme.darkTheme,
+    ChangeNotifierProvider(
+      create: (context) => AppState(),
+      child: MyApp(),
     ),
   );
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: CustomNavContainer(),
+      theme: CustomTheme.darkTheme,
+    );
+  }
 }

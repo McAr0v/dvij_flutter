@@ -7,8 +7,8 @@ import '../../app_state/appstate.dart';
 import '../../authentication/auth_with_email.dart'; // Импортируем ваш экран регистрации
 
 class EventsFeedPage extends StatelessWidget {
-  final AppState appState;
-  EventsFeedPage({Key? key, required this.appState}) : super(key: key);
+
+  EventsFeedPage({Key? key}) : super(key: key);
 
   String? uid; // UID пользователя
 
@@ -47,7 +47,7 @@ class EventsFeedPage extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => UserProfileScreen(appState)),
+                  MaterialPageRoute(builder: (context) => UserProfileScreen()),
                 );
               },
               child: Text('user profile'),

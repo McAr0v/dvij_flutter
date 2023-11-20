@@ -1,19 +1,13 @@
-class AppState {
-  String? uid;
+import 'package:flutter/cupertino.dart';
 
-  static final AppState _instance = AppState._internal();
+class AppState with ChangeNotifier {
+  String? _uid;
 
-  factory AppState() {
-    return _instance;
-  }
+  String? get uid => _uid;
 
-  AppState._internal();
-
-  void setUid(String newUid) {
-    uid = newUid;
-  }
-
-  String? getUid() {
-    return uid;
+  void setUid(String? uid) {
+    _uid = uid;
+    notifyListeners();
   }
 }
+

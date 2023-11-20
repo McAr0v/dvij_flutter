@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/authentication/auth_with_email.dart';
+import 'package:provider/provider.dart';
+import '../../app_state/appstate.dart';
 import '../../navigation/custom_nav_containter.dart';
 import 'registration_screen.dart';
 
@@ -43,13 +45,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 // Вход пользователя
                 String? uid = await authWithEmail.signInWithEmailAndPassword(email, password);
-
                 if (uid != null) {
-                  // Регистрация успешна, переходим на экран профиля пользователя
+                  Provider.of<AppState>(context, listen: false).setUid(uid);
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => UserProfileScreen()),
-                  );
+                  MaterialPageRoute(builder: (context) => UserProfileScreen()),
+                );
+
                 } else {
                   // Обработка случая, когда создание пользователя не удалось
                   // Можно показать сообщение об ошибке или принять соответствующие меры
