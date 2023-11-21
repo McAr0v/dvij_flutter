@@ -31,6 +31,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextField(
+              keyboardType: TextInputType.emailAddress,
               controller: emailController,
               decoration: InputDecoration(labelText: 'Email'),
             ),
