@@ -9,6 +9,17 @@ class CustomTheme {
   static ThemeData get darkTheme {
     return ThemeData(
 
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: AppColors.brandColor,
+        actionTextColor: AppColors.white,
+        contentTextStyle: TextStyle(
+            color: AppColors.greyOnBackground,
+            fontSize: 16,
+            fontFamily: 'SfProDisplay',
+            fontWeight: FontWeight.w400,
+            height: 1.1
+        )
+      ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           textStyle: TextStyle(color: AppColors.white, fontSize: 16, fontFamily: 'SfProDisplay', fontWeight: FontWeight.normal),

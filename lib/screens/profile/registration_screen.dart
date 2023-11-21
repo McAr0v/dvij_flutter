@@ -2,6 +2,8 @@ import 'package:dvij_flutter/navigation/custom_nav_containter.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/authentication/auth_with_email.dart';
 import '../../app_state/appstate.dart';
+import '../../elements/custom_snack_bar.dart';
+import '../../themes/app_colors.dart';
 
 class RegistrationScreen extends StatefulWidget {
 
@@ -48,6 +50,17 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
                 if (uid != null) {
                   // Регистрация успешна, переходим на экран профиля пользователя
+
+                  final snackBar = customSnackBar(
+                      message: "Регистрация успешно завершена! "
+                          "Мы отправили на почту письмо с подтверждением Email-адреса. "
+                          "Следуйте инструкции, чтобы завершить регистрацию",
+                      backgroundColor: Colors.green,
+                      showTime: 10
+                  );
+
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => CustomNavContainer()),

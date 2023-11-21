@@ -1,5 +1,4 @@
 import 'package:dvij_flutter/screens/profile/registration_screen.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../themes/app_colors.dart';
@@ -10,6 +9,7 @@ class UserNotSignInScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Container(
       alignment: Alignment.centerLeft,
       padding: const EdgeInsets.all(20.0),

@@ -1,4 +1,8 @@
+import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+
+import '../elements/custom_snack_bar.dart';
 
 class AuthWithEmail {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -17,8 +21,15 @@ class AuthWithEmail {
         password: password,
       );
 
-      // Если пользователь успешно создан, возвращаем UID
-      return credential.user?.uid;
+      // Пользователь успешно создан
+      User? user = credential.user;
+
+      // Отправляем письмо с подтверждением
+      await user?.sendEmailVerification();
+
+      // Возвращаем UID
+      return user?.uid;
+
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         print('Предоставленный пароль слишком слаб.');
@@ -34,7 +45,11 @@ class AuthWithEmail {
     }
   }
 
-  Future<String?> signInWithEmailAndPassword(String emailAddress, String password) async {
+  Future<String?> signInWithEmailAndPassword(
+      String emailAddress,
+      String password,
+      BuildContext context
+      ) async {
     try {
       final credential = await _auth.signInWithEmailAndPassword(
         email: emailAddress,
@@ -42,11 +57,31 @@ class AuthWithEmail {
       );
       return credential.user?.uid;
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        print('No user found for that email.');
-      } else if (e.code == 'wrong-password') {
-        print('Wrong password provided for that user.');
+
+      print('Ошибка - Firebase Auth Error: ${e.code} - ${e.message}');
+
+      if (e.code == 'wrong-password') {
+
+        final snackBar = customSnackBar(message: "Вы ввели не правильный пароль", backgroundColor: AppColors.attentionRed);
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+      } else if (e.code == 'user-not-found') {
+
+        final snackBar = customSnackBar(message: "Пользователь с таким Email не найден", backgroundColor: AppColors.attentionRed);
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+      } else if (e.code == 'too-many-requests') {
+
+        final snackBar = customSnackBar(message: "Слишком много попыток входа. Мы заблокировали вход с вашего устройства. Попробуйте войти позже.", backgroundColor: AppColors.attentionRed, showTime: 10);
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+      }  else {
+
+        final snackBar = customSnackBar(message: "Неизвестная нам ошибка( Попробуйте войти позже.", backgroundColor: Colors.yellow, showTime: 10);
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
       } return null;
+
     } catch (e) {
       print(e);
       return null;

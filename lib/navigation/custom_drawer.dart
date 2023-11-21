@@ -1,3 +1,4 @@
+import 'package:dvij_flutter/navigation/profile_box_in_drawer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
@@ -29,7 +30,8 @@ class CustomDrawer extends StatelessWidget {
           //padding: EdgeInsets.all(5.0),
           padding: EdgeInsets.fromLTRB(5.0, 20.0, 5.0, 5.0),
           children: [
-            Text(_auth.currentUser?.uid ?? "N/A"),
+            ProfileBoxInDrawer(),
+
             ListTile(
               leading: Icon(Icons.info),
               title: Text('О приложении'),

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../app_state/appstate.dart';
 import '../../navigation/custom_nav_containter.dart';
 import 'registration_screen.dart';
+import 'package:dvij_flutter/elements/custom_snack_bar.dart';
 
 class LoginScreen extends StatefulWidget {
 
@@ -44,13 +45,16 @@ class _LoginScreenState extends State<LoginScreen> {
                 String password = passwordController.text;
 
                 // Вход пользователя
-                String? uid = await authWithEmail.signInWithEmailAndPassword(email, password);
+                String? uid = await authWithEmail.signInWithEmailAndPassword(email, password, context);
                 if (uid != null) {
-                  Provider.of<AppState>(context, listen: false).setUid(uid);
                   Navigator.pushReplacement(
                     context,
                   MaterialPageRoute(builder: (context) => CustomNavContainer()),
                 );
+
+                  // Добавим оповещение о успешном входе
+                  final snackBar = customSnackBar(message: "Вход успешно выполнен", backgroundColor: Colors.green);
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
                 } else {
                   // Обработка случая, когда создание пользователя не удалось
