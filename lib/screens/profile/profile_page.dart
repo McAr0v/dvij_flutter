@@ -1,13 +1,31 @@
 // profile/profile_page.dart
+import 'package:dvij_flutter/screens/profile/registration_screen.dart';
+import 'package:dvij_flutter/screens/profile/user_logged_in_screen.dart';
+import 'package:dvij_flutter/screens/profile/user_not_sign_in_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../themes/app_colors.dart';
+import 'login_screen.dart';
+
 class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
+  ProfilePage({super.key});
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Профиль'),
-    );
+
+    if (_auth.currentUser?.uid == null){
+
+      return const UserNotSignInScreen();
+
+    } else {
+
+      return UserLoggedInScreen();
+
+    }
+
+
   }
 }

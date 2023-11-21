@@ -1,10 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:dvij_flutter/navigation/custom_nav_containter.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/authentication/auth_with_email.dart';
-import 'package:provider/provider.dart';
-
 import '../../app_state/appstate.dart';
-import '../../navigation/custom_nav_containter.dart';
 
 class RegistrationScreen extends StatefulWidget {
 
@@ -53,7 +50,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   // Регистрация успешна, переходим на экран профиля пользователя
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => UserProfileScreen()),
+                    MaterialPageRoute(builder: (context) => CustomNavContainer()),
                   );
                 } else {
                   // Обработка случая, когда создание пользователя не удалось
@@ -69,47 +66,3 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   }
 }
 
-class UserProfileScreen extends StatelessWidget {
-
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  final AuthWithEmail authWithEmail = AuthWithEmail();
-
-
-  @override
-  Widget build(BuildContext context) {
-    // Получение uid из AppState
-
-    String? uid = _auth.currentUser?.uid;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('User Profile'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('User UID: ${uid ?? "N/A"}'),
-            SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () async {
-                await authWithEmail.signOut();
-
-                Provider.of<AppState>(context, listen: false).setUid(null);
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => CustomNavContainer()),
-                );
-                // Выход из авторизации
-                // Вам нужно добавить соответствующий код для выхода пользователя из авторизации
-              },
-              child: Text('Log Out'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

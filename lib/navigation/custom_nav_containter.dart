@@ -41,7 +41,7 @@ class _CustomNavContainerState extends State<CustomNavContainer>
       drawer: CustomDrawer(), // Кастомная шторка custom_drawer.dart
       body: TabBarView(
         controller: _tabController,
-        children: const [
+        children: [
           ProfilePage(),
           EventsPage(),
           PlacesPage(),

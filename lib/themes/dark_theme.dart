@@ -9,6 +9,18 @@ class CustomTheme {
   static ThemeData get darkTheme {
     return ThemeData(
 
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          textStyle: TextStyle(color: AppColors.white, fontSize: 16, fontFamily: 'SfProDisplay', fontWeight: FontWeight.normal),
+          padding: EdgeInsets.all(10.0),
+          minimumSize: Size(double.infinity, 50),
+          backgroundColor: AppColors.brandColor,
+          foregroundColor: AppColors.greyOnBackground,
+          side: BorderSide(color: AppColors.brandColor, width: 2.0), // Добавлено границу кнопки
+        ),
+
+      ),
+
       // Верхняя панель
 
       appBarTheme: const AppBarTheme(
@@ -27,7 +39,7 @@ class CustomTheme {
 
           displayLarge: TextStyle(
             color: AppColors.white,
-            fontSize: 25,
+            fontSize: 35,
             fontFamily: 'SfProDisplay',
             fontWeight: FontWeight.bold,
           ),

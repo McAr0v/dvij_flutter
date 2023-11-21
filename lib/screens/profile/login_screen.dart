@@ -49,7 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Provider.of<AppState>(context, listen: false).setUid(uid);
                   Navigator.pushReplacement(
                     context,
-                  MaterialPageRoute(builder: (context) => UserProfileScreen()),
+                  MaterialPageRoute(builder: (context) => CustomNavContainer()),
                 );
 
                 } else {
