@@ -18,7 +18,7 @@ class UserNotSignInScreen extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Войди или создай аккаунт', style: Theme.of(context).textTheme.displayLarge,),
+        Text('Войди или создай аккаунт', style: Theme.of(context).textTheme.titleLarge,),
         SizedBox(height: 15.0),
         Text('Страница аккаунта станет доступна после того, как ты сделаешь вход в свой аккаунт или зарегистрируешься', style: Theme.of(context).textTheme.bodyMedium,),
         SizedBox(height: 25.0),

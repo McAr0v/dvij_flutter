@@ -29,6 +29,14 @@ class CustomTheme {
 
       ),
 
+      tabBarTheme: TabBarTheme(
+        labelStyle: TextStyle(color: AppColors.brandColor, fontSize: 16, fontFamily: 'SfProDisplay', fontWeight: FontWeight.normal),
+        unselectedLabelStyle: TextStyle(color: AppColors.white, fontSize: 14, fontFamily: 'SfProDisplay', fontWeight: FontWeight.normal),
+        indicatorColor: AppColors.brandColor,
+        indicatorSize: TabBarIndicatorSize.tab,
+
+      ),
+
       primaryColor: AppColors.brandColor,
 
         // Цвет фона по умолчанию
@@ -55,23 +63,50 @@ class CustomTheme {
             fontFamily: 'SfProDisplay',
             fontWeight: FontWeight.bold,
           ),
-          bodyLarge: TextStyle(
+          titleLarge: TextStyle(
             color: AppColors.white,
-            fontSize: 18,
+            fontSize: 40,
+            fontFamily: 'SfProDisplay',
+            fontWeight: FontWeight.w900,
+            height: 1.1
+
+
+          ),
+          titleMedium: TextStyle(
+            color: AppColors.white,
+            fontSize: 20,
+            fontFamily: 'SfProDisplay',
+            fontWeight: FontWeight.bold,
+
+          ),
+          titleSmall: TextStyle(
+            color: AppColors.white,
+            fontSize: 20,
             fontFamily: 'SfProDisplay',
             fontWeight: FontWeight.normal,
+
+          ),
+          bodyLarge: TextStyle(
+            color: AppColors.white,
+            fontSize: 16,
+            fontFamily: 'SfProDisplay',
+            fontWeight: FontWeight.bold,
+
           ),
           bodyMedium: TextStyle(
             color: AppColors.white,
             fontSize: 16,
             fontFamily: 'SfProDisplay',
             fontWeight: FontWeight.normal,
+            height: 1.3
+
           ),
           bodySmall: TextStyle(
             color: AppColors.white,
             fontSize: 14,
             fontFamily: 'SfProDisplay',
             fontWeight: FontWeight.normal,
+
           ),
         labelLarge: TextStyle(
           color: AppColors.white,
@@ -81,15 +116,18 @@ class CustomTheme {
         ),
         labelMedium: TextStyle(
           color: AppColors.white,
-          fontSize: 16,
+          fontSize: 12,
           fontFamily: 'SfProDisplay',
           fontWeight: FontWeight.normal,
+
         ),
         labelSmall: TextStyle(
           color: AppColors.white,
-          fontSize: 14,
+          fontSize: 10,
           fontFamily: 'SfProDisplay',
           fontWeight: FontWeight.normal,
+
+
         )
 
       ),
@@ -118,14 +156,14 @@ class CustomTheme {
         selectedLabelStyle: TextStyle(
           fontSize: 12,
           fontFamily: 'SfProDisplay',
-          fontWeight: FontWeight.normal
+          fontWeight: FontWeight.normal,
         ),
         selectedIconTheme: IconThemeData(
           size: 25
         ),
         unselectedIconTheme: IconThemeData(
           color: AppColors.greyText
-        )
+        ),
       ),
 
       // Всплываюшая шторка
