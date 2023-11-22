@@ -11,6 +11,7 @@ class ProfileBoxInDrawer extends StatefulWidget {
 
 class _ProfileBoxInDrawerState extends State<ProfileBoxInDrawer> {
   User? _user;
+  bool _isEmailVerified = false;
 
   @override
   void initState() {
@@ -23,28 +24,101 @@ class _ProfileBoxInDrawerState extends State<ProfileBoxInDrawer> {
     if (user != null) {
       setState(() {
         _user = user;
+        _isEmailVerified = user.emailVerified;
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+
+    double drawerWidthPercentage = 0.75;
+
+    return GestureDetector(
       onTap: () {
-        // Переход на страницу профиля
-        Navigator.pushReplacement(
+        if (_user != null && _isEmailVerified) {
+          // Переход на страницу профиля
+          Navigator.pushNamedAndRemoveUntil(
             context,
-            MaterialPageRoute(builder: (context) => CustomNavContainer())
-        );
+            '/Profile', // Название маршрута, которое вы задаете в MaterialApp
+                (route) => false,
+          );
+        } else if (_user == null) {
+          // Переход на страницу профиля
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/Profile', // Название маршрута, которое вы задаете в MaterialApp
+                (route) => false,
+          );
+        }
+
+
       },
-      child: UserAccountsDrawerHeader(
-        accountName: _user != null ? Text(_user!.displayName ?? '') : null,
-        accountEmail: _user != null ? Text(_user!.email ?? '') : null,
-        currentAccountPicture: _user != null
-            ? CircleAvatar(
-          backgroundImage: NetworkImage(_user!.photoURL ?? ''),
-        )
-            : null,
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            if (_user != null && _isEmailVerified)
+              Container(
+                width: MediaQuery.of(context).size.width * drawerWidthPercentage,
+                child:Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 30,
+                          backgroundImage: NetworkImage(_user!.photoURL ?? ''),
+                        ),
+                        SizedBox(width: 15.0),
+
+                        Column(
+
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              //_user!.displayName ?? '',
+                              'Имя и фамилия',
+                              style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              _user!.email ?? '',
+                              style: TextStyle(fontSize: 14.0),
+                            ),
+                          ],
+                        ),
+
+                        SizedBox(width: 15.0),
+                      ],
+                    ),
+
+                    Icon(Icons.edit),
+
+                  ],
+                ) ,
+
+                )
+
+            else if (_user != null && !_isEmailVerified)
+              Text(
+                'Для успешного завершения регистрации подтвердите свою почту',
+                style: TextStyle(fontSize: 14.0),
+              )
+            else
+              Row(
+                children: [
+                  Text(
+                    'Регистрация / вход',
+                    style: TextStyle(fontSize: 16.0),
+                  ),
+                  SizedBox(width: 16.0),
+                  Icon(Icons.login),
+                ],
+              ),
+          ],
+        ),
       ),
     );
   }

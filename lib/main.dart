@@ -25,6 +25,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       home: CustomNavContainer(),
       theme: CustomTheme.darkTheme,
+      routes: {
+        '/Profile': (context) => CustomNavContainer(initialTabIndex: 0),
+        '/Events': (context) => CustomNavContainer(initialTabIndex: 1),
+        '/Places': (context) => CustomNavContainer(initialTabIndex: 2),
+        '/Promotions': (context) => CustomNavContainer(initialTabIndex: 3),
+        // Другие маршруты вашего приложения
+      },
     );
   }
 }

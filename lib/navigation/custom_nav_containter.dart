@@ -10,8 +10,9 @@ import 'package:dvij_flutter/screens/promotions/promotions_page.dart';
 // ---- ВСЯ НАВИГАЦИЯ ЗДЕСЬ! ----
 
 class CustomNavContainer extends StatefulWidget {
+  final int initialTabIndex;
 
-  const CustomNavContainer({super.key});
+  const CustomNavContainer({Key? key, this.initialTabIndex = 1}) : super(key: key);
 
   @override
   _CustomNavContainerState createState() => _CustomNavContainerState();
@@ -26,11 +27,8 @@ class _CustomNavContainerState extends State<CustomNavContainer>
   void initState() {
     super.initState();
     _tabController =
-        TabController(length: _tabTitles.length, vsync: this, initialIndex: 1);
+        TabController(length: _tabTitles.length, vsync: this, initialIndex: widget.initialTabIndex);
   }
-
-
-  // --- Все панели - шторка, верхняя панель , нижняя панель ---
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +36,7 @@ class _CustomNavContainerState extends State<CustomNavContainer>
       appBar: AppBar(
         title: Text(_tabTitles[_tabController.index], style: Theme.of(context).textTheme.displayMedium,),
       ),
-      drawer: CustomDrawer(), // Кастомная шторка custom_drawer.dart
+      drawer: CustomDrawer(),
       body: TabBarView(
         controller: _tabController,
         children: [
@@ -48,12 +46,11 @@ class _CustomNavContainerState extends State<CustomNavContainer>
           PromotionsPage(),
         ],
       ),
-      // Кастомная нижняя панель custom_bottom_navigation_bar.dart
       bottomNavigationBar: CustomBottomNavigationBar(
         onTabTapped: (index){
-            setState(() {
-              _tabController.index = index;
-            });
+          setState(() {
+            _tabController.index = index;
+          });
         },
         tabController: _tabController,
       ),

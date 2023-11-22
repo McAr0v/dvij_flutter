@@ -17,9 +17,12 @@ class CustomDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Drawer(
+    double drawerWidthPercentage = 0.85; // 80% от ширины экрана
 
+    return Drawer(
       // Помещаем в контейнер, чтобы окрасить в нужный цвет
+
+      width: MediaQuery.of(context).size.width * drawerWidthPercentage,
 
       child: Container(
 
