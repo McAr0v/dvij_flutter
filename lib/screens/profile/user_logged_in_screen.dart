@@ -1,3 +1,4 @@
+import 'package:dvij_flutter/elements/custom_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +28,7 @@ class UserLoggedInScreen extends StatelessWidget {
           children: [
             Text('User UID: ${uid ?? "N/A"}'),
             SizedBox(height: 16.0),
+            CustomButton(state: 'error',),
             ElevatedButton(
               onPressed: () async {
                 await authWithEmail.signOut();
