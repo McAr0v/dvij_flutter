@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/authentication/auth_with_email.dart';
-import 'package:provider/provider.dart';
-import '../../app_state/appstate.dart';
 import '../../navigation/custom_nav_containter.dart';
-import 'registration_screen.dart';
 import 'package:dvij_flutter/elements/custom_snack_bar.dart';
 
 class LoginScreen extends StatefulWidget {

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../elements/icons_elements/svg_icon.dart';
+
 class CustomBottomNavigationBar extends StatelessWidget {
   final TabController tabController;
   final void Function(int) onTabTapped;
@@ -57,27 +59,3 @@ class CustomBottomNavigationBar extends StatelessWidget {
   }
 }
 
-class SvgIcon extends StatelessWidget {
-  final String assetPath;
-  final double width;
-  final double height;
-  final Color color;
-
-  const SvgIcon({
-    super.key,
-    required this.assetPath,
-    required this.width,
-    required this.height,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SvgPicture.asset(
-      assetPath,
-      width: width,
-      height: height,
-      color: color,
-    );
-  }
-}

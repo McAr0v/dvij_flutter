@@ -36,7 +36,7 @@ class _ProfileBoxInDrawerState extends State<ProfileBoxInDrawer> {
   @override
   Widget build(BuildContext context) {
 
-    double drawerWidthPercentage = 0.75;
+    double drawerWidthPercentage = 0.7;
 
     return GestureDetector(
       onTap: () {
@@ -76,7 +76,7 @@ class _ProfileBoxInDrawerState extends State<ProfileBoxInDrawer> {
               ProfileElementHeadlineDesc(
                   widthPercentage: drawerWidthPercentage,
                   headline: 'Регистрация / вход',
-                  description: 'Мы отправили на твой Email письмо с подтверждением. Следуй инструкции чтобы подтвердить почту',
+                  description: 'Войди в приложение чтобы получить доступ ко всем функциям',
                   icon: const Icon(Icons.login),
               )
 

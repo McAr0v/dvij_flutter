@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../navigation/custom_bottom_navigation_bar.dart';
 import '../themes/app_colors.dart';
+import 'icons_elements/svg_icon.dart';
 
 class LogoView extends StatelessWidget {
   final double width;

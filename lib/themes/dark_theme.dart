@@ -148,7 +148,9 @@ class CustomTheme {
           primary: AppColors.brandColor,
           secondary: AppColors.attentionRed,
           background: AppColors.greyBackground,
-          onBackground: AppColors.greyBackground,
+          onBackground: AppColors.greyOnBackground,
+          onPrimary: AppColors.greyOnBackground,
+          onSurface: AppColors.white
       ),
 
       // Стиль кнопки

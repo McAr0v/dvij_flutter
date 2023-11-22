@@ -28,21 +28,22 @@ class UserLoggedInScreen extends StatelessWidget {
           children: [
             Text('User UID: ${uid ?? "N/A"}'),
             SizedBox(height: 16.0),
-            CustomButton(state: 'error',),
-            ElevatedButton(
-              onPressed: () async {
+            CustomButton(
+              rightIconRoot: 'circle_info_solid.svg',
+              buttonText: 'Выйти из профиля',
+              onTapMethod: () async {
                 await authWithEmail.signOut();
 
                 Provider.of<AppState>(context, listen: false).setUid(null);
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => CustomNavContainer()),
+                      builder: (context) => CustomNavContainer()
+                  ),
                 );
                 // Выход из авторизации
                 // Вам нужно добавить соответствующий код для выхода пользователя из авторизации
               },
-              child: Text('Log Out'),
             ),
           ],
         ),

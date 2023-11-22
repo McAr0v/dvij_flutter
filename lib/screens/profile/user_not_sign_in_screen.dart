@@ -1,8 +1,10 @@
 import 'package:dvij_flutter/screens/profile/registration_screen.dart';
 import 'package:flutter/material.dart';
 
+import '../../elements/custom_button.dart';
 import '../../themes/app_colors.dart';
 import 'login_screen.dart';
+
 
 class UserNotSignInScreen extends StatelessWidget {
   const UserNotSignInScreen({super.key});
@@ -23,31 +25,29 @@ class UserNotSignInScreen extends StatelessWidget {
         Text('Страница аккаунта станет доступна после того, как ты сделаешь вход в свой аккаунт или зарегистрируешься', style: Theme.of(context).textTheme.bodyMedium,),
         SizedBox(height: 25.0),
 
-        TextButton(
-            onPressed: () {
+        CustomButton(
+            buttonText: 'Войти',
+            onTapMethod: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => LoginScreen()),
               );
             },
-            child: Text('Войти', textAlign: TextAlign.center)
+
         ),
 
         SizedBox(height: 15.0), // Добавлено дополнительное пространство между кнопками
 
-        TextButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => RegistrationScreen()),
-              );
-            },
-            child: Text('Зарегистрироваться'),
-            style: TextButton.styleFrom(
-              backgroundColor: AppColors.greyBackground,
-              foregroundColor: Theme.of(context).primaryColor,
-              side: BorderSide(color: Theme.of(context).primaryColor, width: 2.0), // Добавлено границу кнопки
-          ),
+        CustomButton(
+          state: 'secondary',
+          buttonText: 'Зарегистрироваться',
+          onTapMethod: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => RegistrationScreen()),
+            );
+          },
+
         ),
       ],
     ),

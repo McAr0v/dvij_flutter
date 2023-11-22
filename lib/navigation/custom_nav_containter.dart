@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../app_state/appstate.dart';
 import 'custom_drawer.dart';
 import 'custom_bottom_navigation_bar.dart';
 import 'package:dvij_flutter/screens/profile/profile_page.dart';
