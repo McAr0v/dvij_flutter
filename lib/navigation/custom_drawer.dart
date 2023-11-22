@@ -1,5 +1,5 @@
+import 'package:dvij_flutter/elements/logo_view.dart';
 import 'package:dvij_flutter/navigation/profile_box_in_drawer.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:dvij_flutter/screens/otherPages/about_app_page.dart';
@@ -12,8 +12,6 @@ import 'package:dvij_flutter/screens/otherPages/privacy_policy_page.dart';
 
 class CustomDrawer extends StatelessWidget {
   CustomDrawer({super.key});
-
-  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +31,14 @@ class CustomDrawer extends StatelessWidget {
           //padding: EdgeInsets.all(5.0),
           padding: EdgeInsets.fromLTRB(5.0, 20.0, 5.0, 5.0),
           children: [
+
+            // Отдельный виджет логотипа
+            LogoView(),
+
+            // Отдельный виджет отображения профиля в Drawer
             ProfileBoxInDrawer(),
+
+            // Дополнительные страницы - О приложении, написать разработчику и тд.
 
             ListTile(
               leading: Icon(Icons.info),
@@ -57,6 +62,7 @@ class CustomDrawer extends StatelessWidget {
                 );
               },
             ),
+
             ListTile(
               leading: Icon(Icons.ad_units),
               title: Text('Реклама в приложении'),
@@ -68,6 +74,7 @@ class CustomDrawer extends StatelessWidget {
                 );
               },
             ),
+
             ListTile(
               leading: Icon(Icons.privacy_tip),
               title: Text('Политика конфиденциальности'),

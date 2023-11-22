@@ -1,3 +1,5 @@
+import 'package:dvij_flutter/elements/profile_drawer_elements/profile_element_headline_desc.dart';
+import 'package:dvij_flutter/elements/profile_drawer_elements/profile_element_logged_user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -5,6 +7,8 @@ import '../screens/profile/profile_page.dart';
 import 'custom_nav_containter.dart';
 
 class ProfileBoxInDrawer extends StatefulWidget {
+  const ProfileBoxInDrawer({super.key});
+
   @override
   _ProfileBoxInDrawerState createState() => _ProfileBoxInDrawerState();
 }
@@ -36,23 +40,12 @@ class _ProfileBoxInDrawerState extends State<ProfileBoxInDrawer> {
 
     return GestureDetector(
       onTap: () {
-        if (_user != null && _isEmailVerified) {
-          // Переход на страницу профиля
-          Navigator.pushNamedAndRemoveUntil(
-            context,
-            '/Profile', // Название маршрута, которое вы задаете в MaterialApp
-                (route) => false,
-          );
-        } else if (_user == null) {
-          // Переход на страницу профиля
-          Navigator.pushNamedAndRemoveUntil(
-            context,
-            '/Profile', // Название маршрута, которое вы задаете в MaterialApp
-                (route) => false,
-          );
-        }
-
-
+        // Переход на страницу профиля
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/Profile', // Название маршрута, которое вы задаете в MaterialApp
+              (route) => false,
+        );
       },
       child: Container(
         width: double.infinity,
@@ -61,62 +54,32 @@ class _ProfileBoxInDrawerState extends State<ProfileBoxInDrawer> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             if (_user != null && _isEmailVerified)
-              Container(
-                width: MediaQuery.of(context).size.width * drawerWidthPercentage,
-                child:Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 30,
-                          backgroundImage: NetworkImage(_user!.photoURL ?? ''),
-                        ),
-                        SizedBox(width: 15.0),
 
-                        Column(
-
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              //_user!.displayName ?? '',
-                              'Имя и фамилия',
-                              style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              _user!.email ?? '',
-                              style: TextStyle(fontSize: 14.0),
-                            ),
-                          ],
-                        ),
-
-                        SizedBox(width: 15.0),
-                      ],
-                    ),
-
-                    Icon(Icons.edit),
-
-                  ],
-                ) ,
-
-                )
+              ProfileElementLoggedUser(
+                imageUrl: _user!.photoURL ?? '',
+                name: _user!.displayName ?? '',
+                email: _user!.email ?? '',
+                widthPercentage: drawerWidthPercentage,
+              )
 
             else if (_user != null && !_isEmailVerified)
-              Text(
-                'Для успешного завершения регистрации подтвердите свою почту',
-                style: TextStyle(fontSize: 14.0),
+
+              ProfileElementHeadlineDesc(
+                widthPercentage: drawerWidthPercentage,
+                headline: 'Подтвердите почту',
+                description: 'Мы отправили на твой Email письмо с подтверждением. Следуй инструкции чтобы подтвердить почту',
+                icon: const Icon(Icons.warning)
               )
+
             else
-              Row(
-                children: [
-                  Text(
-                    'Регистрация / вход',
-                    style: TextStyle(fontSize: 16.0),
-                  ),
-                  SizedBox(width: 16.0),
-                  Icon(Icons.login),
-                ],
-              ),
+
+              ProfileElementHeadlineDesc(
+                  widthPercentage: drawerWidthPercentage,
+                  headline: 'Регистрация / вход',
+                  description: 'Мы отправили на твой Email письмо с подтверждением. Следуй инструкции чтобы подтвердить почту',
+                  icon: const Icon(Icons.login),
+              )
+
           ],
         ),
       ),
