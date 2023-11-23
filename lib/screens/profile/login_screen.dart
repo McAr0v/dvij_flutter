@@ -1,4 +1,5 @@
 import 'package:dvij_flutter/elements/custom_button.dart';
+import 'package:dvij_flutter/screens/profile/reset_password_page.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/authentication/auth_with_email.dart';
 import 'package:dvij_flutter/elements/custom_snack_bar.dart';
@@ -31,6 +32,14 @@ class _LoginScreenState extends State<LoginScreen> {
   void showSnackBar(String message, Color color) {
     final snackBar = customSnackBar(message: message, backgroundColor: color);
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  bool showForgotPasswordButton = false;
+
+  void updateForgotPasswordButton(bool newValue) {
+    setState(() {
+      showForgotPasswordButton = newValue;
+    });
   }
 
   @override
@@ -69,6 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   if (uid != null) {
 
                     if (uid == 'wrong-password') {
+                      updateForgotPasswordButton(true);
                       showSnackBar('Вы ввели не правильный пароль', AppColors.attentionRed);
                     } else if (uid == 'user-not-found') {
                       showSnackBar('Пользователь с таким Email не найден', AppColors.attentionRed);
@@ -89,7 +99,27 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   }
                 }
-            )
+            ),
+
+            if (showForgotPasswordButton) const SizedBox(height: 50.0),
+
+            if (showForgotPasswordButton) Text(
+                'Забыли пароль?',
+                style: Theme.of(context).textTheme.bodyMedium
+            ),
+
+            if (showForgotPasswordButton) const SizedBox(height: 20.0),
+
+            if (showForgotPasswordButton) CustomButton(
+              state: 'secondary',
+              buttonText: 'Восстановить пароль',
+              onTapMethod: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ResetPasswordPage()),
+                );
+              },
+            ),
           ],
         ),
       ),

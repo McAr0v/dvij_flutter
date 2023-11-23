@@ -101,4 +101,32 @@ class AuthWithEmail {
       return null;
     }
   }
+
+  Future<String?> resetPassword(String emailAddress) async {
+    try {
+      await _auth.sendPasswordResetEmail(
+        email: emailAddress,
+      );
+
+      // Return a success message
+      return 'success';
+
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'invalid-email') {
+        return e.code;
+      } else if (e.code == 'user-not-found') {
+        return e.code;
+      } else {
+        print(e.code);
+
+        // Handle other errors as needed
+        return e.code;
+      }
+    } catch (e) {
+      print(e);
+      // Handle other errors as needed
+      return null;
+    }
+  }
+
 }

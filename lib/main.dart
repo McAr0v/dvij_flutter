@@ -1,4 +1,5 @@
 import 'package:dvij_flutter/screens/otherPages/privacy_policy_page.dart';
+import 'package:dvij_flutter/screens/profile/reset_password_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'app_state/appstate.dart';
@@ -34,6 +35,7 @@ class MyApp extends StatelessWidget {
         '/Places': (context) => const CustomNavContainer(initialTabIndex: 2),
         '/Promotions': (context) => const CustomNavContainer(initialTabIndex: 3),
         '/privacy_policy': (context) => const PrivacyPolicyPage(),
+        '/reset_password_page': (context) => const ResetPasswordPage(),
         // Другие маршруты вашего приложения
       },
     );

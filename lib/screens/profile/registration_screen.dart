@@ -61,6 +61,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+
+            Text('Регистрация', style: Theme.of(context).textTheme.titleLarge,),
+            const SizedBox(height: 15.0),
+            Text('Добро пожаловать в наше сообщество)', style: Theme.of(context).textTheme.bodyMedium,),
+            const SizedBox(height: 25.0),
+
             TextField(
               keyboardType: TextInputType.emailAddress,
               controller: emailController,
