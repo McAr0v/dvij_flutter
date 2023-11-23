@@ -5,6 +5,6 @@ class PlacesFavPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text('Заведения избранные'));
+    return const Center(child: Text('Заведения избранные'));
   }
 }

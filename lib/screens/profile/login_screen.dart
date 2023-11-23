@@ -1,24 +1,43 @@
+import 'package:dvij_flutter/elements/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/authentication/auth_with_email.dart';
-import '../../navigation/custom_nav_containter.dart';
 import 'package:dvij_flutter/elements/custom_snack_bar.dart';
 
+import '../../themes/app_colors.dart';
+
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
 
   @override
   _LoginScreenState createState() => _LoginScreenState();
+
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+
   final AuthWithEmail authWithEmail = AuthWithEmail();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+
+  void navigateToProfile() {
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      '/Profile', // Название маршрута, которое вы задаете в MaterialApp
+          (route) => false,
+    );
+  }
+
+  void showSnackBar(String message, Color color) {
+    final snackBar = customSnackBar(message: message, backgroundColor: color);
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Login Screen'),
+        title: const Text('Login Screen'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -27,43 +46,50 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             TextField(
               controller: emailController,
-              decoration: InputDecoration(labelText: 'Email'),
+              decoration: const InputDecoration(labelText: 'Email'),
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             TextField(
               controller: passwordController,
-              decoration: InputDecoration(labelText: 'Password'),
+              decoration: const InputDecoration(labelText: 'Password'),
               obscureText: true,
             ),
-            SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () async {
-                String email = emailController.text;
-                String password = passwordController.text;
+            const SizedBox(height: 16.0),
 
-                // Вход пользователя
-                String? uid = await authWithEmail.signInWithEmailAndPassword(email, password, context);
-                if (uid != null) {
-                  Navigator.pushReplacement(
-                    context,
-                  MaterialPageRoute(builder: (context) => CustomNavContainer()),
-                );
+            CustomButton(
+                buttonText: 'Войти',
+                onTapMethod: () async {
 
-                  // Добавим оповещение о успешном входе
-                  final snackBar = customSnackBar(message: "Вход успешно выполнен", backgroundColor: Colors.green);
-                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  String email = emailController.text;
+                  String password = passwordController.text;
 
-                } else {
-                  // Обработка случая, когда создание пользователя не удалось
-                  // Можно показать сообщение об ошибке или принять соответствующие меры
+                  // Вход пользователя
+                  String? uid = await authWithEmail.signInWithEmailAndPassword(email, password, context);
+
+                  if (uid != null) {
+
+                    if (uid == 'wrong-password') {
+                      showSnackBar('Вы ввели не правильный пароль', AppColors.attentionRed);
+                    } else if (uid == 'user-not-found') {
+                      showSnackBar('Пользователь с таким Email не найден', AppColors.attentionRed);
+                    } else if (uid == 'too-many-requests') {
+                      showSnackBar('Слишком много попыток входа. Мы заблокировали вход с вашего устройства. Попробуйте войти позже.', AppColors.attentionRed);
+                    } else if (uid == 'channel-error') {
+                      showSnackBar('Неизвестная нам ошибка( Попробуйте войти позже.', AppColors.attentionRed);
+                    } else if (uid == 'invalid-email') {
+                      showSnackBar('Не правильный формат Email', AppColors.attentionRed);
+                    } else {
+                      showSnackBar('Вход успешно выполнен', Colors.green);
+                      navigateToProfile();
+                    }
+
+                  } else {
+
+                    showSnackBar('Что-то пошло не так. Попробуйте позже', AppColors.attentionRed);
+
+                  }
                 }
-
-
-
-
-              },
-              child: Text('Log In'),
-            ),
+            )
           ],
         ),
       ),

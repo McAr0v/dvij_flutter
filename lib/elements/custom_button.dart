@@ -9,7 +9,7 @@ class CustomButton extends StatelessWidget {
   final String leftIconRoot;
   final String rightIconRoot;
 
-  CustomButton({this.state = 'normal', required this.buttonText, required this.onTapMethod, this.leftIconRoot = '', this.rightIconRoot = ''}); // Указываем значения по умолчанию
+  const CustomButton({super.key, this.state = 'normal', required this.buttonText, required this.onTapMethod, this.leftIconRoot = '', this.rightIconRoot = ''}); // Указываем значения по умолчанию
 
   // Содержание контейнера
 
@@ -92,7 +92,7 @@ class CustomButton extends StatelessWidget {
               ),
 
             if (leftIconRoot != '')
-              SizedBox(width: 15.0),
+              const SizedBox(width: 15.0),
 
 
             Text(
@@ -106,7 +106,7 @@ class CustomButton extends StatelessWidget {
             ),
 
             if (rightIconRoot != '')
-              SizedBox(width: 15.0),
+              const SizedBox(width: 15.0),
 
             if (rightIconRoot != '')
               SvgIcon(

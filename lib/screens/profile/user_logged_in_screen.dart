@@ -27,7 +27,7 @@ class UserLoggedInScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text('User UID: ${uid ?? "N/A"}'),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             CustomButton(
               rightIconRoot: 'circle_info_solid.svg',
               buttonText: 'Выйти из профиля',

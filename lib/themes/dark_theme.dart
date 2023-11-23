@@ -9,7 +9,7 @@ class CustomTheme {
   static ThemeData get darkTheme {
     return ThemeData(
 
-      snackBarTheme: SnackBarThemeData(
+      snackBarTheme: const SnackBarThemeData(
         backgroundColor: AppColors.brandColor,
         actionTextColor: AppColors.white,
         contentTextStyle: TextStyle(
@@ -22,12 +22,12 @@ class CustomTheme {
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          textStyle: TextStyle(color: AppColors.white, fontSize: 16, fontFamily: 'SfProDisplay', fontWeight: FontWeight.normal),
-          padding: EdgeInsets.all(10.0),
-          minimumSize: Size(double.infinity, 50),
+          textStyle: const TextStyle(color: AppColors.white, fontSize: 16, fontFamily: 'SfProDisplay', fontWeight: FontWeight.normal),
+          padding: const EdgeInsets.all(10.0),
+          minimumSize: const Size(double.infinity, 50),
           backgroundColor: AppColors.brandColor,
           foregroundColor: AppColors.greyOnBackground,
-          side: BorderSide(color: AppColors.brandColor, width: 2.0), // Добавлено границу кнопки
+          side: const BorderSide(color: AppColors.brandColor, width: 2.0), // Добавлено границу кнопки
         ),
 
       ),
@@ -40,7 +40,7 @@ class CustomTheme {
 
       ),
 
-      tabBarTheme: TabBarTheme(
+      tabBarTheme: const TabBarTheme(
         labelStyle: TextStyle(color: AppColors.brandColor, fontSize: 16, fontFamily: 'SfProDisplay', fontWeight: FontWeight.normal),
         unselectedLabelStyle: TextStyle(color: AppColors.white, fontSize: 14, fontFamily: 'SfProDisplay', fontWeight: FontWeight.normal),
         indicatorColor: AppColors.brandColor,
@@ -180,7 +180,7 @@ class CustomTheme {
       ),
 
       // Всплываюшая шторка
-      drawerTheme: DrawerThemeData(
+      drawerTheme: const DrawerThemeData(
         backgroundColor: AppColors.greyOnBackground
       ),
 

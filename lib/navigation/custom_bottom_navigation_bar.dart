@@ -9,7 +9,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
   final TabController tabController;
   final void Function(int) onTabTapped;
 
-  CustomBottomNavigationBar({
+  const CustomBottomNavigationBar({super.key,
     required this.tabController,
     required this.onTabTapped,
   });
@@ -19,6 +19,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
     return BottomNavigationBar(
       currentIndex: tabController.index,
       onTap: onTabTapped,
+      //type: BottomNavigationBarType.fixed,
       items: [
         const BottomNavigationBarItem(
           icon: Icon(Icons.person),

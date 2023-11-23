@@ -8,7 +8,7 @@ class PromotionsFeedPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: AppColors.greyBackground,
-      child: Center(
+      child: const Center(
           child: Text('Акции лента')
       ),
     );

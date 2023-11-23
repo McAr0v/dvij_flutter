@@ -5,6 +5,6 @@ class PromotionsFavPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text('Акции избранные'));
+    return const Center(child: Text('Акции избранные'));
   }
 }

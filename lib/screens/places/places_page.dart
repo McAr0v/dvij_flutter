@@ -10,14 +10,14 @@ class PlacesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
+    return const DefaultTabController(
       length: 3, // Количество табов
       child: Scaffold(
         backgroundColor: AppColors.greyOnBackground,
         body: Column(
           children: [
             //const SizedBox(height: 24), // Добавьте отступ, если нужно
-            const TabBar(
+            TabBar(
               tabs: [
                 Tab(text: 'Все'),
                 Tab(text: 'Избранные'),
@@ -25,7 +25,7 @@ class PlacesPage extends StatelessWidget {
               ],
             ),
             Expanded(
-              child: const TabBarView(
+              child: TabBarView(
                 children: [
                   PlacesFeedPage(),
                   PlacesFavPage(),

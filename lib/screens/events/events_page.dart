@@ -12,14 +12,14 @@ class EventsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
+    return const DefaultTabController(
       length: 3, // Количество табов
       child: Scaffold(
         backgroundColor: AppColors.greyOnBackground,
         body: Column(
           children: [
             //const SizedBox(height: 24), // Добавьте отступ, если нужно
-            const TabBar(
+            TabBar(
               tabs: [
                 Tab(text: 'Лента'),
                 Tab(text: 'Избранные'),

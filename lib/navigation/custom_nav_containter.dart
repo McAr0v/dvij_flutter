@@ -40,9 +40,9 @@ class _CustomNavContainerState extends State<CustomNavContainer>
         controller: _tabController,
         children: [
           ProfilePage(),
-          EventsPage(),
-          PlacesPage(),
-          PromotionsPage(),
+          const EventsPage(),
+          const PlacesPage(),
+          const PromotionsPage(),
         ],
       ),
       bottomNavigationBar: CustomBottomNavigationBar(

@@ -5,6 +5,6 @@ class PlacesMyPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text('Заведения мои'));
+    return const Center(child: Text('Заведения мои'));
   }
 }

@@ -1,3 +1,4 @@
+import 'package:dvij_flutter/screens/otherPages/privacy_policy_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'app_state/appstate.dart';
@@ -14,22 +15,25 @@ void main() async {
   runApp(
     ChangeNotifierProvider(
       create: (context) => AppState(),
-      child: MyApp(),
+      child: const MyApp(),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: CustomNavContainer(),
+      home: const CustomNavContainer(),
       theme: CustomTheme.darkTheme,
       routes: {
-        '/Profile': (context) => CustomNavContainer(initialTabIndex: 0),
-        '/Events': (context) => CustomNavContainer(initialTabIndex: 1),
-        '/Places': (context) => CustomNavContainer(initialTabIndex: 2),
-        '/Promotions': (context) => CustomNavContainer(initialTabIndex: 3),
+        '/Profile': (context) => const CustomNavContainer(initialTabIndex: 0),
+        '/Events': (context) => const CustomNavContainer(initialTabIndex: 1),
+        '/Places': (context) => const CustomNavContainer(initialTabIndex: 2),
+        '/Promotions': (context) => const CustomNavContainer(initialTabIndex: 3),
+        '/privacy_policy': (context) => const PrivacyPolicyPage(),
         // Другие маршруты вашего приложения
       },
     );

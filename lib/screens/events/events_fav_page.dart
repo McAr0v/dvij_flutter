@@ -5,6 +5,6 @@ class EventsFavPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text('Мероприятия Избранные'));
+    return const Center(child: Text('Мероприятия Избранные'));
   }
 }

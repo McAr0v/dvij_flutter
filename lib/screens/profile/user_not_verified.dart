@@ -18,9 +18,9 @@ class UserNotVerifiedScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Подтверди почту', style: Theme.of(context).textTheme.titleLarge,),
-          SizedBox(height: 15.0),
+          const SizedBox(height: 15.0),
           Text('Мы отправили на твой Email письмо с подтверждением. Подтверди Email и попробуй войти снова', style: Theme.of(context).textTheme.bodyMedium,),
-          SizedBox(height: 25.0),
+          const SizedBox(height: 25.0),
 
           TextButton(
               onPressed: () {
@@ -29,7 +29,7 @@ class UserNotVerifiedScreen extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => LoginScreen()),
                 );
               },
-              child: Text('Войти', textAlign: TextAlign.center)
+              child: const Text('Войти', textAlign: TextAlign.center)
           ),
         ],
       ),

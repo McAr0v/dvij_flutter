@@ -11,7 +11,7 @@ class ProfileElementLoggedUser extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: MediaQuery.of(context).size.width * widthPercentage,
       child:Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -23,27 +23,27 @@ class ProfileElementLoggedUser extends StatelessWidget {
                 backgroundImage: NetworkImage(imageUrl),
               ),
 
-              SizedBox(width: 15.0),
+              const SizedBox(width: 15.0),
 
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     name,
-                    style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
                   ),
                   Text(
                     email,
-                    style: TextStyle(fontSize: 14.0),
+                    style: const TextStyle(fontSize: 14.0),
                   ),
                 ],
               ),
 
-              SizedBox(width: 15.0),
+              const SizedBox(width: 15.0),
             ],
           ),
 
-          Icon(Icons.edit),
+          const Icon(Icons.edit),
 
         ],
       ) ,

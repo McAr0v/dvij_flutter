@@ -10,7 +10,7 @@ class ProfileElementHeadlineDesc extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: MediaQuery.of(context).size.width * widthPercentage,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -21,30 +21,30 @@ class ProfileElementHeadlineDesc extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
 
-                  Container(
+                  SizedBox(
                     width: MediaQuery.of(context).size.width * 0.6,
                     child: Text(
                       softWrap: true,
                       headline,
-                      style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                      style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
                     ),
                   ),
 
-                  SizedBox(height: 10.0),
+                  const SizedBox(height: 10.0),
 
-                  Container(
+                  SizedBox(
                     width: MediaQuery.of(context).size.width * 0.6,
                     child: Text(
                       softWrap: true,
                       description,
-                      style: TextStyle(fontSize: 14.0),
+                      style: const TextStyle(fontSize: 14.0),
                     ),
                   ),
 
                 ],
               ),
 
-              SizedBox(width: 15.0),
+              const SizedBox(width: 15.0),
             ],
           ),
 

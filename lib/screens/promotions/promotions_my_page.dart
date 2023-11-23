@@ -5,6 +5,6 @@ class PromotionsMyPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text('Акции мои'));
+    return const Center(child: Text('Акции мои'));
   }
 }

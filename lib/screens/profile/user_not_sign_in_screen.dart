@@ -21,22 +21,22 @@ class UserNotSignInScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('Войди или создай аккаунт', style: Theme.of(context).textTheme.titleLarge,),
-        SizedBox(height: 15.0),
+        const SizedBox(height: 15.0),
         Text('Страница аккаунта станет доступна после того, как ты сделаешь вход в свой аккаунт или зарегистрируешься', style: Theme.of(context).textTheme.bodyMedium,),
-        SizedBox(height: 25.0),
+        const SizedBox(height: 25.0),
 
         CustomButton(
             buttonText: 'Войти',
             onTapMethod: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => LoginScreen()),
+                MaterialPageRoute(builder: (context) => const LoginScreen()),
               );
             },
 
         ),
 
-        SizedBox(height: 15.0), // Добавлено дополнительное пространство между кнопками
+        const SizedBox(height: 15.0), // Добавлено дополнительное пространство между кнопками
 
         CustomButton(
           state: 'secondary',
@@ -44,7 +44,7 @@ class UserNotSignInScreen extends StatelessWidget {
           onTapMethod: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => RegistrationScreen()),
+              MaterialPageRoute(builder: (context) => const RegistrationScreen()),
             );
           },
 

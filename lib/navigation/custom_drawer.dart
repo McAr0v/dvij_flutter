@@ -11,7 +11,7 @@ import 'package:dvij_flutter/screens/otherPages/privacy_policy_page.dart';
 // --- КАСТОМНАЯ БОКОВАЯ ШТОРКА -----
 
 class CustomDrawer extends StatelessWidget {
-  CustomDrawer({super.key});
+  const CustomDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -24,25 +24,25 @@ class CustomDrawer extends StatelessWidget {
 
       child: Container(
 
-        padding: EdgeInsets.fromLTRB(5.0, 50.0, 5.0, 5.0),
+        padding: const EdgeInsets.fromLTRB(5.0, 50.0, 5.0, 5.0),
         color: AppColors.greyOnBackground,
         child: ListView(
           // ListView Чтобы все элементы шли друг за другом
           //padding: EdgeInsets.all(5.0),
-          padding: EdgeInsets.fromLTRB(5.0, 20.0, 5.0, 5.0),
+          padding: const EdgeInsets.fromLTRB(5.0, 20.0, 5.0, 5.0),
           children: [
 
             // Отдельный виджет логотипа
-            LogoView(),
+            const LogoView(),
 
             // Отдельный виджет отображения профиля в Drawer
-            ProfileBoxInDrawer(),
+            const ProfileBoxInDrawer(),
 
             // Дополнительные страницы - О приложении, написать разработчику и тд.
 
             ListTile(
-              leading: Icon(Icons.info),
-              title: Text('О приложении'),
+              leading: const Icon(Icons.info),
+              title: const Text('О приложении'),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -52,8 +52,8 @@ class CustomDrawer extends StatelessWidget {
               },
             ),
             ListTile(
-              title: Text('Написать разработчику'),
-              leading: Icon(Icons.feedback),
+              title: const Text('Написать разработчику'),
+              leading: const Icon(Icons.feedback),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -64,8 +64,8 @@ class CustomDrawer extends StatelessWidget {
             ),
 
             ListTile(
-              leading: Icon(Icons.ad_units),
-              title: Text('Реклама в приложении'),
+              leading: const Icon(Icons.ad_units),
+              title: const Text('Реклама в приложении'),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -76,8 +76,8 @@ class CustomDrawer extends StatelessWidget {
             ),
 
             ListTile(
-              leading: Icon(Icons.privacy_tip),
-              title: Text('Политика конфиденциальности'),
+              leading: const Icon(Icons.privacy_tip),
+              title: const Text('Политика конфиденциальности'),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
