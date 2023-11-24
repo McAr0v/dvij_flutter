@@ -18,7 +18,7 @@ class TextWithLink extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (text != '') Text(text, style: Theme.of(context).textTheme.bodyMedium),
+        if (text != '') Text(text, style: Theme.of(context).textTheme.bodyMedium, softWrap: true,),
 
         GestureDetector(
           onTap: () {
@@ -35,7 +35,8 @@ class TextWithLink extends StatelessWidget {
                   fontWeight: FontWeight.normal,
                   height: 1.3,
                   decoration: TextDecoration.underline,
-                  decorationColor: AppColors.brandColor
+                  decorationColor: AppColors.brandColor,
+
 
               )
           ),

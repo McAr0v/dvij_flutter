@@ -66,8 +66,8 @@ class _ProfileBoxInDrawerState extends State<ProfileBoxInDrawer> {
 
               ProfileElementHeadlineDesc(
                 widthPercentage: drawerWidthPercentage,
-                headline: 'Подтвердите почту',
-                description: 'Мы отправили на твой Email письмо с подтверждением. Следуй инструкции чтобы подтвердить почту',
+                headline: 'Подтверди почту',
+                description: 'Миссия подтверждения активирована! Проверь свой Email – мы отправили тебе важное письмо. Следуй инструкции чтобы активировать аккаунт!',
                 icon: const Icon(Icons.warning)
               )
 
@@ -76,7 +76,7 @@ class _ProfileBoxInDrawerState extends State<ProfileBoxInDrawer> {
               ProfileElementHeadlineDesc(
                   widthPercentage: drawerWidthPercentage,
                   headline: 'Регистрация / вход',
-                  description: 'Войди в приложение чтобы получить доступ ко всем функциям',
+                  description: 'Привет, дружище! Для полного доступа ко всем функциям приложения не забудь войти в аккаунт. Ждем тебя!',
                   icon: const Icon(Icons.login),
               )
 

@@ -12,17 +12,30 @@ class UserNotSignInScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    return Container(
-      alignment: Alignment.centerLeft,
-      padding: const EdgeInsets.all(20.0),
-      color: AppColors.greyBackground,
+    return SingleChildScrollView(
+      //alignment: Alignment.centerLeft,
+      padding: const EdgeInsets.fromLTRB(20, 50, 20, 50),
+      //color: AppColors.greyBackground,
       child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('Войди или создай аккаунт', style: Theme.of(context).textTheme.titleLarge,),
         const SizedBox(height: 15.0),
-        Text('Страница аккаунта станет доступна после того, как ты сделаешь вход в свой аккаунт или зарегистрируешься', style: Theme.of(context).textTheme.bodyMedium,),
+        Text(
+          'Добро пожаловать в наше приложение, где каждый может найти мероприятие по вкусу или создать свое собственное!',
+          style: Theme.of(context).textTheme.bodyMedium,),
+
+        const SizedBox(height: 15.0),
+        Text(
+          'Войди в аккаунт или зарегистрируйся, чтобы получить возможность пользоваться всеми функциями приложения.',
+          style: Theme.of(context).textTheme.bodyMedium,),
+
+        const SizedBox(height: 15.0),
+        Text(
+          'Погрузись в захватывающий мир событий прямо сейчас!',
+          style: Theme.of(context).textTheme.bodyMedium,),
+
         const SizedBox(height: 25.0),
 
         CustomButton(

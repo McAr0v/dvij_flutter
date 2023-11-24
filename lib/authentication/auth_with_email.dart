@@ -6,9 +6,14 @@ class AuthWithEmail {
   get user => _auth.currentUser;
 
 
-
-  Future<void> signOut() async {
-    await _auth.signOut();
+  Future<String> signOut() async {
+    try {
+      await _auth.signOut();
+      return 'success'; // Возвращаем 'success' в случае успешного выхода
+    } catch (e) {
+      //print("Error during sign out: $e");
+      return e.toString(); // Возвращаем код ошибки в случае ошибки
+    }
   }
 
   void showSnackBar(SnackBar snackBar, BuildContext context) {

@@ -1,3 +1,5 @@
+import 'package:dvij_flutter/elements/custom_button.dart';
+import 'package:dvij_flutter/screens/profile/registration_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../../themes/app_colors.dart';
@@ -9,28 +11,51 @@ class UserNotVerifiedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    return Container(
-      alignment: Alignment.centerLeft,
-      padding: const EdgeInsets.all(20.0),
-      color: AppColors.greyBackground,
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(20, 50, 20, 50),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Подтверди почту', style: Theme.of(context).textTheme.titleLarge,),
           const SizedBox(height: 15.0),
-          Text('Мы отправили на твой Email письмо с подтверждением. Подтверди Email и попробуй войти снова', style: Theme.of(context).textTheme.bodyMedium,),
+          Text(
+            'Письмо с ссылкой для подтверждения уже в пути на твою почту. '
+                'Пожалуйста, подтверди свой Email, чтобы активировать аккаунт!',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
           const SizedBox(height: 25.0),
 
-          TextButton(
-              onPressed: () {
+          CustomButton(
+              buttonText: 'Войти',
+              onTapMethod: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => LoginScreen()),
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
                 );
-              },
-              child: const Text('Войти', textAlign: TextAlign.center)
+              }
           ),
+
+          const SizedBox(height: 50.0),
+
+          Text(
+            'Или ты не можешь получить доступ к указанной при регистрации почте и хочешь зарегистрироваться на другую?',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+
+          const SizedBox(height: 25.0),
+
+          CustomButton(
+              buttonText: 'Зарегистрироваться',
+              state: 'secondary',
+              onTapMethod: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const RegistrationScreen()),
+                );
+              }
+          ),
+
         ],
       ),
     );

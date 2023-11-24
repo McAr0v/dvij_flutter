@@ -1,6 +1,5 @@
 import 'package:dvij_flutter/elements/custom_button.dart';
 import 'package:dvij_flutter/elements/text_with_link.dart';
-import 'package:dvij_flutter/navigation/custom_nav_containter.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/authentication/auth_with_email.dart';
 import '../../app_state/appstate.dart';
@@ -49,6 +48,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     });
   }
 
+  bool _isObscured = true;
+
+  void _togglePasswordVisibility() {
+    setState(() {
+      _isObscured = !_isObscured;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -56,29 +63,44 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       appBar: AppBar(
         title: const Text('Регистрация'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 50, 20, 50),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
 
             Text('Регистрация', style: Theme.of(context).textTheme.titleLarge,),
             const SizedBox(height: 15.0),
-            Text('Добро пожаловать в наше сообщество)', style: Theme.of(context).textTheme.bodyMedium,),
+            Text('Спасибо, что присоединяешься к нам! Теперь ты часть нашей креативной семьи. Готовься к удивительным встречам и приключениям! 😊', style: Theme.of(context).textTheme.bodyMedium,),
             const SizedBox(height: 25.0),
 
             TextField(
+              style: Theme.of(context).textTheme.bodyMedium,
               keyboardType: TextInputType.emailAddress,
               controller: emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
+              decoration: const InputDecoration(
+                  labelText: 'Email',
+                  prefixIcon: Icon(Icons.email),
+              ),
             ),
             const SizedBox(height: 16.0),
             TextField(
+              style: Theme.of(context).textTheme.bodyMedium,
               controller: passwordController,
-              decoration: const InputDecoration(labelText: 'Password'),
-              obscureText: true,
+              decoration: InputDecoration(
+                  labelText: 'Пароль',
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _isObscured ? Icons.visibility : Icons.visibility_off,
+                  ),
+                  onPressed: _togglePasswordVisibility,
+                ),
+                prefixIcon: const Icon(Icons.key),
+              ),
+              obscureText: _isObscured,
             ),
-            const SizedBox(height: 20.0),
+            const SizedBox(height: 40.0),
 
             Row(
               children: [
@@ -89,15 +111,19 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     togglePrivacyPolicyChecked();
                   },
                 ),
-                const TextWithLink(
+                SizedBox(
+                  width: MediaQuery.of(context).size.width*0.75,
+                  child: const TextWithLink(
                     linkedText: 'политики конфиденциальности',
                     uri: '/privacy_policy',
-                    text: 'Я согласен с правилами',
+                    text: 'Галочку, пожалуйста! Подтвердите, что вы в курсе и согласны с правилами',
+                  ),
                 )
+
               ],
             ),
 
-            const SizedBox(height: 20.0),
+            const SizedBox(height: 40.0),
 
             CustomButton(
                 buttonText: 'Зарегистрироваться',
@@ -105,7 +131,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
                   if (!privacyPolicyChecked){
 
-                    showSnackBar('Вы не дали согласие на правила политики конфиденциальности!', AppColors.attentionRed, 2);
+                    showSnackBar('Это важно! Поставь галочку, что согласен ты с правилами политики конфиденциальности 🤨📜', AppColors.attentionRed, 2);
 
                   } else {
 
@@ -118,8 +144,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
                       if (uid == 'weak-password'){
 
+                        updateShowLogInButton(false);
+
                         showSnackBar(
-                            "Ты используешь слабый пароль. Придумай надежнее",
+                            "Твой текущий пароль - как стеклянное окно. Давай заменим его на стальные двери с кодовым замком!",
                             AppColors.attentionRed,
                             2
                         );
@@ -129,23 +157,27 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         updateShowLogInButton(true);
 
                         showSnackBar(
-                            "Пользователь уже существует",
+                            "Вот это совпадение! Если это ты, дружище, давай вспомним, как заходить - твой аккаунт ждет!",
                             AppColors.attentionRed,
-                            2
+                            5
                         );
 
                       } else if (uid == 'channel-error'){
 
+                        updateShowLogInButton(false);
+
                         showSnackBar(
-                            "Обязательно заполните все поля!",
+                            "Ой! Кажется, ты забыл важные детали. Пожалуйста, убедись, что ти ввел свой email и придумал надежный пароль, и тогда мы сможем тебя зарегистрировать!",
                             AppColors.attentionRed,
-                            2
+                            5
                         );
 
                       } else if (uid == 'invalid-email'){
 
+                        updateShowLogInButton(false);
+
                         showSnackBar(
-                            "Некорректно введен Email",
+                            "Ой, что-то с форматом Email пошло не так. Удостоверься, что вводишь его правильно, и давай еще раз! 📭🔄",
                             AppColors.attentionRed,
                             2
                         );
@@ -153,9 +185,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       } else {
 
                         showSnackBar(
-                            "Регистрация успешно завершена! "
-                                "Мы отправили на почту письмо с подтверждением Email-адреса. "
-                                "Следуйте инструкции, чтобы завершить регистрацию",
+                            "Прекрасно! Теперь вы часть клуба любителей веселья и отличного времяпровождения. "
+                                "Проверьте свою почту - вас ждет важное сообщение с инструкциями по завершению "
+                                "регистрации. Готовьтесь к морю веселых мероприятий!",
                             Colors.green,
                             5
                         );
@@ -167,6 +199,15 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     } else {
                       // Обработка случая, когда создание пользователя не удалось
                       // Можно показать сообщение об ошибке или принять соответствующие меры
+
+                      showSnackBar(
+                          "Что-то пошло не так при регистрации. Возможно, где-то ошибка. "
+                              "Пожалуйста, перепроверь данные и попробуй еще раз. "
+                              "Если проблема сохранится, сообщи нам!",
+                          AppColors.attentionRed,
+                          5
+                      );
+
                     }
                   }
 
@@ -178,7 +219,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             if (showLogInButton) const SizedBox(height: 50.0),
 
             if (showLogInButton) Text(
-              'Пользователь уже существует. Может ты хочешь войти?',
+              'Опачки, кажется, твой кибер-двойник уже в сети! Может, пора вспомнить свой пароль и попробовать войти?',
               style: Theme.of(context).textTheme.bodyMedium
             ),
 

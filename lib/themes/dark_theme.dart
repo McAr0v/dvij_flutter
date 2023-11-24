@@ -9,6 +9,8 @@ class CustomTheme {
   static ThemeData get darkTheme {
     return ThemeData(
 
+      // Всплывающее оповещение
+
       snackBarTheme: const SnackBarThemeData(
         backgroundColor: AppColors.brandColor,
         actionTextColor: AppColors.white,
@@ -20,6 +22,9 @@ class CustomTheme {
             height: 1.1
         )
       ),
+
+      // Стиль кнопки
+
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           textStyle: const TextStyle(color: AppColors.white, fontSize: 16, fontFamily: 'SfProDisplay', fontWeight: FontWeight.normal),
@@ -39,6 +44,8 @@ class CustomTheme {
         titleTextStyle: TextStyle(color: AppColors.white, fontSize: 22, fontFamily: 'SfProDisplay', fontWeight: FontWeight.bold),
 
       ),
+
+      // Панель табов (мои, избранные, лента)
 
       tabBarTheme: const TabBarTheme(
         labelStyle: TextStyle(color: AppColors.brandColor, fontSize: 16, fontFamily: 'SfProDisplay', fontWeight: FontWeight.normal),
@@ -62,84 +69,146 @@ class CustomTheme {
             fontFamily: 'SfProDisplay',
             fontWeight: FontWeight.bold,
           ),
+
           displayMedium: TextStyle(
             color: AppColors.white,
             fontSize: 20,
             fontFamily: 'SfProDisplay',
             fontWeight: FontWeight.bold,
           ),
+
           displaySmall: TextStyle(
             color: AppColors.white,
             fontSize: 16,
             fontFamily: 'SfProDisplay',
             fontWeight: FontWeight.bold,
           ),
+
+          // Заголовки
           titleLarge: TextStyle(
             color: AppColors.white,
             fontSize: 40,
             fontFamily: 'SfProDisplay',
             fontWeight: FontWeight.w900,
             height: 1.1
-
-
           ),
+
           titleMedium: TextStyle(
             color: AppColors.white,
             fontSize: 20,
             fontFamily: 'SfProDisplay',
             fontWeight: FontWeight.bold,
-
           ),
+
           titleSmall: TextStyle(
             color: AppColors.white,
             fontSize: 20,
             fontFamily: 'SfProDisplay',
             fontWeight: FontWeight.normal,
-
           ),
+
+          // Обычный текст
           bodyLarge: TextStyle(
             color: AppColors.white,
             fontSize: 16,
             fontFamily: 'SfProDisplay',
             fontWeight: FontWeight.bold,
-
           ),
+
           bodyMedium: TextStyle(
             color: AppColors.white,
             fontSize: 16,
             fontFamily: 'SfProDisplay',
             fontWeight: FontWeight.normal,
             height: 1.3
-
           ),
+
           bodySmall: TextStyle(
             color: AppColors.white,
             fontSize: 14,
             fontFamily: 'SfProDisplay',
             fontWeight: FontWeight.normal,
-
           ),
+
+        // Мини надписи
         labelLarge: TextStyle(
           color: AppColors.white,
           fontSize: 18,
           fontFamily: 'SfProDisplay',
           fontWeight: FontWeight.normal,
         ),
+
         labelMedium: TextStyle(
           color: AppColors.white,
           fontSize: 12,
           fontFamily: 'SfProDisplay',
           fontWeight: FontWeight.normal,
-
         ),
+
         labelSmall: TextStyle(
           color: AppColors.white,
           fontSize: 10,
           fontFamily: 'SfProDisplay',
           fontWeight: FontWeight.normal,
-
-
         )
+
+      ),
+
+      // Поля ввода
+      inputDecorationTheme: const InputDecorationTheme(
+
+        labelStyle: TextStyle(
+          color: AppColors.greyText,
+          fontSize: 16,
+          fontFamily: 'SfProDisplay',
+          fontWeight: FontWeight.normal,
+
+        ),
+
+        floatingLabelStyle: TextStyle(
+          color: AppColors.greyText,
+          fontSize: 16,
+          fontFamily: 'SfProDisplay',
+          fontWeight: FontWeight.normal,
+
+        ),
+
+        hintStyle: TextStyle(
+          color: AppColors.white,
+          fontSize: 16,
+          fontFamily: 'SfProDisplay',
+          fontWeight: FontWeight.normal,
+
+        ),
+
+        // иконка слева
+        prefixIconColor: AppColors.greyText,
+
+        // фон поля ввода
+        filled: true,
+        fillColor: AppColors.greyBackground,
+
+        // цвет активных элементов
+        focusColor: AppColors.brandColor,
+
+        // Активная граница
+        border: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: AppColors.brandColor, // Цвет границы
+            width: 2.0, // Ширина границы
+          ),
+          borderRadius: BorderRadius.all(Radius.circular(15.0)), // Радиус скругления углов
+        ),
+
+        // Не активная граница
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: AppColors.greyText, // Цвет границы
+            width: 2.0, // Ширина границы
+          ),
+          borderRadius: BorderRadius.all(Radius.circular(15.0)), // Радиус скругления углов
+        ),
+
 
       ),
 
@@ -162,6 +231,7 @@ class CustomTheme {
         ),
 
       // Стиль нижнего меню
+
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: AppColors.greyOnBackground,
         selectedItemColor: AppColors.brandColor,
@@ -195,6 +265,8 @@ class CustomTheme {
 
     );
   }
+
+  // ---- СВЕТЛАЯ ТЕМА ------
 
   static ThemeData get lightTheme { //1
     return ThemeData( //2
