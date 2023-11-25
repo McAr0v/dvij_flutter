@@ -1,53 +1,103 @@
+import 'package:dvij_flutter/database_firebase/user_database.dart';
+import 'package:dvij_flutter/elements/headline_and_desc.dart';
+import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:dvij_flutter/elements/custom_button.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:dvij_flutter/authentication/auth_with_email.dart';
+import 'package:dvij_flutter/elements/custom_snack_bar.dart';
+import 'package:dvij_flutter/elements/pop_up_dialog.dart';
+import '../../classes/user_class.dart' as local_user;
 
-import '../../app_state/appstate.dart';
-import '../../authentication/auth_with_email.dart';
-import '../../elements/custom_snack_bar.dart';
-import '../../elements/pop_up_dialog.dart';
-import '../../navigation/custom_nav_containter.dart';
+class UserLoggedInScreen extends StatefulWidget {
+  UserLoggedInScreen({Key? key}) : super(key: key);
 
-class UserLoggedInScreen extends StatelessWidget {
+  @override
+  _UserLoggedInScreenState createState() => _UserLoggedInScreenState();
+}
 
+class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-
   final AuthWithEmail authWithEmail = AuthWithEmail();
-
-  UserLoggedInScreen({super.key});
-
-
+  final DatabaseReference databaseReference = FirebaseDatabase.instance.reference();
+  String? uid = '';
+  String? userEmail = '';
+  String? text = 'Loading...';
+  local_user.User userInfo = local_user.User(
+      uid: '',
+      role: '1113',
+      name: '',
+      lastname: '',
+      phone: '',
+      whatsapp: '',
+      telegram: '',
+      instagram: '',
+      city: '',
+      birthDate: '',
+      sex: '',
+      avatar: ''
+  );
 
 
   @override
+  void initState() {
+    super.initState();
+    fetchAndSetData();
+  }
+
+  final UserDatabase userDatabase = UserDatabase();
+
+  Future<void> fetchAndSetData() async {
+    try {
+      userEmail = _auth.currentUser?.email;
+      uid = _auth.currentUser?.uid;
+      userInfo = (await userDatabase.readUserData(uid!))!;
+      String? result = await userDatabase.readData();
+      setState(() {
+        text = result;
+      });
+    } catch (e) {
+      print('Error initializing data: $e');
+    }
+  }
+
+  void navigateToProfile() {
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      '/Events',
+          (route) => false,
+    );
+  }
+
+
+
+  void showSnackBar(String message, Color color, int showTime) {
+    final snackBar = customSnackBar(message: message, backgroundColor: color, showTime: showTime);
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Получение uid из AppState
-
-    String? uid = _auth.currentUser?.uid;
-
-    void navigateToProfile() {
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        '/Events', // Название маршрута, которое вы задаете в MaterialApp
-            (route) => false,
-      );
-    }
-
-    void showSnackBar(String message, Color color, int showTime) {
-      final snackBar = customSnackBar(message: message, backgroundColor: color, showTime: showTime);
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    }
 
     return Scaffold(
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 50, 20, 50),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('User UID: ${uid ?? "N/A"}'),
+            if (userInfo.name != '') HeadlineAndDesc(headline: '${userInfo.name} ${userInfo.lastname}', description: 'Имя'),
+            const SizedBox(height: 16.0),
+            if (userInfo.phone != '') HeadlineAndDesc(headline: userInfo.phone, description: 'Телефон для связи'),
+            const SizedBox(height: 16.0),
+            if (userInfo.telegram != '') HeadlineAndDesc(headline: userInfo.telegram, description: 'Telegram'),
+            const SizedBox(height: 16.0),
+            if (userInfo.uid != '') HeadlineAndDesc(headline: userInfo.uid, description: 'uid'),
+
+            const SizedBox(height: 16.0),
+            if (userEmail != '' && userEmail != null) HeadlineAndDesc(headline: userEmail!, description: 'email профиля'),
+
             const SizedBox(height: 16.0),
             CustomButton(
               state: 'error',
@@ -78,8 +128,7 @@ class UserLoggedInScreen extends StatelessWidget {
                     );
                   }
                 }
-              }
-
+              },
             ),
           ],
         ),
