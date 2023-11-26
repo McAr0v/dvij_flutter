@@ -82,11 +82,21 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
 
     return Scaffold(
       body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(20, 50, 20, 50),
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+
+
+            if (userInfo.avatar != '') // Проверяем, есть ли ссылка на аватар
+              Image.network(
+                userInfo.avatar!, // Предполагаем, что avatar - это строка с URL изображения
+                //width: 100,
+                //height: 100,
+                fit: BoxFit.cover,
+              ),
+            const SizedBox(height: 16.0),
             if (userInfo.name != '') HeadlineAndDesc(headline: '${userInfo.name} ${userInfo.lastname}', description: 'Имя'),
             const SizedBox(height: 16.0),
             if (userInfo.phone != '') HeadlineAndDesc(headline: userInfo.phone, description: 'Телефон для связи'),
