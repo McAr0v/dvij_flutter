@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'dart:io';
 import 'package:dvij_flutter/database_firebase/user_database.dart';
 import 'package:dvij_flutter/elements/custom_button.dart';
 import '../../classes/user_class.dart' as local_user;
@@ -17,8 +16,11 @@ class EditProfileScreen extends StatefulWidget {
 
   const EditProfileScreen({Key? key, required this.userInfo}) : super(key: key);
 
+
+
   @override
   _EditProfileScreenState createState() => _EditProfileScreenState();
+
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
@@ -36,8 +38,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController avatarController;
   final UserDatabase userDatabase = UserDatabase();
   File? _imageFile;
+  Key imageKey = UniqueKey();
   bool loading = true;
-
 
   void navigateToProfile() {
     Navigator.pushNamedAndRemoveUntil(
@@ -56,16 +58,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  Future<void> _pickImage(ImageSource source) async {
-    final XFile? pickedImage = await imagePickerService.pickImage(source);
+  Future<void> _pickImage() async {
+    final File? pickedImage = await imagePickerService.pickImage(ImageSource.gallery);
 
     if (pickedImage != null) {
       setState(() {
-        _imageFile = File(pickedImage.path);
+        _imageFile = pickedImage;
         avatarController.text = _imageFile!.path;
+        imageKey = UniqueKey();
       });
     }
   }
+
 
   @override
   void initState() {
@@ -80,6 +84,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     cityController = TextEditingController(text: widget.userInfo.city);
     birthdateController = TextEditingController(text: widget.userInfo.birthDate);
     sexController = TextEditingController(text: widget.userInfo.sex);
+    avatarController = TextEditingController(text: widget.userInfo.avatar);
     loading = false;
   }
 
@@ -98,14 +103,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
-                  if (_imageFile != null) ImageInEditScreen(
+                if (_imageFile != null) ImageInEditScreen(
 
                       backgroundImageFile: _imageFile,
-                      onEditPressed: () => _pickImage(ImageSource.gallery)
+                      onEditPressed: () => _pickImage()
                   )
-                  else ImageInEditScreen(
-                    onEditPressed: () => _pickImage(ImageSource.gallery),
+                  else if (_imageFile == null && widget.userInfo.avatar != '' ) ImageInEditScreen(
+                    onEditPressed: () => _pickImage(),
                     backgroundImageUrl: widget.userInfo.avatar,
                   ),
 
@@ -211,6 +215,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
 
                   const SizedBox(height: 16.0),
+
 
                   CustomButton(
                     buttonText: 'Опубликовать',

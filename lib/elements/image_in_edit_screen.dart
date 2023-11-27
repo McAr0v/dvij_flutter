@@ -6,7 +6,7 @@ class ImageInEditScreen extends StatelessWidget {
   final File? backgroundImageFile;
   final VoidCallback onEditPressed;
 
-  const ImageInEditScreen({super.key, this.backgroundImageUrl, this.backgroundImageFile, required this.onEditPressed});
+  ImageInEditScreen({Key? key, this.backgroundImageUrl, this.backgroundImageFile, required this.onEditPressed}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -23,16 +23,17 @@ class ImageInEditScreen extends StatelessWidget {
             child: Stack(
               alignment: Alignment.bottomCenter,
               children: [
-                if (backgroundImageUrl != null)
-                  Ink.image(
-                    image: NetworkImage(backgroundImageUrl!),
-                    fit: BoxFit.cover,
-                  ),
                 if (backgroundImageFile != null)
                   Image.file(
                     backgroundImageFile!,
                     fit: BoxFit.cover,
                   ),
+                if (backgroundImageUrl != null)
+                  Ink.image(
+                    image: NetworkImage(backgroundImageUrl!),
+                    fit: BoxFit.cover,
+                  ),
+
                 ElevatedButton(
                   onPressed: onEditPressed,
                   child: Text('Изменить фотографию'),
