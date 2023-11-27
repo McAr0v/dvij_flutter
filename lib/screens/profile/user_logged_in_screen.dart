@@ -1,5 +1,6 @@
 import 'package:dvij_flutter/database_firebase/user_database.dart';
 import 'package:dvij_flutter/elements/headline_and_desc.dart';
+import 'package:dvij_flutter/screens/profile/edit_profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -107,6 +108,17 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
 
             const SizedBox(height: 16.0),
             if (userEmail != '' && userEmail != null) HeadlineAndDesc(headline: userEmail!, description: 'email профиля'),
+
+            const SizedBox(height: 16.0),
+            CustomButton(
+              buttonText: 'Редактировать профиль',
+              onTapMethod: () async {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => EditProfileScreen(userInfo: userInfo))
+                );
+              },
+            ),
 
             const SizedBox(height: 16.0),
             CustomButton(
