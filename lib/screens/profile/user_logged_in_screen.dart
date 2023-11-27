@@ -10,6 +10,7 @@ import 'package:dvij_flutter/authentication/auth_with_email.dart';
 import 'package:dvij_flutter/elements/custom_snack_bar.dart';
 import 'package:dvij_flutter/elements/pop_up_dialog.dart';
 import '../../classes/user_class.dart' as local_user;
+import '../../elements/loading_screen.dart';
 
 class UserLoggedInScreen extends StatefulWidget {
   UserLoggedInScreen({Key? key}) : super(key: key);
@@ -40,6 +41,7 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
       avatar: ''
   );
 
+  bool loading = true;
 
   @override
   void initState() {
@@ -57,6 +59,7 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
       String? result = await userDatabase.readData();
       setState(() {
         text = result;
+        loading = false;
       });
     } catch (e) {
       print('Error initializing data: $e');
@@ -82,79 +85,93 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
   Widget build(BuildContext context) {
 
     return Scaffold(
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
+      body: Stack (
           children: [
+          if (loading || userInfo.avatar == '') const LoadingScreen(loadingText: 'Подожди, идет загрузка данных',)
+          else SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (userInfo.avatar != '') // Проверяем, есть ли ссылка на аватар
+                  Image.network(
+                    userInfo.avatar, // Предполагаем, что avatar - это строка с URL изображения
+                    //width: 100,
+                    //height: 100,
+                    fit: BoxFit.cover,
+                  ),
+                const SizedBox(height: 16.0),
+                if (userInfo.name != '') HeadlineAndDesc(headline: '${userInfo.name} ${userInfo.lastname}', description: 'Имя'),
+                const SizedBox(height: 16.0),
+                if (userInfo.phone != '') HeadlineAndDesc(headline: userInfo.phone, description: 'Телефон для связи'),
+                const SizedBox(height: 16.0),
+                if (userInfo.telegram != '') HeadlineAndDesc(headline: userInfo.telegram, description: 'Telegram'),
+                const SizedBox(height: 16.0),
+                if (userInfo.whatsapp != '') HeadlineAndDesc(headline: userInfo.whatsapp, description: 'Whatsapp'),
+                const SizedBox(height: 16.0),
+                if (userInfo.instagram != '') HeadlineAndDesc(headline: userInfo.instagram, description: 'Instagram'),
+                const SizedBox(height: 16.0),
+                if (userInfo.city != '') HeadlineAndDesc(headline: userInfo.city, description: 'Город'),
+                const SizedBox(height: 16.0),
+                if (userInfo.birthDate != '') HeadlineAndDesc(headline: userInfo.birthDate, description: 'Дата рождения'),
+                const SizedBox(height: 16.0),
+                if (userInfo.sex != '') HeadlineAndDesc(headline: userInfo.sex, description: 'Пол'),
+                const SizedBox(height: 16.0),
+                if (userEmail != '' && userEmail != null) HeadlineAndDesc(headline: userEmail!, description: 'email профиля'),
 
-
-            if (userInfo.avatar != '') // Проверяем, есть ли ссылка на аватар
-              Image.network(
-                userInfo.avatar!, // Предполагаем, что avatar - это строка с URL изображения
-                //width: 100,
-                //height: 100,
-                fit: BoxFit.cover,
-              ),
-            const SizedBox(height: 16.0),
-            if (userInfo.name != '') HeadlineAndDesc(headline: '${userInfo.name} ${userInfo.lastname}', description: 'Имя'),
-            const SizedBox(height: 16.0),
-            if (userInfo.phone != '') HeadlineAndDesc(headline: userInfo.phone, description: 'Телефон для связи'),
-            const SizedBox(height: 16.0),
-            if (userInfo.telegram != '') HeadlineAndDesc(headline: userInfo.telegram, description: 'Telegram'),
-            const SizedBox(height: 16.0),
-            if (userInfo.uid != '') HeadlineAndDesc(headline: userInfo.uid, description: 'uid'),
-
-            const SizedBox(height: 16.0),
-            if (userEmail != '' && userEmail != null) HeadlineAndDesc(headline: userEmail!, description: 'email профиля'),
-
-            const SizedBox(height: 16.0),
-            CustomButton(
-              buttonText: 'Редактировать профиль',
-              onTapMethod: () async {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => EditProfileScreen(userInfo: userInfo))
-                );
-              },
-            ),
-
-            const SizedBox(height: 16.0),
-            CustomButton(
-              state: 'error',
-              buttonText: 'Выйти из профиля',
-              onTapMethod: () async {
-                bool? confirmed = await PopUpDialog.showConfirmationDialog(
-                  context,
-                  title: "Вы действительно хотите выйти?",
-                  backgroundColor: AppColors.greyBackground,
-                  confirmButtonText: "Да",
-                  cancelButtonText: "Нет",
-                );
-                if (confirmed != null && confirmed) {
-                  String result = await authWithEmail.signOut();
-
-                  if (result == 'success') {
-                    showSnackBar(
-                      'Как жаль, что ты уходишь! В любом случае, мы всегда будем рады видеть тебя снова. До скорой встречи!',
-                      Colors.green,
-                      5,
+                const SizedBox(height: 16.0),
+                CustomButton(
+                  buttonText: 'Редактировать профиль',
+                  onTapMethod: () async {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => EditProfileScreen(userInfo: userInfo))
                     );
-                    navigateToProfile();
-                  } else {
-                    showSnackBar(
-                      'Что-то пошло не так при попытке выхода. Возможно, это заговор темных сил! Пожалуйста, попробуй еще раз, и если проблема сохранится, обратись в нашу техподдержку.',
-                      AppColors.attentionRed,
-                      5,
+                  },
+                ),
+
+                const SizedBox(height: 16.0),
+                CustomButton(
+                  state: 'error',
+                  buttonText: 'Выйти из профиля',
+                  onTapMethod: () async {
+                    bool? confirmed = await PopUpDialog.showConfirmationDialog(
+                      context,
+                      title: "Вы действительно хотите выйти?",
+                      backgroundColor: AppColors.greyBackground,
+                      confirmButtonText: "Да",
+                      cancelButtonText: "Нет",
                     );
-                  }
-                }
-              },
+                    if (confirmed != null && confirmed) {
+                      String result = await authWithEmail.signOut();
+
+                      if (result == 'success') {
+                        showSnackBar(
+                          'Как жаль, что ты уходишь! В любом случае, мы всегда будем рады видеть тебя снова. До скорой встречи!',
+                          Colors.green,
+                          5,
+                        );
+                        navigateToProfile();
+                      } else {
+                        showSnackBar(
+                          'Что-то пошло не так при попытке выхода. Возможно, это заговор темных сил! Пожалуйста, попробуй еще раз, и если проблема сохранится, обратись в нашу техподдержку.',
+                          AppColors.attentionRed,
+                          5,
+                        );
+                      }
+                    }
+                  },
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+    ],
+    )
+
+
+
+
     );
   }
 }

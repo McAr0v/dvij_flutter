@@ -1,12 +1,16 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'dart:io';
 import 'package:dvij_flutter/database_firebase/user_database.dart';
 import 'package:dvij_flutter/elements/custom_button.dart';
-import 'package:dvij_flutter/themes/app_colors.dart';
-import 'package:dvij_flutter/elements/pop_up_dialog.dart';
-import '../../authentication/auth_with_email.dart';
 import '../../classes/user_class.dart' as local_user;
 import '../../elements/custom_snack_bar.dart';
+import 'package:image_picker/image_picker.dart';
+import '../../elements/image_in_edit_screen.dart';
+import '../../elements/loading_screen.dart';
+import '../../image_Uploader/image_uploader.dart';
+import '../../image_uploader/image_picker.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final local_user.User userInfo;
@@ -18,6 +22,8 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
+  final ImagePickerService imagePickerService = ImagePickerService();
+  final ImageUploader imageUploader = ImageUploader();
   late TextEditingController nameController;
   late TextEditingController lastnameController;
   late TextEditingController phoneController;
@@ -29,24 +35,42 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController sexController;
   late TextEditingController avatarController;
   final UserDatabase userDatabase = UserDatabase();
-  // Добавьте другие контроллеры для полей, которые вы хотите редактировать
+  File? _imageFile;
+  bool loading = true;
+
 
   void navigateToProfile() {
     Navigator.pushNamedAndRemoveUntil(
       context,
-      '/Profile', // Название маршрута, которое вы задаете в MaterialApp
+      '/Profile',
           (route) => false,
     );
   }
 
   void showSnackBar(String message, Color color, int showTime) {
-    final snackBar = customSnackBar(message: message, backgroundColor: color, showTime: showTime);
+    final snackBar = customSnackBar(
+      message: message,
+      backgroundColor: color,
+      showTime: showTime,
+    );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    final XFile? pickedImage = await imagePickerService.pickImage(source);
+
+    if (pickedImage != null) {
+      setState(() {
+        _imageFile = File(pickedImage.path);
+        avatarController.text = _imageFile!.path;
+      });
+    }
   }
 
   @override
   void initState() {
     super.initState();
+    loading = true;
     nameController = TextEditingController(text: widget.userInfo.name);
     lastnameController = TextEditingController(text: widget.userInfo.lastname);
     phoneController = TextEditingController(text: widget.userInfo.phone);
@@ -56,101 +80,206 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     cityController = TextEditingController(text: widget.userInfo.city);
     birthdateController = TextEditingController(text: widget.userInfo.birthDate);
     sexController = TextEditingController(text: widget.userInfo.sex);
-    avatarController = TextEditingController(text: widget.userInfo.avatar);
-    // Инициализируйте остальные контроллеры для других полей
+    loading = false;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Редактировать профиль'),
+        title: const Text('Редактировать профиль'),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
+      body: Stack (
           children: [
-            // Добавьте поля для редактирования
-            buildTextField('Имя', nameController),
-            const SizedBox(height: 16.0),
-            buildTextField('Фамилия', lastnameController),
-            const SizedBox(height: 16.0),
-            buildTextField('Телефон', phoneController),
-            const SizedBox(height: 16.0),
-            buildTextField('Whatsapp', whatsappController),
-            const SizedBox(height: 16.0),
-            buildTextField('Telegram', telegramController),
-            const SizedBox(height: 16.0),
-            buildTextField('Instagram', instagramController),
-            const SizedBox(height: 16.0),
-            buildTextField('Город', cityController),
-            const SizedBox(height: 16.0),
-            buildTextField('Дата рождения', birthdateController),
-            const SizedBox(height: 16.0),
-            buildTextField('Пол', sexController),
-            const SizedBox(height: 16.0),
-            buildTextField('Аватар', avatarController),
+            if (loading) const LoadingScreen(loadingText: 'Подожди, идет загрузка данных',)
+            else SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
 
-            // Добавьте другие поля для редактирования
+                  if (_imageFile != null) ImageInEditScreen(
 
-            const SizedBox(height: 16.0),
-            CustomButton(
-              buttonText: 'Опубликовать',
-              onTapMethod: () async {
+                      backgroundImageFile: _imageFile,
+                      onEditPressed: () => _pickImage(ImageSource.gallery)
+                  )
+                  else ImageInEditScreen(
+                    onEditPressed: () => _pickImage(ImageSource.gallery),
+                    backgroundImageUrl: widget.userInfo.avatar,
+                  ),
 
-                String? editInDatabase = await userDatabase.writeUserData(local_user.User(
-                    uid: widget.userInfo.uid,
-                    role: widget.userInfo.role,
-                    name: nameController.text,
-                    lastname: lastnameController.text,
-                    phone: phoneController.text,
-                    whatsapp: whatsappController.text,
-                    telegram: telegramController.text,
-                    instagram: instagramController.text,
-                    city: cityController.text,
-                    birthDate: birthdateController.text,
-                    sex: sexController.text,
-                    avatar: avatarController.text
-                ));
+                  const SizedBox(height: 16.0),
 
-                if (editInDatabase == 'success'){
+                  const SizedBox(height: 16.0),
+                  TextField(
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    keyboardType: TextInputType.text,
+                    controller: nameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Имя',
+                      //prefixIcon: Icon(Icons.email),
+                    ),
+                  ),
 
-                  showSnackBar(
-                      "Прекрасно! Данные отредактированы!",
-                      Colors.green,
-                      5
-                  );
+                  const SizedBox(height: 16.0),
+                  TextField(
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    keyboardType: TextInputType.text,
+                    controller: lastnameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Фамилия',
+                      //prefixIcon: Icon(Icons.email),
+                    ),
+                  ),
 
-                  navigateToProfile();
+                  const SizedBox(height: 16.0),
+                  TextField(
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    keyboardType: TextInputType.phone,
+                    controller: phoneController,
+                    decoration: const InputDecoration(
+                      labelText: 'Телефон',
+                      //prefixIcon: Icon(Icons.email),
+                    ),
+                  ),
 
-                } else {
+                  const SizedBox(height: 16.0),
+                  TextField(
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    keyboardType: TextInputType.phone,
+                    controller: whatsappController,
+                    decoration: const InputDecoration(
+                      labelText: 'Whatsapp',
+                      //prefixIcon: Icon(Icons.email),
+                    ),
+                  ),
 
-                  // TODO: Сделать обработку ошибок, если не удалось загрузить в базу данных пользователя
+                  const SizedBox(height: 16.0),
+                  TextField(
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    keyboardType: TextInputType.text,
+                    controller: telegramController,
+                    decoration: const InputDecoration(
+                      labelText: 'Telegram',
+                      //prefixIcon: Icon(Icons.email),
+                    ),
+                  ),
 
-                }
-              },
+                  const SizedBox(height: 16.0),
+                  TextField(
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    keyboardType: TextInputType.text,
+                    controller: instagramController,
+                    decoration: const InputDecoration(
+                      labelText: 'Instagram',
+                      //prefixIcon: Icon(Icons.email),
+                    ),
+                  ),
+
+                  const SizedBox(height: 16.0),
+                  TextField(
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    keyboardType: TextInputType.text,
+                    controller: cityController,
+                    decoration: const InputDecoration(
+                      labelText: 'Город',
+                      //prefixIcon: Icon(Icons.email),
+                    ),
+                  ),
+
+                  const SizedBox(height: 16.0),
+                  TextField(
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    keyboardType: TextInputType.datetime,
+                    controller: birthdateController,
+                    decoration: const InputDecoration(
+                      labelText: 'Дата рождения',
+                      //prefixIcon: Icon(Icons.email),
+                    ),
+                  ),
+
+                  const SizedBox(height: 16.0),
+                  TextField(
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    keyboardType: TextInputType.text,
+                    controller: sexController,
+                    decoration: const InputDecoration(
+                      labelText: 'Пол',
+                      //prefixIcon: Icon(Icons.email),
+                    ),
+                  ),
+
+                  const SizedBox(height: 16.0),
+
+                  CustomButton(
+                    buttonText: 'Опубликовать',
+                    onTapMethod: () async {
+                      setState(() {
+                        loading = true;
+                      });
+                      String? avatarURL;
+                      if (_imageFile != null) {
+
+                        //final File imageFile = File(_imageFile!.path);
+                        final compressedImage = await imagePickerService.compressImage(_imageFile!);
+
+                        avatarURL = await imageUploader.uploadImageInProfile(widget.userInfo.uid, compressedImage);
+
+                      }
+
+                      if (avatarURL != null) {
+
+                        local_user.User updatedUser = local_user.User(
+                          uid: widget.userInfo.uid,
+                          role: widget.userInfo.role,
+                          name: nameController.text,
+                          lastname: lastnameController.text,
+                          phone: phoneController.text,
+                          whatsapp: whatsappController.text,
+                          telegram: telegramController.text,
+                          instagram: instagramController.text,
+                          city: cityController.text,
+                          birthDate: birthdateController.text,
+                          sex: sexController.text,
+                          avatar: avatarURL,
+                        );
+
+                        String? editInDatabase = await userDatabase.writeUserData(updatedUser);
+
+                        if (editInDatabase == 'success') {
+                          setState(() {
+                            loading = false;
+                          });
+                          showSnackBar(
+                            "Прекрасно! Данные отредактированы!",
+                            Colors.green,
+                            5,
+                          );
+
+                          navigateToProfile();
+
+                        }
+
+
+                      } else {
+                        // TODO: Сделать обработку ошибок, если не удалось загрузить в базу данных пользователя
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 16.0),
+                  CustomButton(
+                    state: 'secondary',
+                    buttonText: 'Отмена',
+                    onTapMethod: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 16.0),
-            CustomButton(
-              state: 'secondary',
-              buttonText: 'Отмена',
-              onTapMethod: () {
-                Navigator.pop(context); // Возвращаемся на предыдущий экран без сохранения изменений
-              },
-            ),
-          ],
-        ),
-      ),
+              ]
+              )
     );
   }
-
-  Widget buildTextField(String label, TextEditingController controller) {
-    return TextField(
-      controller: controller,
-      decoration: InputDecoration(labelText: label),
-    );
-  }
-
 }
