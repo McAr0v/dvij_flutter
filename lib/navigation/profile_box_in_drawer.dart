@@ -1,30 +1,45 @@
 import 'package:dvij_flutter/elements/profile_drawer_elements/profile_element_headline_desc.dart';
 import 'package:dvij_flutter/elements/profile_drawer_elements/profile_element_logged_user.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_user;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
-import '../screens/profile/profile_page.dart';
-import 'custom_nav_containter.dart';
+import '../../classes/user_class.dart' as local_user;
+import '../database_firebase/user_database.dart';
 
 class ProfileBoxInDrawer extends StatefulWidget {
-  const ProfileBoxInDrawer({super.key});
+  final local_user.User userInfo;
+
+  const ProfileBoxInDrawer({required this.userInfo, Key? key}) : super(key: key);
 
   @override
   _ProfileBoxInDrawerState createState() => _ProfileBoxInDrawerState();
 }
 
-class _ProfileBoxInDrawerState extends State<ProfileBoxInDrawer> {
-  User? _user;
-  bool _isEmailVerified = false;
+// --- ВИДЖЕТ РАЗДЕЛА ПОЛЬЗОВАТЕЛЯ В DRAWER ----
 
+class _ProfileBoxInDrawerState extends State<ProfileBoxInDrawer> {
+  // Данные о пользователе
+  firebase_user.User? _user;
+  // Переключатель - подтвердил ли почту пользователь или нет
+  bool _isEmailVerified = false;
+  // Инициализируем базу данных пользователя
+  final UserDatabase userDatabase = UserDatabase();
+
+
+  // Инициализируем состояние пользователя
   @override
   void initState() {
     super.initState();
     _getUser();
   }
 
+  // --- Функция получения данных по пользователе ----
+
   Future<void> _getUser() async {
-    User? user = FirebaseAuth.instance.currentUser;
+    // Инициализируем пользователя
+    firebase_user.User? user = FirebaseAuth.instance.currentUser;
+
+    // Если вошел, то меняем данные в нужные переменные
     if (user != null) {
       setState(() {
         _user = user;
@@ -33,9 +48,12 @@ class _ProfileBoxInDrawerState extends State<ProfileBoxInDrawer> {
     }
   }
 
+  // --- САМ ВИДЖЕТ ОТОБРАЖЕНИЯ РАЗДЕЛА О ПОЛЬЗОВАТЕЛЕ -----
+
   @override
   Widget build(BuildContext context) {
 
+    // Ширина виджета в зависимости от ширины экрана
     double drawerWidthPercentage = 0.7;
 
     return GestureDetector(
@@ -43,7 +61,7 @@ class _ProfileBoxInDrawerState extends State<ProfileBoxInDrawer> {
         // Переход на страницу профиля
         Navigator.pushNamedAndRemoveUntil(
           context,
-          '/Profile', // Название маршрута, которое вы задаете в MaterialApp
+          '/Profile',
               (route) => false,
         );
       },
@@ -53,16 +71,23 @@ class _ProfileBoxInDrawerState extends State<ProfileBoxInDrawer> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+
+            // ---- ОТОБРАЖЕНИЕ РАЗНЫХ ЭЛЕМЕНТОВ, В ЗАВИСИМОТИ ОТ СОСТОЯНИЯ ПОЛЬЗОВАТЕЛЯ
+
+            // ---- Если пользователь вошел и подтвердил почту
+
             if (_user != null && _isEmailVerified)
 
               ProfileElementLoggedUser(
-                imageUrl: _user!.photoURL ?? '',
-                name: _user!.displayName ?? '',
+                imageUrl: widget.userInfo.avatar ?? '',
+                name: '${widget.userInfo.name} ${widget.userInfo.lastname}' ?? '',
                 email: _user!.email ?? '',
                 widthPercentage: drawerWidthPercentage,
               )
 
+
             else if (_user != null && !_isEmailVerified)
+            // ---- Если зашел, но не подтвердил почту
 
               ProfileElementHeadlineDesc(
                 widthPercentage: drawerWidthPercentage,
@@ -71,7 +96,9 @@ class _ProfileBoxInDrawerState extends State<ProfileBoxInDrawer> {
                 icon: const Icon(Icons.warning)
               )
 
+
             else
+            // ---- Если даже не зашел в аккаунт
 
               ProfileElementHeadlineDesc(
                   widthPercentage: drawerWidthPercentage,
@@ -79,7 +106,6 @@ class _ProfileBoxInDrawerState extends State<ProfileBoxInDrawer> {
                   description: 'Привет, дружище! Для полного доступа ко всем функциям приложения не забудь войти в аккаунт. Ждем тебя!',
                   icon: const Icon(Icons.login),
               )
-
           ],
         ),
       ),

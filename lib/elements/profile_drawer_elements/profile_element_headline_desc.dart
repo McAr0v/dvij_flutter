@@ -6,7 +6,7 @@ class ProfileElementHeadlineDesc extends StatelessWidget {
   final String description;
   final Icon icon;
 
-  ProfileElementHeadlineDesc({this.widthPercentage = 0.7, this.headline = '', this.description = '', this.icon = const Icon (Icons.edit)});
+  const ProfileElementHeadlineDesc({super.key, this.widthPercentage = 0.7, this.headline = '', this.description = '', this.icon = const Icon (Icons.edit)});
 
   @override
   Widget build(BuildContext context) {

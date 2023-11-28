@@ -1,7 +1,5 @@
-// events/events_page.dart
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:flutter/material.dart';
-import '../../app_state/appstate.dart';
 import 'events_fav_page.dart';
 import 'events_feed_page.dart';
 import 'events_my_page.dart';

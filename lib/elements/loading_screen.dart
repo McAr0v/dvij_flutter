@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-
 import '../themes/app_colors.dart';
 
 class LoadingScreen extends StatelessWidget {
   final String loadingText;
 
-  const LoadingScreen({Key? key, this.loadingText = 'Подожди чуть-чуть)'}) : super(key: key);
+  const LoadingScreen({Key? key, this.loadingText = 'Подожди чуть-чуть) Идет загрузка'}) : super(key: key);
+
+  // ---- ВИДЖЕТ ЭКРАНА ЗАГРУЗКИ ----
 
   @override
   Widget build(BuildContext context) {

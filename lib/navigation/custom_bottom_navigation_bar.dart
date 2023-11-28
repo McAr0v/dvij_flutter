@@ -1,8 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-
 import '../elements/icons_elements/svg_icon.dart';
 
 class CustomBottomNavigationBar extends StatelessWidget {
@@ -14,12 +11,13 @@ class CustomBottomNavigationBar extends StatelessWidget {
     required this.onTabTapped,
   });
 
+  // --- ВИДЖЕТ ОТОБРАЖЕНИЯ НИЖНЕГО ТАБ МЕНЮ -----
+
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       currentIndex: tabController.index,
       onTap: onTabTapped,
-      //type: BottomNavigationBarType.fixed,
       items: [
         const BottomNavigationBarItem(
           icon: Icon(Icons.person),

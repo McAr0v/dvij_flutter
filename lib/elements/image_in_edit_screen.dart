@@ -1,5 +1,4 @@
 import 'package:dvij_flutter/elements/custom_button.dart';
-import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 
@@ -9,6 +8,8 @@ class ImageInEditScreen extends StatelessWidget {
   final VoidCallback onEditPressed;
 
   ImageInEditScreen({Key? key, this.backgroundImageUrl, this.backgroundImageFile, required this.onEditPressed}) : super(key: key);
+
+  // ---- ВИДЖЕТ ИЗОБРАЖЕНИЯ НА ЭКРАНАХ РЕДАКТИРОВАНИЯ -----
 
   @override
   Widget build(BuildContext context) {
@@ -22,10 +23,13 @@ class ImageInEditScreen extends StatelessWidget {
         builder: (context, constraints) {
           return SizedBox(
             width: constraints.maxWidth, // Ширина равна максимальной ширине
-            height: constraints.maxWidth, // Фиксированная высота
+            height: constraints.maxWidth, // Фиксированная высота равная ширине
             child: Stack(
               alignment: Alignment.bottomRight,
               children: [
+
+                // ВЫБРАННОЕ ИЗ ГАЛЕРЕИ ФОТО
+
                 if (backgroundImageFile != null)
                   Image.file(
                     backgroundImageFile!,
@@ -33,6 +37,9 @@ class ImageInEditScreen extends StatelessWidget {
                     width: constraints.maxWidth,
                     height: constraints.maxWidth,
                   ),
+
+                // ФОТО ЗАГРУЖЕННОЕ ИЗ БД
+
                 if (backgroundImageUrl != null)
                   Ink.image(
                     image: NetworkImage(backgroundImageUrl!),
@@ -41,11 +48,7 @@ class ImageInEditScreen extends StatelessWidget {
                     height: constraints.maxWidth,
                   ),
 
-                /*ElevatedButton(
-                  onPressed: onEditPressed,
-                  child: Text('Изменить фотографию'),
-                ),*/
-
+                // КНОПКА РЕДАКТИРОВАТЬ ФОТО
 
                 Positioned(
                   bottom: 16.0, // Задайте желаемый отступ внизу

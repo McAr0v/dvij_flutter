@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../themes/app_colors.dart';
 
 class CustomButton extends StatelessWidget {
-  final String state; // передаваемая переменная
+  final String state;
   final String buttonText;
   final VoidCallback onTapMethod;
   final String leftIconRoot;
@@ -11,20 +11,21 @@ class CustomButton extends StatelessWidget {
 
   const CustomButton({super.key, this.state = 'normal', required this.buttonText, required this.onTapMethod, this.leftIconRoot = '', this.rightIconRoot = ''}); // Указываем значения по умолчанию
 
-  // Содержание контейнера
+  // --- ВИДЖЕТ КАСТОМНОЙ КНОПКИ ------
 
   @override
   Widget build(BuildContext context) {
+
+    // Выбор цвета кнопки в зависимости от переданного состояния кнопки
 
     Color getButtonColor() {
       switch (state) {
         case 'normal':
           return Theme.of(context).colorScheme.primary;
         case 'success':
-          return Colors.green; // Замените на ваш цвет для успешного статуса
+          return Colors.green;
         case 'error':
-          return AppColors.attentionRed; // Замените на ваш цвет для ошибочного статуса
-      // Добавьте другие кейсы по мере необходимости
+          return AppColors.attentionRed;
         case 'secondary':
           return Theme.of(context).colorScheme.background;
         default:
@@ -32,15 +33,16 @@ class CustomButton extends StatelessWidget {
       }
     }
 
+    // Выбор цвета границы в зависимости от переданного состояния кнопки
+
     Color getBorderColor() {
       switch (state) {
         case 'normal':
           return Theme.of(context).colorScheme.primary;
         case 'success':
-          return Colors.green; // Замените на ваш цвет для успешного статуса
+          return Colors.green;
         case 'error':
-          return AppColors.attentionRed; // Замените на ваш цвет для ошибочного статуса
-      // Добавьте другие кейсы по мере необходимости
+          return AppColors.attentionRed;
         case 'secondary':
           return Theme.of(context).colorScheme.primary;
         default:
@@ -48,16 +50,10 @@ class CustomButton extends StatelessWidget {
       }
     }
 
+    // Выбор цвета текста в зависимости от передаваемого состояния
+
     Color getTextAndIconColor() {
       switch (state) {
-      /*case 'normal':
-        return AppColors.greyOnBackground;
-      case 'success':
-        return AppColors.greyOnBackground; // Замените на ваш цвет для успешного статуса
-      case 'error':
-        return AppColors.greyOnBackground; // Замените на ваш цвет для ошибочного статуса
-    // Добавьте другие кейсы по мере необходимости
-       */
         case 'secondary':
           return Theme.of(context).colorScheme.primary;
         default:
@@ -66,6 +62,8 @@ class CustomButton extends StatelessWidget {
     }
 
     var iconColor = getTextAndIconColor();
+
+    // --- САМА КНОПКА ----
 
     return GestureDetector(
       onTap: onTapMethod,
@@ -79,7 +77,6 @@ class CustomButton extends StatelessWidget {
           ),
         ),
         child: Row(
-          //mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -119,6 +116,5 @@ class CustomButton extends StatelessWidget {
         ),
       )
     );
-
   }
 }

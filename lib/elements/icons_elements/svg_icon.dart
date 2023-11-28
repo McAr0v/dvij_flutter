@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter/material.dart';
 
+// --- КЛАСС ДЛЯ ЗАГРУЗКИ ИКОНОК SVG ----
 
 class SvgIcon extends StatelessWidget {
   final String assetPath;

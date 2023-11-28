@@ -6,29 +6,36 @@ import 'package:dvij_flutter/screens/otherPages/about_app_page.dart';
 import 'package:dvij_flutter/screens/otherPages/about_ad_page.dart';
 import 'package:dvij_flutter/screens/otherPages/feedback_page.dart';
 import 'package:dvij_flutter/screens/otherPages/privacy_policy_page.dart';
-
+import 'package:dvij_flutter/classes/user_class.dart' as local_user;
 
 // --- КАСТОМНАЯ БОКОВАЯ ШТОРКА -----
 
 class CustomDrawer extends StatelessWidget {
-  const CustomDrawer({super.key});
+  final local_user.User userInfo;
+
+  const CustomDrawer({required this.userInfo, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    double drawerWidthPercentage = 0.85; // 80% от ширины экрана
+
+    // -- Определяем ширину Drawer в зависимости от ширины всего экрана
+    double drawerWidthPercentage = 0.85;
 
     return Drawer(
+
       // Помещаем в контейнер, чтобы окрасить в нужный цвет
 
+      // -- Устанавливаем ширину Drawer в зависимости от ширины всего экрана
       width: MediaQuery.of(context).size.width * drawerWidthPercentage,
 
       child: Container(
 
+        // Внутренние отступы
         padding: const EdgeInsets.fromLTRB(5.0, 50.0, 5.0, 5.0),
         color: AppColors.greyOnBackground,
         child: ListView(
           // ListView Чтобы все элементы шли друг за другом
-          //padding: EdgeInsets.all(5.0),
+
           padding: const EdgeInsets.fromLTRB(5.0, 20.0, 5.0, 5.0),
           children: [
 
@@ -36,7 +43,7 @@ class CustomDrawer extends StatelessWidget {
             const LogoView(),
 
             // Отдельный виджет отображения профиля в Drawer
-            const ProfileBoxInDrawer(),
+            ProfileBoxInDrawer(userInfo: userInfo),
 
             // Дополнительные страницы - О приложении, написать разработчику и тд.
 
@@ -47,7 +54,7 @@ class CustomDrawer extends StatelessWidget {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AboutAppPage()),
+                  MaterialPageRoute(builder: (context) => const AboutAppPage()),
                 );
               },
             ),
@@ -58,7 +65,7 @@ class CustomDrawer extends StatelessWidget {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => FeedbackPage()),
+                  MaterialPageRoute(builder: (context) => const FeedbackPage()),
                 );
               },
             ),
@@ -70,7 +77,7 @@ class CustomDrawer extends StatelessWidget {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AboutAdPage()),
+                  MaterialPageRoute(builder: (context) => const AboutAdPage()),
                 );
               },
             ),
@@ -83,7 +90,7 @@ class CustomDrawer extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => PrivacyPolicyPage()),
+                      builder: (context) => const PrivacyPolicyPage()),
                 );
               },
             ),

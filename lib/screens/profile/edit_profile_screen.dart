@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dvij_flutter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/database_firebase/user_database.dart';
 import 'package:dvij_flutter/elements/custom_button.dart';
@@ -26,6 +27,7 @@ class EditProfileScreen extends StatefulWidget {
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final ImagePickerService imagePickerService = ImagePickerService();
   final ImageUploader imageUploader = ImageUploader();
+  final MyApp myApp = MyApp();
   late TextEditingController nameController;
   late TextEditingController lastnameController;
   late TextEditingController phoneController;
@@ -251,6 +253,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         String? editInDatabase = await userDatabase.writeUserData(updatedUser);
 
                         if (editInDatabase == 'success') {
+
                           setState(() {
                             loading = false;
                           });
@@ -272,7 +275,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                   const SizedBox(height: 16.0),
                   CustomButton(
-                    state: 'secondary',
+                    state: 'error',
                     buttonText: 'Отмена',
                     onTapMethod: () {
                       Navigator.pop(context);

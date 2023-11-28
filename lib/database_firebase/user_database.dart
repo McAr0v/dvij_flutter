@@ -3,9 +3,13 @@ import 'package:firebase_database/firebase_database.dart';
 import '../classes/user_class.dart';
 
 class UserDatabase {
+
+  // --- ИНИЦИАЛИЗИРУЕМ БАЗУ ДАННЫХ -----
   final DatabaseReference _databaseReference = FirebaseDatabase.instance.ref();
 
+  // --- ФУНКЦИЯ ЗАПИСИ ДАННЫХ ПОЛЬЗОВАТЕЛЯ -----
   Future<String?> writeUserData(User user) async {
+
     try {
       // Создаем путь для пользователя в базе данных
       String userPath = 'users/${user.uid}/user_info';
@@ -26,18 +30,28 @@ class UserDatabase {
         'avatar': user.avatar,
       });
 
+      // Если успешно
       return 'success';
+
     } catch (e) {
+      // Если ошибки
+      // TODO Сделать обработку ошибок. Наверняка есть какие то, которые можно различать и писать что случилось
       print('Error writing user data: $e');
       return 'Failed to write user data. Error: $e';
     }
   }
 
+  // ---- ФУНКЦИЯ ЧТЕНИЯ ИНФОРМАЦИИ О ПОЛЬЗОВАТЕЛЕ -----
+
   Future<User?> readUserData(String uid) async {
     try {
+      // Путь к данным пользователя
       String userPath = 'users/$uid/user_info';
 
+      // Считываем данные
       DatabaseEvent snapshot = await _databaseReference.child(userPath).once();
+
+      // Получаем значение и заполняем как User
       Map<dynamic, dynamic>? data = snapshot.snapshot.value as Map<dynamic, dynamic>?;
 
       if (data != null) {
@@ -63,23 +77,6 @@ class UserDatabase {
     } catch (e) {
       print('Error reading user data: $e');
       return null; // Возвращаем null в случае ошибки
-    }
-  }
-
-  Future<String?> readData() async {
-    try {
-      DatabaseEvent snapshot = await _databaseReference.child("message").once();
-      Map<dynamic, dynamic>? data = snapshot.snapshot.value as Map<dynamic, dynamic>?;
-
-      if (data != null && data.containsKey('text')) {
-        String text = data['text'] as String;
-        return text;
-      } else {
-        return 'Text not found in data snapshot';
-      }
-    } catch (e) {
-      print('Error reading data: $e');
-      return 'Failed to read data. Error: $e';
     }
   }
 }

@@ -1,24 +1,29 @@
 import 'package:flutter/material.dart';
-
 import '../themes/app_colors.dart';
 
 class HeadlineAndDesc extends StatelessWidget {
   final String headline;
   final String description;
+  final String textSize;
 
   const HeadlineAndDesc({
     Key? key,
     required this.headline,
     required this.description,
+    this.textSize = 'normal'
   }) : super(key: key);
+
+  // --- ВИДЖЕТ ОТОБРАЖЕНИЯ ЗАГОЛОВКА И ПОДПИСИ -----
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        // --- ЕСЛИ НОРМАЛЬНЫЙ СТАНДАРТНЫЙ ЗАГОЛОВОК ----
+        if (textSize == 'normal') Text(
           headline,
+          softWrap: true,
           style: const TextStyle(
               color: AppColors.white,
               fontSize: 16,
@@ -27,10 +32,23 @@ class HeadlineAndDesc extends StatelessWidget {
               height: 1.3
           ),
         ),
-        //const SizedBox(height: 8), // добавьте пространство между заголовком и описанием
+
+        // --- ЕСЛИ НУЖЕН БОЛЬШОЙ ЗАГОЛОВОК -----
+        if (textSize == 'big') Text(
+          headline,
+          softWrap: true,
+          style: const TextStyle(
+              color: AppColors.white,
+              fontSize: 20,
+              fontFamily: 'SfProDisplay',
+              fontWeight: FontWeight.bold,
+              height: 1.3
+          ),
+        ),
+
         Text(
           description,
-          softWrap: true, // автоматический перенос текста на новую строку
+          softWrap: true,
           style: const TextStyle(
             color: AppColors.greyText,
             fontSize: 12,

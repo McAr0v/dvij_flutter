@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-
-import '../navigation/custom_bottom_navigation_bar.dart';
 import '../themes/app_colors.dart';
 import 'icons_elements/svg_icon.dart';
 
@@ -9,6 +7,8 @@ class LogoView extends StatelessWidget {
   final double height;
 
   const LogoView({super.key, this.width = 50.0, this.height = 50.0});
+
+  // --- ВИДЖЕТ ОТОБРАЖЕНИЯ ЛОГОТИПА ----
 
   @override
   Widget build(BuildContext context) {

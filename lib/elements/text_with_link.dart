@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-
-import '../navigation/custom_bottom_navigation_bar.dart';
 import '../themes/app_colors.dart';
 
 class TextWithLink extends StatelessWidget {
@@ -11,19 +9,21 @@ class TextWithLink extends StatelessWidget {
   const TextWithLink({super.key, this.text = '', required this.linkedText, required this.uri}); // Указываем значения по умолчанию
 
 
-  // Содержание контейнера
+  // --- ВИДЖЕТ ТЕКСТА С ССЫЛКОЙ ------
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (text != '') Text(text, style: Theme.of(context).textTheme.bodyMedium, softWrap: true,),
+        if (text != '') Text(
+          text,
+          style: Theme.of(context).textTheme.bodyMedium,
+          softWrap: true,
+        ),
 
         GestureDetector(
           onTap: () {
-            // Переход на страницу политики конфиденциальности
-            // Замените '/privacy_policy' на ваш реальный путь маршрута
             Navigator.pushNamed(context, uri);
           },
           child: Text(
@@ -36,8 +36,6 @@ class TextWithLink extends StatelessWidget {
                   height: 1.3,
                   decoration: TextDecoration.underline,
                   decorationColor: AppColors.brandColor,
-
-
               )
           ),
         ),

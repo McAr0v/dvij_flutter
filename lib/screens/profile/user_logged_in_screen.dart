@@ -22,10 +22,10 @@ class UserLoggedInScreen extends StatefulWidget {
 class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final AuthWithEmail authWithEmail = AuthWithEmail();
-  final DatabaseReference databaseReference = FirebaseDatabase.instance.reference();
+  final DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
+  final UserDatabase userDatabase = UserDatabase();
   String? uid = '';
   String? userEmail = '';
-  String? text = 'Loading...';
   local_user.User userInfo = local_user.User(
       uid: '',
       role: '1113',
@@ -49,16 +49,14 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
     fetchAndSetData();
   }
 
-  final UserDatabase userDatabase = UserDatabase();
+
 
   Future<void> fetchAndSetData() async {
     try {
       userEmail = _auth.currentUser?.email;
       uid = _auth.currentUser?.uid;
       userInfo = (await userDatabase.readUserData(uid!))!;
-      String? result = await userDatabase.readData();
       setState(() {
-        text = result;
         loading = false;
       });
     } catch (e) {
@@ -88,86 +86,132 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
       body: Stack (
           children: [
           if (loading || userInfo.avatar == '') const LoadingScreen(loadingText: 'Подожди, идет загрузка данных',)
-          else SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (userInfo.avatar != '') // Проверяем, есть ли ссылка на аватар
-                  SizedBox(
-                    child: Image.network(
-                      userInfo.avatar, // Предполагаем, что avatar - это строка с URL изображения
-                      fit: BoxFit.cover,
-                      //width: constraints.maxWidth,
-                      //height: constraints.maxWidth,
-                    ),
-                  ),
-                const SizedBox(height: 16.0),
-                if (userInfo.name != '') HeadlineAndDesc(headline: '${userInfo.name} ${userInfo.lastname}', description: 'Имя'),
-                const SizedBox(height: 16.0),
-                if (userInfo.phone != '') HeadlineAndDesc(headline: userInfo.phone, description: 'Телефон для связи'),
-                const SizedBox(height: 16.0),
-                if (userInfo.telegram != '') HeadlineAndDesc(headline: userInfo.telegram, description: 'Telegram'),
-                const SizedBox(height: 16.0),
-                if (userInfo.whatsapp != '') HeadlineAndDesc(headline: userInfo.whatsapp, description: 'Whatsapp'),
-                const SizedBox(height: 16.0),
-                if (userInfo.instagram != '') HeadlineAndDesc(headline: userInfo.instagram, description: 'Instagram'),
-                const SizedBox(height: 16.0),
-                if (userInfo.city != '') HeadlineAndDesc(headline: userInfo.city, description: 'Город'),
-                const SizedBox(height: 16.0),
-                if (userInfo.birthDate != '') HeadlineAndDesc(headline: userInfo.birthDate, description: 'Дата рождения'),
-                const SizedBox(height: 16.0),
-                if (userInfo.sex != '') HeadlineAndDesc(headline: userInfo.sex, description: 'Пол'),
-                const SizedBox(height: 16.0),
-                if (userEmail != '' && userEmail != null) HeadlineAndDesc(headline: userEmail!, description: 'email профиля'),
-
-                const SizedBox(height: 16.0),
-                CustomButton(
-                  buttonText: 'Редактировать профиль',
-                  onTapMethod: () async {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => EditProfileScreen(userInfo: userInfo))
-                    );
-                  },
-                ),
-
-                const SizedBox(height: 16.0),
-                CustomButton(
-                  state: 'error',
-                  buttonText: 'Выйти из профиля',
-                  onTapMethod: () async {
-                    bool? confirmed = await PopUpDialog.showConfirmationDialog(
-                      context,
-                      title: "Вы действительно хотите выйти?",
-                      backgroundColor: AppColors.greyBackground,
-                      confirmButtonText: "Да",
-                      cancelButtonText: "Нет",
-                    );
-                    if (confirmed != null && confirmed) {
-                      String result = await authWithEmail.signOut();
-
-                      if (result == 'success') {
-                        showSnackBar(
-                          'Как жаль, что ты уходишь! В любом случае, мы всегда будем рады видеть тебя снова. До скорой встречи!',
-                          Colors.green,
-                          5,
-                        );
-                        navigateToProfile();
+          else ListView(
+            children: [
+              if (userInfo.avatar != '') // Проверяем, есть ли ссылка на аватар
+                Card(
+                  child: Image.network(
+                    userInfo.avatar, // Предполагаем, что avatar - это строка с URL изображения
+                    fit: BoxFit.cover,
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.width*0.8,
+                    loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                      if (loadingProgress == null) {
+                        return child;
                       } else {
-                        showSnackBar(
-                          'Что-то пошло не так при попытке выхода. Возможно, это заговор темных сил! Пожалуйста, попробуй еще раз, и если проблема сохранится, обратись в нашу техподдержку.',
-                          AppColors.attentionRed,
-                          5,
+                        return Center(
+                          child: CircularProgressIndicator(
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
+                                : null,
+                          ),
                         );
                       }
-                    }
-                  },
+                    },
+                  ),
                 ),
-              ],
-            ),
-          ),
+
+              SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+
+                    if (userInfo.name != '') Row(
+                      children: [
+                        Expanded(
+                          child: HeadlineAndDesc(
+                            headline: '${userInfo.name} ${userInfo.lastname}',
+                            description: 'Имя',
+                            textSize: 'big',
+                          ),
+                        ),
+                        const SizedBox(width: 16.0),
+                        IconButton(
+                          icon: Icon(
+                              Icons.edit,
+                            color: Theme.of(context).colorScheme.background,
+                          ),
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(Colors.yellow),
+                          ),
+                          onPressed: () async {
+                            Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => EditProfileScreen(userInfo: userInfo))
+                          );
+                        },
+                            // Действие при нажатии на кнопку редактирования
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16.0),
+                    if (userEmail != '' && userEmail != null) HeadlineAndDesc(headline: userEmail!, description: 'email профиля'),
+                    const SizedBox(height: 16.0),
+                    if (userInfo.city != '') HeadlineAndDesc(headline: userInfo.city, description: 'Город'),
+                    const SizedBox(height: 16.0),
+                    if (userInfo.phone != '') HeadlineAndDesc(headline: userInfo.phone, description: 'Телефон для связи'),
+                    const SizedBox(height: 16.0),
+                    if (userInfo.telegram != '') HeadlineAndDesc(headline: userInfo.telegram, description: 'Telegram'),
+                    const SizedBox(height: 16.0),
+                    if (userInfo.whatsapp != '') HeadlineAndDesc(headline: userInfo.whatsapp, description: 'Whatsapp'),
+                    const SizedBox(height: 16.0),
+                    if (userInfo.instagram != '') HeadlineAndDesc(headline: userInfo.instagram, description: 'Instagram'),
+                    const SizedBox(height: 16.0),
+                    if (userInfo.birthDate != '') HeadlineAndDesc(headline: userInfo.birthDate, description: 'Дата рождения'),
+                    const SizedBox(height: 16.0),
+                    if (userInfo.sex != '') HeadlineAndDesc(headline: userInfo.sex, description: 'Пол'),
+
+
+                    const SizedBox(height: 16.0),
+                    CustomButton(
+                      buttonText: 'Редактировать профиль',
+                      onTapMethod: () async {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => EditProfileScreen(userInfo: userInfo))
+                        );
+                      },
+                    ),
+
+                    const SizedBox(height: 16.0),
+                    CustomButton(
+                      state: 'error',
+                      buttonText: 'Выйти из профиля',
+                      onTapMethod: () async {
+                        bool? confirmed = await PopUpDialog.showConfirmationDialog(
+                          context,
+                          title: "Вы действительно хотите выйти?",
+                          backgroundColor: AppColors.greyBackground,
+                          confirmButtonText: "Да",
+                          cancelButtonText: "Нет",
+                        );
+                        if (confirmed != null && confirmed) {
+                          String result = await authWithEmail.signOut();
+
+                          if (result == 'success') {
+                            showSnackBar(
+                              'Как жаль, что ты уходишь! В любом случае, мы всегда будем рады видеть тебя снова. До скорой встречи!',
+                              Colors.green,
+                              5,
+                            );
+                            navigateToProfile();
+                          } else {
+                            showSnackBar(
+                              'Что-то пошло не так при попытке выхода. Возможно, это заговор темных сил! Пожалуйста, попробуй еще раз, и если проблема сохранится, обратись в нашу техподдержку.',
+                              AppColors.attentionRed,
+                              5,
+                            );
+                          }
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          )
     ],
     )
 

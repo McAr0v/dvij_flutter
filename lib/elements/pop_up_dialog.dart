@@ -1,6 +1,7 @@
 import 'package:dvij_flutter/elements/custom_button.dart';
 import 'package:flutter/material.dart';
 
+// ---- ВИДЖЕТ ОТОБРАЖЕНИЯ ВСПЛЫВАЮШЕГО ДИАЛОГА -----
 
 class PopUpDialog {
   static Future<bool?> showConfirmationDialog(
@@ -21,7 +22,8 @@ class PopUpDialog {
           contentPadding: const EdgeInsets.symmetric(vertical: 20.0),
           actionsPadding: const EdgeInsets.symmetric(horizontal: 20.0,vertical: 20.0),
 
-          //backgroundColor: backgroundColor,
+          // TODO Сделать отступы между кнопками в всплываюшем диалоге
+
           actions: [
             CustomButton(
               buttonText: cancelButtonText,

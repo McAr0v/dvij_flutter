@@ -6,6 +6,7 @@ class AuthWithEmail {
   get user => _auth.currentUser;
 
 
+  // ---- Функция выхода из аккаунта ---
   Future<String> signOut() async {
     try {
       await _auth.signOut();
@@ -16,9 +17,7 @@ class AuthWithEmail {
     }
   }
 
-  void showSnackBar(SnackBar snackBar, BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  }
+  // ---- Функция создания пользователя через Email и пароль ----
 
   Future<String?> createUserWithEmailAndPassword(String emailAddress, String password) async {
     try {
@@ -37,6 +36,7 @@ class AuthWithEmail {
       return user?.uid;
 
     } on FirebaseAuthException catch (e) {
+      // --- Если ошибки, возвращаем коды ошибок ---
       if (e.code == 'weak-password') {
         return e.code;
       } else if (e.code == 'email-already-in-use') {
@@ -49,7 +49,6 @@ class AuthWithEmail {
         print(e.code);
         return null;
       }
-      // В случае исключения возвращаем null
 
     } catch (e) {
       print(e);
@@ -57,6 +56,8 @@ class AuthWithEmail {
       return null;
     }
   }
+
+  // --- Вход в аккаунт ----
 
   Future<String?> signInWithEmailAndPassword(
       String emailAddress,
@@ -68,8 +69,12 @@ class AuthWithEmail {
         email: emailAddress,
         password: password,
       );
+      // Если пользователь успешно вошел, возвращаем uid
       return credential.user?.uid;
+
     } on FirebaseAuthException catch (e) {
+
+      // Если ошибки, возвращаем коды ошибок
 
       //print('Ошибка - Firebase Auth Error: ${e.code} - ${e.message}');
 
@@ -107,16 +112,21 @@ class AuthWithEmail {
     }
   }
 
+  // ---- СБРОС ПАРОЛЯ -----
+
   Future<String?> resetPassword(String emailAddress) async {
     try {
       await _auth.sendPasswordResetEmail(
         email: emailAddress,
       );
 
-      // Return a success message
+      // Если успешно отправлено письмо, возвращаем success
       return 'success';
 
     } on FirebaseAuthException catch (e) {
+
+      // Если ошибки, возвращаем коды ошибок
+
       if (e.code == 'invalid-email') {
         return e.code;
       } else if (e.code == 'user-not-found') {
@@ -124,14 +134,11 @@ class AuthWithEmail {
       } else {
         print(e.code);
 
-        // Handle other errors as needed
         return e.code;
       }
     } catch (e) {
       print(e);
-      // Handle other errors as needed
       return null;
     }
   }
-
 }
