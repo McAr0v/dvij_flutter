@@ -1,4 +1,3 @@
-
 import 'package:dvij_flutter/screens/profile/user_logged_in_screen.dart';
 import 'package:dvij_flutter/screens/profile/user_not_sign_in_screen.dart';
 import 'package:dvij_flutter/screens/profile/user_not_verified.dart';
@@ -7,6 +6,9 @@ import 'package:flutter/material.dart';
 
 class ProfilePage extends StatelessWidget {
   ProfilePage({super.key});
+
+  // СТРАНИЦА РАСПРЕДЕЛИТЕЛЬ - В ЗАВИСИМОСТИ ОТ СОСТОЯНИЯ ПОЛЬЗОВАТЕЛЯ
+  // РАЗНЫЕ ЭКРАНЫ
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
 

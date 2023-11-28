@@ -94,7 +94,7 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
                     userInfo.avatar, // Предполагаем, что avatar - это строка с URL изображения
                     fit: BoxFit.cover,
                     width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.width*0.8,
+                    height: MediaQuery.of(context).size.width,
                     loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
                       if (loadingProgress == null) {
                         return child;

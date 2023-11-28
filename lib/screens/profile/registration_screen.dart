@@ -214,7 +214,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                 city: '',
                                 birthDate: '',
                                 sex: '',
-                                avatar: ''
+                                avatar: 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2F4632379.jpg?alt=media&token=1a96beed-155f-489a-b676-a2326ebeae36'
                             );
 
                             String? publishedInDatabase = await userDatabase.writeUserData(newUser);

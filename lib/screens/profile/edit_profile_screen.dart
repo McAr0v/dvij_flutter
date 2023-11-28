@@ -1,6 +1,4 @@
 import 'dart:io';
-
-import 'package:dvij_flutter/main.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/database_firebase/user_database.dart';
 import 'package:dvij_flutter/elements/custom_button.dart';
@@ -24,10 +22,15 @@ class EditProfileScreen extends StatefulWidget {
 
 }
 
+// ----- ЭКРАН РЕДАКТИРОВАНИЯ ПРОФИЛЯ -------
+
 class _EditProfileScreenState extends State<EditProfileScreen> {
+
+  // Инициализируем классы
   final ImagePickerService imagePickerService = ImagePickerService();
   final ImageUploader imageUploader = ImageUploader();
-  final MyApp myApp = MyApp();
+  final UserDatabase userDatabase = UserDatabase();
+
   late TextEditingController nameController;
   late TextEditingController lastnameController;
   late TextEditingController phoneController;
@@ -38,9 +41,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController birthdateController;
   late TextEditingController sexController;
   late TextEditingController avatarController;
-  final UserDatabase userDatabase = UserDatabase();
+
   File? _imageFile;
   bool loading = true;
+
+  // --- Функция перехода на страницу профиля ----
 
   void navigateToProfile() {
     Navigator.pushNamedAndRemoveUntil(
@@ -50,6 +55,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
+  // ----- Отображение всплывающего сообщения ----
+
   void showSnackBar(String message, Color color, int showTime) {
     final snackBar = customSnackBar(
       message: message,
@@ -58,6 +65,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
+
+  // ------ Функция выбора изображения -------
 
   Future<void> _pickImage() async {
     final File? pickedImage = await imagePickerService.pickImage(ImageSource.gallery);
@@ -71,10 +80,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
 
+  // -- Инициализируем состояние ----
   @override
   void initState() {
     super.initState();
+
     loading = true;
+
+    // --- Подгружаем в контроллеры содержимое из БД. Чтобы значения были самостоятельно занесены
+
     nameController = TextEditingController(text: widget.userInfo.name);
     lastnameController = TextEditingController(text: widget.userInfo.lastname);
     phoneController = TextEditingController(text: widget.userInfo.phone);
@@ -85,6 +99,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     birthdateController = TextEditingController(text: widget.userInfo.birthDate);
     sexController = TextEditingController(text: widget.userInfo.sex);
     avatarController = TextEditingController(text: widget.userInfo.avatar);
+
     loading = false;
   }
 
@@ -92,7 +107,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Редактировать профиль'),
+        title: const Text('Редактирование профиля'),
       ),
       body: Stack (
           children: [
@@ -103,11 +118,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                if (_imageFile != null) ImageInEditScreen(
+
+                  // Новая картинка
+                  if (_imageFile != null) ImageInEditScreen(
 
                       backgroundImageFile: _imageFile,
                       onEditPressed: () => _pickImage()
                   )
+
+                  // Картинка из БД
                   else if (_imageFile == null && widget.userInfo.avatar != '' ) ImageInEditScreen(
                     onEditPressed: () => _pickImage(),
                     backgroundImageUrl: widget.userInfo.avatar,
@@ -217,60 +236,75 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   const SizedBox(height: 16.0),
 
 
+                  // --- КНОПКА Сохранить изменения -------
+
                   CustomButton(
-                    buttonText: 'Опубликовать',
+                    buttonText: 'Сохранить изменения',
                     onTapMethod: () async {
+
+                      // Включаем экран загрузки
                       setState(() {
                         loading = true;
                       });
+
+                      // Создаем переменную для нового аватара
                       String? avatarURL;
+
+                      // ---- ЕСЛИ ВЫБРАНА НОВАЯ КАРТИНКА -------
                       if (_imageFile != null) {
 
-                        //final File imageFile = File(_imageFile!.path);
+                        // Сжимаем изображение
                         final compressedImage = await imagePickerService.compressImage(_imageFile!);
 
+                        // Выгружаем изображение в БД и получаем URL картинки
                         avatarURL = await imageUploader.uploadImageInProfile(widget.userInfo.uid, compressedImage);
 
+                        // Если URL аватарки есть
+                        if (avatarURL != null) {
+                          // TODO: Сделать вывод какой-то, что картинка загружена
+                        } else {
+                          // TODO: Сделать обработку ошибок, если не удалось загрузить картинку в базу данных пользователя
+                        }
                       }
 
-                      if (avatarURL != null) {
+                      // Заполняем пользователя
+                      local_user.User updatedUser = local_user.User(
+                        uid: widget.userInfo.uid,
+                        role: widget.userInfo.role,
+                        name: nameController.text,
+                        lastname: lastnameController.text,
+                        phone: phoneController.text,
+                        whatsapp: whatsappController.text,
+                        telegram: telegramController.text,
+                        instagram: instagramController.text,
+                        city: cityController.text,
+                        birthDate: birthdateController.text,
+                        sex: sexController.text,
+                        avatar: avatarURL ?? widget.userInfo.avatar,
+                      );
 
-                        local_user.User updatedUser = local_user.User(
-                          uid: widget.userInfo.uid,
-                          role: widget.userInfo.role,
-                          name: nameController.text,
-                          lastname: lastnameController.text,
-                          phone: phoneController.text,
-                          whatsapp: whatsappController.text,
-                          telegram: telegramController.text,
-                          instagram: instagramController.text,
-                          city: cityController.text,
-                          birthDate: birthdateController.text,
-                          sex: sexController.text,
-                          avatar: avatarURL,
+                      // Выгружаем пользователя в БД
+                      String? editInDatabase = await userDatabase.writeUserData(updatedUser);
+
+                      // Если выгрузка успешна
+                      if (editInDatabase == 'success') {
+
+                        // Выключаем экран загрузки
+                        setState(() {
+                          loading = false;
+                        });
+                        // Показываем всплывающее сообщение
+                        showSnackBar(
+                          "Прекрасно! Данные отредактированы!",
+                          Colors.green,
+                          1,
                         );
 
-                        String? editInDatabase = await userDatabase.writeUserData(updatedUser);
+                        // Уходим в профиль
+                        navigateToProfile();
 
-                        if (editInDatabase == 'success') {
-
-                          setState(() {
-                            loading = false;
-                          });
-                          showSnackBar(
-                            "Прекрасно! Данные отредактированы!",
-                            Colors.green,
-                            5,
-                          );
-
-                          navigateToProfile();
-
-                        }
-
-
-                      } else {
-                        // TODO: Сделать обработку ошибок, если не удалось загрузить в базу данных пользователя
                       }
+
                     },
                   ),
                   const SizedBox(height: 16.0),

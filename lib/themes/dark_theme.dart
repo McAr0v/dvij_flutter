@@ -40,6 +40,8 @@ class CustomTheme {
       // Верхняя панель
 
       appBarTheme: const AppBarTheme(
+        // Настройка, чтобы при прокрутке не менялся цвет панели
+        scrolledUnderElevation: 0.0,
         backgroundColor: AppColors.greyOnBackground,
         titleTextStyle: TextStyle(color: AppColors.white, fontSize: 22, fontFamily: 'SfProDisplay', fontWeight: FontWeight.bold),
 
