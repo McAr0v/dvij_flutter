@@ -95,11 +95,13 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (userInfo.avatar != '') // Проверяем, есть ли ссылка на аватар
-                  Image.network(
-                    userInfo.avatar, // Предполагаем, что avatar - это строка с URL изображения
-                    //width: 100,
-                    //height: 100,
-                    fit: BoxFit.cover,
+                  SizedBox(
+                    child: Image.network(
+                      userInfo.avatar, // Предполагаем, что avatar - это строка с URL изображения
+                      fit: BoxFit.cover,
+                      //width: constraints.maxWidth,
+                      //height: constraints.maxWidth,
+                    ),
                   ),
                 const SizedBox(height: 16.0),
                 if (userInfo.name != '') HeadlineAndDesc(headline: '${userInfo.name} ${userInfo.lastname}', description: 'Имя'),

@@ -38,7 +38,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController avatarController;
   final UserDatabase userDatabase = UserDatabase();
   File? _imageFile;
-  Key imageKey = UniqueKey();
   bool loading = true;
 
   void navigateToProfile() {
@@ -65,7 +64,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       setState(() {
         _imageFile = pickedImage;
         avatarController.text = _imageFile!.path;
-        imageKey = UniqueKey();
       });
     }
   }

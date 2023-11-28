@@ -1,3 +1,5 @@
+import 'package:dvij_flutter/elements/custom_button.dart';
+import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 
@@ -11,6 +13,7 @@ class ImageInEditScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: Theme.of(context).colorScheme.background,
       elevation: 4.0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.0),
@@ -21,22 +24,36 @@ class ImageInEditScreen extends StatelessWidget {
             width: constraints.maxWidth, // Ширина равна максимальной ширине
             height: constraints.maxWidth, // Фиксированная высота
             child: Stack(
-              alignment: Alignment.bottomCenter,
+              alignment: Alignment.bottomRight,
               children: [
                 if (backgroundImageFile != null)
                   Image.file(
                     backgroundImageFile!,
                     fit: BoxFit.cover,
+                    width: constraints.maxWidth,
+                    height: constraints.maxWidth,
                   ),
                 if (backgroundImageUrl != null)
                   Ink.image(
                     image: NetworkImage(backgroundImageUrl!),
                     fit: BoxFit.cover,
+                    width: constraints.maxWidth,
+                    height: constraints.maxWidth,
                   ),
 
-                ElevatedButton(
+                /*ElevatedButton(
                   onPressed: onEditPressed,
                   child: Text('Изменить фотографию'),
+                ),*/
+
+
+                Positioned(
+                  bottom: 16.0, // Задайте желаемый отступ внизу
+                  right: 16.0,
+                  child: CustomButton(
+                      buttonText: 'Изменить фото',
+                      onTapMethod: onEditPressed
+                  )
                 ),
               ],
             ),

@@ -45,6 +45,7 @@ class CustomTheme {
 
       ),
 
+
       // Панель табов (мои, избранные, лента)
 
       tabBarTheme: const TabBarTheme(
