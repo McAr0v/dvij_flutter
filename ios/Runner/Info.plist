@@ -5,8 +5,8 @@
     <key>FirebaseAppCheckEnabled</key>
     <false/>
     <key>NSPhotoLibraryUsageDescription</key>
-    <key>NSPhotoLibraryAddUsageDescription</key>
     <string>Our app requires write access to your photo library for storing images.</string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
     <string>We need access to your photo library</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
