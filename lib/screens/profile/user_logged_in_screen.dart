@@ -12,6 +12,9 @@ import 'package:dvij_flutter/elements/pop_up_dialog.dart';
 import '../../classes/user_class.dart' as local_user;
 import '../../elements/loading_screen.dart';
 
+
+// --- ЭКРАН ЗАЛОГИНЕВШЕГОСЯ ПОЛЬЗОВАТЕЛЯ -----
+
 class UserLoggedInScreen extends StatefulWidget {
   UserLoggedInScreen({Key? key}) : super(key: key);
 
@@ -20,50 +23,54 @@ class UserLoggedInScreen extends StatefulWidget {
 }
 
 class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final AuthWithEmail authWithEmail = AuthWithEmail();
-  final DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
+  // --- Инициализируем дополнительные классы ---
+
   final UserDatabase userDatabase = UserDatabase();
+  final AuthWithEmail authWithEmail = AuthWithEmail();
+
+  // ---- Инициализируем базу данных ------
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
+
+  // ---- Инициализируем пустые переменные ----
+
   String? uid = '';
   String? userEmail = '';
-  local_user.User userInfo = local_user.User(
-      uid: '',
-      role: '1113',
-      name: '',
-      lastname: '',
-      phone: '',
-      whatsapp: '',
-      telegram: '',
-      instagram: '',
-      city: '',
-      birthDate: '',
-      sex: '',
-      avatar: ''
-  );
+  local_user.User userInfo = local_user.User.empty('');
+
+  // --- Переключатель показа экрана загрузки -----
 
   bool loading = true;
 
+  // ---- Инициализация экрана -----
   @override
   void initState() {
     super.initState();
+    // --- Получаем и устанавливаем данные ---
     fetchAndSetData();
   }
 
 
+  // --- Функция получения и ввода данных ---
 
   Future<void> fetchAndSetData() async {
     try {
+      // --- Получаем email нашего пользователя
       userEmail = _auth.currentUser?.email;
+      // ---- Получаем uid нашего пользователя
       uid = _auth.currentUser?.uid;
+      // --- Читаем данные пользователя из БД
       userInfo = (await userDatabase.readUserData(uid!))!;
+      // ---- Убираем экран загрузки -----
       setState(() {
         loading = false;
       });
     } catch (e) {
-      print('Error initializing data: $e');
+      // TODO Сделать обработку ошибок, если не получилось считать данные
     }
   }
 
+  // ---- Функция перехода в профиль ----
   void navigateToProfile() {
     Navigator.pushNamedAndRemoveUntil(
       context,
@@ -72,8 +79,7 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
     );
   }
 
-
-
+  // ---- Функция отображения всплывающих сообщений -----
   void showSnackBar(String message, Color color, int showTime) {
     final snackBar = customSnackBar(message: message, backgroundColor: color, showTime: showTime);
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -85,10 +91,16 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
     return Scaffold(
       body: Stack (
           children: [
-          if (loading || userInfo.avatar == '') const LoadingScreen(loadingText: 'Подожди, идет загрузка данных',)
-          else ListView(
+            // ---- Экран загрузки ----
+            if (loading) const LoadingScreen(loadingText: 'Подожди, идет загрузка данных',)
+            else ListView(
+
+              // ---- Экран профиля -----
+
             children: [
               if (userInfo.avatar != '') // Проверяем, есть ли ссылка на аватар
+                // TODO - Сделать более проработанную проверку аватарки
+
                 Card(
                   child: Image.network(
                     userInfo.avatar, // Предполагаем, что avatar - это строка с URL изображения
@@ -99,17 +111,21 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
                       if (loadingProgress == null) {
                         return child;
                       } else {
-                        return Center(
+                        return const LoadingScreen(loadingText: 'Подожди, идет загрузка фото',);
+                        // --- БЫЛО ВМЕСТО ЛОАДИНГ СКРИН. НАДО ПОТЕСТИТЬ ---
+                        /*const Center(
                           child: CircularProgressIndicator(
                             value: loadingProgress.expectedTotalBytes != null
                                 ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
                                 : null,
                           ),
-                        );
+                        );*/
                       }
                     },
                   ),
                 ),
+
+              // --- Контент под аватаркой -----
 
               SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
@@ -117,6 +133,8 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+
+                    // TODO - Такая проверка не пойдет. Иначе пользователь никак не сможет перейти на экран редактирования
 
                     if (userInfo.name != '') Row(
                       children: [
@@ -128,6 +146,8 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
                           ),
                         ),
                         const SizedBox(width: 16.0),
+
+                        // --- Кнопка редактирования ----
                         IconButton(
                           icon: Icon(
                               Icons.edit,
@@ -146,24 +166,34 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
                         ),
                       ],
                     ),
+
+                    // ---- Остальные данные пользователя ----
+
                     const SizedBox(height: 16.0),
                     if (userEmail != '' && userEmail != null) HeadlineAndDesc(headline: userEmail!, description: 'email профиля'),
+
                     const SizedBox(height: 16.0),
                     if (userInfo.city != '') HeadlineAndDesc(headline: userInfo.city, description: 'Город'),
+
                     const SizedBox(height: 16.0),
                     if (userInfo.phone != '') HeadlineAndDesc(headline: userInfo.phone, description: 'Телефон для связи'),
+
                     const SizedBox(height: 16.0),
                     if (userInfo.telegram != '') HeadlineAndDesc(headline: userInfo.telegram, description: 'Telegram'),
+
                     const SizedBox(height: 16.0),
                     if (userInfo.whatsapp != '') HeadlineAndDesc(headline: userInfo.whatsapp, description: 'Whatsapp'),
+
                     const SizedBox(height: 16.0),
                     if (userInfo.instagram != '') HeadlineAndDesc(headline: userInfo.instagram, description: 'Instagram'),
+
                     const SizedBox(height: 16.0),
                     if (userInfo.birthDate != '') HeadlineAndDesc(headline: userInfo.birthDate, description: 'Дата рождения'),
+
                     const SizedBox(height: 16.0),
                     if (userInfo.sex != '') HeadlineAndDesc(headline: userInfo.sex, description: 'Пол'),
 
-
+                    // TODO - Решить, эта кнопка нужна или нет?
                     const SizedBox(height: 16.0),
                     CustomButton(
                       buttonText: 'Редактировать профиль',
@@ -175,11 +205,17 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
                       },
                     ),
 
+                    // --- Выход из профиля ----
+
                     const SizedBox(height: 16.0),
                     CustomButton(
                       state: 'error',
                       buttonText: 'Выйти из профиля',
                       onTapMethod: () async {
+
+                        // --- Открываем диалог ----
+                        // TODO - Доделать экран диалога!!!
+
                         bool? confirmed = await PopUpDialog.showConfirmationDialog(
                           context,
                           title: "Вы действительно хотите выйти?",
@@ -187,7 +223,13 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
                           confirmButtonText: "Да",
                           cancelButtonText: "Нет",
                         );
+
+                        // ---- Если пользователь нажал ВЫЙТИ ----
+
                         if (confirmed != null && confirmed) {
+
+                          //TODO Сделать экран загрузки при выходе их профила
+                          // --- Функция выхода из профиля
                           String result = await authWithEmail.signOut();
 
                           if (result == 'success') {
@@ -212,12 +254,8 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
               ),
             ],
           )
-    ],
-    )
-
-
-
-
+       ],
+      )
     );
   }
 }

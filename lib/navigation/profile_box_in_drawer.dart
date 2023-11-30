@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../classes/user_class.dart' as local_user;
 import '../database_firebase/user_database.dart';
+import '../themes/app_colors.dart';
 
 class ProfileBoxInDrawer extends StatefulWidget {
   final local_user.User userInfo;
@@ -93,7 +94,7 @@ class _ProfileBoxInDrawerState extends State<ProfileBoxInDrawer> {
                 widthPercentage: drawerWidthPercentage,
                 headline: 'Подтверди почту',
                 description: 'Миссия подтверждения активирована! Проверь свой Email – мы отправили тебе важное письмо. Следуй инструкции чтобы активировать аккаунт!',
-                icon: const Icon(Icons.warning)
+                icon: const Icon(Icons.warning, color: AppColors.brandColor,)
               )
 
 

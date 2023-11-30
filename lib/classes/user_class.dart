@@ -26,4 +26,22 @@ class User {
     required this.sex,
     required this.avatar,
   });
+
+  factory User.empty(String uid) {
+    return User(
+      uid: uid,
+      role: '1113',
+      name: '',
+      lastname: '',
+      phone: '',
+      whatsapp: '',
+      telegram: '',
+      instagram: '',
+      city: '',
+      birthDate: '',
+      sex: '',
+      avatar: 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2Fdvij_unknow_user.jpg?alt=media&token=b63ea5ef-7bdf-49e9-a3ef-1d34d676b6a7'
+    );
+  }
+
 }

@@ -4,11 +4,12 @@ import 'package:dvij_flutter/elements/loading_screen.dart';
 import 'package:dvij_flutter/elements/text_with_link.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/authentication/auth_with_email.dart';
-import '../../app_state/appstate.dart';
 import '../../classes/user_class.dart';
 import '../../elements/custom_snack_bar.dart';
 import '../../themes/app_colors.dart';
 import 'login_screen.dart';
+
+// -- ЭКРАН РЕГИСТРАЦИИ ----
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
@@ -18,12 +19,20 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
-  late final AppState appState;
+
+  //late final AppState appState; -- Если все норм будет работать, удали эту строчку // От 30.11.2023
+
+  // --- Инициализируем классы
   final AuthWithEmail authWithEmail = AuthWithEmail();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
   final UserDatabase userDatabase = UserDatabase();
 
+  // --- Инициализируем контроллеры для полей ввода
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+
+
+  // --- Функция перехода на страницу профиля ---
 
   void navigateToProfile() {
     Navigator.pushNamedAndRemoveUntil(
@@ -33,14 +42,20 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     );
   }
 
+  // ---- Функция отображения всплывающего окна
+
   void showSnackBar(String message, Color color, int showTime) {
     final snackBar = customSnackBar(message: message, backgroundColor: color, showTime: showTime);
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  bool showLogInButton = false;
-  bool privacyPolicyChecked = false;
+  // ---- Переменная отображения экрана загрузки
+
   bool loading = false;
+
+  // --- Обновление кнопки - Может нужно войти?
+
+  bool showLogInButton = false;
 
   void updateShowLogInButton(bool newValue) {
     setState(() {
@@ -48,11 +63,17 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     });
   }
 
+  // ---- Чек-бокс о том, что прочитали правила политики конфиденциальности
+
+  bool privacyPolicyChecked = false;
+
   void togglePrivacyPolicyChecked() {
     setState(() {
       privacyPolicyChecked = !privacyPolicyChecked;
     });
   }
+
+  // ---- Видимость пароля ------
 
   bool _isObscured = true;
 
@@ -73,19 +94,29 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
         children: [
 
+          // ---- Если идет загрузка, то отображается экран загрузки ----
+
           if (loading) const LoadingScreen(loadingText: 'Подожди, выполняется процесс регистрации',)
+
+          // --- В остальных случаях экран регистрации ----
 
           else SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(20, 50, 20, 50),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
+
               children: [
+
+                // --- Заголовок и описание ------
 
                 Text('Регистрация', style: Theme.of(context).textTheme.titleLarge,),
                 const SizedBox(height: 15.0),
                 Text('Спасибо, что присоединяешься к нам! Теперь ты часть нашей креативной семьи. Готовься к удивительным встречам и приключениям! 😊', style: Theme.of(context).textTheme.bodyMedium,),
                 const SizedBox(height: 25.0),
+
+                // ----- Поле Email -----
+                // TODO Сделать фунции отрисовки полей ввода
 
                 TextField(
                   style: Theme.of(context).textTheme.bodyMedium,
@@ -97,6 +128,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   ),
                 ),
                 const SizedBox(height: 16.0),
+
+                // ----- Поле пароль ------
+
                 TextField(
                   style: Theme.of(context).textTheme.bodyMedium,
                   controller: passwordController,
@@ -114,6 +148,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 ),
                 const SizedBox(height: 40.0),
 
+                // ----- ЧЕК БОКС -------
+                // TODO Сделать функцию отрисовки чек-бокса
+
                 Row(
                   children: [
 
@@ -123,6 +160,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         togglePrivacyPolicyChecked();
                       },
                     ),
+                    // ---- Надпись у чекбокса -----
                     SizedBox(
                       width: MediaQuery.of(context).size.width*0.75,
                       child: const TextWithLink(
@@ -137,26 +175,41 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
                 const SizedBox(height: 40.0),
 
+                // ----- КНОПКА ЗАРЕГИСТРИРОВАТЬСЯ -----
+
                 CustomButton(
                     buttonText: 'Зарегистрироваться',
                     onTapMethod: () async {
+
+                      // ---- НАЧАЛО ПРОЦЕССА РЕГИСТРАЦИИ -----
+
+                      // ---- УСТАНАВЛИВАЕМ ЭКРАН ЗАГРУЗКИ ------
 
                       setState(() {
                         loading = true;
                       });
 
+                      // ---- ЕСЛИ НЕ ПОДТВЕРДИЛИ ЧЕК-БОКС, ВЫВОДИМ ОШИБКУ
                       if (!privacyPolicyChecked){
 
                         showSnackBar('Это важно! Поставь галочку, что согласен ты с правилами политики конфиденциальности 🤨📜', AppColors.attentionRed, 2);
 
                       } else {
 
+                        // ---- ЕСЛИ ЧЕК-БОКС ПОДТВЕРЖДЕН -----
+
                         String email = emailController.text;
                         String password = passwordController.text;
-                        // Регистрация пользователя
+
+                        // Запускаем регистрацию и ждем
                         String? uid = await authWithEmail.createUserWithEmailAndPassword(email, password);
 
+                        // ----- Если есть результат функции -----
+
                         if (uid != null) {
+
+                          // ---- Обработка ошибок ------
+                          // TODO Сделать обработчик ошибок, который возвращает текст для всплывающего меню. Должен возвращать либо текст ошибки, либо 'Ok'
 
                           if (uid == 'weak-password'){
 
@@ -202,33 +255,28 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
                           } else {
 
-                            User newUser = User(
-                                uid: uid,
-                                role: '1113',
-                                name: '',
-                                lastname: '',
-                                phone: '',
-                                whatsapp: '',
-                                telegram: '',
-                                instagram: '',
-                                city: '',
-                                birthDate: '',
-                                sex: '',
-                                avatar: 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2F4632379.jpg?alt=media&token=1a96beed-155f-489a-b676-a2326ebeae36'
-                            );
+                            // ---- Если результат регистрации не равен ошибкам, создаем почти пустого пользователя ---
+
+                            User newUser = User.empty(uid);
+
+                            // --- Создаем запись в базе данных в Firebase
 
                             String? publishedInDatabase = await userDatabase.writeUserData(newUser);
 
+                            // ---- Если все прошло успешно ----
+
                             if (publishedInDatabase == 'success'){
 
+                              // ----- Убираем экран загрузки ----
+
                               setState(() {
-                                loading = true;
+                                loading = false;
                               });
 
                               showSnackBar(
-                                  "Прекрасно! Теперь вы часть клуба любителей веселья и отличного времяпровождения. "
-                                      "Проверьте свою почту - вас ждет важное сообщение с инструкциями по завершению "
-                                      "регистрации. Готовьтесь к морю веселых мероприятий!",
+                                  "Прекрасно! Теперь ты часть клуба любителей веселья и отличного времяпровождения. "
+                                      "Проверь свою почту - тебя ждет важное сообщение с инструкциями по завершению "
+                                      "регистрации. Готовься к морю веселых мероприятий!",
                                   Colors.green,
                                   5
                               );
@@ -241,13 +289,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
                             }
 
-
-
                           }
 
                         } else {
+
                           // Обработка случая, когда создание пользователя не удалось
-                          // Можно показать сообщение об ошибке или принять соответствующие меры
 
                           showSnackBar(
                               "Что-то пошло не так при регистрации. Возможно, где-то ошибка. "
@@ -256,14 +302,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               AppColors.attentionRed,
                               5
                           );
-
                         }
                       }
-
                     }
-
-
                 ),
+
+                // ---- Если Email уже есть в базе данных -----
 
                 if (showLogInButton) const SizedBox(height: 50.0),
 
@@ -283,18 +327,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       MaterialPageRoute(builder: (context) => const LoginScreen()),
                     );
                   },
-
                 ),
               ],
             ),
           ),
-
         ],
-
-
       )
-
-
     );
   }
 }

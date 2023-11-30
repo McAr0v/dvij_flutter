@@ -3,7 +3,6 @@ import 'package:dvij_flutter/screens/profile/registration_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/authentication/auth_with_email.dart';
 import 'package:dvij_flutter/elements/custom_snack_bar.dart';
-
 import '../../themes/app_colors.dart';
 
 class ResetPasswordPage extends StatefulWidget {
@@ -15,11 +14,17 @@ class ResetPasswordPage extends StatefulWidget {
 
 }
 
+// ---- Экран сброса пароля ---
+
 class _ResetPasswordPage extends State<ResetPasswordPage> {
 
+  // --- Инициализируем классы -----
   final AuthWithEmail authWithEmail = AuthWithEmail();
+
+  // --- Контроллеры для полей ввода ----
   final TextEditingController emailController = TextEditingController();
 
+  // --- Функция перехода в мероприятия ------
   void navigateToEvents() {
     Navigator.pushNamedAndRemoveUntil(
       context,
@@ -28,10 +33,14 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
     );
   }
 
+  // ---- Функция показа всплывающего сообщения ----
+
   void showSnackBar(String message, Color color, int showTime) {
     final snackBar = customSnackBar(message: message, backgroundColor: color, showTime: showTime);
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
+
+  // ----- Отображение кнопки Регистрация -----
 
   bool showRegButton = false;
 
@@ -53,10 +62,16 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
 
+            // TODO Сделать экран загрузки, пока идет функция сброса пароля
+
+            // ---- Заголовок и описание ------
+
             Text('Восстановление пароля', style: Theme.of(context).textTheme.titleLarge,),
             const SizedBox(height: 15.0),
             Text('Забытый пароль – не повод для печали! Укажи свою почту, и мы отправим тебе инструкцию по восстановлению пароля', style: Theme.of(context).textTheme.bodyMedium,),
             const SizedBox(height: 25.0),
+
+            // ---- Поле ввода email -----
 
             TextField(
               style: Theme.of(context).textTheme.bodyMedium,
@@ -68,16 +83,23 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
             ),
             const SizedBox(height: 16.0),
 
+            // ----- Кнопка восстановления пароля ----
+
             CustomButton(
                 buttonText: 'Восстановить пароль',
                 onTapMethod: () async {
 
                   String email = emailController.text;
 
-                  // Вход пользователя
+                  // Сброс пароля
+
                   String? textMessage = await authWithEmail.resetPassword(email);
 
+                  // --- Если есть результат функции сброса ----
+
                   if (textMessage != null) {
+
+                    // TODO - добавить эти ошибки в функцию вывода ошибки
 
                     if (textMessage == 'invalid-email') {
                       updateShowRegButton(false);
@@ -107,6 +129,8 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
                 }
             ),
 
+            // ---- Контент кнопки регистрации -----
+
             if (showRegButton) const SizedBox(height: 50.0),
 
             if (showRegButton) Text(
@@ -126,7 +150,6 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
                 );
               },
             ),
-
           ],
         ),
       ),
