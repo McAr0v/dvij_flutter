@@ -8,6 +8,8 @@ import 'package:dvij_flutter/screens/otherPages/feedback_page.dart';
 import 'package:dvij_flutter/screens/otherPages/privacy_policy_page.dart';
 import 'package:dvij_flutter/classes/user_class.dart' as local_user;
 
+import '../screens/cities_screens/cities_list_screen.dart';
+
 // --- КАСТОМНАЯ БОКОВАЯ ШТОРКА -----
 
 class CustomDrawer extends StatelessWidget {
@@ -91,6 +93,19 @@ class CustomDrawer extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                       builder: (context) => const PrivacyPolicyPage()),
+                );
+              },
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.privacy_tip),
+              title: const Text('Список городов'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => CitiesListScreen()),
                 );
               },
             ),

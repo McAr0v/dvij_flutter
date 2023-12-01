@@ -1,3 +1,4 @@
+import 'package:dvij_flutter/screens/cities_screens/cities_list_screen.dart';
 import 'package:dvij_flutter/screens/otherPages/privacy_policy_page.dart';
 import 'package:dvij_flutter/screens/profile/reset_password_page.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
@@ -42,6 +43,8 @@ class MyApp extends StatelessWidget {
         '/Promotions': (context) => CustomNavContainer(initialTabIndex: 3),
         '/privacy_policy': (context) => const PrivacyPolicyPage(),
         '/reset_password_page': (context) => const ResetPasswordPage(),
+        '/cities': (context) => CitiesListScreen(),
+
         // Другие маршруты вашего приложения
       },
     );
