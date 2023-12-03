@@ -80,9 +80,17 @@ class City {
     }
   }
 
+  static void sortCitiesByName(List<City> cities, bool order) {
+
+    if (order) cities.sort((a, b) => a.name.compareTo(b.name));
+    else {
+      cities.sort((a, b) => b.name.compareTo(a.name));
+    }
+  }
+
   // Метод для получения списка городов из Firebase
 
-  static Future<List<City>> getCities() async {
+  static Future<List<City>> getCities({bool order = true}) async {
 
     List<City> cities = [];
 
@@ -101,6 +109,8 @@ class City {
       // и обавляем в список городов
       cities.add(City.fromSnapshot(childSnapshot));
     }
+
+    sortCitiesByName(cities, order);
 
     // Возвращаем список
     return cities;

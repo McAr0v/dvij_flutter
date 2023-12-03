@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../cities/city_class.dart';
+import '../../elements/cities_elements/city_element_in_cities_screen.dart';
+import '../../themes/app_colors.dart';
 import 'city_add_or_edit_screen.dart';
 
 class CitiesListScreen extends StatefulWidget {
@@ -11,6 +13,7 @@ class CitiesListScreen extends StatefulWidget {
 
 class _CitiesListScreenState extends State<CitiesListScreen> {
   List<City> _cities = [];
+  bool _isAscending = true; // Переменная для отслеживания направления сортировки
 
   @override
   void initState() {
@@ -25,6 +28,20 @@ class _CitiesListScreenState extends State<CitiesListScreen> {
         title: Text('Список городов'),
         actions: [
           IconButton(
+            icon: Icon(
+              Icons.sort,
+              color: _isAscending ? AppColors.white : AppColors.brandColor, // Изменение цвета иконки
+            ),
+            onPressed: () {
+              // Инвертируем направление сортировки
+              setState(() {
+                _isAscending = !_isAscending;
+              });
+              // Обновляем список городов с новым направлением сортировки
+              _getCitiesFromDatabase();
+            },
+          ),
+          IconButton(
             icon: Icon(Icons.add),
             onPressed: () {
               Navigator.push(
@@ -35,13 +52,16 @@ class _CitiesListScreenState extends State<CitiesListScreen> {
           ),
         ],
       ),
-      body: _buildCitiesList(),
+      body: CityElementInCitiesScreen(
+        cities: _cities,
+        onDeleteCity: _onDeleteCity,
+      ),
     );
   }
 
   Future<void> _getCitiesFromDatabase() async {
     try {
-      List<City> cities = await City.getCities();
+      List<City> cities = await City.getCities(order: _isAscending);
       setState(() {
         _cities = cities;
       });
@@ -50,49 +70,9 @@ class _CitiesListScreenState extends State<CitiesListScreen> {
     }
   }
 
-  Widget _buildCitiesList() {
-    if (_cities.isEmpty) {
-      return Center(child: Text('Список городов пуст'));
-    } else {
-      return ListView.builder(
-        itemCount: _cities.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(_cities[index].name),
-            subtitle: Text('ID: ${_cities[index].id}'),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.edit),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CityEditScreen(city: _cities[index]),
-                      ),
-                    );
-                  },
-                ),
-                IconButton(
-                  icon: Icon(Icons.delete),
-                  onPressed: () async {
-
-                    String result = await City.deleteCity(_cities[index].id);
-
-                    if (result == 'success') {
-                      _getCitiesFromDatabase();
-                      //TODO Сделать всплывающее оповещение что успешно
-                    }
-
-                    // Добавить функционал удаления города
-                  },
-                ),
-              ],
-            ),
-          );
-        },
-      );
-    }
+  void _onDeleteCity(String cityId) {
+    setState(() {
+      _cities.removeWhere((city) => city.id == cityId);
+    });
   }
 }
