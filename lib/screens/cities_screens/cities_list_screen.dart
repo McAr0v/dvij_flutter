@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../cities/city_class.dart';
 import '../../elements/cities_elements/city_element_in_cities_screen.dart';
+import '../../elements/loading_screen.dart';
 import '../../themes/app_colors.dart';
 import 'city_add_or_edit_screen.dart';
 
@@ -11,22 +12,43 @@ class CitiesListScreen extends StatefulWidget {
   _CitiesListScreenState createState() => _CitiesListScreenState();
 }
 
-class _CitiesListScreenState extends State<CitiesListScreen> {
-  List<City> _cities = [];
-  bool _isAscending = true; // Переменная для отслеживания направления сортировки
+// ---- Страница списка городов (Должна быть доступна только для админа)------
 
+class _CitiesListScreenState extends State<CitiesListScreen> {
+
+  // Список городов
+  List<City> _cities = [];
+
+  // Переменная для отслеживания направления сортировки
+  bool _isAscending = true;
+
+  // Переменная, включающая экран загрузки
+  bool loading = true;
+
+  // --- Инициализируем состояние экрана ----
   @override
   void initState() {
     super.initState();
+
+    // Влючаем экран загрузки
+    loading = true;
+    // Получаем список городов
     _getCitiesFromDatabase();
+
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // --- Верхняя панель -----
       appBar: AppBar(
         title: Text('Список городов'),
+
+        // ---- Кнопки управления в AppBar ---
         actions: [
+
+          // СОРТИРОВКА
+
           IconButton(
             icon: Icon(
               Icons.sort,
@@ -37,38 +59,77 @@ class _CitiesListScreenState extends State<CitiesListScreen> {
               setState(() {
                 _isAscending = !_isAscending;
               });
-              // Обновляем список городов с новым направлением сортировки
-              _getCitiesFromDatabase();
+              // Сортируем список городов
+              City.sortCitiesByName(_cities, _isAscending);
             },
           ),
+
+          // Добавление нового города
+
           IconButton(
-            icon: Icon(Icons.add),
+            icon: const Icon(Icons.add),
+
+            // Переход на страницу создания города
             onPressed: () {
-              Navigator.push(
+              Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => CityEditScreen()),
+                MaterialPageRoute(
+                  builder: (context) => const CityEditScreen(),
+                ),
               );
             },
           ),
         ],
       ),
-      body: CityElementInCitiesScreen(
-        cities: _cities,
-        onDeleteCity: _onDeleteCity,
-      ),
+
+      // ----- Само тело экрана ------
+
+      body: Stack (
+        children: [
+          // --- ЕСЛИ ЭКРАН ЗАГРУЗКИ -----
+          if (loading) const LoadingScreen(loadingText: 'Подожди, идет загрузка городов')
+          // --- ЕСЛИ ГОРОДОВ НЕТ -----
+          else if (_cities.isEmpty) Center(child: Text('Список городов пуст'))
+          // --- ЕСЛИ ГОРОДА ЗАГРУЗИЛИСЬ
+          else ListView.builder(
+              // Открываем создатель списков
+                padding: const EdgeInsets.all(20.0),
+                itemCount: _cities.length,
+                // Шаблоны для элементов
+                itemBuilder: (context, index) {
+                  return CityElementInCitiesScreen(
+                      city: _cities[index],
+                      onDeleteCity: _onDeleteCity,
+                      index: index);
+                }
+            )
+        ],
+      )
     );
   }
 
+  // ---- Функция получения городов из БД -----
+
   Future<void> _getCitiesFromDatabase() async {
     try {
+      // --- Получаем список городов -----
       List<City> cities = await City.getCities(order: _isAscending);
+
+      // ---- Убираем экран загрузки -----
+      // ---- Подгружаем в переменную загруженные города -----
       setState(() {
+        loading = false;
         _cities = cities;
       });
     } catch (error) {
+      // TODO Сделать вывод всплывающего меню, если произошла ошибка
       print('Ошибка при получении городов: $error');
     }
   }
+
+  // ---- Функция удаления элемента из отображаемого списка ----
+  // ---- По факту, основной процесс происходит в виджете CityElementInCitiesScreen
+  // ---- Здесь он лишь убирается из видимого списка
 
   void _onDeleteCity(String cityId) {
     setState(() {

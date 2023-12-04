@@ -3,88 +3,95 @@ import '../../cities/city_class.dart';
 import '../../screens/cities_screens/city_add_or_edit_screen.dart';
 
 class CityElementInCitiesScreen extends StatelessWidget {
-  final List<City> cities;
+  final City city;
   final Function(String) onDeleteCity;
+  final int index;
 
-  const CityElementInCitiesScreen({Key? key, required this.cities, required this.onDeleteCity})
+  const CityElementInCitiesScreen({Key? key, required this.city, required this.onDeleteCity, required this.index})
       : super(key: key);
+
+  // ----- Виджет элемента списка городов на экране редактирования городов -----
 
   @override
   Widget build(BuildContext context) {
-    return _buildCitiesList();
-  }
 
-  Widget _buildCitiesList() {
-    if (cities.isEmpty) {
-      return Center(child: Text('Список городов пуст'));
-    } else {
-      return ListView.builder(
-        padding: const EdgeInsets.all(8.0),
-        itemCount: cities.length,
-        itemBuilder: (context, index) {
-          return Column(
-            children: [
-              Row(
+    // ---- Все помещаем в колонку -----
+    return Column(
+      children: [
+
+        // ----- Теперь в строки
+        Row(
+          children: [
+            // Порядковый номер строки
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
+              child: Text(
+                '${index + 1}.',
+                style: Theme.of(context).textTheme.labelMedium,
+              ),
+            ),
+            // Название города и ID
+            // Expanded чтобы занимала все свободное пространство
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Порядковый номер строки
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      '${index + 1}.',
-                      style: Theme.of(context).textTheme.labelMedium,
-                    ),
+                  // --- Название города -----
+                  Text(
+                    city.name,
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
-                  // Название города и ID
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          cities[index].name,
-                          style: Theme.of(context).textTheme.bodyLarge,
-                        ),
-                        //SizedBox(height: 8.0),
-                        Text(
-                            'ID: ${cities[index].id}',
-                          style: Theme.of(context).textTheme.labelMedium,
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Кнопки редактирования и удаления
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.edit),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => CityEditScreen(city: cities[index]),
-                            ),
-                          );
-                        },
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.delete),
-                        onPressed: () async {
-                          String result = await City.deleteCity(cities[index].id);
-
-                          if (result == 'success') {
-                            onDeleteCity(cities[index].id); // Уведомляем родительский виджет об удалении
-                            //TODO Сделать всплывающее оповещение что успешно
-                          }
-                        },
-                      ),
-                    ],
+                  // ---- ID города -------
+                  Text(
+                    'ID: ${city.id}',
+                    style: Theme.of(context).textTheme.labelMedium,
                   ),
                 ],
               ),
-              SizedBox(height: 16.0), // Расстояние между элементами
-            ],
-          );
-        },
-      );
-    }
+            ),
+
+            // Кнопки редактирования и удаления
+            Row(
+              children: [
+
+                // ---- Редактирование ----
+                IconButton(
+                  icon: Icon(Icons.edit),
+                  // --- Уходим на экран редактирования -----
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CityEditScreen(city: city),
+                      ),
+                    );
+                  },
+                ),
+
+                // ---- Удаление ------
+
+                IconButton(
+                  icon: Icon(Icons.delete),
+
+                  // ---- Запускаем функцию удаления города ----
+
+                  onPressed: () async {
+                    String result = await City.deleteCity(city.id);
+
+                    if (result == 'success') {
+                      onDeleteCity(city.id); // Уведомляем родительский виджет об удалении
+                      //TODO Сделать всплывающее оповещение что успешно
+                    }
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+
+        // ---- Расстояние между элементами -----
+        SizedBox(height: 15.0),
+      ],
+    );
   }
 }
