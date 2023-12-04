@@ -1,6 +1,9 @@
 import 'package:dvij_flutter/elements/custom_button.dart';
+import 'package:dvij_flutter/elements/loading_screen.dart';
+import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:flutter/material.dart';
 import '../../cities/city_class.dart';
+import '../../elements/custom_snack_bar.dart';
 import 'cities_list_screen.dart'; // Импортируем экран списка городов
 
 class CityEditScreen extends StatefulWidget {
@@ -22,15 +25,34 @@ class CityEditScreen extends StatefulWidget {
 class _CityEditScreenState extends State<CityEditScreen> {
   final TextEditingController _cityNameController = TextEditingController();
 
+  // Переменная, включающая экран загрузки
+  bool loading = false;
+
   // --- Инициализируем состояние ----
 
   @override
   void initState() {
     super.initState();
+    // Влючаем экран загрузки
+    loading = false;
     // Если передан город для редактирования, устанавливаем его название в поле ввода
     if (widget.city != null) {
       _cityNameController.text = widget.city!.name;
     }
+  }
+
+  // ---- Функция отображения всплывающего окна
+
+  void showSnackBar(String message, Color color, int showTime) {
+    final snackBar = customSnackBar(message: message, backgroundColor: color, showTime: showTime);
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  void navigateToCitiesListScreen() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const CitiesListScreen()),
+    );
   }
 
   @override
@@ -43,12 +65,12 @@ class _CityEditScreenState extends State<CityEditScreen> {
         // Чтобы не плодились экраны назад с разным списком городов
 
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.chevron_left),
           onPressed: () {
             Navigator.pushReplacement(
               context,
                 MaterialPageRoute(
-                  builder: (context) => CitiesListScreen(),
+                  builder: (context) => const CitiesListScreen(),
                 ),
             );
           },
@@ -57,59 +79,76 @@ class _CityEditScreenState extends State<CityEditScreen> {
 
       // --- Само тело страницы ----
 
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            SizedBox(height: 40.0),
+      body: Stack(
+        children: [
+          if (loading) LoadingScreen(loadingText: "Идет публикация города",)
+          else Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              children: [
+                SizedBox(height: 40.0),
 
-            // ---- Поле ввода города ---
+                // ---- Поле ввода города ---
 
-            TextField(
-              style: Theme.of(context).textTheme.bodyMedium,
-              keyboardType: TextInputType.text,
-              controller: _cityNameController,
-              decoration: const InputDecoration(
-                  labelText: 'Название города',
-                  prefixIcon: Icon(Icons.place),
-              ),
+                TextField(
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  keyboardType: TextInputType.text,
+                  controller: _cityNameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Название города',
+                    prefixIcon: Icon(Icons.place),
+                  ),
+                ),
+
+                SizedBox(height: 40.0),
+
+                // ---- Кнопка опубликовать -----
+
+                // TODO Пока публикуется сделать экран загрузки
+                CustomButton(
+                    buttonText: 'Опубликовать',
+                    onTapMethod: (){
+                      if (_cityNameController.text == ''){
+                        showSnackBar(
+                            'Название города должно быть обязательно заполнено!',
+                            AppColors.attentionRed,
+                            2
+                        );
+                      } else {
+                        _publishCity();
+                      }
+
+                    }
+                ),
+
+                SizedBox(height: 20.0),
+
+                // -- Кнопка отменить ----
+
+                CustomButton(
+                    state: 'secondary',
+                    buttonText: "Отменить",
+                    onTapMethod: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CitiesListScreen(),
+                        ),
+                      );
+                    }
+                )
+              ],
             ),
-
-            SizedBox(height: 40.0),
-
-            // ---- Кнопка опубликовать -----
-
-            // TODO Пока публикуется сделать экран загрузки
-            CustomButton(
-                buttonText: 'Опубликовать',
-                onTapMethod: (){
-                  _publishCity();
-                }
-            ),
-
-            SizedBox(height: 20.0),
-
-            // -- Кнопка отменить ----
-
-            CustomButton(
-                state: 'secondary',
-                buttonText: "Отменить",
-                onTapMethod: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => CitiesListScreen(),
-                    ),
-                  );
-                }
-            )
-          ],
-        ),
-      ),
+          ),
+        ],
+      )
     );
   }
 
   void _publishCity() async {
+
+    loading = true;
+
     String cityName = _cityNameController.text;
 
     String result;
@@ -123,13 +162,13 @@ class _CityEditScreenState extends State<CityEditScreen> {
     }
 
     if (result == 'success'){
-      // TODO - Сделать всплывающее оповещение
+      loading = false;
+      showSnackBar('Город успешно опубликован', Colors.green, 3);
       // Возвращаемся на экран списка городов
       // TODO - Вывести переход на страницу выше, за пределы виджета
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => CitiesListScreen()),
-      );
+      navigateToCitiesListScreen();
+    } else {
+      // TODO Сделать обработчик ошибок, если публикация города не удалась
     }
 
 
