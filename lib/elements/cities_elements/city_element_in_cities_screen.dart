@@ -31,7 +31,7 @@ class CityElementInCitiesScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
                       '${index + 1}.',
-                      style: TextStyle(fontSize: 18.0),
+                      style: Theme.of(context).textTheme.labelMedium,
                     ),
                   ),
                   // Название города и ID
@@ -41,10 +41,13 @@ class CityElementInCitiesScreen extends StatelessWidget {
                       children: [
                         Text(
                           cities[index].name,
-                          style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                          style: Theme.of(context).textTheme.bodyLarge,
                         ),
-                        SizedBox(height: 8.0),
-                        Text('ID: ${cities[index].id}'),
+                        //SizedBox(height: 8.0),
+                        Text(
+                            'ID: ${cities[index].id}',
+                          style: Theme.of(context).textTheme.labelMedium,
+                        ),
                       ],
                     ),
                   ),
