@@ -1,5 +1,3 @@
-import 'dart:html';
-
 import 'package:flutter/material.dart';
 import '../../cities/city_class.dart';
 import '../../elements/cities_elements/city_element_in_cities_screen.dart';
@@ -116,6 +114,7 @@ class _CitiesListScreenState extends State<CitiesListScreen> {
                         loading = false;
 
                         if (result == 'success') {
+                          _getCitiesFromDatabase();
                           showSnackBar('Город успешно удален', Colors.green, 3);
                         } else {
                           showSnackBar('Произошла ошибка удаления города(', AppColors.attentionRed, 3);
@@ -134,6 +133,10 @@ class _CitiesListScreenState extends State<CitiesListScreen> {
 
   Future<void> _getCitiesFromDatabase() async {
     try {
+      setState(() {
+        loading = true;
+      });
+
       // --- Получаем список городов -----
       List<City> cities = await City.getCities(order: _isAscending);
 
