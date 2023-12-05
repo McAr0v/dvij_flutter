@@ -4,10 +4,15 @@ import '../../screens/cities_screens/city_add_or_edit_screen.dart';
 
 class CityElementInCitiesScreen extends StatelessWidget {
   final City city;
-  final Function(String) onDeleteCity;
+  final VoidCallback onTapMethod;
   final int index;
 
-  const CityElementInCitiesScreen({Key? key, required this.city, required this.onDeleteCity, required this.index})
+  const CityElementInCitiesScreen({
+    Key? key,
+    required this.city,
+    required this.onTapMethod,
+    required this.index
+  })
       : super(key: key);
 
   // ----- Виджет элемента списка городов на экране редактирования городов -----
@@ -75,14 +80,7 @@ class CityElementInCitiesScreen extends StatelessWidget {
 
                   // ---- Запускаем функцию удаления города ----
 
-                  onPressed: () async {
-                    String result = await City.deleteCity(city.id);
-
-                    if (result == 'success') {
-                      onDeleteCity(city.id); // Уведомляем родительский виджет об удалении
-                      //TODO Сделать всплывающее оповещение что успешно
-                    }
-                  },
+                  onPressed: onTapMethod,
                 ),
               ],
             ),

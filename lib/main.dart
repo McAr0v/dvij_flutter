@@ -43,7 +43,7 @@ class MyApp extends StatelessWidget {
         '/Promotions': (context) => CustomNavContainer(initialTabIndex: 3),
         '/privacy_policy': (context) => const PrivacyPolicyPage(),
         '/reset_password_page': (context) => const ResetPasswordPage(),
-        '/cities': (context) => CitiesListScreen(),
+        '/cities': (context) => const CitiesListScreen(),
 
         // Другие маршруты вашего приложения
       },

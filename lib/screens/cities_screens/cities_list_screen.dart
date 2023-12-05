@@ -1,6 +1,9 @@
+import 'dart:html';
+
 import 'package:flutter/material.dart';
 import '../../cities/city_class.dart';
 import '../../elements/cities_elements/city_element_in_cities_screen.dart';
+import '../../elements/custom_snack_bar.dart';
 import '../../elements/loading_screen.dart';
 import '../../themes/app_colors.dart';
 import 'city_add_or_edit_screen.dart';
@@ -36,6 +39,11 @@ class _CitiesListScreenState extends State<CitiesListScreen> {
     _getCitiesFromDatabase();
 
   }
+  void showSnackBar(String message, Color color, int showTime) {
+    final snackBar = customSnackBar(message: message, backgroundColor: color, showTime: showTime);
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +107,21 @@ class _CitiesListScreenState extends State<CitiesListScreen> {
                 itemBuilder: (context, index) {
                   return CityElementInCitiesScreen(
                       city: _cities[index],
-                      onDeleteCity: _onDeleteCity,
+                      onTapMethod: () async {
+
+                        loading = true;
+
+                        String result = await City.deleteCity(_cities[index].id);
+
+                        loading = false;
+
+                        if (result == 'success') {
+                          showSnackBar('Город успешно удален', Colors.green, 3);
+                        } else {
+                          showSnackBar('Произошла ошибка удаления города(', AppColors.attentionRed, 3);
+                        }
+
+                      },
                       index: index);
                 }
             )
@@ -133,7 +155,10 @@ class _CitiesListScreenState extends State<CitiesListScreen> {
 
   void _onDeleteCity(String cityId) {
     setState(() {
+      loading = true;
       _cities.removeWhere((city) => city.id == cityId);
+      loading = false;
+      showSnackBar('Город успешно удален', Colors.green, 3);
     });
   }
 }
