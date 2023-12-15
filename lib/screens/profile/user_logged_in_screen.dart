@@ -9,6 +9,7 @@ import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:dvij_flutter/authentication/auth_with_email.dart';
 import 'package:dvij_flutter/elements/custom_snack_bar.dart';
 import 'package:dvij_flutter/elements/pop_up_dialog.dart';
+import '../../cities/city_class.dart';
 import '../../classes/user_class.dart' as local_user;
 import '../../elements/loading_screen.dart';
 
@@ -38,6 +39,8 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
   String? userEmail = '';
   local_user.User userInfo = local_user.User.empty('');
 
+  City chosenCity = City(name: '', id: '');
+
   // --- Переключатель показа экрана загрузки -----
 
   bool loading = true;
@@ -48,6 +51,7 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
     super.initState();
     // --- Получаем и устанавливаем данные ---
     fetchAndSetData();
+
   }
 
 
@@ -61,8 +65,11 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
       uid = _auth.currentUser?.uid;
       // --- Читаем данные пользователя из БД
       userInfo = (await userDatabase.readUserData(uid!))!;
+      chosenCity = await City.getCityById(userInfo.city) as City;
+
       // ---- Убираем экран загрузки -----
       setState(() {
+
         loading = false;
       });
     } catch (e) {
@@ -173,7 +180,7 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
                     if (userEmail != '' && userEmail != null) HeadlineAndDesc(headline: userEmail!, description: 'email профиля'),
 
                     const SizedBox(height: 16.0),
-                    if (userInfo.city != '') HeadlineAndDesc(headline: userInfo.city, description: 'Город'),
+                    if (userInfo.city != '') HeadlineAndDesc(headline: chosenCity.name, description: 'Город'),
 
                     const SizedBox(height: 16.0),
                     if (userInfo.phone != '') HeadlineAndDesc(headline: userInfo.phone, description: 'Телефон для связи'),

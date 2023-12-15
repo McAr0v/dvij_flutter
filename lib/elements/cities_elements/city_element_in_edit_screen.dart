@@ -1,3 +1,4 @@
+import 'package:dvij_flutter/elements/custom_button.dart';
 import 'package:flutter/material.dart';
 
 import '../../themes/app_colors.dart';
@@ -7,6 +8,8 @@ class CityElementInEditScreen extends StatelessWidget {
   final VoidCallback onActionPressed;
 
   CityElementInEditScreen({required this.onActionPressed, this.cityName});
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +21,8 @@ class CityElementInEditScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextFormField(
-                  initialValue: cityName?.isNotEmpty ?? true ? cityName! : 'Город не выбран',
+                  controller: TextEditingController(text: cityName?.isNotEmpty ?? true ? cityName! : 'Город не выбран'),
+                  //initialValue: cityName?.isNotEmpty ?? true ? cityName! : 'Город не выбран',
                   style: Theme.of(context).textTheme.bodyMedium,
                   enabled: false,
                   decoration: const InputDecoration(
@@ -38,12 +42,23 @@ class CityElementInEditScreen extends StatelessWidget {
         ),
         SizedBox(width: 8.0),
 
-        /*IconButton(
+        Card(
+          color: AppColors.brandColor,
+          child: IconButton(
             onPressed: onActionPressed,
-            icon: icon
-        )*/
+            icon: Icon(
+              Icons.edit,
+              color: AppColors.greyOnBackground,
+            ),
+          ),
+        )
 
-        GestureDetector(
+
+
+
+
+
+        /*GestureDetector(
           onTap: () {
             onActionPressed();
           },
@@ -58,7 +73,7 @@ class CityElementInEditScreen extends StatelessWidget {
                 decorationColor: AppColors.brandColor,
               )
           ),
-        ),
+        ),*/
 
       ],
     );

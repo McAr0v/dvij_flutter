@@ -310,9 +310,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         whatsapp: whatsappController.text,
                         telegram: telegramController.text,
                         instagram: instagramController.text,
-                        city: cityController.text,
+                        city: chosenCity.id,
                         birthDate: birthdateController.text,
-                        sex: chosenCity.id,
+                        sex: sexController.text,
                         avatar: avatarURL ?? widget.userInfo.avatar,
                       );
 
