@@ -212,6 +212,14 @@ class CustomTheme {
           borderRadius: BorderRadius.all(Radius.circular(15.0)), // Радиус скругления углов
         ),
 
+        disabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: AppColors.greyText, // Цвет границы
+            width: 2.0, // Ширина границы
+          ),
+          borderRadius: BorderRadius.all(Radius.circular(15.0)), // Радиус скругления углов
+        )
+
 
       ),
 

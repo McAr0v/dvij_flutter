@@ -1,0 +1,66 @@
+import 'package:flutter/material.dart';
+
+import '../../themes/app_colors.dart';
+
+class CityElementInEditScreen extends StatelessWidget {
+  final String? cityName;
+  final VoidCallback onActionPressed;
+
+  CityElementInEditScreen({required this.onActionPressed, this.cityName});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextFormField(
+                  initialValue: cityName?.isNotEmpty ?? true ? cityName! : 'Город не выбран',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  enabled: false,
+                  decoration: const InputDecoration(
+                    labelText: 'Город',
+                    labelStyle: TextStyle(
+                      color: AppColors.greyText,
+                      fontSize: 12,
+                      fontFamily: 'SfProDisplay',
+                      fontWeight: FontWeight.normal,
+                    ),
+                    border: InputBorder.none,
+                    //contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+              ],
+            )
+        ),
+        SizedBox(width: 8.0),
+
+        /*IconButton(
+            onPressed: onActionPressed,
+            icon: icon
+        )*/
+
+        GestureDetector(
+          onTap: () {
+            onActionPressed();
+          },
+          child: const Text(
+              'Выбрать город',
+              style: TextStyle(
+                color: AppColors.brandColor,
+                fontSize: 14,
+                fontFamily: 'SfProDisplay',
+                fontWeight: FontWeight.normal,
+                decoration: TextDecoration.underline,
+                decorationColor: AppColors.brandColor,
+              )
+          ),
+        ),
+
+      ],
+    );
+  }
+}

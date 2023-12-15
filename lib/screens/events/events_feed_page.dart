@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../cities/city_class.dart';
+import '../../elements/choose_dialogs/city_choose_dialog.dart';
 
 class EventsFeedPage extends StatefulWidget {
   const EventsFeedPage({Key? key}) : super(key: key);
@@ -9,15 +10,18 @@ class EventsFeedPage extends StatefulWidget {
 }
 
 class _EventsFeedPageState extends State<EventsFeedPage> {
-  final TextEditingController _editCityNameController = TextEditingController();
-  final TextEditingController _editCityIdController = TextEditingController();
+
   List<City> _cities = [];
+
+  City selectedCity = City(id: "", name: "");
 
   @override
   void initState() {
     super.initState();
     _getCitiesFromDatabase();
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -30,59 +34,75 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            TextField(
-              controller: _editCityNameController,
-              decoration: InputDecoration(labelText: 'Название города'),
+            Text(
+              'Selected city:',
             ),
-            SizedBox(height: 16.0),
-            TextField(
-              controller: _editCityIdController,
-              decoration: InputDecoration(labelText: 'ID города'),
+            Text(
+              '${selectedCity.name}',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 16.0),
+            SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                _editCityInDatabase();
+                _showCityPickerDialog();
               },
-              child: Text('Редактировать город'),
+              child: Text('Choose a city'),
             ),
-            SizedBox(height: 16.0),
-            _buildCitiesList(),
           ],
         ),
       ),
     );
   }
 
-  void _editCityInDatabase() async {
-    String editCityName = _editCityNameController.text;
-    String editCityId = _editCityIdController.text;
+  Future<void> _showCityPickerDialog() async {
+    final selectedCity = await showDialog<City>(
+      context: context,
+      builder: (BuildContext context) {
+        return CityChooseDialog(cities: _cities);
+      },
+    );
 
-    if (editCityName.isNotEmpty && editCityId.isNotEmpty) {
-      String result = await City.addAndEditCity(editCityName, id: editCityId);
-
-      // Вывод сообщения об успешном редактировании или ошибке
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result),
-        ),
-      );
-
-      // Очистка полей ввода после редактирования
-      _editCityNameController.clear();
-      _editCityIdController.clear();
-
-      // Обновление списка городов после редактирования
-      await _getCitiesFromDatabase();
-    } else {
-      // Вывод сообщения о необходимости ввести название и ID города
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Введите название и ID города для редактирования'),
-        ),
-      );
+    if (selectedCity != null) {
+      setState(() {
+        this.selectedCity = selectedCity;
+      });
+      print("Selected city: ${selectedCity.name}, ID: ${selectedCity.id}");
     }
   }
+
+  /*Future<void> _showCityPickerDialog(BuildContext context) async {
+    final selectedCity = await showDialog<City>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Choose a city'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: _cities.map((City city) {
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).pop(city);
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(city.name),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        );
+      },
+    );
+
+    if (selectedCity != null) {
+      setState(() {
+        this.selectedCity = selectedCity;
+      });
+      print("Selected city: ${selectedCity.name}, ID: ${selectedCity.id}");
+    }
+  }*/
+
 
   Future<void> _getCitiesFromDatabase() async {
     try {
@@ -95,21 +115,5 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
     }
   }
 
-  Widget _buildCitiesList() {
-    if (_cities.isEmpty) {
-      return Text('Список городов пуст');
-    } else {
-      return Expanded(
-        child: ListView.builder(
-          itemCount: _cities.length,
-          itemBuilder: (context, index) {
-            return ListTile(
-              title: Text(_cities[index].name),
-              subtitle: Text(_cities[index].id),
-            );
-          },
-        ),
-      );
-    }
-  }
+
 }

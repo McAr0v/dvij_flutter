@@ -20,6 +20,20 @@ class City {
     );
   }
 
+  static List<City> filterStrings(List<City> inputList, String filter) {
+    List<City> newList = [];
+
+    for (int i = 0; i<inputList.length; i++)
+    {
+      if (inputList[i].name.contains(filter))
+      {
+        newList.add(inputList[i]);
+      }
+    }
+
+    return newList;
+  }
+
 
 
   // Метод для добавления нового города или редактирования города в Firebase
@@ -133,7 +147,8 @@ class City {
 
     } else {
       // Если не нашел, возвращаем null
-      return null;
+      //return null;
+      return City(name: '', id: '');
     }
   }
 }

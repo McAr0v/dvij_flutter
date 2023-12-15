@@ -2,7 +2,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/database_firebase/user_database.dart';
 import 'package:dvij_flutter/elements/custom_button.dart';
+import '../../cities/city_class.dart';
 import '../../classes/user_class.dart' as local_user;
+import '../../elements/choose_dialogs/city_choose_dialog.dart';
+import '../../elements/cities_elements/city_element_in_edit_screen.dart';
 import '../../elements/custom_snack_bar.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../elements/image_in_edit_screen.dart';
@@ -41,9 +44,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController birthdateController;
   late TextEditingController sexController;
   late TextEditingController avatarController;
+  late City chosenCity;
 
   File? _imageFile;
   bool loading = true;
+
+  List<City> _cities = [];
+
+
 
   // --- Функция перехода на страницу профиля ----
 
@@ -79,29 +87,46 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+  Future<void> _getCitiesFromDatabase() async {
+    try {
+      List<City> cities = await City.getCities();
+      setState(() {
+        _cities = cities;
+      });
+    } catch (error) {
+      print('Ошибка при получении городов: $error');
+    }
+  }
 
-  // -- Инициализируем состояние ----
   @override
   void initState() {
     super.initState();
-
     loading = true;
 
-    // --- Подгружаем в контроллеры содержимое из БД. Чтобы значения были самостоятельно занесены
+    // Подгружаем в контроллеры содержимое из БД.
+    Future.delayed(Duration.zero, () async {
+      nameController = TextEditingController(text: widget.userInfo.name);
+      lastnameController = TextEditingController(text: widget.userInfo.lastname);
+      phoneController = TextEditingController(text: widget.userInfo.phone);
+      whatsappController = TextEditingController(text: widget.userInfo.whatsapp);
+      telegramController = TextEditingController(text: widget.userInfo.telegram);
+      instagramController = TextEditingController(text: widget.userInfo.instagram);
+      cityController = TextEditingController(text: widget.userInfo.city);
+      birthdateController = TextEditingController(text: widget.userInfo.birthDate);
+      sexController = TextEditingController(text: widget.userInfo.sex);
+      avatarController = TextEditingController(text: widget.userInfo.avatar);
+      _getCitiesFromDatabase();
+      chosenCity = await City.getCityById(widget.userInfo.city) as City;
 
-    nameController = TextEditingController(text: widget.userInfo.name);
-    lastnameController = TextEditingController(text: widget.userInfo.lastname);
-    phoneController = TextEditingController(text: widget.userInfo.phone);
-    whatsappController = TextEditingController(text: widget.userInfo.whatsapp);
-    telegramController = TextEditingController(text: widget.userInfo.telegram);
-    instagramController = TextEditingController(text: widget.userInfo.instagram);
-    cityController = TextEditingController(text: widget.userInfo.city);
-    birthdateController = TextEditingController(text: widget.userInfo.birthDate);
-    sexController = TextEditingController(text: widget.userInfo.sex);
-    avatarController = TextEditingController(text: widget.userInfo.avatar);
 
-    loading = false;
+
+      setState(() {
+        loading = false;
+      });
+    });
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -201,7 +226,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
 
                   const SizedBox(height: 16.0),
-                  TextField(
+
+                  CityElementInEditScreen(
+                    cityName: chosenCity.name,
+                    onActionPressed: () {
+                      _showCityPickerDialog();
+                    },
+                  ),
+
+                  /*TextField(
                     style: Theme.of(context).textTheme.bodyMedium,
                     keyboardType: TextInputType.text,
                     controller: cityController,
@@ -209,7 +242,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       labelText: 'Город',
                       //prefixIcon: Icon(Icons.email),
                     ),
-                  ),
+                  ),*/
 
                   const SizedBox(height: 16.0),
                   TextField(
@@ -279,7 +312,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         instagram: instagramController.text,
                         city: cityController.text,
                         birthDate: birthdateController.text,
-                        sex: sexController.text,
+                        sex: chosenCity.id,
                         avatar: avatarURL ?? widget.userInfo.avatar,
                       );
 
@@ -322,4 +355,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               )
     );
   }
+
+  Future<void> _showCityPickerDialog() async {
+    final selectedCity = await showDialog<City>(
+      context: context,
+      builder: (BuildContext context) {
+        return CityChooseDialog(cities: _cities);
+      },
+    );
+
+    if (selectedCity != null) {
+      setState(() {
+        chosenCity = selectedCity;
+      });
+      print("Selected city: ${selectedCity.name}, ID: ${selectedCity.id}");
+    }
+  }
+
 }
