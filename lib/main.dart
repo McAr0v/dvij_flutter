@@ -7,6 +7,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'app_state/appstate.dart';
+import 'cities/city_class.dart';
 import 'database_firebase/user_database.dart';
 import 'elements/icons_elements/svg_icon.dart';
 import 'themes/dark_theme.dart';
@@ -19,6 +20,7 @@ import 'package:firebase_auth/firebase_auth.dart' as firebase_user;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await City.getCitiesAndSave();
 
   runApp(
     ChangeNotifierProvider(
@@ -30,6 +32,8 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
+
 
   @override
   Widget build(BuildContext context) {

@@ -34,9 +34,17 @@ class _CitiesListScreenState extends State<CitiesListScreen> {
     // Влючаем экран загрузки
     loading = true;
     // Получаем список городов
-    _getCitiesFromDatabase();
+    //_getCitiesFromDatabase();
+
+    if (City.currentCityList.isNotEmpty)
+      {
+        _cities = City.currentCityList;
+      }
+
+    loading = false;
 
   }
+
   void showSnackBar(String message, Color color, int showTime) {
     final snackBar = customSnackBar(message: message, backgroundColor: color, showTime: showTime);
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -107,18 +115,25 @@ class _CitiesListScreenState extends State<CitiesListScreen> {
                       city: _cities[index],
                       onTapMethod: () async {
 
-                        loading = true;
+                        setState(() {
+                          loading = true;
+                        });
 
                         String result = await City.deleteCity(_cities[index].id);
 
-                        loading = false;
-
                         if (result == 'success') {
-                          _getCitiesFromDatabase();
+                          setState(() {
+                            _cities = City.currentCityList;
+                          });
+                          //_getCitiesFromDatabase();
                           showSnackBar('Город успешно удален', Colors.green, 3);
                         } else {
                           showSnackBar('Произошла ошибка удаления города(', AppColors.attentionRed, 3);
                         }
+
+                        setState(() {
+                          loading = false;
+                        });
 
                       },
                       index: index);

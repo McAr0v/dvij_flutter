@@ -20,6 +20,19 @@ class City {
     );
   }
 
+
+  // Статическая переменная для хранения списка городов
+  static List<City> currentCityList = [];
+
+  // Метод для получения списка городов из Firebase и сохранения в currentCityList
+  static Future<void> getCitiesAndSave({bool order = true}) async {
+
+    currentCityList = await getCities(order: order);
+
+  }
+
+  // Функция фильтрации городов по вводимому значению
+
   static List<City> filterStrings(List<City> inputList, String filter) {
     List<City> newList = [];
 
@@ -65,6 +78,9 @@ class City {
         'id': cityKey ?? id
       });
 
+      // Обновляем список наших городов в локальную переменную
+      await getCitiesAndSave();
+
       // --- Возвращаем успех ----
       //TODO - Есть вариант, что тут может город не опубликоваться. Надо как то подумать, чтобы точно знать что он опубиковался
       return 'success';
@@ -88,11 +104,16 @@ class City {
       // Удаляем город
       await reference.remove();
 
+      // Обновляем список наших городов в локальную переменную
+      await getCitiesAndSave();
+
       return 'success';
     } catch (error) {
       return 'Ошибка при удалении города: $error';
     }
   }
+
+  // Сортировка городов по имени
 
   static void sortCitiesByName(List<City> cities, bool order) {
 
