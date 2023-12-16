@@ -1,14 +1,15 @@
 import 'package:dvij_flutter/elements/profile_drawer_elements/profile_element_headline_desc.dart';
 import 'package:dvij_flutter/elements/profile_drawer_elements/profile_element_logged_user.dart';
-import 'package:firebase_auth/firebase_auth.dart' as firebase_user;
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../../classes/user_class.dart' as local_user;
+import '../../classes/user_class.dart';
+import '../classes/user_class.dart';
 import '../database_firebase/user_database.dart';
 import '../themes/app_colors.dart';
 
 class ProfileBoxInDrawer extends StatefulWidget {
-  final local_user.User userInfo;
+  final UserCustom userInfo;
 
   const ProfileBoxInDrawer({required this.userInfo, Key? key}) : super(key: key);
 
@@ -20,17 +21,19 @@ class ProfileBoxInDrawer extends StatefulWidget {
 
 class _ProfileBoxInDrawerState extends State<ProfileBoxInDrawer> {
   // Данные о пользователе
-  firebase_user.User? _user;
+  User? _user;
   // Переключатель - подтвердил ли почту пользователь или нет
   bool _isEmailVerified = false;
   // Инициализируем базу данных пользователя
-  final UserDatabase userDatabase = UserDatabase();
+  //final UserDatabase userDatabase = UserDatabase();
 
+  late UserCustom userNow;
 
   // Инициализируем состояние пользователя
   @override
   void initState() {
     super.initState();
+    userNow = widget.userInfo;
     _getUser();
   }
 
@@ -38,13 +41,14 @@ class _ProfileBoxInDrawerState extends State<ProfileBoxInDrawer> {
 
   Future<void> _getUser() async {
     // Инициализируем пользователя
-    firebase_user.User? user = FirebaseAuth.instance.currentUser;
+    User? user = FirebaseAuth.instance.currentUser;
 
     // Если вошел, то меняем данные в нужные переменные
     if (user != null) {
       setState(() {
         _user = user;
         _isEmailVerified = user.emailVerified;
+        userNow = UserCustom.currentUser!;
       });
     }
   }
@@ -80,7 +84,7 @@ class _ProfileBoxInDrawerState extends State<ProfileBoxInDrawer> {
             if (_user != null && _isEmailVerified)
 
               ProfileElementLoggedUser(
-                imageUrl: widget.userInfo.avatar ?? '',
+                imageUrl: userNow.avatar ?? '',
                 name: '${widget.userInfo.name} ${widget.userInfo.lastname}' ?? '',
                 email: _user!.email ?? '',
                 widthPercentage: drawerWidthPercentage,

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../cities/city_class.dart';
+import '../../classes/city_class.dart';
 import '../../screens/cities_screens/city_add_or_edit_screen.dart';
 
 class CityElementInCitiesScreen extends StatelessWidget {

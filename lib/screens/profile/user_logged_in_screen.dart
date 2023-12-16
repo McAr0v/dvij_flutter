@@ -9,8 +9,9 @@ import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:dvij_flutter/authentication/auth_with_email.dart';
 import 'package:dvij_flutter/elements/custom_snack_bar.dart';
 import 'package:dvij_flutter/elements/pop_up_dialog.dart';
-import '../../cities/city_class.dart';
-import '../../classes/user_class.dart' as local_user;
+import '../../classes/city_class.dart';
+import '../../classes/user_class.dart';
+import '../../classes/user_class.dart';
 import '../../elements/loading_screen.dart';
 
 
@@ -26,18 +27,18 @@ class UserLoggedInScreen extends StatefulWidget {
 class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
   // --- Инициализируем дополнительные классы ---
 
-  final UserDatabase userDatabase = UserDatabase();
-  final AuthWithEmail authWithEmail = AuthWithEmail();
+  //final UserDatabase userDatabase = UserDatabase();
+  //final AuthWithEmail authWithEmail = AuthWithEmail();
 
   // ---- Инициализируем базу данных ------
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
+  //final FirebaseAuth _auth = FirebaseAuth.instance;
+  //final DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
 
   // ---- Инициализируем пустые переменные ----
 
   String? uid = '';
   String? userEmail = '';
-  local_user.User userInfo = local_user.User.empty('');
+  UserCustom userInfo = UserCustom.empty('', '');
 
   City chosenCity = City(name: '', id: '');
 
@@ -59,12 +60,15 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
 
   Future<void> fetchAndSetData() async {
     try {
+
+      userInfo = UserCustom.currentUser!;
+
       // --- Получаем email нашего пользователя
-      userEmail = _auth.currentUser?.email;
+      userEmail = userInfo.email;
       // ---- Получаем uid нашего пользователя
-      uid = _auth.currentUser?.uid;
+      uid = userInfo.uid;
       // --- Читаем данные пользователя из БД
-      userInfo = (await userDatabase.readUserData(uid!))!;
+
       chosenCity = await City.getCityById(userInfo.city) as City;
 
       // ---- Убираем экран загрузки -----
@@ -237,7 +241,7 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
 
                           //TODO Сделать экран загрузки при выходе их профила
                           // --- Функция выхода из профиля
-                          String result = await authWithEmail.signOut();
+                          String result = await UserCustom.signOut();
 
                           if (result == 'success') {
                             showSnackBar(

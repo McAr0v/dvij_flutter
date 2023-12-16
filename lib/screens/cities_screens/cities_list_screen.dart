@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../cities/city_class.dart';
+import '../../classes/city_class.dart';
 import '../../elements/cities_elements/city_element_in_cities_screen.dart';
 import '../../elements/custom_snack_bar.dart';
 import '../../elements/loading_screen.dart';

@@ -1,4 +1,4 @@
-import 'package:firebase_auth/firebase_auth.dart';
+/*import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class AuthWithEmail {
@@ -6,7 +6,7 @@ class AuthWithEmail {
   get user => _auth.currentUser;
 
 
-  // ---- Функция выхода из аккаунта ---
+  // **** ---- Функция выхода из аккаунта ---
   Future<String> signOut() async {
     try {
       await _auth.signOut();
@@ -17,7 +17,7 @@ class AuthWithEmail {
     }
   }
 
-  // ---- Функция создания пользователя через Email и пароль ----
+  // *** ---- Функция создания пользователя через Email и пароль ----
 
   Future<String?> createUserWithEmailAndPassword(String emailAddress, String password) async {
     try {
@@ -57,7 +57,7 @@ class AuthWithEmail {
     }
   }
 
-  // --- Вход в аккаунт ----
+  // *** --- Вход в аккаунт ----
 
   Future<String?> signInWithEmailAndPassword(
       String emailAddress,
@@ -112,7 +112,7 @@ class AuthWithEmail {
     }
   }
 
-  // ---- СБРОС ПАРОЛЯ -----
+  // **** ---- СБРОС ПАРОЛЯ -----
 
   Future<String?> resetPassword(String emailAddress) async {
     try {
@@ -141,4 +141,4 @@ class AuthWithEmail {
       return null;
     }
   }
-}
+}*/

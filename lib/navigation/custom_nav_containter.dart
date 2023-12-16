@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_user;
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import '../classes/user_class.dart';
 import '../database_firebase/user_database.dart';
 import 'custom_drawer.dart';
 import 'custom_bottom_navigation_bar.dart';
@@ -31,13 +32,14 @@ class _CustomNavContainerState extends State<CustomNavContainer>
   final List<String> _tabTitles = ['Профиль', 'Мероприятия', 'Места', 'Акции'];
 
   // Инициализируем базу данных о пользователе
-  final UserDatabase userDatabase = UserDatabase();
+  //final UserDatabase userDatabase = UserDatabase();
 
   late firebase_user.User? _user; // Объявление пользователя
 
   // Изначальная информация о пользователе
-  local_user.User userInfo = local_user.User(
+  local_user.UserCustom userInfo = local_user.UserCustom(
       uid: '',
+      email: '',
       role: '1113',
       name: '',
       lastname: '',
@@ -70,21 +72,21 @@ class _CustomNavContainerState extends State<CustomNavContainer>
 
       // Если пользователь вошел в систему, обновляем userInfo
       if (user != null) {
-        _updateUserInfo(user);
+        userInfo = UserCustom.currentUser!;
       }
     });
   }
 
   // --- Функция считывания информации о пользователе
 
-  Future<void> _updateUserInfo(firebase_user.User user) async {
+  /*Future<void> _updateUserInfo(firebase_user.User user) async {
     userInfo = (await userDatabase.readUserData(user.uid))!;
 
     // Если считали, устанавливаем данные пользователя
     setState(() {
       userInfo = userInfo;
     });
-  }
+  }*/
 
   // --- Сам виджет меню табов ----
 

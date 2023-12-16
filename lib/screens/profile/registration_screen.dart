@@ -23,8 +23,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   //late final AppState appState; -- Если все норм будет работать, удали эту строчку // От 30.11.2023
 
   // --- Инициализируем классы
-  final AuthWithEmail authWithEmail = AuthWithEmail();
-  final UserDatabase userDatabase = UserDatabase();
+  //final AuthWithEmail authWithEmail = AuthWithEmail();
+  //final UserDatabase userDatabase = UserDatabase();
 
   // --- Инициализируем контроллеры для полей ввода
   final TextEditingController emailController = TextEditingController();
@@ -207,7 +207,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         String password = passwordController.text;
 
                         // Запускаем регистрацию и ждем
-                        String? uid = await authWithEmail.createUserWithEmailAndPassword(email, password);
+                        //String? uid = await authWithEmail.createUserWithEmailAndPassword(email, password);
+                        String? uid = await UserCustom.createUserWithEmailAndPassword(email, password);
 
                         // ----- Если есть результат функции -----
 
@@ -262,11 +263,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
                             // ---- Если результат регистрации не равен ошибкам, создаем почти пустого пользователя ---
 
-                            User newUser = User.empty(uid);
+                            UserCustom newUser = UserCustom.empty(uid, email);
 
                             // --- Создаем запись в базе данных в Firebase
 
-                            String? publishedInDatabase = await userDatabase.writeUserData(newUser);
+                            // String? publishedInDatabase = await userDatabase.writeUserData(newUser);
+                            String? publishedInDatabase = await UserCustom.writeUserData(newUser);
 
                             // ---- Если все прошло успешно ----
 

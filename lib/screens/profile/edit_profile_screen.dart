@@ -2,8 +2,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/database_firebase/user_database.dart';
 import 'package:dvij_flutter/elements/custom_button.dart';
-import '../../cities/city_class.dart';
+import '../../classes/city_class.dart';
 import '../../classes/user_class.dart' as local_user;
+import '../../classes/user_class.dart';
 import '../../elements/choose_dialogs/city_choose_dialog.dart';
 import '../../elements/cities_elements/city_element_in_edit_screen.dart';
 import '../../elements/custom_snack_bar.dart';
@@ -14,7 +15,7 @@ import '../../image_Uploader/image_uploader.dart';
 import '../../image_uploader/image_picker.dart';
 
 class EditProfileScreen extends StatefulWidget {
-  final local_user.User userInfo;
+  final local_user.UserCustom userInfo;
 
   const EditProfileScreen({Key? key, required this.userInfo}) : super(key: key);
 
@@ -32,7 +33,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   // Инициализируем классы
   final ImagePickerService imagePickerService = ImagePickerService();
   final ImageUploader imageUploader = ImageUploader();
-  final UserDatabase userDatabase = UserDatabase();
+  //final UserDatabase userDatabase = UserDatabase();
 
   late TextEditingController nameController;
   late TextEditingController lastnameController;
@@ -301,8 +302,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       }
 
                       // Заполняем пользователя
-                      local_user.User updatedUser = local_user.User(
+                      local_user.UserCustom updatedUser = local_user.UserCustom(
                         uid: widget.userInfo.uid,
+                        email: widget.userInfo.email,
                         role: widget.userInfo.role,
                         name: nameController.text,
                         lastname: lastnameController.text,
@@ -317,7 +319,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       );
 
                       // Выгружаем пользователя в БД
-                      String? editInDatabase = await userDatabase.writeUserData(updatedUser);
+                      String? editInDatabase = await UserCustom.writeUserData(updatedUser);
 
                       // Если выгрузка успешна
                       if (editInDatabase == 'success') {

@@ -13,7 +13,7 @@ import '../screens/cities_screens/cities_list_screen.dart';
 // --- КАСТОМНАЯ БОКОВАЯ ШТОРКА -----
 
 class CustomDrawer extends StatelessWidget {
-  final local_user.User userInfo;
+  final local_user.UserCustom userInfo;
 
   const CustomDrawer({required this.userInfo, Key? key}) : super(key: key);
 

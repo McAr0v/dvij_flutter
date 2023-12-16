@@ -2,7 +2,7 @@ import 'package:dvij_flutter/elements/custom_button.dart';
 import 'package:dvij_flutter/elements/loading_screen.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:flutter/material.dart';
-import '../../cities/city_class.dart';
+import '../../classes/city_class.dart';
 import '../../elements/custom_snack_bar.dart';
 import 'cities_list_screen.dart'; // Импортируем экран списка городов
 

@@ -1,4 +1,4 @@
-import 'package:firebase_database/firebase_database.dart';
+/*import 'package:firebase_database/firebase_database.dart';
 
 import '../classes/user_class.dart';
 
@@ -7,8 +7,8 @@ class UserDatabase {
   // --- ИНИЦИАЛИЗИРУЕМ БАЗУ ДАННЫХ -----
   final DatabaseReference _databaseReference = FirebaseDatabase.instance.ref();
 
-  // --- ФУНКЦИЯ ЗАПИСИ ДАННЫХ ПОЛЬЗОВАТЕЛЯ -----
-  Future<String?> writeUserData(User user) async {
+  // *** --- ФУНКЦИЯ ЗАПИСИ ДАННЫХ ПОЛЬЗОВАТЕЛЯ -----
+  Future<String?> writeUserData(UserCustom user) async {
 
     try {
       // Создаем путь для пользователя в базе данных
@@ -41,9 +41,9 @@ class UserDatabase {
     }
   }
 
-  // ---- ФУНКЦИЯ ЧТЕНИЯ ИНФОРМАЦИИ О ПОЛЬЗОВАТЕЛЕ -----
+  // **** ---- ФУНКЦИЯ ЧТЕНИЯ ИНФОРМАЦИИ О ПОЛЬЗОВАТЕЛЕ -----
 
-  Future<User?> readUserData(String uid) async {
+  Future<UserCustom?> readUserData(String uid) async {
     try {
       // Путь к данным пользователя
       String userPath = 'users/$uid/user_info';
@@ -55,8 +55,9 @@ class UserDatabase {
       Map<dynamic, dynamic>? data = snapshot.snapshot.value as Map<dynamic, dynamic>?;
 
       if (data != null) {
-        User user = User(
+        UserCustom user = UserCustom(
           uid: data['uid'] ?? '',
+          email: data['email'] ?? '',
           role: data['role'] ?? '',
           name: data['name'] ?? '',
           lastname: data['lastname'] ?? '',
@@ -79,4 +80,4 @@ class UserDatabase {
       return null; // Возвращаем null в случае ошибки
     }
   }
-}
+}*/

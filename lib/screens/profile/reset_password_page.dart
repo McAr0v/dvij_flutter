@@ -1,3 +1,4 @@
+import 'package:dvij_flutter/classes/user_class.dart';
 import 'package:dvij_flutter/elements/custom_button.dart';
 import 'package:dvij_flutter/screens/profile/registration_screen.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +20,7 @@ class ResetPasswordPage extends StatefulWidget {
 class _ResetPasswordPage extends State<ResetPasswordPage> {
 
   // --- Инициализируем классы -----
-  final AuthWithEmail authWithEmail = AuthWithEmail();
+  //final AuthWithEmail authWithEmail = AuthWithEmail();
 
   // --- Контроллеры для полей ввода ----
   final TextEditingController emailController = TextEditingController();
@@ -92,8 +93,8 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
                   String email = emailController.text;
 
                   // Сброс пароля
-
-                  String? textMessage = await authWithEmail.resetPassword(email);
+                  // TODO - Сделать экран загрузки
+                  String? textMessage = await UserCustom.resetPassword(email);
 
                   // --- Если есть результат функции сброса ----
 

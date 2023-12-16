@@ -1,3 +1,4 @@
+import 'package:dvij_flutter/classes/user_class.dart';
 import 'package:dvij_flutter/elements/custom_button.dart';
 import 'package:dvij_flutter/screens/profile/registration_screen.dart';
 import 'package:dvij_flutter/screens/profile/reset_password_page.dart';
@@ -21,7 +22,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
 
   // Инициализируем класс с функциями для входа
-  final AuthWithEmail authWithEmail = AuthWithEmail();
+  //final AuthWithEmail authWithEmail = AuthWithEmail();
 
   // Контроллеры полей ввода
   final TextEditingController emailController = TextEditingController();
@@ -144,7 +145,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       String password = passwordController.text;
 
                       // Выполняем функцию входа
-                      String? uid = await authWithEmail.signInWithEmailAndPassword(email, password, context);
+                      //String? uid = await authWithEmail.signInWithEmailAndPassword(email, password, context);
+
+                      String? uid = await UserCustom.signInWithEmailAndPassword(email, password, context);
 
                       if (uid != null) {
 

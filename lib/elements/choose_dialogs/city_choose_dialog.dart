@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../cities/city_class.dart';
+import '../../classes/city_class.dart';
 
 class CityChooseDialog extends StatefulWidget {
   final List<City> cities;
