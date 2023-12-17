@@ -23,9 +23,9 @@ void main() async {
   await City.getCitiesAndSave();
   final FirebaseAuth auth = FirebaseAuth.instance;
   if (auth.currentUser != null)
-    {
-      await local_user.UserCustom.readUserData(auth.currentUser!.uid);
-    }
+  {
+    await local_user.UserCustom.readUserData(auth.currentUser!.uid);
+  }
 
 
   runApp(
@@ -59,7 +59,7 @@ class MyApp extends StatelessWidget {
       },
     );
   }
-  
+
 }
 
 /*class _MyAppState extends State<MyApp> {

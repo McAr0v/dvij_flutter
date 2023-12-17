@@ -231,6 +231,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   CityElementInEditScreen(
                     cityName: chosenCity.name,
                     onActionPressed: () {
+                      //_showCityPickerDialog();
                       _showCityPickerDialog();
                     },
                   ),
@@ -358,7 +359,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Future<void> _showCityPickerDialog() async {
+  /*Future<void> _showCityPickerDialog() async {
     final selectedCity = await showDialog<City>(
       context: context,
       builder: (BuildContext context) {
@@ -372,6 +373,37 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       });
       print("Selected city: ${selectedCity.name}, ID: ${selectedCity.id}");
     }
+  }*/
+
+  void _showCityPickerDialog() async {
+    final selectedCity = await Navigator.of(context).push(_createPopup(_cities));
+
+    if (selectedCity != null) {
+      setState(() {
+        chosenCity = selectedCity;
+      });
+      print("Selected city: ${selectedCity.name}, ID: ${selectedCity.id}");
+    }
+  }
+
+  Route _createPopup(List<City> cities) {
+    return PageRouteBuilder(
+
+      pageBuilder: (context, animation, secondaryAnimation) {
+
+        return CityPickerPage(cities: cities);
+      },
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(0.0, 1.0);
+        const end = Offset.zero;
+        const curve = Curves.easeInOut;
+        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var offsetAnimation = animation.drive(tween);
+        return SlideTransition(position: offsetAnimation, child: child);
+      },
+      transitionDuration: Duration(milliseconds: 100),
+
+    );
   }
 
 }
