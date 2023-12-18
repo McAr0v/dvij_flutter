@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:dvij_flutter/elements/data_picker.dart';
+import 'package:dvij_flutter/methods/string_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/database_firebase/user_database.dart';
 import 'package:dvij_flutter/elements/custom_button.dart';
@@ -46,13 +48,39 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController sexController;
   late TextEditingController avatarController;
   late City chosenCity;
+  late DateTime selectedDate;
 
   File? _imageFile;
   bool loading = true;
 
   List<City> _cities = [];
 
+  // DateTime selectedDate = DateTime.now();
 
+  Future<void> _selectDate(BuildContext context, {bool needClearInitialDate = false}) async {
+    DateTime initial = selectedDate;
+    if (needClearInitialDate) initial = DateTime.now();
+
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: DateTime(1940),
+      lastDate: DateTime(2101),
+
+
+    );
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+      });
+    }
+  }
+
+  DateTime GetDateFromString (String date)
+  {
+    List<int> temp = SplitDate(date, '-');
+    return DateTime(temp[0], temp[1], temp[2]);
+  }
 
   // --- Функция перехода на страницу профиля ----
 
@@ -113,9 +141,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       telegramController = TextEditingController(text: widget.userInfo.telegram);
       instagramController = TextEditingController(text: widget.userInfo.instagram);
       cityController = TextEditingController(text: widget.userInfo.city);
-      birthdateController = TextEditingController(text: widget.userInfo.birthDate);
+      if (widget.userInfo.birthDate != '') selectedDate = GetDateFromString(widget.userInfo.birthDate);
+      else selectedDate = DateTime(2100);
+      //birthdateController = TextEditingController(text: widget.userInfo.birthDate);
       sexController = TextEditingController(text: widget.userInfo.sex);
       avatarController = TextEditingController(text: widget.userInfo.avatar);
+
       _getCitiesFromDatabase();
       chosenCity = await City.getCityById(widget.userInfo.city) as City;
 
@@ -247,6 +278,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),*/
 
                   const SizedBox(height: 16.0),
+
+                  if (selectedDate == DateTime(2100))
+                    DataPickerCustom(
+                      onActionPressed: () {
+                      _selectDate(context, needClearInitialDate: true);
+                      },
+                      date: 'Дата не выбрана',
+                      )
+
+                  else DataPickerCustom(
+                      onActionPressed: () {
+                        _selectDate(context);
+                      },
+                    date: '${selectedDate.day}-${selectedDate.month}-${selectedDate.year}',
+                  ),
+
+                  /*const SizedBox(height: 16.0),
                   TextField(
                     style: Theme.of(context).textTheme.bodyMedium,
                     keyboardType: TextInputType.datetime,
@@ -255,7 +303,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       labelText: 'Дата рождения',
                       //prefixIcon: Icon(Icons.email),
                     ),
-                  ),
+                  ),*/
 
                   const SizedBox(height: 16.0),
                   TextField(
@@ -314,7 +362,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         telegram: telegramController.text,
                         instagram: instagramController.text,
                         city: chosenCity.id,
-                        birthDate: birthdateController.text,
+                        birthDate: '${selectedDate.year}-${selectedDate.month}-${selectedDate.day}',
                         sex: sexController.text,
                         avatar: avatarURL ?? widget.userInfo.avatar,
                       );

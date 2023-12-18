@@ -198,7 +198,7 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
                     const SizedBox(height: 16.0),
                     if (userInfo.instagram != '') HeadlineAndDesc(headline: userInfo.instagram, description: 'Instagram'),
 
-                    const SizedBox(height: 16.0),
+                    if (userInfo.birthDate != '')const SizedBox(height: 16.0),
                     if (userInfo.birthDate != '') HeadlineAndDesc(headline: userInfo.birthDate, description: 'Дата рождения'),
 
                     const SizedBox(height: 16.0),

@@ -30,8 +30,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-
-
   // --- Функция перехода на страницу профиля ---
 
   void navigateToProfile() {

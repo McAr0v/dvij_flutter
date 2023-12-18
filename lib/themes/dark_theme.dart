@@ -23,6 +23,17 @@ class CustomTheme {
         )
       ),
 
+      datePickerTheme: DatePickerThemeData(
+        backgroundColor: Colors.black.withOpacity(1),
+        headerBackgroundColor: AppColors.greyOnBackground, // Цвет фона заголовка
+        todayBackgroundColor: MaterialStateProperty.resolveWith<Color?>(
+              (Set<MaterialState> states) {
+            return AppColors.brandColor;
+          },
+        ),
+
+      ),
+
       // Стиль кнопки
 
       textButtonTheme: TextButtonThemeData(

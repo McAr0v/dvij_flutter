@@ -1,13 +1,13 @@
-import 'package:dvij_flutter/elements/custom_button.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../../themes/app_colors.dart';
+import '../themes/app_colors.dart';
 
-class CityElementInEditScreen extends StatelessWidget {
-  final String? cityName;
+class DataPickerCustom extends StatelessWidget {
+  final String? date;
   final VoidCallback onActionPressed;
 
-  CityElementInEditScreen({required this.onActionPressed, this.cityName});
+  DataPickerCustom({required this.onActionPressed, this.date});
 
 
 
@@ -21,12 +21,12 @@ class CityElementInEditScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextFormField(
-                  controller: TextEditingController(text: cityName?.isNotEmpty ?? true ? cityName! : 'Город не выбран'),
+                  controller: TextEditingController(text: date?.isNotEmpty ?? true ? date! : 'Дата не выбрана'),
                   //initialValue: cityName?.isNotEmpty ?? true ? cityName! : 'Город не выбран',
                   style: Theme.of(context).textTheme.bodyMedium,
                   enabled: false,
                   decoration: const InputDecoration(
-                    labelText: 'Город',
+                    labelText: 'Дата рождения',
                     labelStyle: TextStyle(
                       color: AppColors.greyText,
                       fontSize: 12,
