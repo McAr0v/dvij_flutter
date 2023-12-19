@@ -5,6 +5,8 @@ import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/date_symbol_data_file.dart';
 import 'package:provider/provider.dart';
 import 'app_state/appstate.dart';
 import 'classes/city_class.dart';
@@ -19,6 +21,7 @@ import 'package:firebase_auth/firebase_auth.dart' as firebase_user;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  //await initializeDateFormatting("ru_RU", '');
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await City.getCitiesAndSave();
   final FirebaseAuth auth = FirebaseAuth.instance;
@@ -44,6 +47,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+        supportedLocales: const [
+          Locale('ru', 'RU'), // русская локаль
+          Locale('en', 'US'), // английская локаль (если нужно)
+        ],
       home: CustomNavContainer(),
       theme: CustomTheme.darkTheme,
       routes: {

@@ -15,6 +15,7 @@ import '../../elements/image_in_edit_screen.dart';
 import '../../elements/loading_screen.dart';
 import '../../image_Uploader/image_uploader.dart';
 import '../../image_uploader/image_picker.dart';
+import '../../themes/app_colors.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final local_user.UserCustom userInfo;
@@ -61,11 +62,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     DateTime initial = selectedDate;
     if (needClearInitialDate) initial = DateTime.now();
 
+
+
     final DateTime? picked = await showDatePicker(
+
+      locale: const Locale('ru', 'RU'),
       context: context,
       initialDate: initial,
       firstDate: DateTime(1940),
       lastDate: DateTime(2101),
+      helpText: 'Выбери дату',
+      cancelText: 'Отмена',
+      confirmText: 'Подтвердить',
+      //initialEntryMode: DatePickerEntryMode.inputOnly,
+      //barrierColor: AppColors.greyOnBackground,
 
 
     );
@@ -78,7 +88,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   DateTime GetDateFromString (String date)
   {
-    List<int> temp = SplitDate(date, '-');
+    List<int> temp = splitDate(date, '-');
     return DateTime(temp[0], temp[1], temp[2]);
   }
 
