@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:dvij_flutter/database_firebase/user_database.dart';
 import 'package:dvij_flutter/elements/custom_button.dart';
 import '../../classes/city_class.dart';
+import '../../classes/role_in_app.dart';
 import '../../classes/user_class.dart' as local_user;
 import '../../classes/user_class.dart';
 import '../../elements/choose_dialogs/city_choose_dialog.dart';
@@ -52,6 +53,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late City chosenCity;
   late Gender chosenGender;
   late DateTime selectedDate;
+  late RoleInApp roleInApp;
 
   File? _imageFile;
   bool loading = true;
@@ -120,17 +122,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  /*Future<void> _getCitiesFromDatabase() async {
-    try {
-      List<City> cities = await City.getCities();
-      setState(() {
-        _cities = cities;
-      });
-    } catch (error) {
-      print('Ошибка при получении городов: $error');
-    }
-  }*/
-
   @override
   void initState() {
     super.initState();
@@ -157,9 +148,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       _cities = City.currentCityList;
       _genders = Gender.currentGenderList;
-
-
-      //_getCitiesFromDatabase();
 
       chosenCity = await City.getCityById(widget.userInfo.city) as City;
       chosenGender = await Gender.getGenderById(widget.userInfo.gender) as Gender;

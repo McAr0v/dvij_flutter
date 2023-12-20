@@ -1,3 +1,4 @@
+import 'package:dvij_flutter/classes/role_in_app.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
@@ -46,7 +47,7 @@ class UserCustom {
     return UserCustom(
       uid: uid,
       email: email,
-      role: '1113',
+      role: '-Nm5r9zW9P9cMDCYRjP3',
       name: '',
       lastname: '',
       phone: '',

@@ -1,3 +1,4 @@
+import 'package:dvij_flutter/classes/role_in_app.dart';
 import 'package:dvij_flutter/screens/cities_screens/cities_list_screen.dart';
 import 'package:dvij_flutter/screens/otherPages/privacy_policy_page.dart';
 import 'package:dvij_flutter/screens/profile/reset_password_page.dart';
@@ -24,8 +25,11 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   //await initializeDateFormatting("ru_RU", '');
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   await City.getCitiesAndSave();
   await Gender.getGenderAndSave();
+  await RoleInApp.getRolesInAppAndSave();
+
   final FirebaseAuth auth = FirebaseAuth.instance;
   if (auth.currentUser != null)
   {
