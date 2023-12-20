@@ -99,7 +99,15 @@ class CustomDrawer extends StatelessWidget {
               },
             ),
 
-            ListTile(
+            if (local_user.UserCustom.accessLevel >= 50) ListTile(
+              title: Text(
+                  'Админ панель',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              contentPadding: const EdgeInsets.all(15),
+            ),
+
+            if (local_user.UserCustom.accessLevel >= 80) ListTile(
               leading: const Icon(Icons.privacy_tip),
               title: const Text('Список городов'),
               onTap: () {
@@ -112,7 +120,7 @@ class CustomDrawer extends StatelessWidget {
               },
             ),
 
-            ListTile(
+            if (local_user.UserCustom.accessLevel >= 90) ListTile(
               leading: const Icon(Icons.man),
               title: const Text('Список гендеров'),
               onTap: () {
@@ -125,7 +133,7 @@ class CustomDrawer extends StatelessWidget {
               },
             ),
 
-            ListTile(
+            if (local_user.UserCustom.accessLevel >= 90) ListTile(
               leading: const Icon(Icons.lock),
               title: const Text('Список ролей для приложения'),
               onTap: () {

@@ -22,6 +22,8 @@ class PopUpDialog {
           contentPadding: const EdgeInsets.symmetric(vertical: 20.0),
           actionsPadding: const EdgeInsets.symmetric(horizontal: 20.0,vertical: 20.0),
 
+
+
           // TODO Сделать отступы между кнопками в всплываюшем диалоге
 
           actions: [

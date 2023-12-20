@@ -3,6 +3,8 @@ import 'package:dvij_flutter/classes/gender_class.dart';
 import 'package:dvij_flutter/elements/data_picker.dart';
 import 'package:dvij_flutter/elements/genders_elements/gender_element_in_edit_screen.dart';
 import 'package:dvij_flutter/elements/genders_elements/gender_picker_page.dart';
+import 'package:dvij_flutter/elements/role_in_app_elements/role_in_app_element_in_edit_screen.dart';
+import 'package:dvij_flutter/elements/role_in_app_elements/role_in_app_picker_page.dart';
 import 'package:dvij_flutter/methods/date_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/database_firebase/user_database.dart';
@@ -53,13 +55,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late City chosenCity;
   late Gender chosenGender;
   late DateTime selectedDate;
-  late RoleInApp roleInApp;
+  late RoleInApp chosenRoleInApp;
+  late int accessLevel;
 
   File? _imageFile;
   bool loading = true;
 
   List<City> _cities = [];
   List<Gender> _genders = [];
+  List<RoleInApp> _rolesInApp = [];
 
   // DateTime selectedDate = DateTime.now();
 
@@ -127,6 +131,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.initState();
     loading = true;
 
+    accessLevel = UserCustom.accessLevel;
+
     // Подгружаем в контроллеры содержимое из БД.
     Future.delayed(Duration.zero, () async {
       nameController = TextEditingController(text: widget.userInfo.name);
@@ -148,9 +154,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       _cities = City.currentCityList;
       _genders = Gender.currentGenderList;
+      _rolesInApp = RoleInApp.currentRoleInAppList;
 
       chosenCity = await City.getCityById(widget.userInfo.city) as City;
       chosenGender = await Gender.getGenderById(widget.userInfo.gender) as Gender;
+      chosenRoleInApp = await RoleInApp.getRoleInAppById(widget.userInfo.role) as RoleInApp;
 
       setState(() {
         loading = false;
@@ -288,6 +296,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     },
                   ),
 
+                  if (UserCustom.accessLevel >= 100) const SizedBox(height: 16.0),
+
+                  if (UserCustom.accessLevel >= 100) RoleInAppElementInEditScreen(
+                      onActionPressed: _showRoleInAppPickerDialog,
+                    roleInAppName: chosenRoleInApp.name,
+                  ),
+
                   /*TextField(
                     style: Theme.of(context).textTheme.bodyMedium,
                     keyboardType: TextInputType.text,
@@ -298,7 +313,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                   ),*/
 
-                  const SizedBox(height: 16.0),
+                  const SizedBox(height: 40.0),
 
 
                   // --- КНОПКА Сохранить изменения -------
@@ -336,7 +351,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       local_user.UserCustom updatedUser = local_user.UserCustom(
                         uid: widget.userInfo.uid,
                         email: widget.userInfo.email,
-                        role: widget.userInfo.role,
+                        role: chosenRoleInApp.id,
                         name: nameController.text,
                         lastname: lastnameController.text,
                         phone: phoneController.text,
@@ -411,6 +426,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+  void _showRoleInAppPickerDialog() async {
+    final selectedRoleInApp = await Navigator.of(context).push(_createPopupRoleInApp(_rolesInApp));
+
+    if (selectedRoleInApp != null) {
+      setState(() {
+        chosenRoleInApp = selectedRoleInApp;
+      });
+      print("Selected roleInApp: ${selectedRoleInApp.name}, ID: ${selectedRoleInApp.id}");
+    }
+  }
+
   Route _createPopup(List<City> cities) {
     return PageRouteBuilder(
 
@@ -437,6 +463,26 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       pageBuilder: (context, animation, secondaryAnimation) {
 
         return GenderPickerPage(genders: genders);
+      },
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(0.0, 1.0);
+        const end = Offset.zero;
+        const curve = Curves.easeInOut;
+        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var offsetAnimation = animation.drive(tween);
+        return SlideTransition(position: offsetAnimation, child: child);
+      },
+      transitionDuration: Duration(milliseconds: 100),
+
+    );
+  }
+
+  Route _createPopupRoleInApp(List<RoleInApp> roleInApp) {
+    return PageRouteBuilder(
+
+      pageBuilder: (context, animation, secondaryAnimation) {
+
+        return RoleInAppPickerPage(rolesInApp: roleInApp);
       },
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const begin = Offset(0.0, 1.0);

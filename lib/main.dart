@@ -5,6 +5,7 @@ import 'package:dvij_flutter/screens/profile/reset_password_page.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_file.dart';
@@ -56,6 +57,8 @@ class MyApp extends StatelessWidget {
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate
+        //CupertinoLocalizations.delegate
       ],
         supportedLocales: const [
           Locale('ru', 'RU'), // русская локаль

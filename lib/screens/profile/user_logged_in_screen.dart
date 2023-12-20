@@ -12,6 +12,7 @@ import 'package:dvij_flutter/elements/custom_snack_bar.dart';
 import 'package:dvij_flutter/elements/pop_up_dialog.dart';
 import '../../classes/city_class.dart';
 import '../../classes/gender_class.dart';
+import '../../classes/role_in_app.dart';
 import '../../classes/user_class.dart';
 import '../../classes/user_class.dart';
 import '../../elements/loading_screen.dart';
@@ -44,6 +45,7 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
 
   City chosenCity = City(name: '', id: '');
   Gender chosenGender = Gender(name: '', id: '');
+  RoleInApp chosenRoleInApp = RoleInApp(name: '', id: '');
 
   // --- Переключатель показа экрана загрузки -----
 
@@ -74,6 +76,7 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
 
       chosenGender = await Gender.getGenderById(userInfo.gender) as Gender;
       chosenCity = await City.getCityById(userInfo.city) as City;
+      chosenRoleInApp = await RoleInApp.getRoleInAppById(userInfo.role) as RoleInApp;
 
       // ---- Убираем экран загрузки -----
       setState(() {
@@ -187,6 +190,9 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
                     const SizedBox(height: 16.0),
                     if (userEmail != '' && userEmail != null) HeadlineAndDesc(headline: userEmail!, description: 'email профиля'),
 
+                    if (UserCustom.accessLevel >= 50) const SizedBox(height: 16.0),
+                    if (UserCustom.accessLevel >= 50) HeadlineAndDesc(headline: chosenRoleInApp.name, description: 'Роль в приложении'),
+
                     const SizedBox(height: 16.0),
                     if (userInfo.city != '') HeadlineAndDesc(headline: chosenCity.name, description: 'Город'),
 
@@ -205,7 +211,7 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
                     if (userInfo.birthDate != '') const SizedBox(height: 16.0),
                     if (userInfo.birthDate != '') HeadlineAndDesc(headline: getHumanDate(userInfo.birthDate, '-'), description: 'Дата рождения'),
 
-                    const SizedBox(height: 16.0),
+                    if (userInfo.gender != '') const SizedBox(height: 16.0),
                     if (userInfo.gender != '') HeadlineAndDesc(headline: chosenGender.name, description: 'Пол'),
 
                     // TODO - Решить, эта кнопка нужна или нет?
@@ -233,10 +239,11 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
 
                         bool? confirmed = await PopUpDialog.showConfirmationDialog(
                           context,
-                          title: "Вы действительно хотите выйти?",
+                          title: "Ты правда хочешь уйти от нас?",
                           backgroundColor: AppColors.greyBackground,
                           confirmButtonText: "Да",
                           cancelButtonText: "Нет",
+
                         );
 
                         // ---- Если пользователь нажал ВЫЙТИ ----

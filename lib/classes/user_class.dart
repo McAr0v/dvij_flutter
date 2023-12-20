@@ -21,6 +21,8 @@ class UserCustom {
   // Статическая переменная для хранения текущего пользователя
   static UserCustom? currentUser;
 
+  static int accessLevel = 10;
+
   // --- ИНИЦИАЛИЗИРУЕМ БАЗУ ДАННЫХ -----
   final DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
 
@@ -64,6 +66,20 @@ class UserCustom {
   // Метод для обновления данных текущего пользователя
   static void updateCurrentUser(UserCustom updatedUser) {
     currentUser = updatedUser;
+    updateAccessLevel(updatedUser.role);
+  }
+
+  static void updateAccessLevel(String userRoleInApp) {
+    switch (userRoleInApp)
+    {
+      case '-Nm5qtfg-e8VVBXkYC0y': accessLevel = 100; // God
+      case '-Nm5r2Uly1Z7vCapTSpR': accessLevel = 90; // Admin
+      case '-Nm5r-UN3QKNrMqBT--C': accessLevel = 80; // Manager
+      case '-Nm5r9zW9P9cMDCYRjP3': accessLevel = 20; // RegisteredUser
+      default: accessLevel = 10;
+
+    }
+
   }
 
   // ---- Функция выхода из аккаунта ---
@@ -71,6 +87,7 @@ class UserCustom {
     try {
       await FirebaseAuth.instance.signOut();
       currentUser = null; // Обнуляем текущего пользователя при выходе
+      updateAccessLevel('');
       return 'success';
     } catch (e) {
       return e.toString();
@@ -132,6 +149,7 @@ class UserCustom {
 
       // Если пользователь успешно вошел, обновляем текущего пользователя
       currentUser = await readUserData(credential.user!.uid);
+      updateAccessLevel(currentUser!.role);
 
       // и возвращаем uid
       return credential.user?.uid;
@@ -231,6 +249,7 @@ class UserCustom {
       });
 
       currentUser = user; // Обновляем текущего пользователя
+      updateAccessLevel(user.role);
 
       // Если успешно
       return 'success';
@@ -274,11 +293,13 @@ class UserCustom {
         );
 
         currentUser = user; // Обновляем текущего пользователя
+        updateAccessLevel(user.role);
 
         return user;
       } else {
 
         currentUser = null; // Обнуляем текущего пользователя
+        updateAccessLevel('');
         return null; // Возвращаем null, если данных нет
       }
     } catch (e) {
