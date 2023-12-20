@@ -1,5 +1,8 @@
 import 'dart:io';
+import 'package:dvij_flutter/classes/gender_class.dart';
 import 'package:dvij_flutter/elements/data_picker.dart';
+import 'package:dvij_flutter/elements/genders_elements/gender_element_in_edit_screen.dart';
+import 'package:dvij_flutter/elements/genders_elements/gender_picker_page.dart';
 import 'package:dvij_flutter/methods/date_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/database_firebase/user_database.dart';
@@ -47,12 +50,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController genderController;
   late TextEditingController avatarController;
   late City chosenCity;
+  late Gender chosenGender;
   late DateTime selectedDate;
 
   File? _imageFile;
   bool loading = true;
 
   List<City> _cities = [];
+  List<Gender> _genders = [];
 
   // DateTime selectedDate = DateTime.now();
 
@@ -115,7 +120,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  Future<void> _getCitiesFromDatabase() async {
+  /*Future<void> _getCitiesFromDatabase() async {
     try {
       List<City> cities = await City.getCities();
       setState(() {
@@ -124,7 +129,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     } catch (error) {
       print('Ошибка при получении городов: $error');
     }
-  }
+  }*/
 
   @override
   void initState() {
@@ -150,9 +155,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       genderController = TextEditingController(text: widget.userInfo.gender);
       avatarController = TextEditingController(text: widget.userInfo.avatar);
 
-      _getCitiesFromDatabase();
+      _cities = City.currentCityList;
+      _genders = Gender.currentGenderList;
+
+
+      //_getCitiesFromDatabase();
 
       chosenCity = await City.getCityById(widget.userInfo.city) as City;
+      chosenGender = await Gender.getGenderById(widget.userInfo.gender) as Gender;
 
       setState(() {
         loading = false;
@@ -281,7 +291,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
 
                   const SizedBox(height: 16.0),
-                  TextField(
+
+                  GenderElementInEditScreen(
+                    genderName: chosenGender.name,
+                    onActionPressed: () {
+                      //_showCityPickerDialog();
+                      _showGenderPickerDialog();
+                    },
+                  ),
+
+                  /*TextField(
                     style: Theme.of(context).textTheme.bodyMedium,
                     keyboardType: TextInputType.text,
                     controller: genderController,
@@ -289,7 +308,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       labelText: 'Пол',
                       //prefixIcon: Icon(Icons.email),
                     ),
-                  ),
+                  ),*/
 
                   const SizedBox(height: 16.0),
 
@@ -338,7 +357,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         instagram: instagramController.text,
                         city: chosenCity.id,
                         birthDate: '${selectedDate.year}-${selectedDate.month}-${selectedDate.day}',
-                        gender: genderController.text,
+                        gender: chosenGender.id,
                         avatar: avatarURL ?? widget.userInfo.avatar,
                       );
 
@@ -393,12 +412,43 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+  void _showGenderPickerDialog() async {
+    final selectedGender = await Navigator.of(context).push(_createPopupGender(_genders));
+
+    if (selectedGender != null) {
+      setState(() {
+        chosenGender = selectedGender;
+      });
+      print("Selected gender: ${selectedGender.name}, ID: ${selectedGender.id}");
+    }
+  }
+
   Route _createPopup(List<City> cities) {
     return PageRouteBuilder(
 
       pageBuilder: (context, animation, secondaryAnimation) {
 
         return CityPickerPage(cities: cities);
+      },
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(0.0, 1.0);
+        const end = Offset.zero;
+        const curve = Curves.easeInOut;
+        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var offsetAnimation = animation.drive(tween);
+        return SlideTransition(position: offsetAnimation, child: child);
+      },
+      transitionDuration: Duration(milliseconds: 100),
+
+    );
+  }
+
+  Route _createPopupGender(List<Gender> genders) {
+    return PageRouteBuilder(
+
+      pageBuilder: (context, animation, secondaryAnimation) {
+
+        return GenderPickerPage(genders: genders);
       },
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const begin = Offset(0.0, 1.0);

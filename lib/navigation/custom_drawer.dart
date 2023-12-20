@@ -9,6 +9,7 @@ import 'package:dvij_flutter/screens/otherPages/privacy_policy_page.dart';
 import 'package:dvij_flutter/classes/user_class.dart' as local_user;
 
 import '../screens/cities_screens/cities_list_screen.dart';
+import '../screens/genders_screens/genders_list_screen.dart';
 
 // --- КАСТОМНАЯ БОКОВАЯ ШТОРКА -----
 
@@ -105,10 +106,24 @@ class CustomDrawer extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => CitiesListScreen()),
+                      builder: (context) => const CitiesListScreen()),
                 );
               },
             ),
+
+            ListTile(
+              leading: const Icon(Icons.man),
+              title: const Text('Список гендеров'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const GendersListScreen()),
+                );
+              },
+            ),
+
           ],
         ),
       ),

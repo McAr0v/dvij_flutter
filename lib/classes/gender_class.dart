@@ -1,40 +1,40 @@
 import 'package:firebase_database/firebase_database.dart';
 
-/*class City {
-  late String id; // Идентификатор города
-  late String name; // Название города
+class Gender {
+  late String id; // Идентификатор пола
+  late String name; // Название пола
 
-  City({required this.name, required this.id});
+  Gender({required this.name, required this.id});
 
-  // Метод для преобразования данных из Firebase в объект City
+  // Метод для преобразования данных из Firebase в объект Gender
 
-  factory City.fromSnapshot(DataSnapshot snapshot) {
+  factory Gender.fromSnapshot(DataSnapshot snapshot) {
     // Указываем путь к нашим полям
     DataSnapshot idSnapshot = snapshot.child('id');
     DataSnapshot nameSnapshot = snapshot.child('name');
 
-    // Берем из них данные и заполняем в класс City. И возвращаем его
-    return City(
+    // Берем из них данные и заполняем в класс Gender И возвращаем его
+    return Gender(
       id: idSnapshot.value.toString() ?? '',
       name: nameSnapshot.value.toString() ?? '',
     );
   }
 
 
-  // Статическая переменная для хранения списка городов
-  static List<City> currentCityList = [];
+  // Статическая переменная для хранения списка полов
+  static List<Gender> currentGenderList = [];
 
   // Метод для получения списка городов из Firebase и сохранения в currentCityList
-  static Future<void> getCitiesAndSave({bool order = true}) async {
+  static Future<void> getGenderAndSave({bool order = true}) async {
 
-    currentCityList = await getCities(order: order);
+    currentGenderList = await getGenders(order: order);
 
   }
 
-  // Функция фильтрации городов по вводимому значению
+  // Функция фильтрации пола по вводимому значению
 
-  static List<City> filterStrings(List<City> inputList, String filter) {
-    List<City> newList = [];
+  static List<Gender> filterGenders(List<Gender> inputList, String filter) {
+    List<Gender> newList = [];
 
     for (int i = 0; i<inputList.length; i++)
     {
@@ -49,37 +49,37 @@ import 'package:firebase_database/firebase_database.dart';
 
 
 
-  // Метод для добавления нового города или редактирования города в Firebase
+  // Метод для добавления нового пола или редактирования пола в Firebase
 
-  static Future<String> addAndEditCity(String name, {String id = ''}) async {
+  static Future<String> addAndEditGender(String name, {String id = ''}) async {
     try {
-      String? cityKey;
+      String? genderKey;
 
-      // --- Указываем папку, где будут хранится города ----
+      // --- Указываем папку, где будут хранится Пол ----
 
-      DatabaseReference citiesReference = FirebaseDatabase.instance.ref().child('cities');
+      DatabaseReference genderReference = FirebaseDatabase.instance.ref().child('genders');
 
       if (id == '') {
 
         // --- Генерируем уникальный ключ ---
-        DatabaseReference newCityReference = citiesReference.push();
+        DatabaseReference newGenderReference = genderReference.push();
         // ---- Получаем уникальный ключ ----
-        cityKey = newCityReference.key; // Получаем уникальный ключ
+        genderKey = newGenderReference.key; // Получаем уникальный ключ
 
       }
 
       // --- Создаем окончательный путь ----
       final DatabaseReference reference =
-      FirebaseDatabase.instance.ref().child('cities').child(cityKey ?? id);
+      FirebaseDatabase.instance.ref().child('genders').child(genderKey ?? id);
 
       // ---- Публикуем город -----
       await reference.set({
         'name': name,
-        'id': cityKey ?? id
+        'id': genderKey ?? id
       });
 
       // Обновляем список наших городов в локальную переменную
-      await getCitiesAndSave();
+      await getGenderAndSave();
 
       // --- Возвращаем успех ----
       //TODO - Есть вариант, что тут может город не опубликоваться. Надо как то подумать, чтобы точно знать что он опубиковался
@@ -91,85 +91,86 @@ import 'package:firebase_database/firebase_database.dart';
     }
   }
 
-  static Future<String> deleteCity(String cityId) async {
+  static Future<String> deleteGender(String genderId) async {
     try {
-      DatabaseReference reference = FirebaseDatabase.instance.ref().child('cities').child(cityId);
+      DatabaseReference reference = FirebaseDatabase.instance.ref().child('genders').child(genderId);
 
-      // Проверяем, существует ли город с указанным ID
+      // Проверяем, существует ли пол с указанным ID
       DataSnapshot snapshot = await reference.get();
       if (!snapshot.exists) {
-        return 'Город не найден';
+        return 'Такой пол не найден';
       }
 
       // Удаляем город
       await reference.remove();
 
-      // Обновляем список наших городов в локальную переменную
-      await getCitiesAndSave();
+      // Обновляем список наших полов в локальную переменную
+      await getGenderAndSave();
 
       return 'success';
     } catch (error) {
-      return 'Ошибка при удалении города: $error';
+      return 'Ошибка при удалении гендера: $error';
     }
   }
 
-  // Сортировка городов по имени
+  // Сортировка списка полов по имени
 
-  static void sortCitiesByName(List<City> cities, bool order) {
+  static void sortGendersByName(List<Gender> genders, bool order) {
 
-    if (order) cities.sort((a, b) => a.name.compareTo(b.name));
-    else {
-      cities.sort((a, b) => b.name.compareTo(a.name));
+    if (order) {
+      genders.sort((a, b) => a.name.compareTo(b.name));
+    } else {
+      genders.sort((a, b) => b.name.compareTo(a.name));
     }
   }
 
-  // Метод для получения списка городов из Firebase
+  // Метод для получения списка гендеров из Firebase
 
-  static Future<List<City>> getCities({bool order = true}) async {
+  static Future<List<Gender>> getGenders({bool order = true}) async {
 
-    List<City> cities = [];
+    List<Gender> genders = [];
 
     // Указываем путь
-    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('cities');
+    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('genders');
 
     // Получаем снимок данных папки
     DataSnapshot snapshot = await reference.get();
 
     // Итерируем по каждому дочернему элементу
-    // Здесь сделано так потому что мы не знаем ключа города
-    // и нам нужен каждый город, независимо от ключа
+    // Здесь сделано так потому что мы не знаем ключа гендера
+    // и нам нужен каждый гендер, независимо от ключа
 
     for (var childSnapshot in snapshot.children) {
-      // заполняем город (City.fromSnapshot) из снимка данных
-      // и обавляем в список городов
-      cities.add(City.fromSnapshot(childSnapshot));
+      // заполняем город (Gender.fromSnapshot) из снимка данных
+      // и добавляем в список гендеров
+      genders.add(Gender.fromSnapshot(childSnapshot));
     }
 
-    sortCitiesByName(cities, order);
+    sortGendersByName(genders, order);
 
     // Возвращаем список
-    return cities;
+    return genders;
   }
 
-  // Метод для поиска города по id
-  static Future<City?> getCityById(String id) async {
+  // Метод для поиска гендера по id
+  static Future<Gender?> getGenderById(String id) async {
 
     // Указываем путь
     final DatabaseReference reference =
-    FirebaseDatabase.instance.ref().child('cities');
+    FirebaseDatabase.instance.ref().child('genders');
 
-    // Получаем снимок конкретного города, по id
+    // Получаем снимок конкретного гендера, по id
     DataSnapshot snapshot = await reference.child(id).get();
 
     if (snapshot.value != null) {
 
-      // Заполняем класс City данными из БД и возвращаем его ====
-      return City.fromSnapshot(snapshot);
+      // Заполняем класс Gender данными из БД и возвращаем его ====
+      return Gender.fromSnapshot(snapshot);
 
     } else {
       // Если не нашел, возвращаем null
       //return null;
-      return City(name: '', id: '');
+      return Gender(name: '', id: '');
     }
   }
-}*/
+}

@@ -11,6 +11,7 @@ import 'package:dvij_flutter/authentication/auth_with_email.dart';
 import 'package:dvij_flutter/elements/custom_snack_bar.dart';
 import 'package:dvij_flutter/elements/pop_up_dialog.dart';
 import '../../classes/city_class.dart';
+import '../../classes/gender_class.dart';
 import '../../classes/user_class.dart';
 import '../../classes/user_class.dart';
 import '../../elements/loading_screen.dart';
@@ -42,6 +43,7 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
   UserCustom userInfo = UserCustom.empty('', '');
 
   City chosenCity = City(name: '', id: '');
+  Gender chosenGender = Gender(name: '', id: '');
 
   // --- Переключатель показа экрана загрузки -----
 
@@ -70,6 +72,7 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
       uid = userInfo.uid;
       // --- Читаем данные пользователя из БД
 
+      chosenGender = await Gender.getGenderById(userInfo.gender) as Gender;
       chosenCity = await City.getCityById(userInfo.city) as City;
 
       // ---- Убираем экран загрузки -----
@@ -203,7 +206,7 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
                     if (userInfo.birthDate != '') HeadlineAndDesc(headline: getHumanDate(userInfo.birthDate, '-'), description: 'Дата рождения'),
 
                     const SizedBox(height: 16.0),
-                    if (userInfo.gender != '') HeadlineAndDesc(headline: userInfo.gender, description: 'Пол'),
+                    if (userInfo.gender != '') HeadlineAndDesc(headline: chosenGender.name, description: 'Пол'),
 
                     // TODO - Решить, эта кнопка нужна или нет?
                     const SizedBox(height: 16.0),

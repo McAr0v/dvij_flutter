@@ -10,6 +10,7 @@ import 'package:intl/date_symbol_data_file.dart';
 import 'package:provider/provider.dart';
 import 'app_state/appstate.dart';
 import 'classes/city_class.dart';
+import 'classes/gender_class.dart';
 import 'database_firebase/user_database.dart';
 import 'elements/icons_elements/svg_icon.dart';
 import 'themes/dark_theme.dart';
@@ -24,6 +25,7 @@ void main() async {
   //await initializeDateFormatting("ru_RU", '');
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await City.getCitiesAndSave();
+  await Gender.getGenderAndSave();
   final FirebaseAuth auth = FirebaseAuth.instance;
   if (auth.currentUser != null)
   {
