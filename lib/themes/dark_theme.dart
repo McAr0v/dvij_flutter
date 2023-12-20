@@ -25,12 +25,12 @@ class CustomTheme {
 
       datePickerTheme: DatePickerThemeData(
         surfaceTintColor: Colors.transparent,
-        dayForegroundColor: MaterialStateProperty.resolveWith<Color?>(
+        /*dayForegroundColor: MaterialStateProperty.resolveWith<Color?>(
               (Set<MaterialState> states) {
-            return AppColors.white;
+            return AppColors.greyOnBackground;
           },
-        ),
-        dayStyle: TextStyle(
+        ),*/
+        dayStyle: const TextStyle(
             color: AppColors.white,
             fontSize: 16,
             fontFamily: 'SfProDisplay',
@@ -42,50 +42,36 @@ class CustomTheme {
             return AppColors.greyOnBackground;
           },
         ),
-        weekdayStyle: TextStyle(
+        weekdayStyle: const TextStyle(
             color: AppColors.greyText,
             fontSize: 16,
             fontFamily: 'SfProDisplay',
             fontWeight: FontWeight.normal,
             height: 1.3
         ),
-        yearForegroundColor: MaterialStateProperty.resolveWith<Color?>(
-              (Set<MaterialState> states) {
-            return AppColors.white;
-          },
-        ),
-        yearBackgroundColor: MaterialStateProperty.resolveWith<Color?>(
-              (Set<MaterialState> states) {
-            return AppColors.greyOnBackground;
-          },
-        ),
-        rangePickerBackgroundColor: AppColors.greyOnBackground,
-        rangePickerSurfaceTintColor: AppColors.greyOnBackground,
 
-        rangeSelectionBackgroundColor: AppColors.attentionRed,
+        backgroundColor: AppColors.greyOnBackground,
 
-        backgroundColor: AppColors.greyOnBackground.withOpacity(1.0),
-        headerBackgroundColor: AppColors.greyOnBackground, // Цвет фона заголовка
         todayBackgroundColor: MaterialStateProperty.resolveWith<Color?>(
               (Set<MaterialState> states) {
             return AppColors.brandColor;
           },
         ),
+
         cancelButtonStyle: ButtonStyle(
           backgroundColor: MaterialStateProperty.resolveWith<Color?>(
                 (Set<MaterialState> states) {
-              return AppColors.attentionRed;
+              return Colors.transparent;
             },
           ),
           padding: MaterialStateProperty.resolveWith<EdgeInsets?>(
                 (Set<MaterialState> states) {
-              return const EdgeInsets.fromLTRB(20, 10, 20, 10);
+              return const EdgeInsets.fromLTRB(20, 10, 0, 20);
             },
           ),
           textStyle: MaterialStateProperty.resolveWith<TextStyle?>(
                 (Set<MaterialState> states) {
               return const TextStyle(
-                  color: AppColors.white,
                   fontSize: 16,
                   fontFamily: 'SfProDisplay',
                   fontWeight: FontWeight.normal,
@@ -95,15 +81,14 @@ class CustomTheme {
           ),
           foregroundColor: MaterialStateProperty.resolveWith<Color?>(
                 (Set<MaterialState> states) {
-              return AppColors.greyOnBackground;
+              return AppColors.attentionRed;
             },
           ),
           side: MaterialStateProperty.resolveWith<BorderSide?>(
                 (Set<MaterialState> states) {
               return const BorderSide(
-                color: AppColors.attentionRed, // Цвет границы
-                width: 1.0, // Толщина границы
-                style: BorderStyle.solid, // Стиль границы (например, dashed, dotted)
+                color: Colors.transparent, // Цвет границы
+                width: 0.0, // Толщина границы
               );
             },
           ),
@@ -112,24 +97,21 @@ class CustomTheme {
               return Size(0, 0); // Задайте минимальную ширину и высоту
             },
           ),
-
-
         ),
         confirmButtonStyle: ButtonStyle(
           backgroundColor: MaterialStateProperty.resolveWith<Color?>(
                 (Set<MaterialState> states) {
-              return AppColors.attentionRed;
+              return Colors.transparent;
             },
           ),
           padding: MaterialStateProperty.resolveWith<EdgeInsets?>(
                 (Set<MaterialState> states) {
-              return const EdgeInsets.fromLTRB(20, 10, 20, 10);
+              return const EdgeInsets.fromLTRB(20, 10, 20, 20);
             },
           ),
           textStyle: MaterialStateProperty.resolveWith<TextStyle?>(
                 (Set<MaterialState> states) {
               return const TextStyle(
-                  color: AppColors.white,
                   fontSize: 16,
                   fontFamily: 'SfProDisplay',
                   fontWeight: FontWeight.normal,
@@ -139,15 +121,14 @@ class CustomTheme {
           ),
           foregroundColor: MaterialStateProperty.resolveWith<Color?>(
                 (Set<MaterialState> states) {
-              return AppColors.greyOnBackground;
+              return Colors.green;
             },
           ),
           side: MaterialStateProperty.resolveWith<BorderSide?>(
                 (Set<MaterialState> states) {
               return const BorderSide(
-                color: AppColors.attentionRed, // Цвет границы
-                width: 1.0, // Толщина границы
-                style: BorderStyle.solid, // Стиль границы (например, dashed, dotted)
+                color: Colors.transparent, // Цвет границы
+                width: 0.0, // Толщина границы
               );
             },
           ),
@@ -156,10 +137,7 @@ class CustomTheme {
               return Size(0, 0); // Задайте минимальную ширину и высоту
             },
           ),
-
-
-        )
-
+        ),
       ),
 
       // Стиль кнопки

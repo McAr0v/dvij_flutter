@@ -14,7 +14,7 @@ class UserCustom {
   String instagram;
   String city;
   String birthDate; // Формат даты (например, "yyyy-MM-dd")
-  String sex;
+  String gender;
   String avatar;
 
   // Статическая переменная для хранения текущего пользователя
@@ -38,7 +38,7 @@ class UserCustom {
     required this.instagram,
     required this.city,
     required this.birthDate,
-    required this.sex,
+    required this.gender,
     required this.avatar,
   });
 
@@ -55,7 +55,7 @@ class UserCustom {
       instagram: '',
       city: '',
       birthDate: '',
-      sex: '',
+      gender: '',
       avatar: 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2Fdvij_unknow_user.jpg?alt=media&token=b63ea5ef-7bdf-49e9-a3ef-1d34d676b6a7'
     );
   }
@@ -225,7 +225,7 @@ class UserCustom {
         'instagram': user.instagram,
         'city': user.city,
         'birth_date': user.birthDate,
-        'sex': user.sex,
+        'gender': user.gender,
         'avatar': user.avatar,
       });
 
@@ -268,7 +268,7 @@ class UserCustom {
           instagram: data['instagram'] ?? '',
           city: data['city'] ?? '',
           birthDate: data['birth_date'] ?? '',
-          sex: data['sex'] ?? '',
+          gender: data['gender'] ?? '',
           avatar: data['avatar'] ?? '',
         );
 

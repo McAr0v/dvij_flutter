@@ -49,7 +49,7 @@ class _CustomNavContainerState extends State<CustomNavContainer>
       instagram: '',
       city: '',
       birthDate: '',
-      sex: '',
+      gender: '',
       avatar: ''
   );
 

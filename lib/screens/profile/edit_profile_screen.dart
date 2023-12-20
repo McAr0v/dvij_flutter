@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:dvij_flutter/elements/data_picker.dart';
-import 'package:dvij_flutter/methods/string_functions.dart';
+import 'package:dvij_flutter/methods/date_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/database_firebase/user_database.dart';
 import 'package:dvij_flutter/elements/custom_button.dart';
@@ -36,7 +36,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   // Инициализируем классы
   final ImagePickerService imagePickerService = ImagePickerService();
   final ImageUploader imageUploader = ImageUploader();
-  //final UserDatabase userDatabase = UserDatabase();
 
   late TextEditingController nameController;
   late TextEditingController lastnameController;
@@ -45,8 +44,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController instagramController;
   late TextEditingController telegramController;
   late TextEditingController cityController;
-  late TextEditingController birthdateController;
-  late TextEditingController sexController;
+  late TextEditingController genderController;
   late TextEditingController avatarController;
   late City chosenCity;
   late DateTime selectedDate;
@@ -62,34 +60,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     DateTime initial = selectedDate;
     if (needClearInitialDate) initial = DateTime.now();
 
-
-
     final DateTime? picked = await showDatePicker(
 
       locale: const Locale('ru', 'RU'),
       context: context,
       initialDate: initial,
-      firstDate: DateTime(1940),
-      lastDate: DateTime(2101),
+      firstDate: DateTime(1950),
+      lastDate: DateTime.now(),
       helpText: 'Выбери дату',
       cancelText: 'Отмена',
       confirmText: 'Подтвердить',
-      //initialEntryMode: DatePickerEntryMode.inputOnly,
-      //barrierColor: AppColors.greyOnBackground,
-
-
+      keyboardType: TextInputType.datetime,
     );
+
     if (picked != null && picked != selectedDate) {
       setState(() {
         selectedDate = picked;
       });
     }
-  }
 
-  DateTime GetDateFromString (String date)
-  {
-    List<int> temp = splitDate(date, '-');
-    return DateTime(temp[0], temp[1], temp[2]);
   }
 
   // --- Функция перехода на страницу профиля ----
@@ -151,16 +140,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       telegramController = TextEditingController(text: widget.userInfo.telegram);
       instagramController = TextEditingController(text: widget.userInfo.instagram);
       cityController = TextEditingController(text: widget.userInfo.city);
-      if (widget.userInfo.birthDate != '') selectedDate = GetDateFromString(widget.userInfo.birthDate);
-      else selectedDate = DateTime(2100);
-      //birthdateController = TextEditingController(text: widget.userInfo.birthDate);
-      sexController = TextEditingController(text: widget.userInfo.sex);
+
+      if (widget.userInfo.birthDate != '') {
+        selectedDate = getDateFromString(widget.userInfo.birthDate);
+      } else {
+        selectedDate = DateTime(2100);
+      }
+
+      genderController = TextEditingController(text: widget.userInfo.gender);
       avatarController = TextEditingController(text: widget.userInfo.avatar);
 
       _getCitiesFromDatabase();
+
       chosenCity = await City.getCityById(widget.userInfo.city) as City;
-
-
 
       setState(() {
         loading = false;
@@ -208,7 +200,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     controller: nameController,
                     decoration: const InputDecoration(
                       labelText: 'Имя',
-                      //prefixIcon: Icon(Icons.email),
                     ),
                   ),
 
@@ -219,7 +210,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     controller: lastnameController,
                     decoration: const InputDecoration(
                       labelText: 'Фамилия',
-                      //prefixIcon: Icon(Icons.email),
                     ),
                   ),
 
@@ -230,7 +220,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     controller: phoneController,
                     decoration: const InputDecoration(
                       labelText: 'Телефон',
-                      //prefixIcon: Icon(Icons.email),
                     ),
                   ),
 
@@ -241,7 +230,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     controller: whatsappController,
                     decoration: const InputDecoration(
                       labelText: 'Whatsapp',
-                      //prefixIcon: Icon(Icons.email),
                     ),
                   ),
 
@@ -252,7 +240,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     controller: telegramController,
                     decoration: const InputDecoration(
                       labelText: 'Telegram',
-                      //prefixIcon: Icon(Icons.email),
                     ),
                   ),
 
@@ -263,7 +250,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     controller: instagramController,
                     decoration: const InputDecoration(
                       labelText: 'Instagram',
-                      //prefixIcon: Icon(Icons.email),
                     ),
                   ),
 
@@ -276,16 +262,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       _showCityPickerDialog();
                     },
                   ),
-
-                  /*TextField(
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    keyboardType: TextInputType.text,
-                    controller: cityController,
-                    decoration: const InputDecoration(
-                      labelText: 'Город',
-                      //prefixIcon: Icon(Icons.email),
-                    ),
-                  ),*/
 
                   const SizedBox(height: 16.0),
 
@@ -301,25 +277,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       onActionPressed: () {
                         _selectDate(context);
                       },
-                    date: '${selectedDate.day}-${selectedDate.month}-${selectedDate.year}',
+                    date: getHumanDate('${selectedDate.year}-${selectedDate.month}-${selectedDate.day}', '-'),
                   ),
-
-                  /*const SizedBox(height: 16.0),
-                  TextField(
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    keyboardType: TextInputType.datetime,
-                    controller: birthdateController,
-                    decoration: const InputDecoration(
-                      labelText: 'Дата рождения',
-                      //prefixIcon: Icon(Icons.email),
-                    ),
-                  ),*/
 
                   const SizedBox(height: 16.0),
                   TextField(
                     style: Theme.of(context).textTheme.bodyMedium,
                     keyboardType: TextInputType.text,
-                    controller: sexController,
+                    controller: genderController,
                     decoration: const InputDecoration(
                       labelText: 'Пол',
                       //prefixIcon: Icon(Icons.email),
@@ -373,7 +338,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         instagram: instagramController.text,
                         city: chosenCity.id,
                         birthDate: '${selectedDate.year}-${selectedDate.month}-${selectedDate.day}',
-                        sex: sexController.text,
+                        gender: genderController.text,
                         avatar: avatarURL ?? widget.userInfo.avatar,
                       );
 
@@ -416,22 +381,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               )
     );
   }
-
-  /*Future<void> _showCityPickerDialog() async {
-    final selectedCity = await showDialog<City>(
-      context: context,
-      builder: (BuildContext context) {
-        return CityChooseDialog(cities: _cities);
-      },
-    );
-
-    if (selectedCity != null) {
-      setState(() {
-        chosenCity = selectedCity;
-      });
-      print("Selected city: ${selectedCity.name}, ID: ${selectedCity.id}");
-    }
-  }*/
 
   void _showCityPickerDialog() async {
     final selectedCity = await Navigator.of(context).push(_createPopup(_cities));

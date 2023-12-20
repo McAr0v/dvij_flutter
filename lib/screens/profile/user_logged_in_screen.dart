@@ -1,6 +1,6 @@
 import 'package:dvij_flutter/database_firebase/user_database.dart';
 import 'package:dvij_flutter/elements/headline_and_desc.dart';
-import 'package:dvij_flutter/methods/string_functions.dart';
+import 'package:dvij_flutter/methods/date_functions.dart';
 import 'package:dvij_flutter/screens/profile/edit_profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -203,7 +203,7 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
                     if (userInfo.birthDate != '') HeadlineAndDesc(headline: getHumanDate(userInfo.birthDate, '-'), description: 'Дата рождения'),
 
                     const SizedBox(height: 16.0),
-                    if (userInfo.sex != '') HeadlineAndDesc(headline: userInfo.sex, description: 'Пол'),
+                    if (userInfo.gender != '') HeadlineAndDesc(headline: userInfo.gender, description: 'Пол'),
 
                     // TODO - Решить, эта кнопка нужна или нет?
                     const SizedBox(height: 16.0),

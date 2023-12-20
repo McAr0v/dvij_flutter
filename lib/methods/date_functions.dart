@@ -35,3 +35,9 @@ String getHumanDate (String date, String symbol)
   String month = switchMonth(stringElements[1]);
   return '${stringElements[2]} $month ${stringElements[0]}';
 }
+
+DateTime getDateFromString (String date)
+{
+  List<int> temp = splitDate(date, '-');
+  return DateTime(temp[0], temp[1], temp[2]);
+}
