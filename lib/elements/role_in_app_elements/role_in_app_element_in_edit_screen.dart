@@ -19,7 +19,7 @@ class RoleInAppElementInEditScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextFormField(
-                  controller: TextEditingController(text: roleInAppName?.isNotEmpty ?? true ? roleInAppName! : 'Ролья для приложения не выбрана'),
+                  controller: TextEditingController(text: roleInAppName?.isNotEmpty ?? true ? roleInAppName! : 'Роль для приложения не выбрана'),
                   //initialValue: cityName?.isNotEmpty ?? true ? cityName! : 'Город не выбран',
                   style: Theme.of(context).textTheme.bodyMedium,
                   enabled: false,

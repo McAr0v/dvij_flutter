@@ -20,14 +20,13 @@ class UserCustom {
 
   // Статическая переменная для хранения текущего пользователя
   static UserCustom? currentUser;
+  // Статическая переменная для хранения списка ролей
+  static List<RoleInApp> currentUsersList = [];
 
   static int accessLevel = 10;
 
   // --- ИНИЦИАЛИЗИРУЕМ БАЗУ ДАННЫХ -----
   final DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
-
-  /*final FirebaseAuth _auth = FirebaseAuth.instance;
-  get user => _auth.currentUser;*/
 
   UserCustom({
     required this.uid,
@@ -63,10 +62,50 @@ class UserCustom {
     );
   }
 
+  factory UserCustom.fromSnapshot(DataSnapshot snapshot) {
+    // Указываем путь к нашим полям
+    DataSnapshot uidSnapshot = snapshot.child('uid');
+    DataSnapshot emailSnapshot = snapshot.child('email');
+    DataSnapshot roleSnapshot = snapshot.child('role');
+    DataSnapshot nameSnapshot = snapshot.child('name');
+    DataSnapshot lastnameSnapshot = snapshot.child('lastname');
+    DataSnapshot phoneSnapshot = snapshot.child('phone');
+    DataSnapshot whatsappSnapshot = snapshot.child('whatsapp');
+    DataSnapshot telegramSnapshot = snapshot.child('telegram');
+    DataSnapshot instagramSnapshot = snapshot.child('instagram');
+    DataSnapshot citySnapshot = snapshot.child('city');
+    DataSnapshot birthDateSnapshot = snapshot.child('birthDate');
+    DataSnapshot genderSnapshot = snapshot.child('gender');
+    DataSnapshot avatarSnapshot = snapshot.child('avatar');
+
+    // Берем из них данные и заполняем в класс Gender И возвращаем его
+    return UserCustom(
+      uid: uidSnapshot.value.toString() ?? '',
+      email: emailSnapshot.value.toString() ?? '',
+      role: roleSnapshot.value.toString() ?? '',
+      name: nameSnapshot.value.toString() ?? '',
+      lastname: lastnameSnapshot.value.toString() ?? '',
+      phone: phoneSnapshot.value.toString() ?? '',
+      whatsapp: whatsappSnapshot.value.toString() ?? '',
+      telegram: telegramSnapshot.value.toString() ?? '',
+      instagram: instagramSnapshot.value.toString() ?? '',
+      city: citySnapshot.value.toString() ?? '',
+      birthDate: birthDateSnapshot.value.toString() ?? '',
+      gender: genderSnapshot.value.toString() ?? '',
+      avatar: avatarSnapshot.value.toString() ?? ''
+    );
+  }
+
   // Метод для обновления данных текущего пользователя
   static void updateCurrentUser(UserCustom updatedUser) {
     currentUser = updatedUser;
     updateAccessLevel(updatedUser.role);
+  }
+
+  // Метод для обновления данных списка пользователей
+  static void updateUsersList() async {
+
+    currentUsersList = await getAllUsers() as List<RoleInApp>;
   }
 
   static void updateAccessLevel(String userRoleInApp) {
@@ -225,7 +264,7 @@ class UserCustom {
   }
 
   // --- ФУНКЦИЯ ЗАПИСИ ДАННЫХ ПОЛЬЗОВАТЕЛЯ -----
-  static Future<String?> writeUserData(UserCustom user) async {
+  static Future<String?> writeUserData(UserCustom user, {bool notAdminChanges = true}) async {
 
     try {
       // Создаем путь для пользователя в базе данных
@@ -248,8 +287,12 @@ class UserCustom {
         'avatar': user.avatar,
       });
 
-      currentUser = user; // Обновляем текущего пользователя
-      updateAccessLevel(user.role);
+      if (notAdminChanges)
+        {
+          currentUser = user; // Обновляем текущего пользователя
+          updateAccessLevel(user.role);
+        }
+
 
       // Если успешно
       return 'success';
@@ -305,6 +348,43 @@ class UserCustom {
     } catch (e) {
       print('Error reading user data: $e');
       return null; // Возвращаем null в случае ошибки
+    }
+  }
+
+  // Метод для получения списка ролей из Firebase
+
+  static Future<List<UserCustom>> getAllUsers({bool order = true}) async {
+
+    List<UserCustom> users = [];
+
+    // Указываем путь
+    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('users');
+
+    // Получаем снимок данных папки
+    DataSnapshot snapshot = await reference.get();
+
+    // Итерируем по каждому дочернему элементу
+    // Здесь сделано так потому что мы не знаем ключа роли
+    // и нам нужен каждая роль, независимо от ключа
+
+    for (var childSnapshot in snapshot.children) {
+      // заполняем роль (RoleInApp.fromSnapshot) из снимка данных
+      // и добавляем в список ролей
+      users.add(UserCustom.fromSnapshot(childSnapshot.child('user_info')));
+    }
+
+    sortUsersByEmail(users, order);
+
+    // Возвращаем список
+    return users;
+  }
+
+  static void sortUsersByEmail(List<UserCustom> users, bool order) {
+
+    if (order) {
+      users.sort((a, b) => a.email.compareTo(b.email));
+    } else {
+      users.sort((a, b) => b.email.compareTo(a.email));
     }
   }
 

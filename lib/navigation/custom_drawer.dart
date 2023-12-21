@@ -1,6 +1,7 @@
 import 'package:dvij_flutter/elements/logo_view.dart';
 import 'package:dvij_flutter/navigation/profile_box_in_drawer.dart';
 import 'package:dvij_flutter/screens/role_in_app_screens/roles_in_app_list_screen.dart';
+import 'package:dvij_flutter/screens/users_list_screens/users_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:dvij_flutter/screens/otherPages/about_app_page.dart';
@@ -105,6 +106,19 @@ class CustomDrawer extends StatelessWidget {
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               contentPadding: const EdgeInsets.all(15),
+            ),
+
+            if (local_user.UserCustom.accessLevel >= 100) ListTile(
+              leading: const Icon(Icons.privacy_tip),
+              title: const Text('Список пользователей'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const UsersListScreen()),
+                );
+              },
             ),
 
             if (local_user.UserCustom.accessLevel >= 80) ListTile(
