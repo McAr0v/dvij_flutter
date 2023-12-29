@@ -1,3 +1,4 @@
+import 'package:dvij_flutter/classes/user_class.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 class Place {
@@ -29,6 +30,11 @@ class Place {
   String saturdayFinishTime;
   String sundayStartTime;
   String sundayFinishTime;
+  String? addedToFavouritesCount;
+  String? eventsCount;
+  String? promoCount;
+  String? canEdit;
+  String? inFav;
 
   Place({
     required this.id,
@@ -59,6 +65,12 @@ class Place {
     required this.saturdayFinishTime,
     required this.sundayStartTime,
     required this.sundayFinishTime,
+    this.addedToFavouritesCount,
+    this.canEdit,
+    this.eventsCount,
+    this.inFav,
+    this.promoCount
+
   });
 
   factory Place.fromSnapshot(DataSnapshot snapshot) {
@@ -232,13 +244,79 @@ class Place {
       // заполняем город (City.fromSnapshot) из снимка данных
       // и обавляем в список городов
 
-      places.add(Place.fromSnapshot(childSnapshot.child('place_info')));
-    }
+      Place place = Place.fromSnapshot(childSnapshot.child('place_info'));
 
+      String favCount = await Place.getFavCount(place.id);
+      String eventsCount = await Place.getEventsCount(place.id);
+      String promosCount = await Place.getEventsCount(place.id);
+      String inFav = await Place.addedInFavOrNot(place.id);
+
+      place.inFav = inFav;
+      place.addedToFavouritesCount = favCount;
+      place.eventsCount = eventsCount;
+      place.promoCount = promosCount;
+      places.add(place);
+
+      //places.add(Place.fromSnapshot(childSnapshot.child('place_info')));
+    }
     // sortCitiesByName(places, order);
 
     // Возвращаем список
     return places;
+  }
+
+  static Future<String> getFavCount(String placeId) async {
+
+    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('places/$placeId/addedToFavourites');
+
+    // Получаем снимок данных папки
+    DataSnapshot snapshot = await reference.get();
+
+    return snapshot.children.length.toString();
+
+  }
+
+  static Future<String> getEventsCount(String placeId) async {
+
+    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('places/$placeId/events');
+
+    // Получаем снимок данных папки
+    DataSnapshot snapshot = await reference.get();
+
+    return snapshot.children.length.toString();
+
+  }
+
+  static Future<String> getPromoCount(String placeId) async {
+
+    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('places/$placeId/promos');
+
+    // Получаем снимок данных папки
+    DataSnapshot snapshot = await reference.get();
+
+    return snapshot.children.length.toString();
+
+  }
+
+  static Future<String> addedInFavOrNot(String placeId) async {
+
+    String addedToFavourites = 'false';
+
+    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('places/$placeId/addedToFavourites');
+
+    // Получаем снимок данных папки
+    DataSnapshot snapshot = await reference.get();
+
+    for (var childSnapshot in snapshot.children) {
+      // заполняем город (City.fromSnapshot) из снимка данных
+      // и обавляем в список городов
+
+      if (childSnapshot.value == UserCustom.currentUser?.uid) addedToFavourites = 'true';
+
+    }
+
+    return addedToFavourites;
+
   }
 
 }
