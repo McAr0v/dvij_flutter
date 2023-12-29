@@ -26,4 +26,23 @@ class ImageUploader {
     // Возвращаем URL загруженного файла
     return downloadURL;
   }
+
+  Future<String?> uploadImageInPlace(String placeId, File pickedFile) async {
+
+    // Ссылка на ваш объект в Firebase Storage
+    // PS - чтобы не забивать память, я решил, что я буду перезаписывать старую аватарку
+
+    final storageRef = _storage.ref().child('places').child(placeId).child('avatar_$placeId.jpeg');
+
+    // Выгружаем аватар
+    final uploadTask = storageRef.putFile(File(pickedFile.path));
+
+    // Дожидаемся завершения загрузки и получием URL загруженного файла
+    final TaskSnapshot taskSnapshot = await uploadTask;
+    final downloadURL = await taskSnapshot.ref.getDownloadURL();
+
+    // Возвращаем URL загруженного файла
+    return downloadURL;
+  }
+
 }

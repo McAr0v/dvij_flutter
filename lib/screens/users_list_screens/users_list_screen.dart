@@ -123,22 +123,6 @@ class _UsersListScreenState extends State<UsersListScreen> {
 
               },
             ),
-
-            // Добавление новой роли
-
-            /*IconButton(
-              icon: const Icon(Icons.add),
-
-              // Переход на страницу создания роли
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const RoleInAppAddOrEditScreen(),
-                  ),
-                );
-              },
-            ),*/
           ],
         ),
 

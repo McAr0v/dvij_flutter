@@ -125,7 +125,120 @@ class Place {
     );
   }
 
+  factory Place.empty() {
+    return Place(
+        id: '',
+        name: '',
+        desc: '',
+        creatorId: '',
+        createDate: '',
+        category: '',
+        city: '',
+        street: '',
+        house: '',
+        phone: '',
+        whatsapp: '',
+        telegram: '',
+        instagram: '',
+        imageUrl: 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2Fdvij_unknow_user.jpg?alt=media&token=b63ea5ef-7bdf-49e9-a3ef-1d34d676b6a7',
+        mondayStartTime: '',
+        mondayFinishTime: '',
+        tuesdayStartTime: '',
+        tuesdayFinishTime: '',
+        wednesdayStartTime: '',
+        wednesdayFinishTime: '',
+        thursdayStartTime: '',
+        thursdayFinishTime: '',
+        fridayStartTime: '',
+        fridayFinishTime: '',
+        saturdayStartTime: '',
+        saturdayFinishTime: '',
+        sundayStartTime: '',
+        sundayFinishTime: ''
+    );
+  }
+
   // --- ИНИЦИАЛИЗИРУЕМ БАЗУ ДАННЫХ -----
   final DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
+
+  // Метод для добавления нового пола или редактирования пола в Firebase
+
+  // --- ФУНКЦИЯ ЗАПИСИ ДАННЫХ Места -----
+  static Future<String?> createOrEditPlace(Place place) async {
+
+    try {
+
+      String placePath = 'places/${place.id}/place_info';
+
+      // Записываем данные пользователя в базу данных
+      await FirebaseDatabase.instance.ref().child(placePath).set({
+        'id': place.id,
+        'name': place.name,
+        'desc': place.desc,
+        'creatorId': place.creatorId,
+        'createDate': place.createDate,
+        'category': place.category,
+        'city': place.city,
+        'street': place.street,
+        'house': place.house,
+        'phone': place.phone,
+        'whatsapp': place.whatsapp,
+        'telegram': place.telegram,
+        'instagram': place.instagram,
+        'imageUrl': place.imageUrl,
+        'mondayStartTime': place.mondayStartTime,
+        'mondayFinishTime': place.mondayFinishTime,
+        'tuesdayStartTime': place.tuesdayStartTime,
+        'tuesdayFinishTime': place.tuesdayFinishTime,
+        'wednesdayFinishTime': place.wednesdayFinishTime,
+        'wednesdayStartTime': place.wednesdayStartTime,
+        'thursdayStartTime': place.thursdayStartTime,
+        'thursdayFinishTime': place.thursdayFinishTime,
+        'fridayStartTime': place.fridayStartTime,
+        'fridayFinishTime': place.fridayFinishTime,
+        'saturdayStartTime': place.saturdayStartTime,
+        'saturdayFinishTime': place.saturdayFinishTime,
+        'sundayStartTime': place.sundayStartTime,
+        'sundayFinishTime': place.sundayFinishTime,
+
+      });
+
+      // Если успешно
+      return 'success';
+
+    } catch (e) {
+      // Если ошибки
+      // TODO Сделать обработку ошибок. Наверняка есть какие то, которые можно различать и писать что случилось
+      print('Error writing user data: $e');
+      return 'Failed to write user data. Error: $e';
+    }
+  }
+
+  static Future<List<Place>> getAllPlaces() async {
+
+    List<Place> places = [];
+
+    // Указываем путь
+    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('places');
+
+    // Получаем снимок данных папки
+    DataSnapshot snapshot = await reference.get();
+
+    // Итерируем по каждому дочернему элементу
+    // Здесь сделано так потому что мы не знаем ключа города
+    // и нам нужен каждый город, независимо от ключа
+
+    for (var childSnapshot in snapshot.children) {
+      // заполняем город (City.fromSnapshot) из снимка данных
+      // и обавляем в список городов
+
+      places.add(Place.fromSnapshot(childSnapshot.child('place_info')));
+    }
+
+    // sortCitiesByName(places, order);
+
+    // Возвращаем список
+    return places;
+  }
 
 }
