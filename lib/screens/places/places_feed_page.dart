@@ -1,5 +1,5 @@
 import 'package:dvij_flutter/classes/place_class.dart';
-import 'package:dvij_flutter/elements/custom_button.dart';
+import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/elements/places_elements/place_card_widget.dart';
 import 'package:dvij_flutter/screens/places/create_or_edit_place_screen.dart';
 import 'package:flutter/material.dart';
@@ -53,9 +53,9 @@ class _PlacesFeedPageState extends State<PlacesFeedPage> {
         children: [
 
           // --- ЕСЛИ ЭКРАН ЗАГРУЗКИ -----
-          if (loading) const LoadingScreen(loadingText: 'Подожди, идет загрузка пользователей')
+          if (loading) const LoadingScreen(loadingText: 'Подожди, идет загрузка мест')
           // --- ЕСЛИ ГОРОДОВ НЕТ -----
-          else if (placesList.isEmpty) const Center(child: Text('Список пользователей пуст'))
+          else if (placesList.isEmpty) const Center(child: Text('Список мест пуст'))
           // --- ЕСЛИ ГОРОДА ЗАГРУЗИЛИСЬ
           else ListView.builder(
               // Открываем создатель списков
@@ -63,7 +63,7 @@ class _PlacesFeedPageState extends State<PlacesFeedPage> {
                 itemCount: placesList.length,
                 // Шаблоны для элементов
                 itemBuilder: (context, index) {
-                  return PlaceCardWidget(place: placesList[index], canEdit: true);
+                  return PlaceCardWidget(place: placesList[index]);
                 }
             ),
         ],

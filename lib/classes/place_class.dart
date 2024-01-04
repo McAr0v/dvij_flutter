@@ -1,3 +1,4 @@
+import 'package:dvij_flutter/classes/city_class.dart';
 import 'package:dvij_flutter/classes/user_class.dart';
 import 'package:firebase_database/firebase_database.dart';
 
@@ -250,7 +251,16 @@ class Place {
       String eventsCount = await Place.getEventsCount(place.id);
       String promosCount = await Place.getEventsCount(place.id);
       String inFav = await Place.addedInFavOrNot(place.id);
+      String canEdit = await Place.canEditOrNot(place.id);
 
+      City? cityName = await City.getCityById(place.city);
+
+      if (cityName != null)
+        {
+          place.city = cityName.name;
+        }
+
+      place.canEdit = canEdit;
       place.inFav = inFav;
       place.addedToFavouritesCount = favCount;
       place.eventsCount = eventsCount;
@@ -316,6 +326,27 @@ class Place {
     }
 
     return addedToFavourites;
+
+  }
+
+  static Future<String> canEditOrNot(String placeId) async {
+
+    String canEdit = 'false';
+
+    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('places/$placeId/canEdit');
+
+    // Получаем снимок данных папки
+    DataSnapshot snapshot = await reference.get();
+
+    for (var childSnapshot in snapshot.children) {
+      // заполняем город (City.fromSnapshot) из снимка данных
+      // и обавляем в список городов
+
+      if (childSnapshot.value == UserCustom.currentUser?.uid) canEdit = 'true';
+
+    }
+
+    return canEdit;
 
   }
 

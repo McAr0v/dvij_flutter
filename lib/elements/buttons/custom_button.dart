@@ -1,6 +1,6 @@
 import 'package:dvij_flutter/elements/icons_elements/svg_icon.dart';
 import 'package:flutter/material.dart';
-import '../themes/app_colors.dart';
+import '../../themes/app_colors.dart';
 
 class CustomButton extends StatelessWidget {
   final String state;

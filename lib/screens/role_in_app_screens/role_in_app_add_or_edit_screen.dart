@@ -1,5 +1,5 @@
 import 'package:dvij_flutter/classes/role_in_app.dart';
-import 'package:dvij_flutter/elements/custom_button.dart';
+import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/elements/loading_screen.dart';
 import 'package:dvij_flutter/screens/role_in_app_screens/roles_in_app_list_screen.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';

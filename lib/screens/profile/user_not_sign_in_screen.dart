@@ -1,6 +1,6 @@
 import 'package:dvij_flutter/screens/profile/registration_screen.dart';
 import 'package:flutter/material.dart';
-import '../../elements/custom_button.dart';
+import '../../elements/buttons/custom_button.dart';
 import 'login_screen.dart';
 
 

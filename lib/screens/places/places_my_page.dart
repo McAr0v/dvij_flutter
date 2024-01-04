@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../classes/place_class.dart';
-import '../../elements/custom_button.dart';
+import '../../elements/buttons/custom_button.dart';
 import '../../themes/app_colors.dart';
 import 'create_or_edit_place_screen.dart';
 

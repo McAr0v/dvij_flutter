@@ -1,4 +1,4 @@
-import 'package:dvij_flutter/elements/custom_button.dart';
+import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/elements/loading_screen.dart';
 import 'package:dvij_flutter/screens/genders_screens/genders_list_screen.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';

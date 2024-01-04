@@ -1,4 +1,4 @@
-import 'package:dvij_flutter/elements/custom_button.dart';
+import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/screens/profile/registration_screen.dart';
 import 'package:flutter/material.dart';
 
