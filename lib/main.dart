@@ -1,3 +1,4 @@
+import 'package:dvij_flutter/classes/place_category_class.dart';
 import 'package:dvij_flutter/classes/role_in_app.dart';
 import 'package:dvij_flutter/screens/cities_screens/cities_list_screen.dart';
 import 'package:dvij_flutter/screens/otherPages/privacy_policy_page.dart';
@@ -30,6 +31,7 @@ void main() async {
   await City.getCitiesAndSave();
   await Gender.getGenderAndSave();
   await RoleInApp.getRolesInAppAndSave();
+  await PlaceCategory.getPlaceCategoryAndSave();
 
   final FirebaseAuth auth = FirebaseAuth.instance;
   if (auth.currentUser != null)

@@ -252,14 +252,9 @@ class Place {
       String promosCount = await Place.getEventsCount(place.id);
       String inFav = await Place.addedInFavOrNot(place.id);
       String canEdit = await Place.canEditOrNot(place.id);
+      String cityName = City.getCityName(place.city);
 
-      City? cityName = await City.getCityById(place.city);
-
-      if (cityName != null)
-        {
-          place.city = cityName.name;
-        }
-
+      place.city = cityName;
       place.canEdit = canEdit;
       place.inFav = inFav;
       place.addedToFavouritesCount = favCount;
@@ -349,5 +344,7 @@ class Place {
     return canEdit;
 
   }
+
+
 
 }
