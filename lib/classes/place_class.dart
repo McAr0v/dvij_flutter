@@ -1,4 +1,5 @@
 import 'package:dvij_flutter/classes/city_class.dart';
+import 'package:dvij_flutter/classes/place_category_class.dart';
 import 'package:dvij_flutter/classes/user_class.dart';
 import 'package:firebase_database/firebase_database.dart';
 
@@ -253,7 +254,9 @@ class Place {
       String inFav = await Place.addedInFavOrNot(place.id);
       String canEdit = await Place.canEditOrNot(place.id);
       String cityName = City.getCityName(place.city);
+      String categoryName = PlaceCategory.getPlaceCategoryName(place.category);
 
+      place.category = categoryName;
       place.city = cityName;
       place.canEdit = canEdit;
       place.inFav = inFav;
@@ -268,6 +271,52 @@ class Place {
 
     // Возвращаем список
     return places;
+  }
+
+  static Future<Place> getPlaceById(String placeId) async {
+
+    Place returnedPlace = Place.empty();
+
+    // Указываем путь
+    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('places');
+
+    // Получаем снимок данных папки
+    DataSnapshot snapshot = await reference.get();
+
+    // Итерируем по каждому дочернему элементу
+    // Здесь сделано так потому что мы не знаем ключа города
+    // и нам нужен каждый город, независимо от ключа
+
+    for (var childSnapshot in snapshot.children) {
+      // заполняем город (City.fromSnapshot) из снимка данных
+      // и обавляем в список городов
+
+      Place place = Place.fromSnapshot(childSnapshot.child('place_info'));
+
+      if (place.id == placeId) {
+
+        returnedPlace = place;
+        String favCount = await Place.getFavCount(place.id);
+        String eventsCount = await Place.getEventsCount(place.id);
+        String promosCount = await Place.getEventsCount(place.id);
+        String inFav = await Place.addedInFavOrNot(place.id);
+        String canEdit = await Place.canEditOrNot(place.id);
+        //String cityName = City.getCityName(place.city);
+        //String categoryName = PlaceCategory.getPlaceCategoryName(place.category);
+        //place.category = categoryName;
+        //place.city = cityName;
+        place.canEdit = canEdit;
+        place.inFav = inFav;
+        place.addedToFavouritesCount = favCount;
+        place.eventsCount = eventsCount;
+        place.promoCount = promosCount;
+
+      }
+
+    }
+
+    // Возвращаем список
+    return returnedPlace;
   }
 
   static Future<String> getFavCount(String placeId) async {
@@ -344,6 +393,76 @@ class Place {
     return canEdit;
 
   }
+
+  static Future<String> addPlaceToFav(String placeId) async {
+
+    try {
+
+      String placePath = 'places/$placeId/addedToFavourites';
+
+      if (UserCustom.currentUser?.uid != null){
+        String userPath = 'users/${UserCustom.currentUser?.uid}/favPlaces';
+
+        // Записываем данные пользователя в базу данных
+        await FirebaseDatabase.instance.ref().child(placePath).set({
+          '${UserCustom.currentUser?.uid}': UserCustom.currentUser?.uid,
+        });
+
+        await FirebaseDatabase.instance.ref(userPath).set(
+            {
+              placeId: placeId,
+            }
+        );
+
+        // Если успешно
+        return 'success';
+
+      } else {
+
+        return 'Пользователь не зарегистрирован';
+
+      }
+
+    } catch (e) {
+      // Если ошибки
+      // TODO Сделать обработку ошибок. Наверняка есть какие то, которые можно различать и писать что случилось
+      print('Ошибка записи в избранное: $e');
+      return 'Ошибка записи в избранное: $e';
+    }
+  }
+
+  static Future<String> deletePlaceFromFav(String placeId) async {
+    try {
+      if (UserCustom.currentUser?.uid != null){
+        DatabaseReference reference = FirebaseDatabase.instance.ref().child('places/$placeId/addedToFavourites').child(UserCustom.currentUser!.uid);
+
+        // Проверяем, существует ли город с указанным ID
+        DataSnapshot snapshot = await reference.get();
+        if (!snapshot.exists) {
+          return 'Пользователь не найден';
+        }
+
+        // Удаляем город
+        await reference.remove();
+
+        DatabaseReference referenceUser = FirebaseDatabase.instance.ref().child('users/${UserCustom.currentUser?.uid}/favPlaces').child(placeId);
+
+        DataSnapshot snapshotUser = await referenceUser.get();
+        if (!snapshotUser.exists) {
+          return 'Заведение у пользователя не найдено';
+        }
+
+        // Удаляем город
+        await referenceUser.remove();
+
+      }
+
+      return 'success';
+    } catch (error) {
+      return 'Ошибка при удалении города: $error';
+    }
+  }
+
 
 
 
