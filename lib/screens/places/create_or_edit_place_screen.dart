@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:dvij_flutter/classes/gender_class.dart';
+import 'package:dvij_flutter/classes/place_category_class.dart';
 import 'package:dvij_flutter/classes/place_class.dart';
 import 'package:dvij_flutter/elements/data_picker.dart';
 import 'package:dvij_flutter/elements/genders_elements/gender_element_in_edit_screen.dart';
@@ -58,6 +59,7 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
   late TextEditingController cityController;
   late TextEditingController imageController;
 
+
   late String placeId;
   late String creatorId;
   late String createdTime;
@@ -87,6 +89,8 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
   bool loading = true;
 
   List<City> _cities = [];
+  List<PlaceCategory> _categories = [];
+  late PlaceCategory chosenCategory;
 
   /*String _selectedStartTime = "Выходной";
   String _selectedEndTime = "Выходной";*/
@@ -183,6 +187,7 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
   void initState() {
     super.initState();
     loading = true;
+    _categories = PlaceCategory.currentPlaceCategoryList;
 
     accessLevel = UserCustom.accessLevel;
 
@@ -237,6 +242,10 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
       imageController = TextEditingController(text: widget.placeInfo.imageUrl);
 
       _cities = City.currentCityList;
+
+      // TODO - Вот здесь по идее можно выбранный город и категорию брать из списка городов, а не запрашивать с firebase
+
+      chosenCategory = await PlaceCategory.getPlaceCategoryById(widget.placeInfo.category) as PlaceCategory;
 
       chosenCity = await City.getCityById(widget.placeInfo.city) as City;
 
@@ -302,6 +311,11 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
       {
         sundayFinishTime = widget.placeInfo.sundayFinishTime;
       }
+
+      if (widget.placeInfo.category != '')
+        {
+          category = PlaceCategory.getPlaceCategoryName(widget.placeInfo.category);
+        }
 
       setState(() {
         loading = false;
@@ -401,6 +415,27 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
                     ),
 
                     const SizedBox(height: 16.0),
+
+                    const SizedBox(height: 16.0),
+
+                    // ---- ВОТ ТУТ ДЕЛАЮ ----
+
+                    if (chosenCategory.name == 'null') CityElementInEditScreen(
+                      cityName: 'Категория не выбрана',
+                      onActionPressed: () {
+                        //_showCityPickerDialog();
+                        _showCityPickerDialog();
+                      },
+                    ),
+
+                    if (chosenCategory.name != "null") CityElementInEditScreen(
+                      cityName: chosenCategory.name,
+                      onActionPressed: () {
+                        //_showCityPickerDialog();
+                        _showCityPickerDialog();
+                      },
+                    ),
+
                     TextField(
                       style: Theme.of(context).textTheme.bodyMedium,
                       keyboardType: TextInputType.text,
@@ -652,7 +687,7 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
                             desc: descController.text,
                             creatorId: creatorId,
                             createDate: createdTime,
-                            category: category,
+                            category: chosenCategory.id,
                             city: chosenCity.id,
                             street: streetController.text,
                             house: houseController.text,
