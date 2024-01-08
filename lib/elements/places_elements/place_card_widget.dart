@@ -98,9 +98,17 @@ class PlaceCardWidget extends StatelessWidget {
                   ),
                   SizedBox(height: 10.0),
 
-                  Text(
+                  /*Text(
                     place.desc,
                     style: Theme.of(context).textTheme.bodyMedium,
+
+                  ),*/
+
+                  Text.rich(
+                    TextSpan(
+                      text: place.desc.length > 100 ? '${place.desc.substring(0, 100)}...' : place.desc,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
                   ),
 
 
@@ -135,7 +143,7 @@ class PlaceCardWidget extends StatelessWidget {
                   // ...
 
                   // Кнопки редактирования и удаления, если есть доступ к редактированию
-                  if (place.canEdit == 'true')
+                  /*if (place.canEdit == 'true')
                     const Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -144,7 +152,7 @@ class PlaceCardWidget extends StatelessWidget {
                           textColor: Colors.green,
                         ),
                       ],
-                    ),
+                    ),*/
                 ],
               ),
             ),

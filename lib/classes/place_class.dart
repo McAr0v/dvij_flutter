@@ -250,19 +250,20 @@ class Place {
 
       String favCount = await Place.getFavCount(place.id);
       String eventsCount = await Place.getEventsCount(place.id);
-      String promosCount = await Place.getEventsCount(place.id);
+      String promosCount = await Place.getPromoCount(place.id);;
       String inFav = await Place.addedInFavOrNot(place.id);
-      String canEdit = await Place.canEditOrNot(place.id);
+      //String canEdit = await Place.canEditOrNot(place.id);
       String cityName = City.getCityName(place.city);
       String categoryName = PlaceCategory.getPlaceCategoryName(place.category);
 
       place.category = categoryName;
       place.city = cityName;
-      place.canEdit = canEdit;
+      //place.canEdit = canEdit;
       place.inFav = inFav;
       place.addedToFavouritesCount = favCount;
       place.eventsCount = eventsCount;
       place.promoCount = promosCount;
+
       places.add(place);
 
       //places.add(Place.fromSnapshot(childSnapshot.child('place_info')));
@@ -298,7 +299,7 @@ class Place {
         returnedPlace = place;
         String favCount = await Place.getFavCount(place.id);
         String eventsCount = await Place.getEventsCount(place.id);
-        String promosCount = await Place.getEventsCount(place.id);
+        String promosCount = await Place.getPromoCount(place.id);
         String inFav = await Place.addedInFavOrNot(place.id);
         String canEdit = await Place.canEditOrNot(place.id);
         //String cityName = City.getCityName(place.city);
@@ -356,18 +357,25 @@ class Place {
 
     String addedToFavourites = 'false';
 
-    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('places/$placeId/addedToFavourites');
+    if (UserCustom.currentUser?.uid != null)
+      {
 
-    // Получаем снимок данных папки
-    DataSnapshot snapshot = await reference.get();
+        final DatabaseReference reference = FirebaseDatabase.instance.ref().child('places/$placeId/addedToFavourites/${UserCustom.currentUser?.uid}');
 
-    for (var childSnapshot in snapshot.children) {
-      // заполняем город (City.fromSnapshot) из снимка данных
-      // и обавляем в список городов
+        // Получаем снимок данных папки
+        DataSnapshot snapshot = await reference.get();
 
-      if (childSnapshot.value == UserCustom.currentUser?.uid) addedToFavourites = 'true';
+        for (var childSnapshot in snapshot.children) {
+          // заполняем город (City.fromSnapshot) из снимка данных
+          // и обавляем в список городов
 
-    }
+          if (childSnapshot.value == UserCustom.currentUser?.uid) addedToFavourites = 'true';
+
+        }
+
+      }
+
+
 
     return addedToFavourites;
 
@@ -398,10 +406,12 @@ class Place {
 
     try {
 
-      String placePath = 'places/$placeId/addedToFavourites';
+
+
 
       if (UserCustom.currentUser?.uid != null){
-        String userPath = 'users/${UserCustom.currentUser?.uid}/favPlaces';
+        String placePath = 'places/$placeId/addedToFavourites/${UserCustom.currentUser?.uid}';
+        String userPath = 'users/${UserCustom.currentUser?.uid}/favPlaces/$placeId';
 
         // Записываем данные пользователя в базу данных
         await FirebaseDatabase.instance.ref().child(placePath).set({

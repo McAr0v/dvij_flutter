@@ -146,7 +146,7 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
                           iconColor: inFav == 'true' ? AppColors.brandColor : AppColors.white,
                           side: false,
                           backgroundColor: AppColors.greyBackground.withOpacity(0.8),
-                          onPressed: (){
+                          onPressed: () async {
 
                             // TODO Сделать проверку на подтвержденный Email
                             if (UserCustom.currentUser?.uid == '' || UserCustom.currentUser?.uid == null)
@@ -158,40 +158,44 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
 
                             else {
 
-                              setState(() async {
-                                if (inFav == 'true')
-                                {
+                              if (inFav == 'true')
+                              {
 
-                                  String resDel = await Place.deletePlaceFromFav(place.id);
+                                String resDel = await Place.deletePlaceFromFav(place.id);
 
-                                  if (resDel == 'success'){
+                                if (resDel == 'success'){
+                                  setState(() {
                                     inFav = 'false';
                                     favCounter --;
-                                    showSnackBar('Удалено из избранных', AppColors.attentionRed, 1);
-                                  } else {
+                                  });
 
-                                    showSnackBar(resDel, AppColors.attentionRed, 1);
-                                  }
+                                  showSnackBar('Удалено из избранных', AppColors.attentionRed, 1);
+                                } else {
 
-
-
+                                  showSnackBar(resDel, AppColors.attentionRed, 1);
                                 }
-                                else {
-                                  String res = await Place.addPlaceToFav(place.id);
-                                  if (res == 'success') {
 
+
+
+                              }
+                              else {
+                                String res = await Place.addPlaceToFav(place.id);
+                                if (res == 'success') {
+
+                                  setState(() {
                                     inFav = 'true';
                                     favCounter ++;
-                                    showSnackBar('Добавлено в избранные', Colors.green, 1);
+                                  });
 
-                                  } else {
+                                  showSnackBar('Добавлено в избранные', Colors.green, 1);
 
-                                    showSnackBar(res, AppColors.attentionRed, 1);
+                                } else {
 
-                                  }
+                                  showSnackBar(res, AppColors.attentionRed, 1);
 
                                 }
-                              });
+
+                              }
 
                             }
 
