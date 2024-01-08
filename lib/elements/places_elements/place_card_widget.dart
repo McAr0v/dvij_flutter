@@ -8,8 +8,9 @@ import '../../screens/places/place_view_screen.dart'; // Убедитесь, ч�
 
 class PlaceCardWidget extends StatelessWidget {
   final Place place;
+  final Function()? onFavoriteIconPressed; // Добавьте функцию обратного вызова
 
-  const PlaceCardWidget({super.key, required this.place});
+  const PlaceCardWidget({super.key, required this.place, this.onFavoriteIconPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +62,7 @@ class PlaceCardWidget extends StatelessWidget {
                     iconColor: place.inFav == 'true' ? AppColors.brandColor : AppColors.white,
                     side: false,
                     backgroundColor: AppColors.greyBackground.withOpacity(0.8),
+                    onPressed: onFavoriteIconPressed,
                   ),
                 ),
 

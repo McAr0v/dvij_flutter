@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:firebase_database/firebase_database.dart';
 
+import '../../classes/user_class.dart';
+import '../../elements/custom_snack_bar.dart';
 import '../../elements/loading_screen.dart'; // Импортируйте библиотеку Firebase Database
 
 class PlacesFeedPage extends StatefulWidget {
@@ -46,6 +48,11 @@ class _PlacesFeedPageState extends State<PlacesFeedPage> {
     });
   }
 
+  void showSnackBar(String message, Color color, int showTime) {
+    final snackBar = customSnackBar(message: message, backgroundColor: color, showTime: showTime);
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,7 +70,63 @@ class _PlacesFeedPageState extends State<PlacesFeedPage> {
                 itemCount: placesList.length,
                 // Шаблоны для элементов
                 itemBuilder: (context, index) {
-                  return PlaceCardWidget(place: placesList[index]);
+                  return PlaceCardWidget(
+                      place: placesList[index],
+                    onFavoriteIconPressed: () async {
+
+                      // TODO Сделать проверку на подтвержденный Email
+                      if (UserCustom.currentUser?.uid == '' || UserCustom.currentUser?.uid == null)
+                      {
+
+                        showSnackBar('Чтобы добавлять в избранное, нужно зарегистрироваться!', AppColors.attentionRed, 2);
+
+                      }
+
+                      else {
+
+                        if (placesList[index].inFav == 'true')
+                        {
+
+                          String resDel = await Place.deletePlaceFromFav(placesList[index].id);
+
+                          int favCounter = int.parse(placesList[index].addedToFavouritesCount!);
+
+
+                          if (resDel == 'success'){
+                            setState(() {
+                              placesList[index].inFav = 'false';
+                              favCounter --;
+                              placesList[index].addedToFavouritesCount = favCounter.toString();
+                            });
+
+                            showSnackBar('Удалено из избранных', AppColors.attentionRed, 1);
+                          } else {
+                            showSnackBar(resDel, AppColors.attentionRed, 1);
+                          }
+                        }
+                        else {
+                          String res = await Place.addPlaceToFav(placesList[index].id);
+                          int favCounter = int.parse(placesList[index].addedToFavouritesCount!);
+
+                          if (res == 'success') {
+
+                            setState(() {
+                              placesList[index].inFav = 'true';
+                              favCounter ++;
+                              placesList[index].addedToFavouritesCount = favCounter.toString();
+                            });
+
+                            showSnackBar('Добавлено в избранные', Colors.green, 1);
+
+                          } else {
+
+                            showSnackBar(res, AppColors.attentionRed, 1);
+
+                          }
+                        }
+                      }
+                    },
+                  );
                 }
             ),
         ],
