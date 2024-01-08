@@ -1,11 +1,7 @@
 import 'package:dvij_flutter/classes/place_class.dart';
-import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/elements/places_elements/place_card_widget.dart';
-import 'package:dvij_flutter/screens/places/create_or_edit_place_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
-import 'package:firebase_database/firebase_database.dart';
-
 import '../../classes/user_class.dart';
 import '../../elements/custom_snack_bar.dart';
 import '../../elements/loading_screen.dart'; // Импортируйте библиотеку Firebase Database
@@ -16,6 +12,8 @@ class PlacesFeedPage extends StatefulWidget {
   @override
   _PlacesFeedPageState createState() => _PlacesFeedPageState();
 }
+
+
 
 class _PlacesFeedPageState extends State<PlacesFeedPage> {
   late List<Place> placesList;
@@ -71,6 +69,7 @@ class _PlacesFeedPageState extends State<PlacesFeedPage> {
                 // Шаблоны для элементов
                 itemBuilder: (context, index) {
                   return PlaceCardWidget(
+                    // TODO Сделать обновление иконки избранного и счетчика при возврате из экрана просмотра заведения
                       place: placesList[index],
                     onFavoriteIconPressed: () async {
 

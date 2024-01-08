@@ -4,7 +4,8 @@ import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/classes/place_class.dart';
 
-import '../../screens/places/place_view_screen.dart'; // Убедитесь, что вы импортируете ваш класс Place
+import '../../screens/places/place_view_screen.dart';
+import 'now_is_work_widget.dart'; // Убедитесь, что вы импортируете ваш класс Place
 
 class PlaceCardWidget extends StatelessWidget {
   final Place place;
@@ -14,6 +15,11 @@ class PlaceCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    bool isOpen = false;
+
+    if (place.nowIsOpen == 'true') isOpen = true;
+
     return GestureDetector(
       onTap: () {
         // Navigate to PlaceViewScreen when the card is tapped
@@ -99,6 +105,10 @@ class PlaceCardWidget extends StatelessWidget {
                     softWrap: true,
                   ),
                   SizedBox(height: 10.0),
+
+                  NowIsWorkWidget(isTrue: isOpen),
+
+                  const SizedBox(height: 10.0),
 
                   /*Text(
                     place.desc,

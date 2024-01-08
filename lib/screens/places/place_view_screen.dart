@@ -1,4 +1,6 @@
 import 'package:dvij_flutter/elements/headline_and_desc.dart';
+import 'package:dvij_flutter/elements/places_elements/now_is_work_widget.dart';
+import 'package:dvij_flutter/elements/places_elements/place_work_time_element.dart';
 import 'package:dvij_flutter/elements/social_elements/social_buttons_widget.dart';
 import 'package:dvij_flutter/go_to_url/openUrlPage.dart';
 import 'package:dvij_flutter/methods/date_functions.dart';
@@ -18,6 +20,7 @@ import '../../classes/role_in_app.dart';
 import '../../classes/user_class.dart';
 import '../../elements/for_cards_small_widget_with_icon_and_text.dart';
 import '../../elements/loading_screen.dart';
+import '../../methods/days_functions.dart';
 
 
 // --- ЭКРАН ЗАЛОГИНЕВШЕГОСЯ ПОЛЬЗОВАТЕЛЯ -----
@@ -39,6 +42,9 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
   Place place = Place.empty();
   String city = '';
   String category = '';
+
+  DateTime currentDate = DateTime.now();
+  bool isOpen = false;
 
   // --- Переключатель показа экрана загрузки -----
 
@@ -75,6 +81,8 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
       category = PlaceCategory.getPlaceCategoryName(place.category);
       inFav = place.inFav!;
       favCounter = int.parse(place.addedToFavouritesCount!);
+
+      isOpen = nowIsOpenPlace(place);
 
 
       // ---- Убираем экран загрузки -----
@@ -278,6 +286,10 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
 
 
 
+                      const SizedBox(height: 5.0),
+
+                      NowIsWorkWidget(isTrue: isOpen),
+
                       const SizedBox(height: 16.0),
 
                       SocialButtonsWidget(telegramUsername: place.telegram, instagramUsername: place.instagram, whatsappUsername: place.whatsapp, phoneNumber: place.phone,),
@@ -286,7 +298,11 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
 
                       if (place.desc != '') HeadlineAndDesc(headline: place.desc, description: 'Описание места'),
 
+                      const SizedBox(height: 16.0),
 
+                      PlaceWorkTimeCard(
+                          place: place,
+                      ),
 
                       const SizedBox(height: 16.0),
 
@@ -294,6 +310,21 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
 
                       // TODO - Сделать ограничение на редактирование
                       const SizedBox(height: 16.0),
+
+                      Text(
+                          'Мероприятия ${place.name}:',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+
+                      const SizedBox(height: 30.0),
+
+                      Text(
+                        'Акции ${place.name}:',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+
+                      const SizedBox(height: 30.0),
+
                       CustomButton(
                         buttonText: 'Редактировать',
                         onTapMethod: () async {
@@ -307,7 +338,6 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
                       // --- Выход из профиля ----
 
                       const SizedBox(height: 16.0),
-
 
                     ],
                   ),

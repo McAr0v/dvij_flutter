@@ -1,6 +1,7 @@
 import 'package:dvij_flutter/classes/city_class.dart';
 import 'package:dvij_flutter/classes/place_category_class.dart';
 import 'package:dvij_flutter/classes/user_class.dart';
+import 'package:dvij_flutter/methods/days_functions.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 class Place {
@@ -37,6 +38,7 @@ class Place {
   String? promoCount;
   String? canEdit;
   String? inFav;
+  String? nowIsOpen;
 
   Place({
     required this.id,
@@ -71,7 +73,8 @@ class Place {
     this.canEdit,
     this.eventsCount,
     this.inFav,
-    this.promoCount
+    this.promoCount,
+    this.nowIsOpen
 
   });
 
@@ -256,6 +259,8 @@ class Place {
       String cityName = City.getCityName(place.city);
       String categoryName = PlaceCategory.getPlaceCategoryName(place.category);
 
+      bool nowIsOpen = nowIsOpenPlace(place);
+
       place.category = categoryName;
       place.city = cityName;
       //place.canEdit = canEdit;
@@ -263,6 +268,7 @@ class Place {
       place.addedToFavouritesCount = favCount;
       place.eventsCount = eventsCount;
       place.promoCount = promosCount;
+      place.nowIsOpen = nowIsOpen.toString();
 
       places.add(place);
 

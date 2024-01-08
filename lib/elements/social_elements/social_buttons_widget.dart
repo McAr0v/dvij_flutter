@@ -48,13 +48,7 @@ class SocialButtonsWidget extends StatelessWidget {
                     ),
                     Text(
                       phoneNumber!,
-                      style: const TextStyle(
-                          color: AppColors.greyOnBackground,
-                          fontSize: 16,
-                          fontFamily: 'SfProDisplay',
-                          fontWeight: FontWeight.normal,
-                          height: 1.3
-                      ),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.greyOnBackground),
                     ),
                     SizedBox(width: 15,)
                   ],
