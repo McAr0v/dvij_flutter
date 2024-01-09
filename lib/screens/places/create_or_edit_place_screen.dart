@@ -5,6 +5,8 @@ import 'package:dvij_flutter/classes/place_class.dart';
 import 'package:dvij_flutter/elements/data_picker.dart';
 import 'package:dvij_flutter/elements/genders_elements/gender_element_in_edit_screen.dart';
 import 'package:dvij_flutter/elements/genders_elements/gender_picker_page.dart';
+import 'package:dvij_flutter/elements/places_elements/place_category_element_in_edit_place_screen.dart';
+import 'package:dvij_flutter/elements/places_elements/place_category_picker_page.dart';
 import 'package:dvij_flutter/elements/role_in_app_elements/role_in_app_element_in_edit_screen.dart';
 import 'package:dvij_flutter/elements/role_in_app_elements/role_in_app_picker_page.dart';
 import 'package:dvij_flutter/methods/date_functions.dart';
@@ -48,7 +50,7 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
 
   late TextEditingController nameController;
   late TextEditingController descController;
-  late String category;
+  //late String category;
   late City chosenCity;
   late TextEditingController streetController;
   late TextEditingController houseController;
@@ -227,7 +229,7 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
     // Подгружаем в контроллеры содержимое из БД.
     Future.delayed(Duration.zero, () async {
 
-      category = '';
+      //category = '';
       nameController = TextEditingController(text: widget.placeInfo.name);
       descController = TextEditingController(text: widget.placeInfo.desc);
 
@@ -242,12 +244,13 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
       imageController = TextEditingController(text: widget.placeInfo.imageUrl);
 
       _cities = City.currentCityList;
+      _categories = PlaceCategory.currentPlaceCategoryList;
 
       // TODO - Вот здесь по идее можно выбранный город и категорию брать из списка городов, а не запрашивать с firebase
 
-      chosenCategory = await PlaceCategory.getPlaceCategoryById(widget.placeInfo.category) as PlaceCategory;
+      chosenCategory = PlaceCategory.getPlaceCategoryFromCategoriesList(widget.placeInfo.category);
 
-      chosenCity = await City.getCityById(widget.placeInfo.city) as City;
+      chosenCity = City.getCityNameInCitiesList(widget.placeInfo.city);
 
       if (widget.placeInfo.mondayStartTime != '')
         {
@@ -312,10 +315,10 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
         sundayFinishTime = widget.placeInfo.sundayFinishTime;
       }
 
-      if (widget.placeInfo.category != '')
+      /*if (widget.placeInfo.category != '')
         {
           category = PlaceCategory.getPlaceCategoryName(widget.placeInfo.category);
-        }
+        }*/
 
       setState(() {
         loading = false;
@@ -398,7 +401,7 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
 
                     const SizedBox(height: 16.0),
 
-                    if (chosenCity.name == 'null') CityElementInEditScreen(
+                    if (chosenCity.id == '') CityElementInEditScreen(
                       cityName: 'Город не выбран',
                       onActionPressed: () {
                         //_showCityPickerDialog();
@@ -406,7 +409,7 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
                       },
                     ),
 
-                    if (chosenCity.name != "null") CityElementInEditScreen(
+                    if (chosenCity.id != "") CityElementInEditScreen(
                       cityName: chosenCity.name,
                       onActionPressed: () {
                         //_showCityPickerDialog();
@@ -416,25 +419,25 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
 
                     const SizedBox(height: 16.0),
 
-                    const SizedBox(height: 16.0),
-
                     // ---- ВОТ ТУТ ДЕЛАЮ ----
 
-                    if (chosenCategory.name == 'null') CityElementInEditScreen(
-                      cityName: 'Категория не выбрана',
+                    if (chosenCategory.id == '') PlaceCategoryElementInEditPlaceScreen(
+                      categoryName: 'Категория не выбрана',
                       onActionPressed: () {
                         //_showCityPickerDialog();
-                        _showCityPickerDialog();
+                        _showCategoryPickerDialog();
                       },
                     ),
 
-                    if (chosenCategory.name != "null") CityElementInEditScreen(
-                      cityName: chosenCategory.name,
+                    if (chosenCategory.id != "") PlaceCategoryElementInEditPlaceScreen(
+                      categoryName: chosenCategory.name,
                       onActionPressed: () {
                         //_showCityPickerDialog();
-                        _showCityPickerDialog();
+                        _showCategoryPickerDialog();
                       },
                     ),
+
+                    const SizedBox(height: 16.0),
 
                     TextField(
                       style: Theme.of(context).textTheme.bodyMedium,
@@ -782,4 +785,36 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
 
     );
   }
+
+  void _showCategoryPickerDialog() async {
+    final selectedCategory = await Navigator.of(context).push(_createPopupCategory(_categories));
+
+    if (selectedCategory != null) {
+      setState(() {
+        chosenCategory = selectedCategory;
+      });
+      print("Selected category: ${selectedCategory.name}, ID: ${selectedCategory.id}");
+    }
+  }
+
+  Route _createPopupCategory(List<PlaceCategory> categories) {
+    return PageRouteBuilder(
+
+      pageBuilder: (context, animation, secondaryAnimation) {
+
+        return PlaceCategoryPickerPage(categories: categories);
+      },
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(0.0, 1.0);
+        const end = Offset.zero;
+        const curve = Curves.easeInOut;
+        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var offsetAnimation = animation.drive(tween);
+        return SlideTransition(position: offsetAnimation, child: child);
+      },
+      transitionDuration: Duration(milliseconds: 100),
+
+    );
+  }
+
 }

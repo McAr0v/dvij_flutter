@@ -184,4 +184,17 @@ class City {
       }
     return result;
   }
+
+  static City getCityNameInCitiesList (String id) {
+    City result = City(name: 'Город не найден', id: '');
+
+    for (int i = 0; i < City.currentCityList.length; i++ )
+    {
+      if (City.currentCityList[i].id == id) {
+        result = currentCityList[i];
+      }
+    }
+    return result;
+  }
+
 }

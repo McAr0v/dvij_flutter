@@ -183,4 +183,17 @@ class PlaceCategory {
     }
     return result;
   }
+
+  static PlaceCategory getPlaceCategoryFromCategoriesList (String id) {
+    PlaceCategory result = PlaceCategory(name: 'Категория не найдена', id: '');
+
+    for (int i = 0; i < PlaceCategory.currentPlaceCategoryList.length; i++ )
+    {
+      if (PlaceCategory.currentPlaceCategoryList[i].id == id) {
+        result = currentPlaceCategoryList[i];
+      }
+    }
+    return result;
+  }
+
 }
