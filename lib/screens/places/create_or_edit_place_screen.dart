@@ -392,11 +392,17 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
                     const SizedBox(height: 16.0),
                     TextField(
                       style: Theme.of(context).textTheme.bodyMedium,
-                      keyboardType: TextInputType.text,
+                      keyboardType: TextInputType.multiline,
                       controller: descController,
                       decoration: const InputDecoration(
                         labelText: 'Описание',
                       ),
+                      maxLines: null,
+                      textInputAction: TextInputAction.newline,
+                      onEditingComplete: () {
+                        // Обработка события, когда пользователь нажимает Enter
+                        // Вы можете добавить здесь любой код, который нужно выполнить при нажатии Enter
+                      },
                     ),
 
                     const SizedBox(height: 16.0),

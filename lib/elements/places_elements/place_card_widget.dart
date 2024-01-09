@@ -116,11 +116,20 @@ class PlaceCardWidget extends StatelessWidget {
 
                   ),*/
 
-                  Text.rich(
+                  /*Text.rich(
                     TextSpan(
                       text: place.desc.length > 100 ? '${place.desc.substring(0, 100)}...' : place.desc,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
+                  ),*/
+
+                  Text.rich(
+                    TextSpan(
+                      text: place.desc,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    maxLines: 4, // Установите желаемое количество строк
+                    overflow: TextOverflow.ellipsis, // Определяет, что делать с текстом, который не помещается в виджет
                   ),
 
 
