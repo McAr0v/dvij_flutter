@@ -107,16 +107,6 @@ class _PlaceRoleAddOrEditScreenState extends State<PlaceRoleAddOrEditScreen> {
 
                   const SizedBox(height: 20.0),
 
-                  /*TextField(
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    keyboardType: TextInputType.text,
-                    controller: _placeRoleDescController,
-                    decoration: const InputDecoration(
-                      labelText: 'Описание роли места',
-                      prefixIcon: Icon(Icons.category),
-                    ),
-                  ),*/
-
                   TextField(
                     style: Theme.of(context).textTheme.bodyMedium,
                     keyboardType: TextInputType.multiline,

@@ -17,6 +17,7 @@ class UserCustom {
   String birthDate; // Формат даты (например, "yyyy-MM-dd")
   String gender;
   String avatar;
+  String? roleInPlace;
 
   // Статическая переменная для хранения текущего пользователя
   static UserCustom? currentUser;
@@ -42,6 +43,7 @@ class UserCustom {
     required this.birthDate,
     required this.gender,
     required this.avatar,
+    this.roleInPlace
   });
 
   factory UserCustom.empty(String uid, String email) {
@@ -58,7 +60,8 @@ class UserCustom {
       city: '',
       birthDate: '',
       gender: '',
-      avatar: 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2Fdvij_unknow_user.jpg?alt=media&token=b63ea5ef-7bdf-49e9-a3ef-1d34d676b6a7'
+      avatar: 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2Fdvij_unknow_user.jpg?alt=media&token=b63ea5ef-7bdf-49e9-a3ef-1d34d676b6a7',
+      roleInPlace: ''
     );
   }
 
@@ -385,6 +388,58 @@ class UserCustom {
       users.sort((a, b) => a.email.compareTo(b.email));
     } else {
       users.sort((a, b) => b.email.compareTo(a.email));
+    }
+  }
+
+  static Future<UserCustom?> getUserByEmail(String email) async {
+
+    UserCustom user = UserCustom.empty('', '');
+
+    // Указываем путь
+    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('users');
+
+    // Получаем снимок данных папки
+    DataSnapshot snapshot = await reference.get();
+
+    // Итерируем по каждому дочернему элементу
+    // Здесь сделано так потому что мы не знаем ключа города
+    // и нам нужен каждый город, независимо от ключа
+
+    for (var childSnapshot in snapshot.children) {
+      // заполняем город (City.fromSnapshot) из снимка данных
+      // и обавляем в список городов
+
+      UserCustom randomUser = UserCustom.fromSnapshot(childSnapshot.child('user_info'));
+
+      if (randomUser.email == email) {
+        return randomUser;
+      }
+    }
+
+    // Возвращаем список
+    return null;
+  }
+
+  static Future<String?> writeUserPlaceRole(String userId, String placeId, String roleId) async {
+
+    try {
+      // Создаем путь для пользователя в базе данных
+      String userPath = 'users/$userId/placeManager/$placeId';
+
+      // Записываем данные пользователя в базу данных
+      await FirebaseDatabase.instance.ref().child(userPath).set({
+        'placeId': placeId,
+        'roleId': roleId,
+      });
+
+      // Если успешно
+      return 'success';
+
+    } catch (e) {
+      // Если ошибки
+      // TODO Сделать обработку ошибок. Наверняка есть какие то, которые можно различать и писать что случилось
+      print('Error writing user data: $e');
+      return 'Failed to write user data. Error: $e';
     }
   }
 

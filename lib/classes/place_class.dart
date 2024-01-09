@@ -479,6 +479,30 @@ class Place {
     }
   }
 
+  // --- ФУНКЦИЯ ЗАПИСИ ДАННЫХ Места -----
+  static Future<String?> writeUserRoleInPlace(String placeId, String userId, String roleId) async {
+
+    try {
+
+      String placePath = 'places/$placeId/managers/$userId';
+
+      // Записываем данные пользователя в базу данных
+      await FirebaseDatabase.instance.ref().child(placePath).set({
+        'userId': userId,
+        'roleId': roleId,
+      });
+
+      // Если успешно
+      return 'success';
+
+    } catch (e) {
+      // Если ошибки
+      // TODO Сделать обработку ошибок. Наверняка есть какие то, которые можно различать и писать что случилось
+      print('Error writing user data: $e');
+      return 'Failed to write user data. Error: $e';
+    }
+  }
+
 
 
 

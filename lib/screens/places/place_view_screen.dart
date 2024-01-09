@@ -5,6 +5,7 @@ import 'package:dvij_flutter/elements/social_elements/social_buttons_widget.dart
 import 'package:dvij_flutter/go_to_url/openUrlPage.dart';
 import 'package:dvij_flutter/methods/date_functions.dart';
 import 'package:dvij_flutter/screens/places/create_or_edit_place_screen.dart';
+import 'package:dvij_flutter/screens/place_admins_screens/place_manager_list_screen.dart';
 import 'package:dvij_flutter/screens/profile/edit_profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
@@ -325,20 +326,44 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
 
                       const SizedBox(height: 30.0),
 
-                      CustomButton(
-                        buttonText: 'Редактировать',
-                        onTapMethod: () async {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => CreateOrEditPlaceScreen(placeInfo: place))
-                          );
-                        },
+
+
+                      Row(
+                        children: [
+                          Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Управляющие местом:',
+                                    style: Theme.of(context).textTheme.titleMedium,
+                                  ),
+                                ],
+                              )
+                          ),
+                          const SizedBox(width: 16.0),
+
+                          // TODO - сделать скрытие кнопки редактирования места если нет доступа к редактированию
+                          // --- Кнопка редактирования ----
+                          IconButton(
+                            icon: Icon(
+                              Icons.edit,
+                              color: Theme.of(context).colorScheme.background,
+                            ),
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all(AppColors.brandColor),
+                            ),
+                            onPressed: () async {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => PlaceManagersListScreen(placeId: place.id))
+                              );
+                            },
+                            // Действие при нажатии на кнопку редактирования
+                          ),
+                        ],
                       ),
-
-                      // --- Выход из профиля ----
-
-                      const SizedBox(height: 16.0),
-
+                      const SizedBox(height: 30.0),
                     ],
                   ),
                 ),
