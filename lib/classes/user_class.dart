@@ -391,6 +391,15 @@ class UserCustom {
     }
   }
 
+  static void sortUsersByName(List<UserCustom> users, bool order) {
+
+    if (order) {
+      users.sort((a, b) => a.name.compareTo(b.name));
+    } else {
+      users.sort((a, b) => b.name.compareTo(a.name));
+    }
+  }
+
   static Future<UserCustom?> getUserByEmail(String email) async {
 
     UserCustom user = UserCustom.empty('', '');
@@ -441,6 +450,52 @@ class UserCustom {
       print('Error writing user data: $e');
       return 'Failed to write user data. Error: $e';
     }
+  }
+
+  static Future<List<UserCustom>> getPlaceAdminsUsers(String placeId, {bool order = true}) async {
+
+    List<UserCustom> users = [];
+
+    // Указываем путь
+    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('places/$placeId/managers');
+
+    // Получаем снимок данных папки
+    DataSnapshot snapshot = await reference.get();
+
+    // Итерируем по каждому дочернему элементу
+    // Здесь сделано так потому что мы не знаем ключа роли
+    // и нам нужен каждая роль, независимо от ключа
+
+    for (var childSnapshot in snapshot.children) {
+      // заполняем роль (RoleInApp.fromSnapshot) из снимка данных
+      // и добавляем в список ролей
+
+      DataSnapshot userIdSnapshot = childSnapshot.child('userId');
+      DataSnapshot roleIdSnapshot = childSnapshot.child('roleId');
+
+      if (userIdSnapshot.exists) {
+        UserCustom? user = await readUserData(userIdSnapshot.value.toString());
+        if (user != null) {
+          if(roleIdSnapshot.exists){
+            user.roleInPlace = roleIdSnapshot.value.toString();
+          } else {
+            user.roleInPlace = 'Роль не найдена';
+          }
+
+          users.add(user);
+
+        }
+      }
+
+    }
+
+    if (users.length > 1) {
+      sortUsersByEmail(users, order);
+    }
+
+
+    // Возвращаем список
+    return users;
   }
 
 }

@@ -1,7 +1,9 @@
 import 'package:dvij_flutter/classes/place_category_class.dart';
 import 'package:dvij_flutter/classes/place_role_class.dart';
+import 'package:dvij_flutter/classes/user_class.dart';
 import 'package:dvij_flutter/elements/place_category_elements/place_category_element_in_categories_screen.dart';
 import 'package:dvij_flutter/elements/place_roles_elements/place_role_element_in_roles_screen.dart';
+import 'package:dvij_flutter/elements/places_elements/place_managers_element_list_item.dart';
 import 'package:dvij_flutter/screens/place_admins_screens/place_manager_add_screen.dart';
 import 'package:dvij_flutter/screens/place_categories_screens/place_category_add_or_edit_screen.dart';
 import 'package:dvij_flutter/screens/place_roles_screens/place_roles_add_or_edit_screen.dart';
@@ -26,6 +28,8 @@ class _PlaceManagersListScreenState extends State<PlaceManagersListScreen> {
   // Список городов
   List<PlaceRole> _roles = [];
 
+  List<UserCustom> users = [];
+
   // Переменная для отслеживания направления сортировки
   bool _isAscending = true;
 
@@ -34,11 +38,17 @@ class _PlaceManagersListScreenState extends State<PlaceManagersListScreen> {
 
   // --- Инициализируем состояние экрана ----
   @override
-  void initState() {
+  void initState(){
     super.initState();
 
-    // Влючаем экран загрузки
-    loading = true;
+    _initializeData();
+  }
+
+  Future<void> _initializeData() async {
+
+    setState(() {
+      loading = true;
+    });
     // Получаем список городов
     //_getCitiesFromDatabase();
 
@@ -47,7 +57,11 @@ class _PlaceManagersListScreenState extends State<PlaceManagersListScreen> {
       _roles = PlaceRole.currentPlaceRoleList;
     }
 
-    loading = false;
+    users = await UserCustom.getPlaceAdminsUsers(widget.placeId);
+
+    setState(() {
+      loading = false;
+    });
 
   }
 
@@ -80,7 +94,7 @@ class _PlaceManagersListScreenState extends State<PlaceManagersListScreen> {
                   _isAscending = !_isAscending;
                 });
                 // Сортируем список городов
-                //PlaceRole.sortPlaceRolesByName(_roles, _isAscending);
+                UserCustom.sortUsersByName (users, _isAscending);
 
               },
             ),
@@ -110,43 +124,26 @@ class _PlaceManagersListScreenState extends State<PlaceManagersListScreen> {
             // --- ЕСЛИ ЭКРАН ЗАГРУЗКИ -----
             if (loading) const LoadingScreen(loadingText: 'Подожди, идет загрузка управляющих')
             // --- ЕСЛИ ГОРОДОВ НЕТ -----
-            else if (_roles.isEmpty) const Center(child: Text('Список управляющих пуст'))
+            else if (users.isEmpty) const Center(child: Text('Список управляющих пуст'))
             // --- ЕСЛИ ГОРОДА ЗАГРУЗИЛИСЬ
-            /*else ListView.builder(
+            else ListView.builder(
                 // Открываем создатель списков
                   padding: const EdgeInsets.all(20.0),
-                  itemCount: _roles.length,
+                  itemCount: users.length,
                   // Шаблоны для элементов
                   itemBuilder: (context, index) {
-                    return PlaceRoleElementInRolesScreen(
-                        placeRole: _roles[index],
-                        onTapMethod: () async {
-
-                          setState(() {
-                            loading = true;
-                          });
-
-                          String result = await PlaceRole.deletePlaceRole(_roles[index].id);
-
-                          if (result == 'success') {
-                            setState(() {
-                              _roles = PlaceRole.currentPlaceRoleList;
-                            });
-                            //_getCitiesFromDatabase();
-                            showSnackBar('Роль успешно удалена', Colors.green, 3);
-                          } else {
-                            showSnackBar('Произошла ошибка удаления роли(', AppColors.attentionRed, 3);
-                          }
-
-                          setState(() {
-                            loading = false;
-                          });
-
-                        },
-                        index: index
+                    return PlaceManagersElementListItem(
+                        user: users[index],
+                        showButton: true,
+                      onTapMethod: () async {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => PlaceManagerAddScreen(placeId: widget.placeId))
+                        );
+                      },
                     );
                   }
-              )*/
+              )
           ],
         )
     );

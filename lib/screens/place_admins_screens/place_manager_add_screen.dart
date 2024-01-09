@@ -4,6 +4,7 @@ import 'package:dvij_flutter/classes/user_class.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/elements/loading_screen.dart';
 import 'package:dvij_flutter/elements/place_roles_elements/place_role_element_in_choose_dialog.dart';
+import 'package:dvij_flutter/elements/places_elements/place_managers_element_list_item.dart';
 import 'package:dvij_flutter/screens/place_admins_screens/place_manager_list_screen.dart';
 import 'package:dvij_flutter/screens/place_categories_screens/place_categories_list_screen.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
@@ -166,49 +167,7 @@ class _PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
 
                     if (user != null) const SizedBox(height: 10.0),
 
-                    if (user != null) Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            // Аватарка
-                            CircleAvatar(
-                              radius: 30,
-                              backgroundColor: Colors.grey, // Цвет фона, который будет виден во время загрузки
-                              child: ClipOval(
-                                child: FadeInImage(
-                                  placeholder: const AssetImage('assets/u_user.png'),
-                                  image: NetworkImage(user!.avatar),
-                                  fit: BoxFit.cover,
-                                  width: 60,
-                                  height: 60,
-                                  imageErrorBuilder: (context, error, stackTrace) {
-                                    return Image.asset('assets/error_image.png'); // Изображение ошибки, если загрузка не удалась
-                                  },
-                                ),
-                              ),
-                            ),
-
-                            const SizedBox(width: 15.0),
-
-                            // Имя и Email
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '${user!.name} ${user!.lastname}',
-                                  style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-                                ),
-                                Text(
-                                  user!.email,
-                                  style: const TextStyle(fontSize: 14.0),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                    if (user != null) PlaceManagersElementListItem(user: user!, showButton: false),
 
                     if (user != null) const SizedBox(height: 20.0),
 
