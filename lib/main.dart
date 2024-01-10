@@ -38,7 +38,7 @@ void main() async {
   final FirebaseAuth auth = FirebaseAuth.instance;
   if (auth.currentUser != null)
   {
-    await local_user.UserCustom.readUserData(auth.currentUser!.uid);
+    await local_user.UserCustom.readUserDataAndWriteCurrentUser(auth.currentUser!.uid);
   }
 
 

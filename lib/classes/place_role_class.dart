@@ -26,11 +26,19 @@ class PlaceRole {
 
   // Статическая переменная для хранения списка городов
   static List<PlaceRole> currentPlaceRoleList = [];
+  static List<PlaceRole> currentPlaceRoleListWithoutCreator = [];
 
   // Метод для получения списка городов из Firebase и сохранения в currentCityList
   static Future<void> getPlaceRolesAndSave({bool order = true}) async {
 
     currentPlaceRoleList = await getPlaceRoles(order: order);
+
+    for (int i = 0; i < currentPlaceRoleList.length; i++){
+
+      if (currentPlaceRoleList[i].id != '-NngrYovmKAw_cp0pYfJ') currentPlaceRoleListWithoutCreator.add(currentPlaceRoleList[i]);
+
+    }
+
 
   }
 
@@ -184,6 +192,18 @@ class PlaceRole {
     {
       if (PlaceRole.currentPlaceRoleList[i].id == id) {
         result = currentPlaceRoleList[i].name;
+      }
+    }
+    return result;
+  }
+
+  static PlaceRole getPlaceRoleFromListById (String id) {
+    PlaceRole result = PlaceRole(name: '', id: '', desc: '');
+
+    for (int i = 0; i < PlaceRole.currentPlaceRoleList.length; i++ )
+    {
+      if (PlaceRole.currentPlaceRoleList[i].id == id) {
+        result = currentPlaceRoleList[i];
       }
     }
     return result;

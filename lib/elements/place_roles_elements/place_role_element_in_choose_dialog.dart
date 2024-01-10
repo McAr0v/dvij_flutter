@@ -7,7 +7,7 @@ class PlaceRoleElementInChooseDialog extends StatelessWidget {
   final String? roleName;
   final VoidCallback onActionPressed;
 
-  PlaceRoleElementInChooseDialog({required this.onActionPressed, this.roleName});
+  PlaceRoleElementInChooseDialog({super.key, required this.onActionPressed, this.roleName});
 
 
 
@@ -46,7 +46,7 @@ class PlaceRoleElementInChooseDialog extends StatelessWidget {
           color: AppColors.brandColor,
           child: IconButton(
             onPressed: onActionPressed,
-            icon: Icon(
+            icon: const Icon(
               Icons.edit,
               color: AppColors.greyOnBackground,
             ),

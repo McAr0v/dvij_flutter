@@ -77,7 +77,7 @@ class PlaceManagersElementListItem extends StatelessWidget {
 
             // ---- Редактирование ----
 
-            if (showButton) IconButton(
+            if (showButton && user.roleInPlace != '-NngrYovmKAw_cp0pYfJ') IconButton(
               icon: Icon(Icons.edit),
               // --- Уходим на экран редактирования -----
               onPressed: onTapMethod,

@@ -5,7 +5,6 @@ import 'package:dvij_flutter/elements/social_elements/social_buttons_widget.dart
 import 'package:dvij_flutter/go_to_url/openUrlPage.dart';
 import 'package:dvij_flutter/methods/date_functions.dart';
 import 'package:dvij_flutter/screens/places/create_or_edit_place_screen.dart';
-import 'package:dvij_flutter/screens/place_admins_screens/place_manager_list_screen.dart';
 import 'package:dvij_flutter/screens/profile/edit_profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
@@ -17,11 +16,14 @@ import '../../classes/city_class.dart';
 import '../../classes/gender_class.dart';
 import '../../classes/place_category_class.dart';
 import '../../classes/place_class.dart';
+import '../../classes/place_role_class.dart';
 import '../../classes/role_in_app.dart';
 import '../../classes/user_class.dart';
 import '../../elements/for_cards_small_widget_with_icon_and_text.dart';
 import '../../elements/loading_screen.dart';
+import '../../elements/places_elements/place_managers_element_list_item.dart';
 import '../../methods/days_functions.dart';
+import '../place_admins_screens/place_manager_add_screen.dart';
 
 
 // --- ЭКРАН ЗАЛОГИНЕВШЕГОСЯ ПОЛЬЗОВАТЕЛЯ -----
@@ -39,6 +41,12 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
   // ---- Инициализируем пустые переменные ----
 
   UserCustom userInfo = UserCustom.empty('', '');
+
+  ////////
+  List<UserCustom> users = [];
+  List<PlaceRole> _roles = [];
+  UserCustom creator = UserCustom.empty('', '');
+  PlaceRole creatorPlaceRole = PlaceRole(name: '', id: '', desc: '');
 
   Place place = Place.empty();
   String city = '';
@@ -62,11 +70,20 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
 
   }
 
-
   // --- Функция получения и ввода данных ---
 
   Future<void> fetchAndSetData() async {
     try {
+      ///////
+      if (PlaceRole.currentPlaceRoleList.isNotEmpty)
+      {
+        _roles = PlaceRole.currentPlaceRoleList;
+      }
+
+      users = await UserCustom.getPlaceAdminsUsers(widget.placeId);
+
+
+
 
       if (UserCustom.currentUser == null){
         userInfo = UserCustom.empty('', '');
@@ -77,6 +94,17 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
 
 
       place = await Place.getPlaceById(widget.placeId);
+
+      if (place.name != ''){
+        creator = (await UserCustom.readUserData(place.creatorId))!;
+        //users.add(creator);
+        creatorPlaceRole = PlaceRole.getPlaceRoleFromListById('-NngrYovmKAw_cp0pYfJ');
+
+        creator.roleInPlace = creatorPlaceRole.id;
+
+      }
+
+
 
       city = City.getCityName(place.city);
       category = PlaceCategory.getPlaceCategoryName(place.category);
@@ -104,6 +132,42 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
           (route) => false,
     );
   }
+
+  void navigateToAddManager() async {
+    final result = await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => PlaceManagerAddScreen(placeId: widget.placeId, isEdit: false, placeCreator: place.creatorId))
+    );
+
+    // Проверяем результат и вызываем функцию fetchAndSetData
+    if (result != null) {
+      fetchAndSetData();
+    }
+
+  }
+
+  void navigateToEditManager(UserCustom user) async {
+    final result = await Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PlaceManagerAddScreen(
+          placeId: widget.placeId,
+          isEdit: true,
+          placeRole: PlaceRole.getPlaceRoleFromListById(user.roleInPlace!),
+          user: user,
+          placeCreator: place.creatorId,
+        ),
+      ),
+    );
+
+    // Проверяем результат и вызываем функцию fetchAndSetData
+    if (result != null) {
+      fetchAndSetData();
+    }
+
+  }
+
+
 
   // ---- Функция отображения всплывающих сообщений -----
   void showSnackBar(String message, Color color, int showTime) {
@@ -326,44 +390,83 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
 
                       const SizedBox(height: 30.0),
 
+                      Container(
+                        padding: const EdgeInsets.fromLTRB(20, 10, 20, 0), // Отступы
+                        decoration: BoxDecoration(
+                          color: AppColors.greyOnBackground, // Цвет фона
+                          borderRadius: BorderRadius.circular(10.0), // Скругление углов
+                        ),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Управляющие местом:',
+                                          style: Theme.of(context).textTheme.titleMedium,
+                                        ),
+                                        Text(
+                                          'Это пользователи, которые смогут управлять местом',
+                                          style: Theme.of(context).textTheme.bodySmall,
+                                        ),
+                                      ],
+                                    )
+                                ),
+                                const SizedBox(width: 16.0),
 
-
-                      Row(
-                        children: [
-                          Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Управляющие местом:',
-                                    style: Theme.of(context).textTheme.titleMedium,
+                                // TODO - сделать скрытие кнопки редактирования места если нет доступа к редактированию
+                                // --- Кнопка редактирования ----
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.add,
+                                    color: Theme.of(context).colorScheme.background,
                                   ),
-                                ],
-                              )
-                          ),
-                          const SizedBox(width: 16.0),
+                                  style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all(Colors.green),
+                                  ),
+                                  onPressed: () async {
+                                    navigateToAddManager();
+                                  },
+                                  // Действие при нажатии на кнопку редактирования
+                                ),
+                              ],
+                            ),
 
-                          // TODO - сделать скрытие кнопки редактирования места если нет доступа к редактированию
-                          // --- Кнопка редактирования ----
-                          IconButton(
-                            icon: Icon(
-                              Icons.edit,
-                              color: Theme.of(context).colorScheme.background,
+                            const SizedBox(height: 20,),
+
+                            if (users.isEmpty) const Text('Когда ты добавишь пользователей к месту, они отобразятся здесь. Пока здесь пусто('),
+
+                            if (users.isEmpty) const SizedBox(height: 20,),
+
+                            if (creator.name != '') PlaceManagersElementListItem(
+                              user: creator,
+                              showButton: false,
+                              onTapMethod: () async {
+
+                              },
                             ),
-                            style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all(AppColors.brandColor),
+
+                            if (users.isNotEmpty) Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: users.map((user) {
+                                return Padding(
+                                  padding: const EdgeInsets.all(0.0),
+                                  child: PlaceManagersElementListItem(
+                                    user: user,
+                                    showButton: true,
+                                    onTapMethod: () async {
+                                      navigateToEditManager(user);
+                                    },
+                                  ),
+                                );
+                              }).toList(),
                             ),
-                            onPressed: () async {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => PlaceManagersListScreen(placeId: place.id))
-                              );
-                            },
-                            // Действие при нажатии на кнопку редактирования
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 30.0),
+                          ],
+                        ),
+                      )
                     ],
                   ),
                 ),

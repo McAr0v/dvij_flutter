@@ -1,3 +1,4 @@
+import 'package:dvij_flutter/classes/place_role_class.dart';
 import 'package:dvij_flutter/classes/role_in_app.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -190,7 +191,7 @@ class UserCustom {
       );
 
       // Если пользователь успешно вошел, обновляем текущего пользователя
-      currentUser = await readUserData(credential.user!.uid);
+      currentUser = await readUserDataAndWriteCurrentUser(credential.user!.uid);
       updateAccessLevel(currentUser!.role);
 
       // и возвращаем uid
@@ -310,7 +311,7 @@ class UserCustom {
 
   // ---- ФУНКЦИЯ ЧТЕНИЯ ИНФОРМАЦИИ О ПОЛЬЗОВАТЕЛЕ -----
 
-  static Future<UserCustom?> readUserData(String uid) async {
+  static Future<UserCustom?> readUserDataAndWriteCurrentUser(String uid) async {
     try {
       // Путь к данным пользователя
       String userPath = 'users/$uid/user_info';
@@ -346,6 +347,44 @@ class UserCustom {
 
         currentUser = null; // Обнуляем текущего пользователя
         updateAccessLevel('');
+        return null; // Возвращаем null, если данных нет
+      }
+    } catch (e) {
+      print('Error reading user data: $e');
+      return null; // Возвращаем null в случае ошибки
+    }
+  }
+
+  static Future<UserCustom?> readUserData(String uid) async {
+    try {
+      // Путь к данным пользователя
+      String userPath = 'users/$uid/user_info';
+
+      // Считываем данные
+      DatabaseEvent snapshot = await FirebaseDatabase.instance.ref().child(userPath).once();
+
+      // Получаем значение и заполняем как User
+      Map<dynamic, dynamic>? data = snapshot.snapshot.value as Map<dynamic, dynamic>?;
+
+      if (data != null) {
+        UserCustom user = UserCustom(
+          uid: data['uid'] ?? '',
+          email: data['email'] ?? '',
+          role: data['role'] ?? '',
+          name: data['name'] ?? '',
+          lastname: data['lastname'] ?? '',
+          phone: data['phone'] ?? '',
+          whatsapp: data['whatsapp'] ?? '',
+          telegram: data['telegram'] ?? '',
+          instagram: data['instagram'] ?? '',
+          city: data['city'] ?? '',
+          birthDate: data['birth_date'] ?? '',
+          gender: data['gender'] ?? '',
+          avatar: data['avatar'] ?? '',
+        );
+
+        return user;
+      } else {
         return null; // Возвращаем null, если данных нет
       }
     } catch (e) {
@@ -452,6 +491,26 @@ class UserCustom {
     }
   }
 
+  static Future<String?> deleteUserPlaceRole(String userId, String placeId) async {
+
+    try {
+      // Создаем путь для пользователя в базе данных
+      String userPath = 'users/$userId/placeManager/$placeId';
+
+      // Записываем данные пользователя в базу данных
+      await FirebaseDatabase.instance.ref().child(userPath).remove();
+
+      // Если успешно
+      return 'success';
+
+    } catch (e) {
+      // Если ошибки
+      // TODO Сделать обработку ошибок. Наверняка есть какие то, которые можно различать и писать что случилось
+      print('Error writing user data: $e');
+      return 'Failed to write user data. Error: $e';
+    }
+  }
+
   static Future<List<UserCustom>> getPlaceAdminsUsers(String placeId, {bool order = true}) async {
 
     List<UserCustom> users = [];
@@ -496,6 +555,39 @@ class UserCustom {
 
     // Возвращаем список
     return users;
+  }
+
+  static Future<PlaceRole> getPlaceRoleInUserById(String placeId, String userId) async {
+
+    PlaceRole result = PlaceRole(name: '', id: '', desc: '');
+
+    // Указываем путь
+    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('places/$placeId/managers');
+
+    // Получаем снимок данных папки
+    DataSnapshot snapshot = await reference.get();
+
+    // Итерируем по каждому дочернему элементу
+    // Здесь сделано так потому что мы не знаем ключа роли
+    // и нам нужен каждая роль, независимо от ключа
+
+    for (var childSnapshot in snapshot.children) {
+      // заполняем роль (RoleInApp.fromSnapshot) из снимка данных
+      // и добавляем в список ролей
+
+      DataSnapshot userIdSnapshot = childSnapshot.child('userId');
+      DataSnapshot roleIdSnapshot = childSnapshot.child('roleId');
+
+      if (userIdSnapshot.exists) {
+        if (userIdSnapshot.value.toString() == userId) {
+          return PlaceRole.getPlaceRoleFromListById(roleIdSnapshot.value.toString());
+        }
+      }
+
+    }
+
+    // Возвращаем список
+    return result;
   }
 
 }
