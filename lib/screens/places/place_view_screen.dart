@@ -437,10 +437,6 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
 
                             const SizedBox(height: 20,),
 
-                            if (users.isEmpty) const Text('Когда ты добавишь пользователей к месту, они отобразятся здесь. Пока здесь пусто('),
-
-                            if (users.isEmpty) const SizedBox(height: 20,),
-
                             if (creator.name != '') PlaceManagersElementListItem(
                               user: creator,
                               showButton: false,

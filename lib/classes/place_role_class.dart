@@ -197,6 +197,18 @@ class PlaceRole {
     return result;
   }
 
+  static String getPlaceRoleDesc (String id) {
+    String result = 'Описание роли места не найдено';
+
+    for (int i = 0; i < PlaceRole.currentPlaceRoleList.length; i++ )
+    {
+      if (PlaceRole.currentPlaceRoleList[i].id == id) {
+        result = currentPlaceRoleList[i].desc;
+      }
+    }
+    return result;
+  }
+
   static PlaceRole getPlaceRoleFromListById (String id) {
     PlaceRole result = PlaceRole(name: '', id: '', desc: '');
 

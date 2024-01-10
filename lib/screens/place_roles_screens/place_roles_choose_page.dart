@@ -97,7 +97,13 @@ class _PlaceRolesChoosePageState extends State<PlaceRolesChoosePage> {
                             },
                             child: Padding(
                               padding: EdgeInsets.all(8.0),
-                              child: Text(role.name),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(role.name, style: Theme.of(context).textTheme.bodyMedium,),
+                                  Text(role.desc, style: Theme.of(context).textTheme.labelMedium)
+                                ],
+                              ),
                             ),
                           );
                         }).toList(),

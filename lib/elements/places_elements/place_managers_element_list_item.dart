@@ -65,9 +65,19 @@ class PlaceManagersElementListItem extends StatelessWidget {
                     ),
                     softWrap: true,
                   ),
+
+                  const SizedBox(height: 5.0),
+
                   Text(
                     user.roleInPlace != null ? PlaceRole.getPlaceRoleName(user.roleInPlace!) : 'Роль не выбрана',
-                    style: const TextStyle(fontSize: 14.0),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+
+                  const SizedBox(height: 5.0),
+
+                  Text(
+                    user.roleInPlace != null ? PlaceRole.getPlaceRoleDesc(user.roleInPlace!) : '',
+                    style: Theme.of(context).textTheme.labelMedium,
                   ),
                 ],
               ),
