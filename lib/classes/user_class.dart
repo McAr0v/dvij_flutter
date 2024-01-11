@@ -559,7 +559,7 @@ class UserCustom {
 
   static Future<PlaceRole> getPlaceRoleInUserById(String placeId, String userId) async {
 
-    PlaceRole result = PlaceRole(name: '', id: '', desc: '');
+    PlaceRole result = PlaceRole(name: '', id: '', desc: '', controlLevel: '');
 
     // Указываем путь
     final DatabaseReference reference = FirebaseDatabase.instance.ref().child('places/$placeId/managers');

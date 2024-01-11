@@ -77,7 +77,8 @@ class _PlaceRolesListScreenState extends State<PlaceRolesListScreen> {
                   _isAscending = !_isAscending;
                 });
                 // Сортируем список городов
-                PlaceRole.sortPlaceRolesByName(_roles, _isAscending);
+                //PlaceRole.sortPlaceRolesByName(_roles, _isAscending);
+                PlaceRole.sortPlaceRolesByControlLevel(_roles, _isAscending);
 
               },
             ),

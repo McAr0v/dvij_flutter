@@ -56,6 +56,11 @@ class PlaceRoleElementInRolesScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 5,),
                   Text(
+                    'Уровень доступа: ${placeRole.controlLevel}',
+                    style: Theme.of(context).textTheme.labelMedium,
+                  ),
+                  const SizedBox(height: 5,),
+                  Text(
                     'Описание: ${placeRole.desc}',
                     style: Theme.of(context).textTheme.labelMedium,
                   ),

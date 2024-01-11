@@ -6,6 +6,7 @@ import 'package:dvij_flutter/screens/place_categories_screens/place_categories_l
 import 'package:dvij_flutter/screens/place_roles_screens/place_roles_list_screen.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../classes/city_class.dart';
 import '../../elements/custom_snack_bar.dart';
 
@@ -28,6 +29,7 @@ class PlaceRoleAddOrEditScreen extends StatefulWidget {
 class _PlaceRoleAddOrEditScreenState extends State<PlaceRoleAddOrEditScreen> {
   final TextEditingController _placeRoleNameController = TextEditingController();
   final TextEditingController _placeRoleDescController = TextEditingController();
+  final TextEditingController _placeRoleControlLevelController = TextEditingController();
 
   // Переменная, включающая экран загрузки
   bool loading = false;
@@ -43,6 +45,7 @@ class _PlaceRoleAddOrEditScreenState extends State<PlaceRoleAddOrEditScreen> {
     if (widget.placeRole != null) {
       _placeRoleNameController.text = widget.placeRole!.name;
       _placeRoleDescController.text = widget.placeRole!.desc;
+      _placeRoleControlLevelController.text = widget.placeRole!.controlLevel;
     }
   }
 
@@ -87,86 +90,100 @@ class _PlaceRoleAddOrEditScreenState extends State<PlaceRoleAddOrEditScreen> {
         body: Stack(
           children: [
             if (loading) const LoadingScreen(loadingText: "Идет публикация роли",)
-            else Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                children: [
-                  const SizedBox(height: 40.0),
+            else SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 40.0),
 
-                  // ---- Поле ввода города ---
+                    // ---- Поле ввода города ---
 
-                  TextField(
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    keyboardType: TextInputType.text,
-                    controller: _placeRoleNameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Название категории места',
-                      prefixIcon: Icon(Icons.category),
+                    TextField(
+                      style: Theme.of(context).textTheme.bodyMedium,
+                      keyboardType: TextInputType.text,
+                      controller: _placeRoleNameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Название категории места',
+                        prefixIcon: Icon(Icons.category),
+                      ),
                     ),
-                  ),
 
-                  const SizedBox(height: 20.0),
+                    const SizedBox(height: 20.0),
 
-                  TextField(
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    keyboardType: TextInputType.multiline,
-                    controller: _placeRoleDescController,
-                    decoration: const InputDecoration(
-                      labelText: 'Описание роли места',
-                      prefixIcon: Icon(Icons.category),
+                    TextField(
+                      style: Theme.of(context).textTheme.bodyMedium,
+                      keyboardType: TextInputType.multiline,
+                      controller: _placeRoleDescController,
+                      decoration: const InputDecoration(
+                        labelText: 'Описание роли места',
+                        prefixIcon: Icon(Icons.category),
+                      ),
+                      maxLines: null,
+                      textInputAction: TextInputAction.newline,
+                      onEditingComplete: () {
+                        // Обработка события, когда пользователь нажимает Enter
+                        // Вы можете добавить здесь любой код, который нужно выполнить при нажатии Enter
+                      },
                     ),
-                    maxLines: null,
-                    textInputAction: TextInputAction.newline,
-                    onEditingComplete: () {
-                      // Обработка события, когда пользователь нажимает Enter
-                      // Вы можете добавить здесь любой код, который нужно выполнить при нажатии Enter
-                    },
-                  ),
 
-                  const SizedBox(height: 40.0),
+                    const SizedBox(height: 20.0),
 
-                  // ---- Кнопка опубликовать -----
+                    TextField(
+                      style: Theme.of(context).textTheme.bodyMedium,
+                      keyboardType: TextInputType.number,
+                      controller: _placeRoleControlLevelController,
+                      decoration: const InputDecoration(
+                        labelText: 'Уровень контроля места',
+                        prefixIcon: Icon(FontAwesomeIcons.sliders),
+                      ),
+                    ),
 
-                  // TODO Пока публикуется сделать экран загрузки
-                  CustomButton(
-                      buttonText: 'Опубликовать',
-                      onTapMethod: (){
-                        if (_placeRoleNameController.text == ''){
-                          showSnackBar(
-                              'Название роли должно быть обязательно заполнено!',
-                              AppColors.attentionRed,
-                              2
-                          );
-                        } else if (_placeRoleDescController.text == ''){
-                          showSnackBar(
-                              'Описание роли должно быть обязательно заполнено!',
-                              AppColors.attentionRed,
-                              2
-                          );
-                        } else {
-                          _publishPlaceRole();
+                    const SizedBox(height: 40.0),
+
+                    // ---- Кнопка опубликовать -----
+
+                    // TODO Пока публикуется сделать экран загрузки
+                    CustomButton(
+                        buttonText: 'Опубликовать',
+                        onTapMethod: (){
+                          if (_placeRoleNameController.text == ''){
+                            showSnackBar(
+                                'Название роли должно быть обязательно заполнено!',
+                                AppColors.attentionRed,
+                                2
+                            );
+                          } else if (_placeRoleDescController.text == ''){
+                            showSnackBar(
+                                'Описание роли должно быть обязательно заполнено!',
+                                AppColors.attentionRed,
+                                2
+                            );
+                          } else {
+                            _publishPlaceRole();
+                          }
+
                         }
+                    ),
 
-                      }
-                  ),
+                    SizedBox(height: 20.0),
 
-                  SizedBox(height: 20.0),
+                    // -- Кнопка отменить ----
 
-                  // -- Кнопка отменить ----
-
-                  CustomButton(
-                      state: 'secondary',
-                      buttonText: "Отменить",
-                      onTapMethod: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const PlaceRolesListScreen(),
-                          ),
-                        );
-                      }
-                  )
-                ],
+                    CustomButton(
+                        state: 'secondary',
+                        buttonText: "Отменить",
+                        onTapMethod: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const PlaceRolesListScreen(),
+                            ),
+                          );
+                        }
+                    )
+                  ],
+                ),
               ),
             ),
           ],
@@ -180,16 +197,17 @@ class _PlaceRoleAddOrEditScreenState extends State<PlaceRoleAddOrEditScreen> {
 
     String placeCategoryName = _placeRoleNameController.text;
     String placeCategoryDesc = _placeRoleDescController.text;
+    String placeControlLevel = _placeRoleControlLevelController.text;
 
     String result;
 
     if (widget.placeRole != null) {
       // Редактирование города
-      result = await PlaceRole.addAndEditPlaceRole(placeCategoryName, placeCategoryDesc, id: widget.placeRole?.id ?? '');
+      result = await PlaceRole.addAndEditPlaceRole(placeCategoryName, placeCategoryDesc, placeControlLevel, id: widget.placeRole?.id ?? '');
 
     } else {
       // Создание нового города
-      result = await PlaceRole.addAndEditPlaceRole(placeCategoryName, placeCategoryDesc);
+      result = await PlaceRole.addAndEditPlaceRole(placeCategoryName, placeCategoryDesc, placeControlLevel);
 
     }
 

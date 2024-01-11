@@ -4,8 +4,9 @@ class PlaceRole {
   late String id; // Идентификатор роли
   late String name; // Название роли
   late String desc; // описание роли
+  late String controlLevel; // описание роли
 
-  PlaceRole({required this.name, required this.id, required this.desc});
+  PlaceRole({required this.name, required this.id, required this.desc, required this.controlLevel});
 
   // Метод для преобразования данных из Firebase в объект City
 
@@ -14,12 +15,14 @@ class PlaceRole {
     DataSnapshot idSnapshot = snapshot.child('id');
     DataSnapshot nameSnapshot = snapshot.child('name');
     DataSnapshot descSnapshot = snapshot.child('desc');
+    DataSnapshot controlLevelSnapshot = snapshot.child('controlLevel');
 
     // Берем из них данные и заполняем в класс City. И возвращаем его
     return PlaceRole(
       id: idSnapshot.value.toString() ?? '',
       name: nameSnapshot.value.toString() ?? '',
-      desc: descSnapshot.value.toString() ?? ''
+      desc: descSnapshot.value.toString() ?? '',
+      controlLevel: controlLevelSnapshot.value.toString() ?? ''
     );
   }
 
@@ -32,6 +35,7 @@ class PlaceRole {
   static Future<void> getPlaceRolesAndSave({bool order = true}) async {
 
     currentPlaceRoleList = await getPlaceRoles(order: order);
+    currentPlaceRoleListWithoutCreator = [];
 
     for (int i = 0; i < currentPlaceRoleList.length; i++){
 
@@ -62,7 +66,7 @@ class PlaceRole {
 
   // Метод для добавления нового города или редактирования города в Firebase
 
-  static Future<String> addAndEditPlaceRole(String name, String desc, {String id = ''}) async {
+  static Future<String> addAndEditPlaceRole(String name, String desc, String controlLevel, {String id = ''}) async {
     try {
       String? roleKey;
 
@@ -87,7 +91,8 @@ class PlaceRole {
       await reference.set({
         'name': name,
         'id': roleKey ?? id,
-        'desc': desc
+        'desc': desc,
+        'controlLevel': controlLevel
       });
 
       // Обновляем список наших городов в локальную переменную
@@ -129,9 +134,18 @@ class PlaceRole {
 
   static void sortPlaceRolesByName(List<PlaceRole> roles, bool order) {
 
-    if (order) roles.sort((a, b) => a.name.compareTo(b.name));
-    else {
+    if (order) {
+      roles.sort((a, b) => a.name.compareTo(b.name));
+    } else {
       roles.sort((a, b) => b.name.compareTo(a.name));
+    }
+  }
+
+  static void sortPlaceRolesByControlLevel(List<PlaceRole> roles, bool order) {
+    if (order) {
+      roles.sort((a, b) => int.parse(a.controlLevel).compareTo(int.parse(b.controlLevel)));
+    } else {
+      roles.sort((a, b) => int.parse(b.controlLevel).compareTo(int.parse(a.controlLevel)));
     }
   }
 
@@ -157,7 +171,7 @@ class PlaceRole {
       placesRoles.add(PlaceRole.fromSnapshot(childSnapshot));
     }
 
-    sortPlaceRolesByName(placesRoles, order);
+    sortPlaceRolesByControlLevel(placesRoles, order);
 
     // Возвращаем список
     return placesRoles;
@@ -181,7 +195,7 @@ class PlaceRole {
     } else {
       // Если не нашел, возвращаем null
       //return null;
-      return PlaceRole(name: '', id: '', desc: '');
+      return PlaceRole(name: '', id: '', desc: '', controlLevel: '');
     }
   }
 
@@ -210,7 +224,7 @@ class PlaceRole {
   }
 
   static PlaceRole getPlaceRoleFromListById (String id) {
-    PlaceRole result = PlaceRole(name: '', id: '', desc: '');
+    PlaceRole result = PlaceRole(name: '', id: '', desc: '', controlLevel: '');
 
     for (int i = 0; i < PlaceRole.currentPlaceRoleList.length; i++ )
     {
@@ -222,7 +236,7 @@ class PlaceRole {
   }
 
   static PlaceRole getPlaceRoleNameInRolesList (String id) {
-    PlaceRole result = PlaceRole(name: 'Роль не найдена', id: '', desc: '');
+    PlaceRole result = PlaceRole(name: 'Роль не найдена', id: '', desc: '', controlLevel: '');
 
     for (int i = 0; i < PlaceRole.currentPlaceRoleList.length; i++ )
     {

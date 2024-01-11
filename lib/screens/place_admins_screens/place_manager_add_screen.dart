@@ -55,7 +55,7 @@ class _PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
 
   UserCustom? user;
   bool showNotFound = false;
-  late PlaceRole chosenRole = PlaceRole(name: '', id: '', desc: '');
+  late PlaceRole chosenRole = PlaceRole(name: '', id: '', desc: '', controlLevel: '');
   List<PlaceRole> _roles = [];
 
   // --- Инициализируем состояние ----

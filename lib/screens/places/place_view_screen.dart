@@ -46,7 +46,8 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
   List<UserCustom> users = [];
   List<PlaceRole> _roles = [];
   UserCustom creator = UserCustom.empty('', '');
-  PlaceRole creatorPlaceRole = PlaceRole(name: '', id: '', desc: '');
+  PlaceRole creatorPlaceRole = PlaceRole(name: '', id: '', desc: '', controlLevel: '');
+  PlaceRole currentUserPlaceRole = PlaceRole(name: '', id: '', desc: '', controlLevel: '');
 
   Place place = Place.empty();
   String city = '';
@@ -80,43 +81,43 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
         _roles = PlaceRole.currentPlaceRoleList;
       }
 
-      users = await UserCustom.getPlaceAdminsUsers(widget.placeId);
-
-
-
-
-      if (UserCustom.currentUser == null){
-        userInfo = UserCustom.empty('', '');
-      }
-      else {
-        userInfo = UserCustom.currentUser!;
-      }
-
-
       place = await Place.getPlaceById(widget.placeId);
 
       if (place.name != ''){
-        creator = (await UserCustom.readUserData(place.creatorId))!;
-        //users.add(creator);
-        creatorPlaceRole = PlaceRole.getPlaceRoleFromListById('-NngrYovmKAw_cp0pYfJ');
 
-        creator.roleInPlace = creatorPlaceRole.id;
+        if (UserCustom.currentUser != null){
+          userInfo = UserCustom.currentUser!;
+          currentUserPlaceRole = await UserCustom.getPlaceRoleInUserById(widget.placeId, userInfo.uid);
 
+          creator = (await UserCustom.readUserData(place.creatorId))!;
+          //users.add(creator);
+          creatorPlaceRole = PlaceRole.getPlaceRoleFromListById('-NngrYovmKAw_cp0pYfJ');
+
+          creator.roleInPlace = creatorPlaceRole.id;
+
+          if (creator.uid == userInfo.uid) {
+            currentUserPlaceRole = creatorPlaceRole;
+          }
+
+          if (int.parse(currentUserPlaceRole.controlLevel) >= 90){
+            users = await UserCustom.getPlaceAdminsUsers(widget.placeId);
+          }
+
+        }
+        else {
+          userInfo = UserCustom.empty('', '');
+        }
       }
-
-
 
       city = City.getCityName(place.city);
       category = PlaceCategory.getPlaceCategoryName(place.category);
       inFav = place.inFav!;
       favCounter = int.parse(place.addedToFavouritesCount!);
-
       isOpen = nowIsOpenPlace(place);
 
 
       // ---- Убираем экран загрузки -----
       setState(() {
-
         loading = false;
       });
     } catch (e) {
@@ -326,7 +327,7 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
 
                           // TODO - сделать скрытие кнопки редактирования места если нет доступа к редактированию
                           // --- Кнопка редактирования ----
-                          IconButton(
+                          if (currentUserPlaceRole.controlLevel != '' && int.parse(currentUserPlaceRole.controlLevel) >= 90) IconButton(
                             icon: Icon(
                               Icons.edit,
                               color: Theme.of(context).colorScheme.background,
@@ -390,7 +391,7 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
 
                       const SizedBox(height: 30.0),
 
-                      Container(
+                      if (currentUserPlaceRole.controlLevel != '' && int.parse(currentUserPlaceRole.controlLevel) >= 90) Container(
                         padding: const EdgeInsets.fromLTRB(20, 10, 20, 0), // Отступы
                         decoration: BoxDecoration(
                           color: AppColors.greyOnBackground, // Цвет фона
