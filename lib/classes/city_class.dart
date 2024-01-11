@@ -197,4 +197,15 @@ class City {
     return result;
   }
 
+  // Метод для поиска города по id
+  static City getCityByIdFromList(String id) {
+
+    for (int i = 0; i<currentCityList.length; i++){
+      if (currentCityList[i].id == id) {
+        return currentCityList[i];
+      }
+    }
+    return City(name: '', id: '');
+  }
+
 }
