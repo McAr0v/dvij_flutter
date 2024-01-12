@@ -1,4 +1,3 @@
-
 import 'package:dvij_flutter/classes/city_class.dart';
 import 'package:dvij_flutter/classes/place_category_class.dart';
 import 'package:dvij_flutter/classes/place_class.dart';
@@ -11,7 +10,6 @@ import '../../classes/place_sorting_options.dart';
 import '../../classes/user_class.dart';
 import '../../elements/custom_snack_bar.dart';
 import '../../elements/loading_screen.dart';
-import '../../elements/places_elements/place_category_picker_page.dart'; // Импортируйте библиотеку Firebase Database
 
 
 
@@ -64,10 +62,12 @@ class _PlacesFeedPageState extends State<PlacesFeedPage> {
         City usersCity = City.getCityByIdFromList(UserCustom.currentUser!.city);
         setState(() {
           cityFromFilter = usersCity;
-          filterCount++;
+          //filterCount++;
         });
       }
     }
+
+    _setFiltersCount(placeCategoryFromFilter, cityFromFilter, nowIsOpenFromFilter, haveEventsFromFilter, havePromosFromFilter);
 
     if (Place.currentFeedPlaceList.isEmpty){
 

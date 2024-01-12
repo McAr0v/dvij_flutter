@@ -1,5 +1,8 @@
+import 'package:dvij_flutter/classes/user_class.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../../navigation/custom_drawer.dart';
 import 'events_fav_page.dart';
 import 'events_feed_page.dart';
 import 'events_my_page.dart';
