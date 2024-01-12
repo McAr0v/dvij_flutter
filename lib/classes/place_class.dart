@@ -1,5 +1,6 @@
 import 'package:dvij_flutter/classes/city_class.dart';
 import 'package:dvij_flutter/classes/place_category_class.dart';
+import 'package:dvij_flutter/classes/place_sorting_options.dart';
 import 'package:dvij_flutter/classes/user_class.dart';
 import 'package:dvij_flutter/methods/days_functions.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -142,6 +143,39 @@ class Place {
     );
   }
 
+  static List<Place> currentFeedPlaceList = [];
+
+  static Place emptyPlace = Place(
+      id: '',
+      name: '',
+      desc: '',
+      creatorId: '',
+      createDate: '',
+      category: '',
+      city: '',
+      street: '',
+      house: '',
+      phone: '',
+      whatsapp: '',
+      telegram: '',
+      instagram: '',
+      imageUrl: 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2Fdvij_unknow_user.jpg?alt=media&token=b63ea5ef-7bdf-49e9-a3ef-1d34d676b6a7',
+      mondayStartTime: '',
+      mondayFinishTime: '',
+      tuesdayStartTime: '',
+      tuesdayFinishTime: '',
+      wednesdayStartTime: '',
+      wednesdayFinishTime: '',
+      thursdayStartTime: '',
+      thursdayFinishTime: '',
+      fridayStartTime: '',
+      fridayFinishTime: '',
+      saturdayStartTime: '',
+      saturdayFinishTime: '',
+      sundayStartTime: '',
+      sundayFinishTime: ''
+  );
+
   factory Place.empty() {
     return Place(
         id: '',
@@ -231,9 +265,22 @@ class Place {
     }
   }
 
-  static Future<List<Place>> getAllPlaces() async {
+  static Future<List<Place>> getAllPlaces(
+      /*PlaceCategory? placeCategoryFromFilter,
+      City? cityFromFilter,
+      bool? nowIsOpen,
+      bool? haveEventsFromFilter,
+      bool? havePromosFromFilter*/
+      ) async {
+
+    /*placeCategoryFromFilter ??= PlaceCategory(name: '', id: '');
+    cityFromFilter ??= City(name: '', id: '');
+    nowIsOpen ??= false;
+    haveEventsFromFilter ??= false;
+    havePromosFromFilter ??= false;*/
 
     List<Place> places = [];
+    currentFeedPlaceList = [];
 
     // Указываем путь
     final DatabaseReference reference = FirebaseDatabase.instance.ref().child('places');
@@ -253,24 +300,46 @@ class Place {
 
       String favCount = await Place.getFavCount(place.id);
       String eventsCount = await Place.getEventsCount(place.id);
-      String promosCount = await Place.getPromoCount(place.id);;
+      String promosCount = await Place.getPromoCount(place.id);
       String inFav = await Place.addedInFavOrNot(place.id);
       //String canEdit = await Place.canEditOrNot(place.id);
       String cityName = City.getCityName(place.city);
       String categoryName = PlaceCategory.getPlaceCategoryName(place.category);
+      bool nowIsOpenInPlace = nowIsOpenPlace(place);
+      //City cityFromPlace = City.getCityByIdFromList(place.city); // ПЕРЕДАТЬ ЭТОТ ГОРОД!!
+      //PlaceCategory categoryFromPlace = PlaceCategory.getPlaceCategoryFromCategoriesList(place.category);
 
-      bool nowIsOpen = nowIsOpenPlace(place);
-
-      place.category = categoryName;
-      place.city = cityName;
-      //place.canEdit = canEdit;
       place.inFav = inFav;
       place.addedToFavouritesCount = favCount;
       place.eventsCount = eventsCount;
       place.promoCount = promosCount;
-      place.nowIsOpen = nowIsOpen.toString();
+      place.nowIsOpen = nowIsOpenInPlace.toString();
+
+      /*place.category = categoryFromPlace.id;
+      place.city = cityFromPlace.*/
+
+      currentFeedPlaceList.add(place);
+
+
+      //place.category = categoryName;
+      //place.city = cityName;
 
       places.add(place);
+
+      /*bool result = checkFilter(
+          placeCategoryFromFilter, 
+          cityFromFilter, 
+          nowIsOpen, 
+          haveEventsFromFilter, 
+          havePromosFromFilter, 
+          place, 
+          cityFromPlace, 
+          categoryFromPlace
+      );
+
+      if (result) {
+        places.add(place);
+      }*/
 
       //places.add(Place.fromSnapshot(childSnapshot.child('place_info')));
     }
@@ -278,6 +347,85 @@ class Place {
 
     // Возвращаем список
     return places;
+  }
+
+  static List<Place> filterPlaces(
+      PlaceCategory placeCategoryFromFilter,
+      City cityFromFilter,
+      bool nowIsOpen,
+      bool haveEventsFromFilter,
+      bool havePromosFromFilter,
+      List<Place> placesList
+      ) {
+
+    List<Place> places = [];
+
+    for (int i = 0; i<placesList.length; i++){
+
+      bool result = checkFilter(
+          placeCategoryFromFilter,
+          cityFromFilter,
+          nowIsOpen,
+          haveEventsFromFilter,
+          havePromosFromFilter,
+          placesList[i],
+          //cityFromPlace,
+          //categoryFromPlace
+      );
+
+      if (result) {
+        places.add(placesList[i]);
+      }
+    }
+    // Возвращаем список
+    return places;
+  }
+
+  static bool checkFilter (
+      PlaceCategory placeCategoryFromFilter,
+      City cityFromFilter,
+      bool nowIsOpenFromFilter,
+      bool haveEventsFromFilter,
+      bool havePromosFromFilter,
+      Place place,
+      //City cityFromPlace,
+      //PlaceCategory categoryFromPlace
+      ) {
+
+
+
+    City cityFromPlace = City.getCityByIdFromList(place.city);
+    PlaceCategory categoryFromPlace = PlaceCategory.getPlaceCategoryFromCategoriesList(place.category);
+
+    bool category = placeCategoryFromFilter.id == '' || placeCategoryFromFilter.id == categoryFromPlace.id;
+    bool city = cityFromFilter.id == '' || cityFromFilter.id == cityFromPlace.id;
+    bool checkNowIsOpen = nowIsOpenFromFilter == false ||  bool.parse(place.nowIsOpen!);
+    bool events = haveEventsFromFilter == false || int.parse(place.eventsCount!) > 0;
+    bool promos = havePromosFromFilter == false || int.parse(place.promoCount!) > 0;
+
+    return category && city && checkNowIsOpen && events && promos;
+
+
+  }
+
+  static void sortPlaces(SortingOption sorting, List<Place> places) {
+
+    switch (sorting){
+
+      case SortingOption.nameAsc: places.sort((a, b) => a.name.compareTo(b.name)); break;
+
+      case SortingOption.nameDesc: places.sort((a, b) => b.name.compareTo(a.name)); break;
+
+      case SortingOption.promoCountAsc: places.sort((a, b) => int.parse(a.promoCount!).compareTo(int.parse(b.promoCount!))); break;
+
+      case SortingOption.promoCountDesc: places.sort((a, b) => int.parse(b.promoCount!).compareTo(int.parse(a.promoCount!))); break;
+
+      case SortingOption.eventCountAsc: places.sort((a, b) => int.parse(a.eventsCount!).compareTo(int.parse(b.eventsCount!))); break;
+
+      case SortingOption.eventCountDesc: places.sort((a, b) => int.parse(b.eventsCount!).compareTo(int.parse(a.eventsCount!))); break;
+
+    }
+
   }
 
   static Future<Place> getPlaceById(String placeId) async {

@@ -4,17 +4,11 @@ import 'package:dvij_flutter/elements/places_elements/place_category_element_in_
 import 'package:dvij_flutter/elements/places_elements/place_category_picker_page.dart';
 import 'package:flutter/material.dart';
 import '../../classes/city_class.dart';
+import '../../classes/place_sorting_options.dart';
 import '../../themes/app_colors.dart';
 import '../choose_dialogs/city_choose_dialog.dart';
 import '../cities_elements/city_element_in_edit_screen.dart';
-enum SortingOption {
-  nameAsc,
-  nameDesc,
-  promoCountAsc,
-  promoCountDesc,
-  eventCountAsc,
-  eventCountDesc,
-}
+
 class PlaceFilterPage extends StatefulWidget {
   final List<PlaceCategory> categories;
   PlaceCategory chosenCategory;

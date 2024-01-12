@@ -1,3 +1,5 @@
+import 'package:dvij_flutter/classes/city_class.dart';
+import 'package:dvij_flutter/classes/place_category_class.dart';
 import 'package:dvij_flutter/elements/buttons/custom_only_text_button.dart';
 import 'package:dvij_flutter/elements/for_cards_small_widget_with_icon_and_text.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
@@ -19,6 +21,9 @@ class PlaceCardWidget extends StatelessWidget {
     bool isOpen = false;
 
     if (place.nowIsOpen == 'true') isOpen = true;
+
+    String placeCategory = PlaceCategory.getPlaceCategoryFromCategoriesList(place.category).name;
+    String placeCity = City.getCityByIdFromList(place.city).name;
 
     return GestureDetector(
       onTap: () {
@@ -77,7 +82,7 @@ class PlaceCardWidget extends StatelessWidget {
                   left: 10.0,
                   child: SmallWidgetForCardsWithIconAndText(
                     //icon: Icons.visibility,
-                      text: place.category,
+                      text: placeCategory,
                       iconColor: AppColors.white,
                       side: true,
                       backgroundColor: AppColors.greyBackground.withOpacity(0.8)
@@ -100,7 +105,7 @@ class PlaceCardWidget extends StatelessWidget {
                   ),
                   //SizedBox(height: 8.0),
                   Text(
-                    '${place.city}, ${place.street}, ${place.house}',
+                    '$placeCity, ${place.street}, ${place.house}',
                     style: Theme.of(context).textTheme.labelMedium,
                     softWrap: true,
                   ),
@@ -149,7 +154,7 @@ class PlaceCardWidget extends StatelessWidget {
 
                       SmallWidgetForCardsWithIconAndText(
                         icon: Icons.event,
-                        text: 'Акций: ${place.eventsCount}',
+                        text: 'Акций: ${place.promoCount}',
                         side: true,
                         iconColor: AppColors.white,
                         backgroundColor: AppColors.greyBackground,
