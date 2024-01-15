@@ -516,13 +516,13 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
                         Text('ПН:', style: Theme.of(context).textTheme.bodyMedium,),
-                        SizedBox(width: 40.0),
+                        SizedBox(width: 20.0),
                         _buildTimeDropdown("Начало рабочего дня", mondayStartTime, (String? time) {
                           setState(() {
                             mondayStartTime = time!;
                           });
                         }),
-                        SizedBox(width: 40.0),
+                        SizedBox(width: 30.0),
                         _buildTimeDropdown("Конец рабочего дня", mondayFinishTime, (String? time) {
                           setState(() {
                             mondayFinishTime = time!;
@@ -537,13 +537,13 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
                         Text('ВТ:', style: Theme.of(context).textTheme.bodyMedium,),
-                        SizedBox(width: 40.0),
+                        SizedBox(width: 20.0),
                         _buildTimeDropdown("Начало рабочего дня", tuesdayStartTime, (String? time) {
                           setState(() {
                             tuesdayStartTime = time!;
                           });
                         }),
-                        SizedBox(width: 40.0),
+                        SizedBox(width: 30.0),
                         _buildTimeDropdown("Конец рабочего дня", tuesdayFinishTime, (String? time) {
                           setState(() {
                             tuesdayFinishTime = time!;
@@ -558,13 +558,13 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
                         Text('СР:', style: Theme.of(context).textTheme.bodyMedium,),
-                        SizedBox(width: 40.0),
+                        SizedBox(width: 20.0),
                         _buildTimeDropdown("Начало рабочего дня", wednesdayStartTime, (String? time) {
                           setState(() {
                             wednesdayStartTime = time!;
                           });
                         }),
-                        SizedBox(width: 40.0),
+                        SizedBox(width: 30.0),
                         _buildTimeDropdown("Конец рабочего дня", wednesdayFinishTime, (String? time) {
                           setState(() {
                             wednesdayFinishTime = time!;
@@ -579,13 +579,13 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
                         Text('ЧТ:', style: Theme.of(context).textTheme.bodyMedium,),
-                        SizedBox(width: 40.0),
+                        SizedBox(width: 20.0),
                         _buildTimeDropdown("Начало рабочего дня", thursdayStartTime, (String? time) {
                           setState(() {
                             thursdayStartTime = time!;
                           });
                         }),
-                        SizedBox(width: 40.0),
+                        SizedBox(width: 30.0),
                         _buildTimeDropdown("Конец рабочего дня", thursdayFinishTime, (String? time) {
                           setState(() {
                             thursdayFinishTime = time!;
@@ -600,13 +600,13 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
                         Text('ПТ:', style: Theme.of(context).textTheme.bodyMedium,),
-                        SizedBox(width: 40.0),
+                        SizedBox(width: 20.0),
                         _buildTimeDropdown("Начало рабочего дня", fridayStartTime, (String? time) {
                           setState(() {
                             fridayStartTime = time!;
                           });
                         }),
-                        SizedBox(width: 40.0),
+                        SizedBox(width: 30.0),
                         _buildTimeDropdown("Конец рабочего дня", fridayFinishTime, (String? time) {
                           setState(() {
                             fridayFinishTime = time!;
@@ -621,13 +621,13 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
                         Text('СБ:', style: Theme.of(context).textTheme.bodyMedium,),
-                        SizedBox(width: 40.0),
+                        SizedBox(width: 20.0),
                         _buildTimeDropdown("Начало рабочего дня", saturdayStartTime, (String? time) {
                           setState(() {
                             saturdayStartTime = time!;
                           });
                         }),
-                        SizedBox(width: 40.0),
+                        SizedBox(width: 30.0),
                         _buildTimeDropdown("Конец рабочего дня", saturdayFinishTime, (String? time) {
                           setState(() {
                             saturdayFinishTime = time!;
@@ -642,13 +642,13 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
                         Text('ВС:', style: Theme.of(context).textTheme.bodyMedium,),
-                        SizedBox(width: 40.0),
+                        SizedBox(width: 20.0),
                         _buildTimeDropdown("Начало рабочего дня", sundayStartTime, (String? time) {
                           setState(() {
                             sundayStartTime = time!;
                           });
                         }),
-                        SizedBox(width: 40.0),
+                        SizedBox(width: 30.0),
                         _buildTimeDropdown("Конец рабочего дня", sundayFinishTime, (String? time) {
                           setState(() {
                             sundayFinishTime = time!;
