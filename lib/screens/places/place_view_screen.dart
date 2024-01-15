@@ -187,7 +187,8 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
           leading: IconButton(
             icon: const Icon(Icons.chevron_left),
             onPressed: () {
-              Navigator.of(context).pop(); // Это закроет текущий экран и вернется на предыдущий
+              List<dynamic> result = [inFav, favCounter];
+              Navigator.of(context).pop(result); // Это закроет текущий экран и вернется на предыдущий
             },
           ),
         ),

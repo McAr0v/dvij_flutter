@@ -12,8 +12,9 @@ import 'now_is_work_widget.dart'; // Убедитесь, что вы импор�
 class PlaceCardWidget extends StatelessWidget {
   final Place place;
   final Function()? onFavoriteIconPressed; // Добавьте функцию обратного вызова
+  final Function()? onTap; // Добавьте функцию обратного вызова
 
-  const PlaceCardWidget({super.key, required this.place, this.onFavoriteIconPressed});
+  const PlaceCardWidget({super.key, required this.place, this.onFavoriteIconPressed, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -26,15 +27,7 @@ class PlaceCardWidget extends StatelessWidget {
     String placeCity = City.getCityByIdFromList(place.city).name;
 
     return GestureDetector(
-      onTap: () {
-        // Navigate to PlaceViewScreen when the card is tapped
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PlaceViewScreen(placeId: place.id),
-          ),
-        );
-      },
+      onTap: onTap,
       child: Card(
 
         elevation: 5.0,

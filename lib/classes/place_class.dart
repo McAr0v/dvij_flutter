@@ -699,12 +699,8 @@ class Place {
 
   static void deletePlaceFromCurrentFavList(String placeId){
 
-    for (var place in currentFavPlaceList){
-      if (place.id == placeId){
-        currentFavPlaceList.remove(place);
-        break;
-      }
-    }
+    currentFavPlaceList.removeWhere((place) => place.id == placeId);
+
   }
 
   static void addPlaceToCurrentFavList(String placeId){

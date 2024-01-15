@@ -3,6 +3,7 @@ import 'package:dvij_flutter/classes/place_category_class.dart';
 import 'package:dvij_flutter/classes/place_class.dart';
 import 'package:dvij_flutter/elements/places_elements/place_card_widget.dart';
 import 'package:dvij_flutter/elements/places_elements/place_filter_page.dart';
+import 'package:dvij_flutter/screens/places/place_view_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -263,6 +264,26 @@ class _PlacesFeedPageState extends State<PlacesFeedPage> {
                               return PlaceCardWidget(
                                 // TODO Сделать обновление иконки избранного и счетчика при возврате из экрана просмотра заведения
                                 place: placesList[index],
+
+                                onTap: () async {
+
+                                  final results = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => PlaceViewScreen(placeId: placesList[index].id),
+                                    ),
+                                  );
+
+                                  if (results != null) {
+                                    setState(() {
+                                      placesList[index].inFav = results[0].toString();
+                                      placesList[index].addedToFavouritesCount = results[1].toString();
+                                    });
+                                  }
+
+                                  //final results = await Navigator.of(context).push(_createPopupFilter(placeCategoriesList));
+
+                                },
 
                                 // --- Функция на нажатие на карточке кнопки ИЗБРАННОЕ ---
                                 onFavoriteIconPressed: () async {
