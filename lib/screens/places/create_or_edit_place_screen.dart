@@ -212,7 +212,7 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
 
     if (widget.placeInfo.creatorId == '') {
 
-      creatorId = UserCustom.currentUser!.uid; // Получаем уникальный ключ
+      creatorId = UserCustom.currentUser!.uid;
 
     } else {
 
@@ -728,6 +728,16 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
 
                         // Если выгрузка успешна
                         if (editInDatabase == 'success') {
+
+                          Place newPlace = await Place.getPlaceById(placeId);
+
+                          // Если в передаваемом месте нет имени, т.е это создание
+                          if (widget.placeInfo.name == ''){
+                            // То добавляем в списки новое созданное место
+                            Place.currentFeedPlaceList.add(newPlace);
+                            Place.currentMyPlaceList.add(newPlace);
+                          }
+
 
                           // Выключаем экран загрузки
                           setState(() {

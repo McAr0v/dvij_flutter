@@ -67,7 +67,12 @@ class _CustomNavContainerState extends State<CustomNavContainer>
 
       // Если что-то изменилось, в пользователя присваиваем новый статус пользователя
       setState(() {
-        _user = user;
+        if (user != null) {
+          _user = user;
+        } else {
+          _user = null;
+        }
+
       });
 
       // Если пользователь вошел в систему, обновляем userInfo

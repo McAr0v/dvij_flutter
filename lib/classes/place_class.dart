@@ -144,6 +144,8 @@ class Place {
   }
 
   static List<Place> currentFeedPlaceList = [];
+  static List<Place> currentFavPlaceList = [];
+  static List<Place> currentMyPlaceList = [];
 
   static Place emptyPlace = Place(
       id: '',
@@ -220,6 +222,7 @@ class Place {
     try {
 
       String placePath = 'places/${place.id}/place_info';
+      String creatorPath = 'users/${place.creatorId}/myPlaces/${place.id}';
 
       // Записываем данные пользователя в базу данных
       await FirebaseDatabase.instance.ref().child(placePath).set({
@@ -254,6 +257,12 @@ class Place {
 
       });
 
+      // Записываем данные пользователя в базу данных
+      await FirebaseDatabase.instance.ref().child(creatorPath).set({
+        'placeId': place.id,
+        'roleId': '-NngrYovmKAw_cp0pYfJ'
+      });
+
       // Если успешно
       return 'success';
 
@@ -265,19 +274,49 @@ class Place {
     }
   }
 
-  static Future<List<Place>> getAllPlaces(
-      /*PlaceCategory? placeCategoryFromFilter,
-      City? cityFromFilter,
-      bool? nowIsOpen,
-      bool? haveEventsFromFilter,
-      bool? havePromosFromFilter*/
-      ) async {
+  static Future<String> deletePlace(String placeId, List<UserCustom> users, String creatorId) async {
+    try {
 
-    /*placeCategoryFromFilter ??= PlaceCategory(name: '', id: '');
-    cityFromFilter ??= City(name: '', id: '');
-    nowIsOpen ??= false;
-    haveEventsFromFilter ??= false;
-    havePromosFromFilter ??= false;*/
+      DatabaseReference reference = FirebaseDatabase.instance.ref().child('places').child(placeId);
+
+      // Проверяем, существует ли город с указанным ID
+      DataSnapshot snapshot = await reference.get();
+      if (!snapshot.exists) {
+        return 'Место не найдено';
+      }
+
+      // Удаляем место
+      await reference.remove();
+
+      // Удалить админские записи у пользователей
+
+      for (var user in users) {
+
+        DatabaseReference userReference = FirebaseDatabase.instance.ref().child('users').child(user.uid).child('myPlaces').child(placeId);
+
+        await userReference.remove();
+
+      }
+
+      // Удаляем создателя
+
+      if (creatorId != '') {
+        DatabaseReference userReference = FirebaseDatabase.instance.ref().child('users').child(creatorId).child('myPlaces').child(placeId);
+
+        await userReference.remove();
+      }
+
+
+
+      // TODO По хорошему надо удалять и мероприятия
+
+      return 'success';
+    } catch (error) {
+      return 'Ошибка при удалении города: $error';
+    }
+  }
+
+  static Future<List<Place>> getAllPlaces() async {
 
     List<Place> places = [];
     currentFeedPlaceList = [];
@@ -302,12 +341,8 @@ class Place {
       String eventsCount = await Place.getEventsCount(place.id);
       String promosCount = await Place.getPromoCount(place.id);
       String inFav = await Place.addedInFavOrNot(place.id);
-      //String canEdit = await Place.canEditOrNot(place.id);
-      String cityName = City.getCityName(place.city);
-      String categoryName = PlaceCategory.getPlaceCategoryName(place.category);
+
       bool nowIsOpenInPlace = nowIsOpenPlace(place);
-      //City cityFromPlace = City.getCityByIdFromList(place.city); // ПЕРЕДАТЬ ЭТОТ ГОРОД!!
-      //PlaceCategory categoryFromPlace = PlaceCategory.getPlaceCategoryFromCategoriesList(place.category);
 
       place.inFav = inFav;
       place.addedToFavouritesCount = favCount;
@@ -315,36 +350,102 @@ class Place {
       place.promoCount = promosCount;
       place.nowIsOpen = nowIsOpenInPlace.toString();
 
-      /*place.category = categoryFromPlace.id;
-      place.city = cityFromPlace.*/
-
       currentFeedPlaceList.add(place);
-
-
-      //place.category = categoryName;
-      //place.city = cityName;
 
       places.add(place);
 
-      /*bool result = checkFilter(
-          placeCategoryFromFilter, 
-          cityFromFilter, 
-          nowIsOpen, 
-          haveEventsFromFilter, 
-          havePromosFromFilter, 
-          place, 
-          cityFromPlace, 
-          categoryFromPlace
-      );
-
-      if (result) {
-        places.add(place);
-      }*/
-
-      //places.add(Place.fromSnapshot(childSnapshot.child('place_info')));
     }
-    // sortCitiesByName(places, order);
 
+    // Возвращаем список
+    return places;
+  }
+
+  static Future<List<Place>> getFavPlaces(String userId) async {
+
+    List<Place> places = [];
+    currentFavPlaceList = [];
+    List<String> placesId = [];
+
+    // Указываем путь
+    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('users/$userId/favPlaces/');
+
+    // Получаем снимок данных папки
+    DataSnapshot snapshot = await reference.get();
+
+    // Итерируем по каждому дочернему элементу
+    // Здесь сделано так потому что мы не знаем ключа города
+    // и нам нужен каждый город, независимо от ключа
+
+    for (var childSnapshot in snapshot.children) {
+      // заполняем город (City.fromSnapshot) из снимка данных
+      // и обавляем в список городов
+
+      DataSnapshot idSnapshot = childSnapshot.child('placeId');
+
+      if (idSnapshot.exists){
+        placesId.add(idSnapshot.value.toString());
+      }
+    }
+
+    if (placesId.isNotEmpty){
+
+      for (var place in placesId){
+
+        Place temp = await getPlaceById(place);
+
+        if (temp.id != ''){
+          currentFavPlaceList.add(temp);
+          places.add(temp);
+        }
+
+      }
+
+    }
+    // Возвращаем список
+    return places;
+  }
+
+  static Future<List<Place>> getMyPlaces(String userId) async {
+
+    List<Place> places = [];
+    currentMyPlaceList = [];
+    List<String> placesId = [];
+
+    // Указываем путь
+    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('users/$userId/myPlaces/');
+
+    // Получаем снимок данных папки
+    DataSnapshot snapshot = await reference.get();
+
+    // Итерируем по каждому дочернему элементу
+    // Здесь сделано так потому что мы не знаем ключа города
+    // и нам нужен каждый город, независимо от ключа
+
+    for (var childSnapshot in snapshot.children) {
+      // заполняем город (City.fromSnapshot) из снимка данных
+      // и обавляем в список городов
+
+      DataSnapshot idSnapshot = childSnapshot.child('placeId');
+
+      if (idSnapshot.exists){
+        placesId.add(idSnapshot.value.toString());
+      }
+    }
+
+    if (placesId.isNotEmpty){
+
+      for (var place in placesId){
+
+        Place temp = await getPlaceById(place);
+
+        if (temp.id != ''){
+          currentMyPlaceList.add(temp);
+          places.add(temp);
+        }
+
+      }
+
+    }
     // Возвращаем список
     return places;
   }
@@ -456,6 +557,8 @@ class Place {
         String promosCount = await Place.getPromoCount(place.id);
         String inFav = await Place.addedInFavOrNot(place.id);
         String canEdit = await Place.canEditOrNot(place.id);
+        bool nowIsOpenInPlace = nowIsOpenPlace(place);
+        place.nowIsOpen = nowIsOpenInPlace.toString();
         //String cityName = City.getCityName(place.city);
         //String categoryName = PlaceCategory.getPlaceCategoryName(place.category);
         //place.category = categoryName;
@@ -560,23 +663,22 @@ class Place {
 
     try {
 
-
-
-
       if (UserCustom.currentUser?.uid != null){
         String placePath = 'places/$placeId/addedToFavourites/${UserCustom.currentUser?.uid}';
         String userPath = 'users/${UserCustom.currentUser?.uid}/favPlaces/$placeId';
 
         // Записываем данные пользователя в базу данных
         await FirebaseDatabase.instance.ref().child(placePath).set({
-          '${UserCustom.currentUser?.uid}': UserCustom.currentUser?.uid,
+          'userId': UserCustom.currentUser?.uid,
         });
 
         await FirebaseDatabase.instance.ref(userPath).set(
             {
-              placeId: placeId,
+              'placeId': placeId,
             }
         );
+
+        addPlaceToCurrentFavList(placeId);
 
         // Если успешно
         return 'success';
@@ -595,6 +697,26 @@ class Place {
     }
   }
 
+  static void deletePlaceFromCurrentFavList(String placeId){
+
+    for (var place in currentFavPlaceList){
+      if (place.id == placeId){
+        currentFavPlaceList.remove(place);
+        break;
+      }
+    }
+  }
+
+  static void addPlaceToCurrentFavList(String placeId){
+
+    for (var place in currentFeedPlaceList){
+      if (place.id == placeId){
+        currentFavPlaceList.add(place);
+        break;
+      }
+    }
+  }
+
 
   static void updateCurrentPlaceListFavInformation(String placeId, String favCounter, String inFav){
     // ---- Функция обновления списка из БД при добавлении или удалении из избранного
@@ -608,6 +730,35 @@ class Place {
         break;
       }
     }
+
+    for (int i = 0; i<currentFavPlaceList.length; i++){
+      // Если ID совпадает
+      if (currentFavPlaceList[i].id == placeId){
+        // Обновляем данные об состоянии этого заведения как избранного
+        currentFavPlaceList[i].addedToFavouritesCount = favCounter;
+        currentFavPlaceList[i].inFav = inFav;
+        break;
+      }
+    }
+
+    for (int i = 0; i<currentMyPlaceList.length; i++){
+      // Если ID совпадает
+      if (currentMyPlaceList[i].id == placeId){
+        // Обновляем данные об состоянии этого заведения как избранного
+        currentMyPlaceList[i].addedToFavouritesCount = favCounter;
+        currentMyPlaceList[i].inFav = inFav;
+        break;
+      }
+    }
+
+  }
+
+  static void deletePlaceFormCurrentPlaceLists(String placeId){
+    // ---- Функция обновления списка из БД при добавлении или удалении из избранного
+
+    currentFeedPlaceList.removeWhere((place) => place.id == placeId);
+    currentFavPlaceList.removeWhere((place) => place.id == placeId);
+    currentMyPlaceList.removeWhere((place) => place.id == placeId);
   }
 
   static Future<String> deletePlaceFromFav(String placeId) async {
@@ -636,6 +787,8 @@ class Place {
 
       }
 
+      deletePlaceFromCurrentFavList(placeId);
+
       return 'success';
     } catch (error) {
       return 'Ошибка при удалении города: $error';
@@ -648,10 +801,17 @@ class Place {
     try {
 
       String placePath = 'places/$placeId/managers/$userId';
+      String userPath = 'users/$userId/myPlaces/$placeId';
 
       // Записываем данные пользователя в базу данных
       await FirebaseDatabase.instance.ref().child(placePath).set({
         'userId': userId,
+        'roleId': roleId,
+      });
+
+      // Записываем данные пользователя в базу данных
+      await FirebaseDatabase.instance.ref().child(userPath).set({
+        'placeId': placeId,
         'roleId': roleId,
       });
 
@@ -671,9 +831,11 @@ class Place {
     try {
 
       String placePath = 'places/$placeId/managers/$userId';
+      String userPath = 'users/$userId/myPlaces/$placeId';
 
       // Записываем данные пользователя в базу данных
       await FirebaseDatabase.instance.ref().child(placePath).remove();
+      await FirebaseDatabase.instance.ref().child(userPath).remove();
 
       // Если успешно
       return 'success';

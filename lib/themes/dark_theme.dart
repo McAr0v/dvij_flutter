@@ -23,6 +23,11 @@ class CustomTheme {
         )
       ),
 
+      dialogTheme: DialogTheme(
+        surfaceTintColor: Colors.transparent,
+
+      ),
+
       datePickerTheme: DatePickerThemeData(
         surfaceTintColor: Colors.transparent,
         /*dayForegroundColor: MaterialStateProperty.resolveWith<Color?>(

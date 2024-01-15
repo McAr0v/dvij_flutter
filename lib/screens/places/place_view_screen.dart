@@ -19,6 +19,7 @@ import '../../classes/place_class.dart';
 import '../../classes/place_role_class.dart';
 import '../../classes/role_in_app.dart';
 import '../../classes/user_class.dart';
+import '../../elements/exit_dialog/exit_dialog.dart';
 import '../../elements/for_cards_small_widget_with_icon_and_text.dart';
 import '../../elements/loading_screen.dart';
 import '../../elements/places_elements/place_managers_element_list_item.dart';
@@ -59,6 +60,7 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
   // --- Переключатель показа экрана загрузки -----
 
   bool loading = true;
+  bool deleting = false;
   String inFav = 'false';
   int favCounter = 0;
 
@@ -182,11 +184,18 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
     return Scaffold(
         appBar: AppBar(
           title: Text(place.name != '' ? place.name : 'Загрузка...'),
+          leading: IconButton(
+            icon: const Icon(Icons.chevron_left),
+            onPressed: () {
+              Navigator.of(context).pop(); // Это закроет текущий экран и вернется на предыдущий
+            },
+          ),
         ),
         body: Stack (
           children: [
             // ---- Экран загрузки ----
             if (loading) const LoadingScreen(loadingText: 'Подожди, идет загрузка данных',)
+            else if (deleting) const LoadingScreen(loadingText: 'Подожди, удаляем заведение',)
             else ListView(
 
               children: [
@@ -241,6 +250,7 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
                                   setState(() {
                                     inFav = 'false';
                                     favCounter --;
+                                    Place.updateCurrentPlaceListFavInformation(place.id, favCounter.toString(), inFav);
                                   });
 
                                   showSnackBar('Удалено из избранных', AppColors.attentionRed, 1);
@@ -259,6 +269,7 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
                                   setState(() {
                                     inFav = 'true';
                                     favCounter ++;
+                                    Place.updateCurrentPlaceListFavInformation(place.id, favCounter.toString(), inFav);
                                   });
 
                                   showSnackBar('Добавлено в избранные', Colors.green, 1);
@@ -463,6 +474,46 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
                             ),
                           ],
                         ),
+                      ),
+                      const SizedBox(height: 30.0),
+
+                      if (
+                      currentUserPlaceRole.controlLevel != ''
+                          && int.parse(currentUserPlaceRole.controlLevel) == 100
+                      ) CustomButton(
+                          buttonText: 'Удалить заведение',
+                          onTapMethod: () async {
+                            bool? confirmed = await exitDialog(context, "Ты правда хочешь удалить заведение? Ты не сможешь восстановить данные" , 'Да', 'Нет');
+
+                            if (confirmed != null && confirmed){
+
+                              setState(() {
+                                deleting = true;
+                              });
+
+                              String delete = await Place.deletePlace(widget.placeId, users, place.creatorId);
+
+                              if (delete == 'success'){
+
+                                Place.deletePlaceFormCurrentPlaceLists(widget.placeId);
+
+                                showSnackBar('Место успешно удалено', Colors.green, 2);
+                                navigateToPlaces();
+
+                                setState(() {
+                                  deleting = false;
+                                });
+                              } else {
+                                showSnackBar('Место не было удалено по ошибке: $delete', AppColors.attentionRed, 2);
+                                setState(() {
+                                  deleting = false;
+                                });
+                              }
+
+                            }
+
+                          },
+                          state: 'error',
                       )
                     ],
                   ),

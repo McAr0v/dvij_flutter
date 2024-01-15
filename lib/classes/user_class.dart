@@ -1,3 +1,4 @@
+import 'package:dvij_flutter/classes/place_class.dart';
 import 'package:dvij_flutter/classes/place_role_class.dart';
 import 'package:dvij_flutter/classes/role_in_app.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -130,6 +131,9 @@ class UserCustom {
     try {
       await FirebaseAuth.instance.signOut();
       currentUser = null; // Обнуляем текущего пользователя при выходе
+      Place.currentMyPlaceList = [];
+      Place.currentFeedPlaceList = [];
+      Place.currentFavPlaceList = [];
       updateAccessLevel('');
       return 'success';
     } catch (e) {
@@ -193,6 +197,9 @@ class UserCustom {
       // Если пользователь успешно вошел, обновляем текущего пользователя
       currentUser = await readUserDataAndWriteCurrentUser(credential.user!.uid);
       updateAccessLevel(currentUser!.role);
+      Place.currentFeedPlaceList = [];
+      Place.currentFavPlaceList = [];
+      Place.currentMyPlaceList = [];
 
       // и возвращаем uid
       return credential.user?.uid;

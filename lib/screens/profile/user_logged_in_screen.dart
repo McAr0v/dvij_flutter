@@ -1,4 +1,5 @@
 import 'package:dvij_flutter/database_firebase/user_database.dart';
+import 'package:dvij_flutter/elements/exit_dialog/exit_dialog.dart';
 import 'package:dvij_flutter/elements/headline_and_desc.dart';
 import 'package:dvij_flutter/methods/date_functions.dart';
 import 'package:dvij_flutter/screens/profile/edit_profile_screen.dart';
@@ -73,6 +74,8 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
       // ---- Получаем uid нашего пользователя
       uid = userInfo.uid;
       // --- Читаем данные пользователя из БД
+
+      // TODO - город, гендер и роль взять из списков уже загруженных с бд
 
       chosenGender = await Gender.getGenderById(userInfo.gender) as Gender;
       chosenCity = await City.getCityById(userInfo.city) as City;
@@ -237,14 +240,16 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
                         // --- Открываем диалог ----
                         // TODO - Доделать экран диалога!!!
 
-                        bool? confirmed = await PopUpDialog.showConfirmationDialog(
+                        /*bool? confirmed = await PopUpDialog.showConfirmationDialog(
                           context,
                           title: "Ты правда хочешь уйти от нас?",
                           backgroundColor: AppColors.greyBackground,
                           confirmButtonText: "Да",
                           cancelButtonText: "Нет",
 
-                        );
+                        );*/
+
+                        bool? confirmed = await exitDialog(context, "Ты правда хочешь уйти от нас?" , 'Да', 'Нет');
 
                         // ---- Если пользователь нажал ВЫЙТИ ----
 
