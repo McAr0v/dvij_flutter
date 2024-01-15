@@ -595,6 +595,21 @@ class Place {
     }
   }
 
+
+  static void updateCurrentPlaceListFavInformation(String placeId, String favCounter, String inFav){
+    // ---- Функция обновления списка из БД при добавлении или удалении из избранного
+
+    for (int i = 0; i<currentFeedPlaceList.length; i++){
+      // Если ID совпадает
+      if (currentFeedPlaceList[i].id == placeId){
+        // Обновляем данные об состоянии этого заведения как избранного
+        currentFeedPlaceList[i].addedToFavouritesCount = favCounter;
+        currentFeedPlaceList[i].inFav = inFav;
+        break;
+      }
+    }
+  }
+
   static Future<String> deletePlaceFromFav(String placeId) async {
     try {
       if (UserCustom.currentUser?.uid != null){
