@@ -40,7 +40,7 @@ class _PlaceFilterPageState extends State<PlaceFilterPage> {
   bool nowIsOpen = false;
   bool haveEvents = false;
   bool havePromos = false;
-  SortingOption _selectedSortingOption = SortingOption.nameAsc;
+  PlaceSortingOption _selectedSortingOption = PlaceSortingOption.nameAsc;
 
   @override
   void initState() {

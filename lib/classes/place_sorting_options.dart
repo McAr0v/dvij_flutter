@@ -1,4 +1,4 @@
-enum SortingOption {
+enum PlaceSortingOption {
   nameAsc,
   nameDesc,
   promoCountAsc,

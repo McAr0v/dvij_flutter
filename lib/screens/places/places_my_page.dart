@@ -42,7 +42,7 @@ class _PlacesMyPageState extends State<PlacesMyPage> {
 
   // --- Переменная сортировки по умолчанию ----
 
-  SortingOption _selectedSortingOption = SortingOption.nameAsc;
+  PlaceSortingOption _selectedSortingOption = PlaceSortingOption.nameAsc;
 
   // Переменная, включающая экран загрузки
   bool loading = true;
@@ -213,11 +213,11 @@ class _PlacesMyPageState extends State<PlacesMyPage> {
 
                               SizedBox(
                                 width: MediaQuery.of(context).size.width * 0.5,
-                                child: DropdownButton<SortingOption>(
+                                child: DropdownButton<PlaceSortingOption>(
                                   style: Theme.of(context).textTheme.bodySmall,
                                   isExpanded: true,
                                   value: _selectedSortingOption,
-                                  onChanged: (SortingOption? newValue) {
+                                  onChanged: (PlaceSortingOption? newValue) {
                                     setState(() {
                                       _selectedSortingOption = newValue!;
                                       Place.sortPlaces(_selectedSortingOption, placesMyList);
@@ -225,27 +225,27 @@ class _PlacesMyPageState extends State<PlacesMyPage> {
                                   },
                                   items: const [
                                     DropdownMenuItem(
-                                      value: SortingOption.nameAsc,
+                                      value: PlaceSortingOption.nameAsc,
                                       child: Text('По имени: А-Я'),
                                     ),
                                     DropdownMenuItem(
-                                      value: SortingOption.nameDesc,
+                                      value: PlaceSortingOption.nameDesc,
                                       child: Text('По имени: Я-А'),
                                     ),
                                     DropdownMenuItem(
-                                      value: SortingOption.promoCountAsc,
+                                      value: PlaceSortingOption.promoCountAsc,
                                       child: Text('Акции: по возрастанию'),
                                     ),
                                     DropdownMenuItem(
-                                      value: SortingOption.promoCountDesc,
+                                      value: PlaceSortingOption.promoCountDesc,
                                       child: Text('Акции: по убыванию'),
                                     ),
                                     DropdownMenuItem(
-                                      value: SortingOption.eventCountAsc,
+                                      value: PlaceSortingOption.eventCountAsc,
                                       child: Text('Мероприятия: по возрастанию'),
                                     ),
                                     DropdownMenuItem(
-                                      value: SortingOption.eventCountDesc,
+                                      value: PlaceSortingOption.eventCountDesc,
                                       child: Text('Мероприятия: по убыванию'),
                                     ),
                                   ],

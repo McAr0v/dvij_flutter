@@ -1,10 +1,461 @@
+import 'package:dvij_flutter/classes/city_class.dart';
+import 'package:dvij_flutter/classes/event_category_class.dart';
+import 'package:dvij_flutter/classes/event_sorting_options.dart';
+import 'package:dvij_flutter/classes/place_category_class.dart';
+import 'package:dvij_flutter/classes/place_class.dart';
+import 'package:dvij_flutter/elements/places_elements/place_card_widget.dart';
+import 'package:dvij_flutter/elements/places_elements/place_filter_page.dart';
+import 'package:dvij_flutter/screens/places/place_view_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:dvij_flutter/themes/app_colors.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../../classes/event_class.dart';
+import '../../classes/place_sorting_options.dart';
+import '../../classes/user_class.dart';
+import '../../elements/custom_snack_bar.dart';
+import '../../elements/loading_screen.dart';
 
-class EventsFeedPage extends StatelessWidget {
+
+// ---- ЭКРАН ЛЕНТЫ ЗАВЕДЕНИЙ ------
+
+class EventsFeedPage extends StatefulWidget {
   const EventsFeedPage({Key? key}) : super(key: key);
 
   @override
+  _EventsFeedPageState createState() => _EventsFeedPageState();
+}
+
+
+
+class _EventsFeedPageState extends State<EventsFeedPage> {
+  late List<Event> eventsList; // Список мест
+  late List<EventCategory> eventCategoriesList; // Список категорий мест
+
+  // --- Переменные фильтра по умолчанию ----
+
+  EventCategory eventCategoryFromFilter = EventCategory(name: '', id: '');
+  City cityFromFilter = City(name: '', id: '');
+  bool freePrice = false;
+  bool today = false;
+  bool onlyFromPlaceEvents = false;
+
+  // --- Переменная сортировки по умолчанию ----
+
+  EventSortingOption _selectedSortingOption = EventSortingOption.nameAsc;
+
+  // Переменная, включающая экран загрузки
+  bool loading = true;
+
+  // Переменная, включающая экран обновления
+  bool refresh = false;
+
+  // Счетчик выбранных значений фильтра
+  int filterCount = 0;
+
+  @override
+  void initState(){
+
+    super.initState();
+    _initializeData();
+  }
+
+  // --- Функция инициализации данных ----
+
+  Future<void> _initializeData() async {
+
+    setState(() {
+      loading = true;
+    });
+
+    // ---- Подгружаем город в фильтр из данных пользователя ---
+    if (UserCustom.currentUser != null){
+      if (UserCustom.currentUser!.city != ''){
+        City usersCity = City.getCityByIdFromList(UserCustom.currentUser!.city);
+        setState(() {
+          cityFromFilter = usersCity;
+        });
+      }
+    }
+
+    // ---- Устанавливаем счетчик выбранных в фильтре настроек ----
+
+    _setFiltersCount(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents);
+
+    // ----- Работаем со списком заведений -----
+
+    // ---- Если список пуст ----
+    if (Event.currentFeedEventsList.isEmpty){
+      // ---- Считываем с БД заведения -----
+      List<Event> tempEventsList = await Event.getAllEvents();
+
+      // --- Фильтруем список -----
+      setState(() {
+        eventsList = Event.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempEventsList);
+      });
+
+    } else {
+      // --- Если список не пустой ----
+      // --- Подгружаем готовый список ----
+      List<Event> tempList = [];
+      tempList = Event.currentFeedEventsList;
+
+      // --- Фильтруем список ----
+      setState(() {
+        eventsList = Event.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempList);
+      });
+    }
+
+    // Подгружаем список категорий заведений
+    eventCategoriesList = EventCategory.currentEventCategoryList;
+
+    setState(() {
+      loading = false;
+    });
+  }
+
+  // --- Функция отображения всплывающего окна ----
+
+  void showSnackBar(String message, Color color, int showTime) {
+    final snackBar = customSnackBar(message: message, backgroundColor: color, showTime: showTime);
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+
+  // ---- Сам экран ленты заведений ----
+
+  @override
   Widget build(BuildContext context) {
-    return const Center(child: Text('Мероприятия мои'));
+    return Scaffold(
+      // - Обновление списка, если тянуть экран вниз
+        body: RefreshIndicator (
+          onRefresh: () async {
+
+            setState(() {
+              refresh = true;
+            });
+
+            eventsList = [];
+
+            List<Event> tempEventsList = await Event.getAllEvents();
+
+            setState(() {
+              eventsList = Event.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempEventsList);
+
+            });
+
+            setState(() {
+              refresh = false;
+            });
+
+          },
+          child: Stack (
+            children: [
+              if (loading) const LoadingScreen(loadingText: 'Подожди, идет загрузка мероприятий')
+              else if (refresh) Center(
+                child: Text(
+                  'Подожди, идет обновление мероприятий',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              )
+              else Column(
+                  children: [
+                    // ---- Фильтр и сортировка -----
+                    Container(
+                        padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+                        color: AppColors.greyOnBackground,
+                        child: Row (
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+
+                            // ---- Фильтр -----
+
+                            GestureDetector(
+                              onTap: (){
+                                _showFilterDialog();
+                              },
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Фильтр ${filterCount > 0 ? '($filterCount)' : ''}',
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: filterCount > 0 ? AppColors.brandColor : AppColors.white),
+                                  ),
+
+                                  const SizedBox(width: 20,),
+
+                                  Icon(
+                                    FontAwesomeIcons.filter,
+                                    size: 20,
+                                    color: filterCount > 0 ? AppColors.brandColor : AppColors.white ,
+                                  )
+                                ],
+                              ),
+                            ),
+
+                            // ------ Сортировка ------
+
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.5,
+                              child: DropdownButton<EventSortingOption>(
+                                style: Theme.of(context).textTheme.bodySmall,
+                                isExpanded: true,
+                                value: _selectedSortingOption,
+                                onChanged: (EventSortingOption? newValue) {
+                                  setState(() {
+                                    _selectedSortingOption = newValue!;
+                                    Event.sortEvents(_selectedSortingOption, eventsList);
+                                  });
+                                },
+                                items: const [
+                                  DropdownMenuItem(
+                                    value: EventSortingOption.nameAsc,
+                                    child: Text('По имени: А-Я'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: EventSortingOption.nameDesc,
+                                    child: Text('По имени: Я-А'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: EventSortingOption.favCountAsc,
+                                    child: Text('В избранном: по возрастанию'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: EventSortingOption.favCountDesc,
+                                    child: Text('В избранном: по убыванию'),
+                                  ),
+                                ],
+                              ),
+                            )
+                          ],
+                        )
+                    ),
+
+                    // ---- Если список заведений пустой -----
+
+                    if (eventsList.isEmpty) Expanded(
+                        child: ListView.builder(
+                            padding: const EdgeInsets.all(15.0),
+                            itemCount: 1,
+                            itemBuilder: (context, index) {
+                              return const Column(
+                                  children: [
+                                    Center(
+                                      child: Text('Пусто'),
+                                    )
+                                  ]
+                              );
+                            }
+                        )
+                    ),
+
+                    // ---- Если список заведений не пустой -----
+
+                    if (eventsList.isNotEmpty) Expanded(
+                        child: ListView.builder(
+                            padding: const EdgeInsets.all(15.0),
+                            itemCount: eventsList.length,
+                            itemBuilder: (context, index) {
+                              return PlaceCardWidget(
+                                // TODO Сделать обновление иконки избранного и счетчика при возврате из экрана просмотра заведения
+                                place: eventsList[index],
+
+                                onTap: () async {
+
+                                  final results = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => PlaceViewScreen(placeId: eventsList[index].id),
+                                    ),
+                                  );
+
+                                  if (results != null) {
+                                    setState(() {
+                                      eventsList[index].inFav = results[0].toString();
+                                      eventsList[index].addedToFavouritesCount = results[1].toString();
+                                    });
+                                  }
+
+                                  //final results = await Navigator.of(context).push(_createPopupFilter(placeCategoriesList));
+
+                                },
+
+                                // --- Функция на нажатие на карточке кнопки ИЗБРАННОЕ ---
+                                onFavoriteIconPressed: () async {
+
+                                  // TODO Сделать проверку на подтвержденный Email
+                                  // ---- Если не зарегистрирован или не вошел ----
+                                  if (UserCustom.currentUser?.uid == '' || UserCustom.currentUser?.uid == null)
+                                  {
+                                    showSnackBar('Чтобы добавлять в избранное, нужно зарегистрироваться!', AppColors.attentionRed, 2);
+                                  }
+
+                                  // --- Если пользователь залогинен -----
+                                  else {
+
+                                    // --- Если уже в избранном ----
+                                    if (eventsList[index].inFav == 'true')
+                                    {
+                                      // --- Удаляем из избранных ---
+                                      String resDel = await Place.deletePlaceFromFav(eventsList[index].id);
+                                      // ---- Инициализируем счетчик -----
+                                      int favCounter = int.parse(eventsList[index].addedToFavouritesCount!);
+
+                                      if (resDel == 'success'){
+                                        // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
+                                        setState(() {
+                                          // Обновляем текущий список
+                                          eventsList[index].inFav = 'false';
+                                          favCounter --;
+                                          eventsList[index].addedToFavouritesCount = favCounter.toString();
+                                          // Обновляем общий список из БД
+                                          Place.updateCurrentPlaceListFavInformation(eventsList[index].id, favCounter.toString(), 'false');
+
+                                        });
+                                        showSnackBar('Удалено из избранных', AppColors.attentionRed, 1);
+                                      } else {
+                                        // Если удаление из избранных не прошло, показываем сообщение
+                                        showSnackBar(resDel, AppColors.attentionRed, 1);
+                                      }
+                                    }
+                                    else {
+                                      // --- Если заведение не в избранном ----
+
+                                      // -- Добавляем в избранное ----
+                                      String res = await Place.addPlaceToFav(eventsList[index].id);
+                                      // ---- Инициализируем счетчик добавивших в избранное
+                                      int favCounter = int.parse(eventsList[index].addedToFavouritesCount!);
+
+                                      if (res == 'success') {
+                                        // --- Если добавилось успешно, так же обновляем текущий список и список из БД
+                                        setState(() {
+                                          // Обновляем текущий список
+                                          eventsList[index].inFav = 'true';
+                                          favCounter ++;
+                                          eventsList[index].addedToFavouritesCount = favCounter.toString();
+                                          // Обновляем список из БД
+                                          Place.updateCurrentPlaceListFavInformation(eventsList[index].id, favCounter.toString(), 'true');
+                                        });
+
+                                        showSnackBar('Добавлено в избранные', Colors.green, 1);
+
+                                      } else {
+                                        // Если добавление прошло неудачно, отображаем всплывающее окно
+                                        showSnackBar(res, AppColors.attentionRed, 1);
+                                      }
+                                    }
+                                  }
+                                },
+                              );
+                            }
+                        )
+                    )
+                  ],
+                ),
+            ],
+          ),
+        )
+    );
+  }
+
+  // ---- Функция обвноления счетчика выбранных настроек фильтра ----
+  void _setFiltersCount(
+      EventCategory eventCategoryFromFilter,
+      City cityFromFilter,
+      bool freePriceFromFilter,
+      bool todayFromFilter,
+      bool onlyFromPlaceEventsFromFilter,
+      ){
+
+    int count = 0;
+
+    // --- Если значения не соответствуют дефолтным, то плюсуем счетчик ----
+    if (eventCategoryFromFilter.name != ''){
+      count++;
+    }
+
+    if (cityFromFilter.name != ''){
+      count++;
+    }
+
+    if (freePriceFromFilter) count++;
+
+    if (todayFromFilter) count++;
+
+    if (onlyFromPlaceEventsFromFilter) count++;
+
+    // --- Обновляем счетчик на странице -----
+    setState(() {
+      filterCount = count;
+    });
+
+  }
+
+  // ---- Функция отображения диалога фильтра ----
+
+  void _showFilterDialog() async {
+    // Открываем всплывающее окно и ждем результатов
+    final results = await Navigator.of(context).push(_createPopupFilter(eventCategoriesList));
+
+    // Если пользователь выбрал что-то в диалоге фильтра
+    if (results != null) {
+      // Устанавливаем значения, которые он выбрал
+      setState(() {
+        loading = true;
+        cityFromFilter = results[0];
+        eventCategoryFromFilter = results[1];
+        freePrice = results [2];
+        today = results [3];
+        havePromosFromFilter = results [4];
+        eventsList = [];
+
+        // ---- Обновляем счетчик выбранных настроек ----
+        _setFiltersCount(eventCategoryFromFilter, cityFromFilter, freePrice, today, havePromosFromFilter);
+
+      });
+
+      // --- Заново подгружаем список из БД ---
+      List<Place> tempList = [];
+      tempList = Place.currentFeedPlaceList;
+
+      // --- Фильтруем список согласно новым выбранным данным из фильтра ----
+      setState(() {
+        eventsList = Place.filterPlaces(eventCategoryFromFilter, cityFromFilter, freePrice, today, havePromosFromFilter, tempList);
+      });
+
+      setState(() {
+        loading = false;
+      });
+    }
+  }
+
+  // ----- Путь для открытия всплывающей страницы фильтра ----
+
+  Route _createPopupFilter(List<PlaceCategory> categories) {
+    return PageRouteBuilder(
+
+      pageBuilder: (context, animation, secondaryAnimation) {
+
+        // --- Сама страница фильтра ---
+        return PlaceFilterPage(
+          categories: categories,
+          chosenCategory: eventCategoryFromFilter,
+          chosenCity: cityFromFilter,
+          nowIsOpen: freePrice,
+          haveEvents: today,
+          havePromos: havePromosFromFilter,
+        );
+      },
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(0.0, 1.0);
+        const end = Offset.zero;
+        const curve = Curves.easeInOut;
+        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var offsetAnimation = animation.drive(tween);
+        return SlideTransition(position: offsetAnimation, child: child);
+      },
+      transitionDuration: const Duration(milliseconds: 100),
+
+    );
   }
 }

@@ -509,21 +509,21 @@ class Place {
 
   }
 
-  static void sortPlaces(SortingOption sorting, List<Place> places) {
+  static void sortPlaces(PlaceSortingOption sorting, List<Place> places) {
 
     switch (sorting){
 
-      case SortingOption.nameAsc: places.sort((a, b) => a.name.compareTo(b.name)); break;
+      case PlaceSortingOption.nameAsc: places.sort((a, b) => a.name.compareTo(b.name)); break;
 
-      case SortingOption.nameDesc: places.sort((a, b) => b.name.compareTo(a.name)); break;
+      case PlaceSortingOption.nameDesc: places.sort((a, b) => b.name.compareTo(a.name)); break;
 
-      case SortingOption.promoCountAsc: places.sort((a, b) => int.parse(a.promoCount!).compareTo(int.parse(b.promoCount!))); break;
+      case PlaceSortingOption.promoCountAsc: places.sort((a, b) => int.parse(a.promoCount!).compareTo(int.parse(b.promoCount!))); break;
 
-      case SortingOption.promoCountDesc: places.sort((a, b) => int.parse(b.promoCount!).compareTo(int.parse(a.promoCount!))); break;
+      case PlaceSortingOption.promoCountDesc: places.sort((a, b) => int.parse(b.promoCount!).compareTo(int.parse(a.promoCount!))); break;
 
-      case SortingOption.eventCountAsc: places.sort((a, b) => int.parse(a.eventsCount!).compareTo(int.parse(b.eventsCount!))); break;
+      case PlaceSortingOption.eventCountAsc: places.sort((a, b) => int.parse(a.eventsCount!).compareTo(int.parse(b.eventsCount!))); break;
 
-      case SortingOption.eventCountDesc: places.sort((a, b) => int.parse(b.eventsCount!).compareTo(int.parse(a.eventsCount!))); break;
+      case PlaceSortingOption.eventCountDesc: places.sort((a, b) => int.parse(b.eventsCount!).compareTo(int.parse(a.eventsCount!))); break;
 
     }
 

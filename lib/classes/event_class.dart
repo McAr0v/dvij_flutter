@@ -5,6 +5,9 @@ import 'package:dvij_flutter/classes/user_class.dart';
 import 'package:dvij_flutter/methods/days_functions.dart';
 import 'package:firebase_database/firebase_database.dart';
 
+import 'event_category_class.dart';
+import 'event_sorting_options.dart';
+
 class Event {
   String id;
   String headline;
@@ -29,6 +32,8 @@ class Event {
   String? addedToFavouritesCount;
   String? canEdit;
   String? inFav;
+  String? today;
+  String? inFavCounter;
 
   Event({
     required this.id,
@@ -54,6 +59,8 @@ class Event {
     this.addedToFavouritesCount,
     this.canEdit,
     this.inFav,
+    this.today,
+    this.inFavCounter,
 
   });
 
@@ -385,93 +392,78 @@ class Event {
     return events;
   }
 
-  /*
+
   static List<Event> filterEvents(
-      PlaceCategory placeCategoryFromFilter,
+      EventCategory eventCategoryFromFilter,
       City cityFromFilter,
-      bool nowIsOpen,
-      bool haveEventsFromFilter,
-      bool havePromosFromFilter,
-      List<Place> placesList
+      bool freePrice,
+      bool today,
+      bool onlyFromPlaceEvents,
+      List<Event> eventsList
       ) {
 
-    List<Place> places = [];
+    List<Event> events = [];
 
-    for (int i = 0; i<placesList.length; i++){
+    for (int i = 0; i<eventsList.length; i++){
 
       bool result = checkFilter(
-        placeCategoryFromFilter,
+        eventCategoryFromFilter,
         cityFromFilter,
-        nowIsOpen,
-        haveEventsFromFilter,
-        havePromosFromFilter,
-        placesList[i],
-        //cityFromPlace,
-        //categoryFromPlace
+        freePrice,
+        today,
+        onlyFromPlaceEvents,
+        eventsList[i],
       );
 
       if (result) {
-        places.add(placesList[i]);
+        events.add(eventsList[i]);
       }
     }
     // Возвращаем список
-    return places;
+    return events;
   }
 
-   */
-
-  /*
   static bool checkFilter (
-      PlaceCategory placeCategoryFromFilter,
+      EventCategory eventCategoryFromFilter,
       City cityFromFilter,
-      bool nowIsOpenFromFilter,
-      bool haveEventsFromFilter,
-      bool havePromosFromFilter,
-      Place place,
-      //City cityFromPlace,
-      //PlaceCategory categoryFromPlace
+      bool freePrice,
+      bool today,
+      bool onlyFromPlaceEvents,
+      Event event,
       ) {
 
+    City cityFromEvent = City.getCityByIdFromList(event.city);
+    EventCategory categoryFromEvent = EventCategory.getEventCategoryFromCategoriesList(event.category);
 
+    bool category = eventCategoryFromFilter.id == '' || eventCategoryFromFilter.id == categoryFromEvent.id;
+    bool city = cityFromFilter.id == '' || cityFromFilter.id == cityFromEvent.id;
+    bool checkFreePrice = freePrice == false || event.price == '';
+    bool checkToday = today == false || bool.parse(event.today!) == true;
+    bool checkFromPlaceEvent = onlyFromPlaceEvents == false || event.placeId != '';
 
-    City cityFromPlace = City.getCityByIdFromList(place.city);
-    PlaceCategory categoryFromPlace = PlaceCategory.getPlaceCategoryFromCategoriesList(place.category);
-
-    bool category = placeCategoryFromFilter.id == '' || placeCategoryFromFilter.id == categoryFromPlace.id;
-    bool city = cityFromFilter.id == '' || cityFromFilter.id == cityFromPlace.id;
-    bool checkNowIsOpen = nowIsOpenFromFilter == false ||  bool.parse(place.nowIsOpen!);
-    bool events = haveEventsFromFilter == false || int.parse(place.eventsCount!) > 0;
-    bool promos = havePromosFromFilter == false || int.parse(place.promoCount!) > 0;
-
-    return category && city && checkNowIsOpen && events && promos;
+    return category && city && checkFreePrice && checkToday && checkFromPlaceEvent;
 
 
   }
 
-   */
 
-  /*
-  static void sortPlaces(SortingOption sorting, List<Place> places) {
+  static void sortEvents(EventSortingOption sorting, List<Event> events) {
 
     switch (sorting){
 
-      case SortingOption.nameAsc: places.sort((a, b) => a.name.compareTo(b.name)); break;
+      case EventSortingOption.nameAsc: events.sort((a, b) => a.headline.compareTo(b.headline)); break;
 
-      case SortingOption.nameDesc: places.sort((a, b) => b.name.compareTo(a.name)); break;
+      case EventSortingOption.nameDesc: events.sort((a, b) => b.headline.compareTo(a.headline)); break;
 
-      case SortingOption.promoCountAsc: places.sort((a, b) => int.parse(a.promoCount!).compareTo(int.parse(b.promoCount!))); break;
+      case EventSortingOption.favCountAsc: events.sort((a, b) => int.parse(a.inFavCounter!).compareTo(int.parse(b.inFavCounter!))); break;
 
-      case SortingOption.promoCountDesc: places.sort((a, b) => int.parse(b.promoCount!).compareTo(int.parse(a.promoCount!))); break;
-
-      case SortingOption.eventCountAsc: places.sort((a, b) => int.parse(a.eventsCount!).compareTo(int.parse(b.eventsCount!))); break;
-
-      case SortingOption.eventCountDesc: places.sort((a, b) => int.parse(b.eventsCount!).compareTo(int.parse(a.eventsCount!))); break;
+      case EventSortingOption.favCountDesc: events.sort((a, b) => int.parse(b.inFavCounter!).compareTo(int.parse(a.inFavCounter!))); break;
 
     }
 
   }
 
-   */
+
 
   static Future<Event> getEventById(String eventId) async {
 
