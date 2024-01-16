@@ -1,3 +1,4 @@
+import 'package:dvij_flutter/classes/event_category_class.dart';
 import 'package:dvij_flutter/classes/place_category_class.dart';
 import 'package:dvij_flutter/classes/place_role_class.dart';
 import 'package:dvij_flutter/classes/role_in_app.dart';
@@ -33,6 +34,7 @@ void main() async {
   await Gender.getGenderAndSave();
   await RoleInApp.getRolesInAppAndSave();
   await PlaceCategory.getPlaceCategoryAndSave();
+  await EventCategory.getEventCategoryAndSave();
   await PlaceRole.getPlaceRolesAndSave();
 
   final FirebaseAuth auth = FirebaseAuth.instance;
