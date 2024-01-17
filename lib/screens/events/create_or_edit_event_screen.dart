@@ -1,57 +1,51 @@
 import 'dart:io';
-import 'package:dvij_flutter/classes/gender_class.dart';
+import 'package:dvij_flutter/classes/event_category_class.dart';
+import 'package:dvij_flutter/classes/event_type_enum.dart';
 import 'package:dvij_flutter/classes/place_category_class.dart';
 import 'package:dvij_flutter/classes/place_class.dart';
-import 'package:dvij_flutter/classes/place_role_class.dart';
-import 'package:dvij_flutter/elements/data_picker.dart';
-import 'package:dvij_flutter/elements/genders_elements/gender_element_in_edit_screen.dart';
-import 'package:dvij_flutter/elements/genders_elements/gender_picker_page.dart';
 import 'package:dvij_flutter/elements/category_element_in_edit_screen.dart';
+import 'package:dvij_flutter/elements/events_elements/event_category_picker_page.dart';
 import 'package:dvij_flutter/elements/places_elements/place_category_picker_page.dart';
-import 'package:dvij_flutter/elements/role_in_app_elements/role_in_app_element_in_edit_screen.dart';
-import 'package:dvij_flutter/elements/role_in_app_elements/role_in_app_picker_page.dart';
-import 'package:dvij_flutter/methods/date_functions.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:dvij_flutter/database_firebase/user_database.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import '../../classes/city_class.dart';
+import '../../classes/event_class.dart';
 import '../../classes/role_in_app.dart';
-import '../../classes/user_class.dart' as local_user;
 import '../../classes/user_class.dart';
 import '../../elements/choose_dialogs/city_choose_dialog.dart';
 import '../../elements/cities_elements/city_element_in_edit_screen.dart';
 import '../../elements/custom_snack_bar.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../elements/events_elements/event_type_tab_element.dart';
 import '../../elements/image_in_edit_screen.dart';
 import '../../elements/loading_screen.dart';
 import '../../image_Uploader/image_uploader.dart';
 import '../../image_uploader/image_picker.dart';
-import '../../themes/app_colors.dart';
 
-class CreateOrEditPlaceScreen extends StatefulWidget {
-  final Place placeInfo;
+class CreateOrEditEventScreen extends StatefulWidget {
+  final Event eventInfo;
 
-  const CreateOrEditPlaceScreen({Key? key, required this.placeInfo}) : super(key: key);
+  const CreateOrEditEventScreen({Key? key, required this.eventInfo}) : super(key: key);
 
 
 
   @override
-  _CreateOrEditPlaceScreenState createState() => _CreateOrEditPlaceScreenState();
+  _CreateOrEditEventScreenState createState() => _CreateOrEditEventScreenState();
 
 }
 
 // ----- ЭКРАН РЕДАКТИРОВАНИЯ ПРОФИЛЯ -------
 
-class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
+class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
   // Инициализируем классы
+  // TODO - эти классы так надо инициализировать? помоему можно будет просто обращаться к ним и все
   final ImagePickerService imagePickerService = ImagePickerService();
   final ImageUploader imageUploader = ImageUploader();
 
-  late TextEditingController nameController;
+  late TextEditingController headlineController;
   late TextEditingController descController;
-  //late String category;
   late City chosenCity;
   late TextEditingController streetController;
   late TextEditingController houseController;
@@ -62,25 +56,9 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
   late TextEditingController cityController;
   late TextEditingController imageController;
 
-
-  late String placeId;
+  late String eventId;
   late String creatorId;
   late String createdTime;
-
-  String mondayStartTime = 'Выходной';
-  String mondayFinishTime = 'Выходной';
-  String tuesdayStartTime = 'Выходной';
-  String tuesdayFinishTime = 'Выходной';
-  String wednesdayStartTime = 'Выходной';
-  String wednesdayFinishTime = 'Выходной';
-  String thursdayStartTime = 'Выходной';
-  String thursdayFinishTime = 'Выходной';
-  String fridayStartTime = 'Выходной';
-  String fridayFinishTime = 'Выходной';
-  String saturdayStartTime = 'Выходной';
-  String saturdayFinishTime = 'Выходной';
-  String sundayStartTime = 'Выходной';
-  String sundayFinishTime = 'Выходной';
 
   File? _imageFile;
 
@@ -88,13 +66,20 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
   late RoleInApp chosenRoleInApp;
   late int accessLevel;
 
+  EventTypeEnum eventTypeEnum = EventTypeEnum.once;
+
   // ПЕРЕМЕННЫЕ ВРЕМЕНИ РАБОТЫ?
 
   bool loading = true;
+  bool saving = false;
+  bool tab1 = true;
+  bool tab2 = false;
+  bool tab3 = false;
+  bool tab4 = false;
 
   List<City> _cities = [];
-  List<PlaceCategory> _categories = [];
-  late PlaceCategory chosenCategory;
+  List<EventCategory> _categories = [];
+  late EventCategory chosenCategory;
 
   /*String _selectedStartTime = "Выходной";
   String _selectedEndTime = "Выходной";*/
@@ -155,10 +140,10 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
 
   // --- Функция перехода на страницу профиля ----
 
-  void navigateToPlaces() {
+  void navigateToEvents() {
     Navigator.pushNamedAndRemoveUntil(
       context,
-      '/Places',
+      '/Events',
           (route) => false,
     );
   }
@@ -191,134 +176,68 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
   void initState() {
     super.initState();
     loading = true;
-    _categories = PlaceCategory.currentPlaceCategoryList;
+    _categories = EventCategory.currentEventCategoryList;
 
     accessLevel = UserCustom.accessLevel;
 
-    if (widget.placeInfo.id == '') {
+    eventTypeEnum = Event.getEventTypeEnum(widget.eventInfo.eventType);
 
-      DatabaseReference placeReference = FirebaseDatabase.instance.ref().child('places');
+    if (widget.eventInfo.id == '') {
+
+      DatabaseReference eventReference = FirebaseDatabase.instance.ref().child('events');
 
       // --- Генерируем уникальный ключ ---
-      DatabaseReference newPlaceReference = placeReference.push();
+      DatabaseReference newEventReference = eventReference.push();
       // ---- Получаем уникальный ключ ----
-      placeId = newPlaceReference.key!; // Получаем уникальный ключ
+      eventId = newEventReference.key!; // Получаем уникальный ключ
 
     } else {
 
-      placeId = widget.placeInfo.id;
+      eventId = widget.eventInfo.id;
 
     }
 
-    if (widget.placeInfo.creatorId == '') {
+    if (widget.eventInfo.creatorId == '') {
 
       creatorId = UserCustom.currentUser!.uid;
 
     } else {
 
-      creatorId = widget.placeInfo.creatorId;
+      creatorId = widget.eventInfo.creatorId;
 
     }
 
-    if (widget.placeInfo.createDate == ''){
+    if (widget.eventInfo.createDate == ''){
       DateTime now = DateTime.now();
       createdTime = '${now.day}.${now.month}.${now.year}';
     }
     else {
-      createdTime = widget.placeInfo.createDate;
+      createdTime = widget.eventInfo.createDate;
     }
 
     // Подгружаем в контроллеры содержимое из БД.
     Future.delayed(Duration.zero, () async {
 
       //category = '';
-      nameController = TextEditingController(text: widget.placeInfo.name);
-      descController = TextEditingController(text: widget.placeInfo.desc);
+      headlineController = TextEditingController(text: widget.eventInfo.headline);
+      descController = TextEditingController(text: widget.eventInfo.desc);
 
-      phoneController = TextEditingController(text: widget.placeInfo.phone);
-      whatsappController = TextEditingController(text: widget.placeInfo.whatsapp);
-      telegramController = TextEditingController(text: widget.placeInfo.telegram);
-      instagramController = TextEditingController(text: widget.placeInfo.instagram);
-      cityController = TextEditingController(text: widget.placeInfo.city);
-      streetController = TextEditingController(text: widget.placeInfo.street);
-      houseController = TextEditingController(text: widget.placeInfo.house);
+      phoneController = TextEditingController(text: widget.eventInfo.phone);
+      whatsappController = TextEditingController(text: widget.eventInfo.whatsapp);
+      telegramController = TextEditingController(text: widget.eventInfo.telegram);
+      instagramController = TextEditingController(text: widget.eventInfo.instagram);
+      cityController = TextEditingController(text: widget.eventInfo.city);
+      streetController = TextEditingController(text: widget.eventInfo.street);
+      houseController = TextEditingController(text: widget.eventInfo.house);
 
-      imageController = TextEditingController(text: widget.placeInfo.imageUrl);
+      imageController = TextEditingController(text: widget.eventInfo.imageUrl);
 
       _cities = City.currentCityList;
-      _categories = PlaceCategory.currentPlaceCategoryList;
+      _categories = EventCategory.currentEventCategoryList;
 
-      chosenCategory = PlaceCategory.getPlaceCategoryFromCategoriesList(widget.placeInfo.category);
+      chosenCategory = EventCategory.getEventCategoryFromCategoriesList(widget.eventInfo.category);
 
-      chosenCity = City.getCityNameInCitiesList(widget.placeInfo.city);
-
-      if (widget.placeInfo.mondayStartTime != '')
-        {
-          mondayStartTime = widget.placeInfo.mondayStartTime;
-        }
-      if (widget.placeInfo.mondayFinishTime != '')
-        {
-          mondayFinishTime = widget.placeInfo.mondayFinishTime;
-        }
-
-      if (widget.placeInfo.tuesdayStartTime != '')
-      {
-        tuesdayStartTime = widget.placeInfo.tuesdayStartTime;
-      }
-      if (widget.placeInfo.tuesdayFinishTime != '')
-      {
-        tuesdayFinishTime = widget.placeInfo.tuesdayFinishTime;
-      }
-
-      if (widget.placeInfo.wednesdayStartTime != '')
-      {
-        wednesdayStartTime = widget.placeInfo.wednesdayStartTime;
-      }
-      if (widget.placeInfo.wednesdayFinishTime != '')
-      {
-        wednesdayFinishTime = widget.placeInfo.wednesdayFinishTime;
-      }
-
-      if (widget.placeInfo.thursdayStartTime != '')
-      {
-        thursdayStartTime = widget.placeInfo.thursdayStartTime;
-      }
-      if (widget.placeInfo.thursdayFinishTime != '')
-      {
-        thursdayFinishTime = widget.placeInfo.thursdayFinishTime;
-      }
-
-      if (widget.placeInfo.fridayStartTime != '')
-      {
-        fridayStartTime = widget.placeInfo.fridayStartTime;
-      }
-      if (widget.placeInfo.fridayFinishTime != '')
-      {
-        fridayFinishTime = widget.placeInfo.fridayFinishTime;
-      }
-
-      if (widget.placeInfo.saturdayStartTime != '')
-      {
-        saturdayStartTime = widget.placeInfo.saturdayStartTime;
-      }
-      if (widget.placeInfo.saturdayFinishTime != '')
-      {
-        saturdayFinishTime = widget.placeInfo.saturdayFinishTime;
-      }
-
-      if (widget.placeInfo.sundayStartTime != '')
-      {
-        sundayStartTime = widget.placeInfo.sundayStartTime;
-      }
-      if (widget.placeInfo.sundayFinishTime != '')
-      {
-        sundayFinishTime = widget.placeInfo.sundayFinishTime;
-      }
-
-      /*if (widget.placeInfo.category != '')
-        {
-          category = PlaceCategory.getPlaceCategoryName(widget.placeInfo.category);
-        }*/
+      chosenCity = City.getCityNameInCitiesList(widget.eventInfo.city);
 
       setState(() {
         loading = false;
@@ -352,11 +271,12 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(widget.placeInfo.id != '' ? 'Редактирование места' : 'Создание места'),
+          title: Text(widget.eventInfo.id != '' ? 'Редактирование мероприятия' : 'Создание мероприятия'),
         ),
         body: Stack (
             children: [
               if (loading) const LoadingScreen(loadingText: 'Подожди, идет загрузка данных',)
+              else if (saving) const LoadingScreen(loadingText: 'Подожди, идет сохранение данных',)
               else SingleChildScrollView(
                 padding: const EdgeInsets.all(20),
                 child: Column(
@@ -372,9 +292,9 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
                     )
 
                     // Картинка из БД
-                    else if (_imageFile == null && widget.placeInfo.imageUrl != '' ) ImageInEditScreen(
+                    else if (_imageFile == null && widget.eventInfo.imageUrl != '' ) ImageInEditScreen(
                       onEditPressed: () => _pickImage(),
-                      backgroundImageUrl: widget.placeInfo.imageUrl,
+                      backgroundImageUrl: widget.eventInfo.imageUrl,
                     ),
 
                     const SizedBox(height: 16.0),
@@ -383,9 +303,9 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
                     TextField(
                       style: Theme.of(context).textTheme.bodyMedium,
                       keyboardType: TextInputType.text,
-                      controller: nameController,
+                      controller: headlineController,
                       decoration: const InputDecoration(
-                        labelText: 'Название места',
+                        labelText: 'Название мероприятия',
                       ),
                     ),
 
@@ -404,6 +324,86 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
                         // Вы можете добавить здесь любой код, который нужно выполнить при нажатии Enter
                       },
                     ),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        EventTypeTabElement(
+                            onTap: (){
+                              setState(() {
+                                tab1 = true;
+                                tab2 = false;
+                                tab3 = false;
+                                tab4 = false;
+                              });
+                            },
+                            text: 'Разовое',
+                            active: tab1
+                        ),
+                        EventTypeTabElement(
+                            onTap: (){
+                              setState(() {
+                                tab2 = true;
+                                tab1 = false;
+                                tab3 = false;
+                                tab4 = false;
+                              });
+                            },
+                            text: 'Длительное',
+                            active: tab2
+                        ),
+                        EventTypeTabElement(
+                            onTap: (){
+                              setState(() {
+                                tab3 = true;
+                                tab2 = false;
+                                tab1 = false;
+                                tab4 = false;
+                              });
+                            },
+                            text: 'Регулярное',
+                            active: tab3
+                        ),
+                        EventTypeTabElement(
+                            onTap: (){
+                              setState(() {
+                                tab4 = true;
+                                tab2 = false;
+                                tab3 = false;
+                                tab1 = false;
+                              });
+                            },
+                            text: 'Разные даты',
+                            active: tab4
+                        ),
+                      ],
+                    ),
+
+                    if (tab1) Column(
+                      children: [
+                        Text('tab1')
+                      ],
+                    ),
+
+                    if (tab2) Column(
+                      children: [
+                        Text('tab2')
+                      ],
+                    ),
+
+                    if (tab3) Column(
+                      children: [
+                        Text('tab3')
+                      ],
+                    ),
+
+                    if (tab4) Column(
+                      children: [
+                        Text('tab4')
+                      ],
+                    ),
+
+                    //EventTypeTabsWidget(eventType: eventTypeEnum),
 
                     const SizedBox(height: 16.0),
 
@@ -444,6 +444,10 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
                     ),
 
                     const SizedBox(height: 16.0),
+
+                    // TODO - Сделать Переключалку - выбор места или ввод адреса
+                    // TODO - Сделать если редактирование то автоматический выбор переключалки
+
 
                     TextField(
                       style: Theme.of(context).textTheme.bodyMedium,
@@ -504,157 +508,6 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 30.0),
-
-                    Text('Режим работы:', style: Theme.of(context).textTheme.titleMedium,),
-
-                    const SizedBox(height: 16.0),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: <Widget>[
-                        Text('ПН:', style: Theme.of(context).textTheme.bodyMedium,),
-                        SizedBox(width: 20.0),
-                        _buildTimeDropdown("Начало рабочего дня", mondayStartTime, (String? time) {
-                          setState(() {
-                            mondayStartTime = time!;
-                          });
-                        }),
-                        SizedBox(width: 30.0),
-                        _buildTimeDropdown("Конец рабочего дня", mondayFinishTime, (String? time) {
-                          setState(() {
-                            mondayFinishTime = time!;
-                          });
-                        }),
-                      ],
-                    ),
-
-                    const SizedBox(height: 16.0),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: <Widget>[
-                        Text('ВТ:', style: Theme.of(context).textTheme.bodyMedium,),
-                        SizedBox(width: 20.0),
-                        _buildTimeDropdown("Начало рабочего дня", tuesdayStartTime, (String? time) {
-                          setState(() {
-                            tuesdayStartTime = time!;
-                          });
-                        }),
-                        SizedBox(width: 30.0),
-                        _buildTimeDropdown("Конец рабочего дня", tuesdayFinishTime, (String? time) {
-                          setState(() {
-                            tuesdayFinishTime = time!;
-                          });
-                        }),
-                      ],
-                    ),
-
-                    const SizedBox(height: 16.0),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: <Widget>[
-                        Text('СР:', style: Theme.of(context).textTheme.bodyMedium,),
-                        SizedBox(width: 20.0),
-                        _buildTimeDropdown("Начало рабочего дня", wednesdayStartTime, (String? time) {
-                          setState(() {
-                            wednesdayStartTime = time!;
-                          });
-                        }),
-                        SizedBox(width: 30.0),
-                        _buildTimeDropdown("Конец рабочего дня", wednesdayFinishTime, (String? time) {
-                          setState(() {
-                            wednesdayFinishTime = time!;
-                          });
-                        }),
-                      ],
-                    ),
-
-                    const SizedBox(height: 16.0),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: <Widget>[
-                        Text('ЧТ:', style: Theme.of(context).textTheme.bodyMedium,),
-                        SizedBox(width: 20.0),
-                        _buildTimeDropdown("Начало рабочего дня", thursdayStartTime, (String? time) {
-                          setState(() {
-                            thursdayStartTime = time!;
-                          });
-                        }),
-                        SizedBox(width: 30.0),
-                        _buildTimeDropdown("Конец рабочего дня", thursdayFinishTime, (String? time) {
-                          setState(() {
-                            thursdayFinishTime = time!;
-                          });
-                        }),
-                      ],
-                    ),
-
-                    const SizedBox(height: 16.0),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: <Widget>[
-                        Text('ПТ:', style: Theme.of(context).textTheme.bodyMedium,),
-                        SizedBox(width: 20.0),
-                        _buildTimeDropdown("Начало рабочего дня", fridayStartTime, (String? time) {
-                          setState(() {
-                            fridayStartTime = time!;
-                          });
-                        }),
-                        SizedBox(width: 30.0),
-                        _buildTimeDropdown("Конец рабочего дня", fridayFinishTime, (String? time) {
-                          setState(() {
-                            fridayFinishTime = time!;
-                          });
-                        }),
-                      ],
-                    ),
-
-                    const SizedBox(height: 16.0),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: <Widget>[
-                        Text('СБ:', style: Theme.of(context).textTheme.bodyMedium,),
-                        SizedBox(width: 20.0),
-                        _buildTimeDropdown("Начало рабочего дня", saturdayStartTime, (String? time) {
-                          setState(() {
-                            saturdayStartTime = time!;
-                          });
-                        }),
-                        SizedBox(width: 30.0),
-                        _buildTimeDropdown("Конец рабочего дня", saturdayFinishTime, (String? time) {
-                          setState(() {
-                            saturdayFinishTime = time!;
-                          });
-                        }),
-                      ],
-                    ),
-
-                    const SizedBox(height: 16.0),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: <Widget>[
-                        Text('ВС:', style: Theme.of(context).textTheme.bodyMedium,),
-                        SizedBox(width: 20.0),
-                        _buildTimeDropdown("Начало рабочего дня", sundayStartTime, (String? time) {
-                          setState(() {
-                            sundayStartTime = time!;
-                          });
-                        }),
-                        SizedBox(width: 30.0),
-                        _buildTimeDropdown("Конец рабочего дня", sundayFinishTime, (String? time) {
-                          setState(() {
-                            sundayFinishTime = time!;
-                          });
-                        }),
-                      ],
-                    ),
-
                     const SizedBox(height: 40.0),
 
                     // --- КНОПКА Сохранить изменения -------
@@ -665,7 +518,7 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
 
                         // Включаем экран загрузки
                         setState(() {
-                          loading = true;
+                          saving = true;
                         });
 
                         // Создаем переменную для нового аватара
@@ -680,7 +533,7 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
 
 
                           // Выгружаем изображение в БД и получаем URL картинки
-                          avatarURL = await imageUploader.uploadImageInPlace(placeId, compressedImage);
+                          avatarURL = await imageUploader.uploadImageInPlace(eventId, compressedImage);
 
                           // Если URL аватарки есть
                           if (avatarURL != null) {
@@ -690,9 +543,10 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
                           }
                         }
 
-                        Place place = Place(
-                            id: placeId,
-                            name: nameController.text,
+                        Event event = Event(
+                            id: eventId,
+                            eventType: 'eventType', // сделать функционал
+                            headline: headlineController.text,
                             desc: descController.text,
                             creatorId: creatorId,
                             createDate: createdTime,
@@ -704,54 +558,46 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
                             whatsapp: whatsappController.text,
                             telegram: telegramController.text,
                             instagram: instagramController.text,
-                            imageUrl: avatarURL ?? widget.placeInfo.imageUrl,
-                            mondayStartTime: mondayStartTime,
-                            mondayFinishTime: mondayFinishTime,
-                            tuesdayStartTime: tuesdayStartTime,
-                            tuesdayFinishTime: tuesdayFinishTime,
-                            wednesdayStartTime: wednesdayStartTime,
-                            wednesdayFinishTime: wednesdayFinishTime,
-                            thursdayStartTime: thursdayStartTime,
-                            thursdayFinishTime: thursdayFinishTime,
-                            fridayStartTime: fridayStartTime,
-                            fridayFinishTime: fridayFinishTime,
-                            saturdayStartTime: saturdayStartTime,
-                            saturdayFinishTime: saturdayFinishTime,
-                            sundayStartTime: sundayStartTime,
-                            sundayFinishTime: sundayFinishTime
+                            imageUrl: avatarURL ?? widget.eventInfo.imageUrl,
+                            placeId: 'placeId', // сделать функционал
+                            startDate: 'startDate', // сделать функционал
+                            endDate: 'endDate', // сделать функционал
+                            startTime: 'startTime', // сделать функционал
+                            endTime: 'endTime', // сделать функционал
+                            price: 'price' // сделать функционал
                         );
 
                         // Выгружаем пользователя в БД
-                        String? editInDatabase = await Place.createOrEditPlace(place);
+                        String? editInDatabase = await Event.createOrEditEvent(event);
 
                         // Если выгрузка успешна
                         if (editInDatabase == 'success') {
 
-                          Place newPlace = await Place.getPlaceById(placeId);
+                          Event newEvent = await Event.getEventById(eventId);
 
                           // Если в передаваемом месте нет имени, т.е это создание
-                          if (widget.placeInfo.name == ''){
+                          if (widget.eventInfo.headline == ''){
                             // То добавляем в списки новое созданное место
-                            Place.currentFeedPlaceList.add(newPlace);
-                            Place.currentMyPlaceList.add(newPlace);
+
+                            Event.currentFeedEventsList.add(newEvent);
+                            Event.currentMyEventsList.add(newEvent);
+
                           } else {
 
-
                             // Если редактирование то удаляем старые неотредактированные данные
-                            Place.deletePlaceFormCurrentPlaceLists(placeId);
+                            Event.deleteEventFromCurrentEventLists(eventId);
 
                             // Добавляем обновленное
-                            Place.currentFeedPlaceList.add(newPlace);
-                            Place.currentMyPlaceList.add(newPlace);
-                            if (bool.parse(newPlace.inFav!)) Place.currentFavPlaceList.add(newPlace);
+                            Event.currentFeedEventsList.add(newEvent);
+                            Event.currentMyEventsList.add(newEvent);
+                            if (bool.parse(newEvent.inFav!)) Event.currentFavEventsList.add(newEvent);
 
                           }
 
 
-
                           // Выключаем экран загрузки
                           setState(() {
-                            loading = false;
+                            saving = false;
                           });
                           // Показываем всплывающее сообщение
                           showSnackBar(
@@ -761,7 +607,7 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
                           );
 
                           // Уходим в профиль
-                          navigateToPlaces();
+                          navigateToEvents();
 
                         }
 
@@ -825,12 +671,12 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
     }
   }
 
-  Route _createPopupCategory(List<PlaceCategory> categories) {
+  Route _createPopupCategory(List<EventCategory> categories) {
     return PageRouteBuilder(
 
       pageBuilder: (context, animation, secondaryAnimation) {
 
-        return PlaceCategoryPickerPage(categories: categories);
+        return EventCategoryPickerPage(categories: categories);
       },
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const begin = Offset(0.0, 1.0);

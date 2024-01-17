@@ -1,4 +1,5 @@
 import 'package:dvij_flutter/classes/city_class.dart';
+import 'package:dvij_flutter/classes/event_type_enum.dart';
 import 'package:dvij_flutter/classes/place_category_class.dart';
 import 'package:dvij_flutter/classes/place_sorting_options.dart';
 import 'package:dvij_flutter/classes/user_class.dart';
@@ -10,25 +11,26 @@ import 'event_sorting_options.dart';
 
 class Event {
   String id;
+  String eventType;
   String headline;
   String desc;
   String creatorId;
   String createDate;
   String category;
   String city;
-  String? street;
-  String? house;
+  String street;
+  String house;
   String phone;
   String whatsapp; // Формат даты (например, "yyyy-MM-dd")
   String telegram;
   String instagram;
   String imageUrl;
-  String? placeId;
+  String placeId;
   String startDate;
   String endDate;
   String startTime;
   String endTime;
-  String? price;
+  String price;
   String? addedToFavouritesCount;
   String? canEdit;
   String? inFav;
@@ -37,25 +39,26 @@ class Event {
 
   Event({
     required this.id,
+    required this.eventType,
     required this.headline,
     required this.desc,
     required this.creatorId,
     required this.createDate,
     required this.category,
     required this.city,
-    this.street,
-    this.house,
+    required this.street,
+    required this.house,
     required this.phone,
     required this.whatsapp,
     required this.telegram,
     required this.instagram,
     required this.imageUrl,
-    this.placeId,
+    required this.placeId,
     required this.startDate,
     required this.endDate,
     required this.startTime,
     required this.endTime,
-    this.price,
+    required this.price,
     this.addedToFavouritesCount,
     this.canEdit,
     this.inFav,
@@ -67,6 +70,7 @@ class Event {
   factory Event.fromSnapshot(DataSnapshot snapshot) {
     // Указываем путь к нашим полям
     DataSnapshot idSnapshot = snapshot.child('id');
+    DataSnapshot eventTypeSnapshot = snapshot.child('eventType');
     DataSnapshot headlineSnapshot = snapshot.child('headline');
     DataSnapshot descSnapshot = snapshot.child('desc');
     DataSnapshot creatorIdSnapshot = snapshot.child('creatorId');
@@ -89,6 +93,7 @@ class Event {
 
     return Event(
         id: idSnapshot.value.toString() ?? '',
+        eventType: eventTypeSnapshot.value.toString() ?? '',
         headline: headlineSnapshot.value.toString() ?? '',
         desc: descSnapshot.value.toString() ?? '',
         creatorId: creatorIdSnapshot.value.toString() ?? '',
@@ -117,6 +122,7 @@ class Event {
 
   static Event emptyEvent = Event(
       id: '',
+      eventType: '',
       headline: '',
       desc: '',
       creatorId: '',
@@ -142,6 +148,7 @@ class Event {
   factory Event.empty() {
     return Event(
         id: '',
+        eventType: '',
         headline: '',
         desc: '',
         creatorId: '',
@@ -288,6 +295,7 @@ class Event {
 
       String favCount = await Event.getFavCount(event.id);
       String inFav = await Event.addedInFavOrNot(event.id);
+      //bool fromPlace = eventFromPlace(event.placeId);
 
       event.inFav = inFav;
       event.addedToFavouritesCount = favCount;
@@ -301,6 +309,10 @@ class Event {
     // Возвращаем список
     return events;
   }
+
+  /*static bool eventFromPlace (String placeId) {
+    return placeId != '';
+  }*/
 
   static Future<List<Event>> getFavEvents(String userId) async {
 
@@ -651,7 +663,7 @@ class Event {
 
   }
 
-  static void deleteEventFormCurrentEventLists(String eventId){
+  static void deleteEventFromCurrentEventLists(String eventId){
     // ---- Функция обновления списка из БД при добавлении или удалении из избранного
 
     currentFeedEventsList.removeWhere((event) => event.id == eventId);
@@ -746,6 +758,28 @@ class Event {
     }
   }
 
+  static EventTypeEnum getEventTypeEnum (String eventType) {
+    switch (eventType){
 
+      case 'once': return EventTypeEnum.once;
+      case 'long': return EventTypeEnum.long;
+      case 'regular': return EventTypeEnum.regular;
+      case 'irregular': return EventTypeEnum.irregular;
+      default: return EventTypeEnum.once;
+
+    }
+  }
+
+  static String getNameEventTypeEnum (EventTypeEnum enumItem) {
+
+    switch (enumItem){
+
+      case EventTypeEnum.once: return 'once';
+      case EventTypeEnum.long: return 'long';
+      case EventTypeEnum.regular: return 'regular';
+      case EventTypeEnum.irregular: return 'irregular';
+
+    }
+  }
 
 }

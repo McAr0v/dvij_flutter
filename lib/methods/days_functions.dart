@@ -30,6 +30,23 @@ bool isPlaceOpen(String startTime, String endTime, /*DateTime currentDate*/) {
   return currentDate.isAfter(start) && currentDate.isBefore(end);
 }
 
+bool isEventToday(String startTime, String endTime, /*DateTime currentDate*/) {
+  DateTime currentDate = DateTime.now().add(const Duration(hours: 6));
+  DateTime start = DateTime(currentDate.year, currentDate.month, currentDate.day, int.parse(startTime.split(':')[0]), int.parse(startTime.split(':')[1]));
+  DateTime end = DateTime(currentDate.year, currentDate.month, currentDate.day, int.parse(endTime.split(':')[0]), int.parse(endTime.split(':')[1]));
+
+  if (end.isBefore(start)) {
+    end = end.add(Duration(days: 1));
+  }
+
+  print("Current time: $currentDate");
+  print("Start time: $start");
+  print("End time: $end");
+
+
+  return currentDate.isAfter(start) && currentDate.isBefore(end);
+}
+
 /*bool isPlaceOpen(String startTime, String endTime) {
   DateTime currentDate = DateTime.now();
 
