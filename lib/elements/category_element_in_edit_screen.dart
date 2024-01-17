@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../../themes/app_colors.dart';
+import '../themes/app_colors.dart';
 
-class PlaceCategoryElementInEditPlaceScreen extends StatelessWidget {
+class CategoryElementInEditScreen extends StatelessWidget {
   final String? categoryName;
   final VoidCallback onActionPressed;
 
-  PlaceCategoryElementInEditPlaceScreen({required this.onActionPressed, this.categoryName});
+  CategoryElementInEditScreen({required this.onActionPressed, this.categoryName});
 
 
 

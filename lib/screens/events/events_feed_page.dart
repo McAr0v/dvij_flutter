@@ -3,6 +3,7 @@ import 'package:dvij_flutter/classes/event_category_class.dart';
 import 'package:dvij_flutter/classes/event_sorting_options.dart';
 import 'package:dvij_flutter/classes/place_category_class.dart';
 import 'package:dvij_flutter/classes/place_class.dart';
+import 'package:dvij_flutter/elements/events_elements/event_filter_page.dart';
 import 'package:dvij_flutter/elements/places_elements/place_card_widget.dart';
 import 'package:dvij_flutter/elements/places_elements/place_filter_page.dart';
 import 'package:dvij_flutter/screens/places/place_view_screen.dart';
@@ -13,6 +14,7 @@ import '../../classes/event_class.dart';
 import '../../classes/place_sorting_options.dart';
 import '../../classes/user_class.dart';
 import '../../elements/custom_snack_bar.dart';
+import '../../elements/events_elements/event_card_widget.dart';
 import '../../elements/loading_screen.dart';
 
 
@@ -256,29 +258,25 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
                             padding: const EdgeInsets.all(15.0),
                             itemCount: eventsList.length,
                             itemBuilder: (context, index) {
-                              return PlaceCardWidget(
-                                // TODO Сделать обновление иконки избранного и счетчика при возврате из экрана просмотра заведения
-                                place: eventsList[index],
+                              return EventCardWidget(
+                                  event: eventsList[index], 
+                                  onTap: () async {
 
-                                onTap: () async {
+                                    // TODO - переделать на мероприятия
+                                    final results = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => PlaceViewScreen(placeId: eventsList[index].id),
+                                      ),
+                                    );
 
-                                  final results = await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => PlaceViewScreen(placeId: eventsList[index].id),
-                                    ),
-                                  );
-
-                                  if (results != null) {
-                                    setState(() {
-                                      eventsList[index].inFav = results[0].toString();
-                                      eventsList[index].addedToFavouritesCount = results[1].toString();
-                                    });
-                                  }
-
-                                  //final results = await Navigator.of(context).push(_createPopupFilter(placeCategoriesList));
-
-                                },
+                                    if (results != null) {
+                                      setState(() {
+                                        eventsList[index].inFav = results[0].toString();
+                                        eventsList[index].addedToFavouritesCount = results[1].toString();
+                                      });
+                                    }
+                                  },
 
                                 // --- Функция на нажатие на карточке кнопки ИЗБРАННОЕ ---
                                 onFavoriteIconPressed: () async {
@@ -297,7 +295,7 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
                                     if (eventsList[index].inFav == 'true')
                                     {
                                       // --- Удаляем из избранных ---
-                                      String resDel = await Place.deletePlaceFromFav(eventsList[index].id);
+                                      String resDel = await Event.deleteEventFromFav(eventsList[index].id);
                                       // ---- Инициализируем счетчик -----
                                       int favCounter = int.parse(eventsList[index].addedToFavouritesCount!);
 
@@ -309,7 +307,7 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
                                           favCounter --;
                                           eventsList[index].addedToFavouritesCount = favCounter.toString();
                                           // Обновляем общий список из БД
-                                          Place.updateCurrentPlaceListFavInformation(eventsList[index].id, favCounter.toString(), 'false');
+                                          Event.updateCurrentEventListFavInformation(eventsList[index].id, favCounter.toString(), 'false');
 
                                         });
                                         showSnackBar('Удалено из избранных', AppColors.attentionRed, 1);
@@ -322,7 +320,8 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
                                       // --- Если заведение не в избранном ----
 
                                       // -- Добавляем в избранное ----
-                                      String res = await Place.addPlaceToFav(eventsList[index].id);
+                                      String res = await Event.addEventToFav(eventsList[index].id);
+
                                       // ---- Инициализируем счетчик добавивших в избранное
                                       int favCounter = int.parse(eventsList[index].addedToFavouritesCount!);
 
@@ -334,7 +333,7 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
                                           favCounter ++;
                                           eventsList[index].addedToFavouritesCount = favCounter.toString();
                                           // Обновляем список из БД
-                                          Place.updateCurrentPlaceListFavInformation(eventsList[index].id, favCounter.toString(), 'true');
+                                          Event.updateCurrentEventListFavInformation(eventsList[index].id, favCounter.toString(), 'true');
                                         });
 
                                         showSnackBar('Добавлено в избранные', Colors.green, 1);
@@ -406,21 +405,21 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
         eventCategoryFromFilter = results[1];
         freePrice = results [2];
         today = results [3];
-        havePromosFromFilter = results [4];
+        onlyFromPlaceEvents = results [4];
         eventsList = [];
 
         // ---- Обновляем счетчик выбранных настроек ----
-        _setFiltersCount(eventCategoryFromFilter, cityFromFilter, freePrice, today, havePromosFromFilter);
+        _setFiltersCount(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents);
 
       });
 
       // --- Заново подгружаем список из БД ---
-      List<Place> tempList = [];
-      tempList = Place.currentFeedPlaceList;
+      List<Event> tempList = [];
+      tempList = Event.currentFeedEventsList;
 
       // --- Фильтруем список согласно новым выбранным данным из фильтра ----
       setState(() {
-        eventsList = Place.filterPlaces(eventCategoryFromFilter, cityFromFilter, freePrice, today, havePromosFromFilter, tempList);
+        eventsList = Event.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempList);
       });
 
       setState(() {
@@ -431,19 +430,19 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
 
   // ----- Путь для открытия всплывающей страницы фильтра ----
 
-  Route _createPopupFilter(List<PlaceCategory> categories) {
+  Route _createPopupFilter(List<EventCategory> categories) {
     return PageRouteBuilder(
 
       pageBuilder: (context, animation, secondaryAnimation) {
 
         // --- Сама страница фильтра ---
-        return PlaceFilterPage(
-          categories: categories,
-          chosenCategory: eventCategoryFromFilter,
-          chosenCity: cityFromFilter,
-          nowIsOpen: freePrice,
-          haveEvents: today,
-          havePromos: havePromosFromFilter,
+        return EventFilterPage(
+            categories: categories,
+            chosenCategory: eventCategoryFromFilter,
+            chosenCity: cityFromFilter,
+            freePrice: freePrice,
+            onlyFromPlaceEvents: onlyFromPlaceEvents,
+            today: today
         );
       },
       transitionsBuilder: (context, animation, secondaryAnimation, child) {

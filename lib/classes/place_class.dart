@@ -525,6 +525,10 @@ class Place {
 
       case PlaceSortingOption.eventCountDesc: places.sort((a, b) => int.parse(b.eventsCount!).compareTo(int.parse(a.eventsCount!))); break;
 
+      case PlaceSortingOption.favCountAsc: places.sort((a, b) => int.parse(a.addedToFavouritesCount!).compareTo(int.parse(b.addedToFavouritesCount!))); break;
+
+      case PlaceSortingOption.favCountDesc: places.sort((a, b) => int.parse(b.addedToFavouritesCount!).compareTo(int.parse(a.addedToFavouritesCount!))); break;
+
     }
 
   }

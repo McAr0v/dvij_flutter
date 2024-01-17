@@ -1,46 +1,49 @@
+import 'package:dvij_flutter/classes/event_category_class.dart';
 import 'package:dvij_flutter/classes/place_category_class.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/elements/category_element_in_edit_screen.dart';
+import 'package:dvij_flutter/elements/events_elements/event_category_picker_page.dart';
 import 'package:dvij_flutter/elements/places_elements/place_category_picker_page.dart';
 import 'package:flutter/material.dart';
 import '../../classes/city_class.dart';
+import '../../classes/event_sorting_options.dart';
 import '../../classes/place_sorting_options.dart';
 import '../../themes/app_colors.dart';
 import '../choose_dialogs/city_choose_dialog.dart';
 import '../cities_elements/city_element_in_edit_screen.dart';
 
-class PlaceFilterPage extends StatefulWidget {
-  final List<PlaceCategory> categories;
-  PlaceCategory chosenCategory;
+class EventFilterPage extends StatefulWidget {
+  final List<EventCategory> categories;
+  EventCategory chosenCategory;
   City chosenCity;
-  bool nowIsOpen;
-  bool haveEvents;
-  bool havePromos;
+  bool freePrice;
+  bool today;
+  bool onlyFromPlaceEvents;
 
-  PlaceFilterPage({
+  EventFilterPage({super.key,
     required this.categories,
     required this.chosenCategory,
     required this.chosenCity,
-    required this.nowIsOpen,
-    required this.havePromos,
-    required this.haveEvents
+    required this.freePrice,
+    required this.onlyFromPlaceEvents,
+    required this.today
   });
 
   @override
-  _PlaceFilterPageState createState() => _PlaceFilterPageState();
+  _EventFilterPageState createState() => _EventFilterPageState();
 }
 
-class _PlaceFilterPageState extends State<PlaceFilterPage> {
+class _EventFilterPageState extends State<EventFilterPage> {
 
-  List<PlaceCategory> categories = [];
-  PlaceCategory chosenCategory = PlaceCategory(name: '', id: '');
+  List<EventCategory> categories = [];
+  EventCategory chosenCategory = EventCategory(name: '', id: '');
   City chosenCity = City(name: '', id: '');
   List<City> _cities = [];
 
-  bool nowIsOpen = false;
-  bool haveEvents = false;
-  bool havePromos = false;
-  PlaceSortingOption _selectedSortingOption = PlaceSortingOption.nameAsc;
+  bool freePrice = false;
+  bool today = false;
+  bool onlyFromPlaceEvents = false;
+  EventSortingOption _selectedSortingOption = EventSortingOption.nameAsc;
 
   @override
   void initState() {
@@ -49,9 +52,9 @@ class _PlaceFilterPageState extends State<PlaceFilterPage> {
     _cities = City.currentCityList;
     chosenCity = widget.chosenCity;
     chosenCategory = widget.chosenCategory;
-    nowIsOpen = widget.nowIsOpen;
-    haveEvents = widget.haveEvents;
-    havePromos = widget.havePromos;
+    freePrice = widget.freePrice;
+    today = widget.today;
+    onlyFromPlaceEvents = widget.onlyFromPlaceEvents;
   }
 
   @override
@@ -104,6 +107,8 @@ class _PlaceFilterPageState extends State<PlaceFilterPage> {
                         children: [
                           const SizedBox(height: 16.0),
 
+                          // TODO Сделать во всех фильтрах иконку крестик сброса отдельного значения, а не всего фильтра
+
                           if (chosenCity.id == '') CityElementInEditScreen(
                             cityName: 'Город не выбран',
                             onActionPressed: () {
@@ -144,14 +149,14 @@ class _PlaceFilterPageState extends State<PlaceFilterPage> {
                             children: [
 
                               Checkbox(
-                                value: nowIsOpen,
+                                value: freePrice,
                                 onChanged: (value) {
-                                  toggleCheckBox('nowIsOpen');
+                                  toggleCheckBox('freePrice');
                                 },
                               ),
                               // ---- Надпись у чекбокса -----
                               Text(
-                                'Сейчас открыто',
+                                'Только бесплатные',
                                 style: Theme.of(context).textTheme.bodyMedium,
                               )
 
@@ -162,14 +167,14 @@ class _PlaceFilterPageState extends State<PlaceFilterPage> {
                             children: [
 
                               Checkbox(
-                                value: haveEvents,
+                                value: today,
                                 onChanged: (value) {
-                                  toggleCheckBox('haveEvents');
+                                  toggleCheckBox('today');
                                 },
                               ),
                               // ---- Надпись у чекбокса -----
                               Text(
-                                'Есть мероприятия',
+                                'Состоится сегодня',
                                 style: Theme.of(context).textTheme.bodyMedium,
                               )
 
@@ -180,14 +185,14 @@ class _PlaceFilterPageState extends State<PlaceFilterPage> {
                             children: [
 
                               Checkbox(
-                                value: havePromos,
+                                value: onlyFromPlaceEvents,
                                 onChanged: (value) {
-                                  toggleCheckBox('havePromos');
+                                  toggleCheckBox('onlyFromPlaceEvents');
                                 },
                               ),
                               // ---- Надпись у чекбокса -----
                               Text(
-                                'Есть акции',
+                                'Только мероприятия от заведений',
                                 style: Theme.of(context).textTheme.bodyMedium,
                               )
 
@@ -203,7 +208,7 @@ class _PlaceFilterPageState extends State<PlaceFilterPage> {
               CustomButton(
                 buttonText: 'Применить фильтр',
                 onTapMethod: (){
-                  List<dynamic> arguments = [chosenCity, chosenCategory, nowIsOpen, haveEvents, havePromos];
+                  List<dynamic> arguments = [chosenCity, chosenCategory, freePrice, today, onlyFromPlaceEvents];
                   Navigator.of(context).pop(arguments);
                 },
               ),
@@ -227,11 +232,11 @@ class _PlaceFilterPageState extends State<PlaceFilterPage> {
                 state: 'error',
                 onTapMethod: (){
                   setState(() {
-                    chosenCategory = PlaceCategory(name: '', id: '');
+                    chosenCategory = EventCategory(name: '', id: '');
                     chosenCity = City(name: '', id: '');
-                    nowIsOpen = false;
-                    havePromos = false;
-                    haveEvents = false;
+                    freePrice = false;
+                    onlyFromPlaceEvents = false;
+                    today = false;
                   });
                 },
               ),
@@ -245,14 +250,14 @@ class _PlaceFilterPageState extends State<PlaceFilterPage> {
   void toggleCheckBox(String checkBoxName) {
     setState(() {
       switch (checkBoxName){
-        case 'nowIsOpen': {
-          nowIsOpen = !nowIsOpen;
+        case 'freePrice': {
+          freePrice = !freePrice;
         }
-        case 'haveEvents': {
-          haveEvents = !haveEvents;
+        case 'today': {
+          today = !today;
         }
-        case 'havePromos': {
-          havePromos = !havePromos;
+        case 'onlyFromPlaceEvents': {
+          onlyFromPlaceEvents = !onlyFromPlaceEvents;
         }
       }
     });
@@ -269,12 +274,12 @@ class _PlaceFilterPageState extends State<PlaceFilterPage> {
     }
   }
 
-  Route _createPopupCategory(List<PlaceCategory> categories) {
+  Route _createPopupCategory(List<EventCategory> categories) {
     return PageRouteBuilder(
 
       pageBuilder: (context, animation, secondaryAnimation) {
 
-        return PlaceCategoryPickerPage(categories: categories);
+        return EventCategoryPickerPage(categories: categories);
       },
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const begin = Offset(0.0, 1.0);

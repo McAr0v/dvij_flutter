@@ -214,6 +214,14 @@ class _PlacesFeedPageState extends State<PlacesFeedPage> {
                                     child: Text('По имени: Я-А'),
                                   ),
                                   DropdownMenuItem(
+                                    value: PlaceSortingOption.favCountAsc,
+                                    child: Text('В избранном: по возрастанию'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: PlaceSortingOption.favCountDesc,
+                                    child: Text('В избранном: по убыванию'),
+                                  ),
+                                  DropdownMenuItem(
                                     value: PlaceSortingOption.promoCountAsc,
                                     child: Text('Акции: по возрастанию'),
                                   ),

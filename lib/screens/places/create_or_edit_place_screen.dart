@@ -6,7 +6,7 @@ import 'package:dvij_flutter/classes/place_role_class.dart';
 import 'package:dvij_flutter/elements/data_picker.dart';
 import 'package:dvij_flutter/elements/genders_elements/gender_element_in_edit_screen.dart';
 import 'package:dvij_flutter/elements/genders_elements/gender_picker_page.dart';
-import 'package:dvij_flutter/elements/places_elements/place_category_element_in_edit_place_screen.dart';
+import 'package:dvij_flutter/elements/category_element_in_edit_screen.dart';
 import 'package:dvij_flutter/elements/places_elements/place_category_picker_page.dart';
 import 'package:dvij_flutter/elements/role_in_app_elements/role_in_app_element_in_edit_screen.dart';
 import 'package:dvij_flutter/elements/role_in_app_elements/role_in_app_picker_page.dart';
@@ -429,7 +429,7 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
 
                     // ---- ВОТ ТУТ ДЕЛАЮ ----
 
-                    if (chosenCategory.id == '') PlaceCategoryElementInEditPlaceScreen(
+                    if (chosenCategory.id == '') CategoryElementInEditScreen(
                       categoryName: 'Категория не выбрана',
                       onActionPressed: () {
                         //_showCityPickerDialog();
@@ -437,7 +437,7 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
                       },
                     ),
 
-                    if (chosenCategory.id != "") PlaceCategoryElementInEditPlaceScreen(
+                    if (chosenCategory.id != "") CategoryElementInEditScreen(
                       categoryName: chosenCategory.name,
                       onActionPressed: () {
                         //_showCityPickerDialog();
