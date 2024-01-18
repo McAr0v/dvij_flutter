@@ -277,6 +277,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       _selectDate(context, needClearInitialDate: true);
                       },
                       date: 'Дата не выбрана',
+                      labelText: 'Дата рождения',
                       )
 
                   else DataPickerCustom(
@@ -284,6 +285,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         _selectDate(context);
                       },
                     date: getHumanDate('${selectedDate.year}-${selectedDate.month}-${selectedDate.day}', '-'),
+                      labelText: 'Дата рождения'
                   ),
 
                   const SizedBox(height: 16.0),

@@ -4,8 +4,11 @@ import 'package:dvij_flutter/classes/event_type_enum.dart';
 import 'package:dvij_flutter/classes/place_category_class.dart';
 import 'package:dvij_flutter/classes/place_class.dart';
 import 'package:dvij_flutter/elements/category_element_in_edit_screen.dart';
+import 'package:dvij_flutter/elements/checkbox_with_desc.dart';
 import 'package:dvij_flutter/elements/events_elements/event_category_picker_page.dart';
 import 'package:dvij_flutter/elements/places_elements/place_category_picker_page.dart';
+import 'package:dvij_flutter/elements/types_of_date_time_pickers/long_type_date_time_picker_widget.dart';
+import 'package:dvij_flutter/elements/types_of_date_time_pickers/once_type_date_time_picker_widget.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
@@ -17,11 +20,14 @@ import '../../elements/choose_dialogs/city_choose_dialog.dart';
 import '../../elements/cities_elements/city_element_in_edit_screen.dart';
 import '../../elements/custom_snack_bar.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../elements/data_picker.dart';
 import '../../elements/events_elements/event_type_tab_element.dart';
 import '../../elements/image_in_edit_screen.dart';
 import '../../elements/loading_screen.dart';
 import '../../image_Uploader/image_uploader.dart';
 import '../../image_uploader/image_picker.dart';
+import '../../methods/date_functions.dart';
+import '../../themes/app_colors.dart';
 
 class CreateOrEditEventScreen extends StatefulWidget {
   final Event eventInfo;
@@ -62,13 +68,26 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
   File? _imageFile;
 
-  late DateTime selectedDate;
+  //late DateTime selectedDate;
+
+
   late RoleInApp chosenRoleInApp;
   late int accessLevel;
 
   EventTypeEnum eventTypeEnum = EventTypeEnum.once;
 
   // ПЕРЕМЕННЫЕ ВРЕМЕНИ РАБОТЫ?
+  late DateTime selectedDayInOnceType;
+  late String onceDay;
+  String onceDayStartTime = '00:00';
+  String onceDayFinishTime = '00:00';
+
+  late DateTime selectedStartDayInLongType;
+  late DateTime selectedEndDayInLongType;
+  late String longStartDay;
+  late String longEndDay;
+  String longDayStartTime = '00:00';
+  String longDayFinishTime = '00:00';
 
   bool loading = true;
   bool saving = false;
@@ -81,61 +100,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
   List<EventCategory> _categories = [];
   late EventCategory chosenCategory;
 
-  /*String _selectedStartTime = "Выходной";
-  String _selectedEndTime = "Выходной";*/
 
-  final List<String> _timeList = [
-    "Выходной",
-    "00:00",
-    "00:30",
-    "01:00",
-    "01:30",
-    "02:00",
-    "02:30",
-    "03:00",
-    "03:30",
-    "04:00",
-    "04:30",
-    "05:00",
-    "05:30",
-    "06:00",
-    "06:30",
-    "07:00",
-    "07:30",
-    "08:00",
-    "08:30",
-    "09:00",
-    "09:30",
-    "10:00",
-    "10:30",
-    "11:00",
-    "11:30",
-    "12:00",
-    "12:30",
-    "13:00",
-    "13:30",
-    "14:00",
-    "14:30",
-    "15:00",
-    "15:30",
-    "16:00",
-    "16:30",
-    "17:00",
-    "17:30",
-    "18:00",
-    "18:30",
-    "19:00",
-    "19:30",
-    "20:00",
-    "20:30",
-    "21:00",
-    "21:30",
-    "22:00",
-    "22:30",
-    "23:00",
-    "23:30",
-    // Добавьте необходимые значения времени
-  ];
 
 
   // --- Функция перехода на страницу профиля ----
@@ -175,12 +140,39 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
   @override
   void initState() {
     super.initState();
+    _initializeData();
+  }
+
+  Future<void> _initializeData() async {
     loading = true;
     _categories = EventCategory.currentEventCategoryList;
 
     accessLevel = UserCustom.accessLevel;
 
     eventTypeEnum = Event.getEventTypeEnum(widget.eventInfo.eventType);
+
+    if (eventTypeEnum == EventTypeEnum.once && widget.eventInfo.onceDay != ''){
+      onceDay = extractDateOrTimeFromJson(widget.eventInfo.onceDay, 'date');
+      selectedDayInOnceType = DateTime.parse(onceDay);
+      onceDayStartTime = extractDateOrTimeFromJson(widget.eventInfo.onceDay, 'startTime');
+      onceDayFinishTime = extractDateOrTimeFromJson(widget.eventInfo.onceDay, 'endTime');
+    } else {
+      selectedDayInOnceType = DateTime(2100);
+    }
+
+    if (eventTypeEnum == EventTypeEnum.long && widget.eventInfo.longDays != '') {
+
+     longStartDay = extractDateOrTimeFromJson(widget.eventInfo.onceDay, 'startDate');
+     longEndDay = extractDateOrTimeFromJson(widget.eventInfo.onceDay, 'endDate');
+     selectedStartDayInLongType = DateTime.parse(longStartDay);
+     selectedEndDayInLongType = DateTime.parse(longEndDay);
+     longDayStartTime = extractDateOrTimeFromJson(widget.eventInfo.onceDay, 'startTime');
+     longDayFinishTime = extractDateOrTimeFromJson(widget.eventInfo.onceDay, 'endTime');
+
+    } else {
+      selectedStartDayInLongType = DateTime(2100);
+      selectedEndDayInLongType = DateTime(2100);
+    }
 
     if (widget.eventInfo.id == '') {
 
@@ -245,28 +237,6 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
     });
   }
 
-  Widget _buildTimeDropdown(
-      String label, String selectedTime, void Function(String?) onChanged) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        DropdownButton<String>(
-          value: selectedTime,
-          onChanged: onChanged,
-          items: _timeList.map((String time) {
-            return DropdownMenuItem<String>(
-              value: time,
-              child: Text(time),
-            );
-          }).toList(),
-        ),
-        Text(label, style: Theme.of(context).textTheme.labelMedium,),
-      ],
-    );
-  }
-
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -325,84 +295,205 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                       },
                     ),
 
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        EventTypeTabElement(
-                            onTap: (){
-                              setState(() {
-                                tab1 = true;
-                                tab2 = false;
-                                tab3 = false;
-                                tab4 = false;
-                              });
-                            },
-                            text: 'Разовое',
-                            active: tab1
+                    const SizedBox(height: 16.0),
+
+                    Text(
+                      'Выбери тип мероприятия',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+
+                    const SizedBox(height: 5.0),
+
+                    Text(
+                      'От типа мероприятия будет зависить выбор даты проведения',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+
+                    const SizedBox(height: 16.0),
+
+                    DropdownButton<EventTypeEnum>(
+                      style: Theme.of(context).textTheme.bodySmall,
+                      isExpanded: true,
+                      value: eventTypeEnum,
+                      onChanged: (EventTypeEnum? newValue) {
+                        setState(() {
+                          eventTypeEnum = newValue!;
+                        });
+                      },
+                      items: [
+                        DropdownMenuItem(
+                          value: EventTypeEnum.once,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Разовое',
+                                style: Theme.of(context).textTheme.bodyMedium,
+                                textAlign: TextAlign.start,
+                              ),
+                              Text(
+                                'Состоится 1 раз в одну определенную дату',
+                                style: Theme.of(context).textTheme.labelMedium,
+                                textAlign: TextAlign.start,
+                              ),
+                            ],
+                          )
                         ),
-                        EventTypeTabElement(
-                            onTap: (){
-                              setState(() {
-                                tab2 = true;
-                                tab1 = false;
-                                tab3 = false;
-                                tab4 = false;
-                              });
-                            },
-                            text: 'Длительное',
-                            active: tab2
+                        DropdownMenuItem(
+                            value: EventTypeEnum.long,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Длительное',
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                  textAlign: TextAlign.start,
+                                ),
+                                Text(
+                                  'Проходит несколько дней подряд',
+                                  style: Theme.of(context).textTheme.labelMedium,
+                                  textAlign: TextAlign.start,
+                                ),
+                              ],
+                            )
                         ),
-                        EventTypeTabElement(
-                            onTap: (){
-                              setState(() {
-                                tab3 = true;
-                                tab2 = false;
-                                tab1 = false;
-                                tab4 = false;
-                              });
-                            },
-                            text: 'Регулярное',
-                            active: tab3
+                        DropdownMenuItem(
+                            value: EventTypeEnum.regular,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Регулярное',
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                  textAlign: TextAlign.start,
+                                ),
+                                Text(
+                                  'Проходит каждую неделю в определенные дни',
+                                  style: Theme.of(context).textTheme.labelMedium,
+                                  textAlign: TextAlign.start,
+                                ),
+                              ],
+                            )
                         ),
-                        EventTypeTabElement(
-                            onTap: (){
-                              setState(() {
-                                tab4 = true;
-                                tab2 = false;
-                                tab3 = false;
-                                tab1 = false;
-                              });
-                            },
-                            text: 'Разные даты',
-                            active: tab4
+                        DropdownMenuItem(
+                            value: EventTypeEnum.irregular,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'В разные даты',
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                  textAlign: TextAlign.start,
+                                ),
+                                Text(
+                                  'Проходит в разные даты - 1, 5, 13 и тд',
+                                  style: Theme.of(context).textTheme.labelMedium,
+                                  textAlign: TextAlign.start,
+                                ),
+                              ],
+                            )
                         ),
                       ],
                     ),
 
-                    if (tab1) Column(
-                      children: [
-                        Text('tab1')
-                      ],
+                    const SizedBox(height: 20.0),
+
+                    Text(
+                      'Выбери дату и время проведения мероприятия',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(height: 1.1),
                     ),
 
-                    if (tab2) Column(
-                      children: [
-                        Text('tab2')
-                      ],
+                    SizedBox(height: 20,),
+
+                    if (eventTypeEnum == EventTypeEnum.once) OnceTypeDateTimePickerWidget(
+                        //title: 'Выбери дату и время проведения мероприятия',
+                        dateLabelText: 'Дата проведения мероприятия',
+                        startTimeLabelText: "Начало мероприятия",
+                        endTimeLabelText: "Конец мероприятия",
+                        selectedDate: selectedDayInOnceType,
+                        startTime: onceDayStartTime,
+                        endTime: onceDayFinishTime,
+                        onDateActionPressed: (){
+                          DateTime temp = DateTime.now();
+                          setState(() {
+                            selectedDayInOnceType = temp;
+                          });
+                          _selectDate(context, selectedDayInOnceType, needClearInitialDate: true);
+
+                        },
+                        onDateActionPressedWithChosenDate:  () {
+                          _selectDate(context, selectedDayInOnceType);
+                          //_selectDate(context);
+                        },
+                        onStartTimeChanged: (String? time) {
+                          setState(() {
+                            onceDayStartTime = time!;
+                          });
+                        },
+                        onEndTimeChanged: (String? time) {
+                          setState(() {
+                            onceDayFinishTime = time!;
+                          });
+                        }
                     ),
 
-                    if (tab3) Column(
+
+
+                    if (eventTypeEnum == EventTypeEnum.long) LongTypeDateTimePickerWidget(
+                        startDateLabelText: 'Дата начала мероприятия',
+                        endDateLabelText: 'Дата завершения мероприятия',
+                        startTimeLabelText: "Начало мероприятия",
+                        endTimeLabelText: "Конец мероприятия",
+                        selectedStartDate: selectedStartDayInLongType,
+                        selectedEndDate: selectedEndDayInLongType,
+                        startTime: longDayStartTime,
+                        endTime: longDayFinishTime,
+                        onStartDateActionPressed: (){
+                          DateTime temp = DateTime.now();
+                          setState(() {
+                            selectedStartDayInLongType = temp;
+                          });
+                          _selectDate(context, selectedStartDayInLongType, needClearInitialDate: true, isOnce: false, isStart: true);
+
+                        },
+                        onStartDateActionPressedWithChosenDate: () {
+                          _selectDate(context, selectedStartDayInLongType, isOnce: false, isStart: true);
+                          //_selectDate(context);
+                        },
+                        onEndDateActionPressed: (){
+                          // TODO Сделать проверку, чтобы по умолчанию выставлялись граничные даты в пикере, в зависимости от выбранной даты начала и конца
+                          DateTime temp = selectedStartDayInLongType;
+                          setState(() {
+                            selectedEndDayInLongType = temp;
+                          });
+                          _selectDate(context, selectedEndDayInLongType, needClearInitialDate: true, isOnce: false, isStart: false, firstDate: selectedStartDayInLongType);
+
+                        },
+                        onEndDateActionPressedWithChosenDate: () {
+                          _selectDate(context, selectedEndDayInLongType, isOnce: false, isStart: false, firstDate: selectedStartDayInLongType);
+                          //_selectDate(context);
+                        },
+                        onStartTimeChanged: (String? time) {
+                          setState(() {
+                            longDayStartTime = time!;
+                          });
+                        },
+                        onEndTimeChanged: (String? time) {
+                          setState(() {
+                            longDayFinishTime = time!;
+                          });
+                        }
+                    ),
+                    if (eventTypeEnum == EventTypeEnum.regular) Column(
                       children: [
                         Text('tab3')
                       ],
                     ),
-
-                    if (tab4) Column(
+                    if (eventTypeEnum == EventTypeEnum.irregular) Column(
                       children: [
                         Text('tab4')
                       ],
                     ),
-
                     //EventTypeTabsWidget(eventType: eventTypeEnum),
 
                     const SizedBox(height: 16.0),
@@ -545,7 +636,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
                         Event event = Event(
                             id: eventId,
-                            eventType: 'eventType', // сделать функционал
+                            eventType: Event.getNameEventTypeEnum(eventTypeEnum), // сделать функционал
                             headline: headlineController.text,
                             desc: descController.text,
                             creatorId: creatorId,
@@ -560,10 +651,16 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                             instagram: instagramController.text,
                             imageUrl: avatarURL ?? widget.eventInfo.imageUrl,
                             placeId: 'placeId', // сделать функционал
-                            startDate: 'startDate', // сделать функционал
-                            endDate: 'endDate', // сделать функционал
-                            startTime: 'startTime', // сделать функционал
-                            endTime: 'endTime', // сделать функционал
+                            onceDay: generateOnceTypeDate(
+                                selectedDayInOnceType.year.toString(),
+                                selectedDayInOnceType.month.toString(),
+                                selectedDayInOnceType.day.toString(),
+                                onceDayStartTime,
+                                onceDayFinishTime
+                            ), // сделать функционал
+                            longDays: '', // сделать функционал
+                            regularDays: '', // сделать функционал
+                            irregularDays: '', // сделать функционал
                             price: 'price' // сделать функционал
                         );
 
@@ -690,5 +787,62 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
     );
   }
+
+  Future<void> _selectDate(
+      BuildContext context,
+      DateTime initial,
+      {bool needClearInitialDate = false,
+      bool isOnce = true,
+      bool isStart = true,
+      DateTime? firstDate = null}
+      ) async {
+    //DateTime initial = selectedDayInOnceType;
+    //DateTime initialInMethod = initial;
+    if (needClearInitialDate == true) initial = DateTime.now();
+
+    final DateTime? picked = await showDatePicker(
+
+      locale: const Locale('ru', 'RU'),
+      context: context,
+      initialDate: initial,
+      firstDate: firstDate ?? DateTime.now(),
+      lastDate: DateTime(2100),
+      helpText: 'Выбери дату',
+      cancelText: 'Отмена',
+      confirmText: 'Подтвердить',
+      keyboardType: TextInputType.datetime,
+      currentDate: DateTime.now(),
+    );
+
+    if (picked != null){
+
+      if (isOnce && picked != selectedDayInOnceType) {
+        setState(() {
+          selectedDayInOnceType = picked;
+        });
+      } else if (!isOnce && isStart){
+        if (picked != selectedStartDayInLongType){
+          setState(() {
+            selectedStartDayInLongType = picked;
+          });
+        }
+      } else if (!isOnce && !isStart){
+        if (picked != selectedEndDayInLongType){
+          setState(() {
+            selectedEndDayInLongType = picked;
+          });
+        }
+      }
+
+    }
+
+    /*if (picked != null && picked != selectedDayInOnceType) {
+      setState(() {
+        selectedDayInOnceType = picked;
+      });
+    }*/
+  }
+
+
 
 }

@@ -35,6 +35,8 @@ class CustomTheme {
             return AppColors.greyOnBackground;
           },
         ),*/
+
+
         dayStyle: const TextStyle(
             color: AppColors.white,
             fontSize: 16,
@@ -42,11 +44,8 @@ class CustomTheme {
             fontWeight: FontWeight.normal,
             height: 1.3
         ),
-        todayForegroundColor: MaterialStateProperty.resolveWith<Color?>(
-              (Set<MaterialState> states) {
-            return AppColors.greyOnBackground;
-          },
-        ),
+
+
         weekdayStyle: const TextStyle(
             color: AppColors.greyText,
             fontSize: 16,
@@ -57,11 +56,11 @@ class CustomTheme {
 
         backgroundColor: AppColors.greyOnBackground,
 
-        todayBackgroundColor: MaterialStateProperty.resolveWith<Color?>(
+        /*todayBackgroundColor: MaterialStateProperty.resolveWith<Color?>(
               (Set<MaterialState> states) {
-            return AppColors.brandColor;
+            return AppColors.white;
           },
-        ),
+        ),*/
 
         cancelButtonStyle: ButtonStyle(
           backgroundColor: MaterialStateProperty.resolveWith<Color?>(
@@ -143,6 +142,12 @@ class CustomTheme {
             },
           ),
         ),
+        /*todayForegroundColor: MaterialStateProperty.resolveWith<Color?>(
+              (Set<MaterialState> states) {
+            return AppColors.white;
+          },
+        ),*/
+        todayBorder: BorderSide(style: BorderStyle.none)
       ),
 
       // Стиль кнопки

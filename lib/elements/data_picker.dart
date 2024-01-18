@@ -5,9 +5,10 @@ import '../themes/app_colors.dart';
 
 class DataPickerCustom extends StatelessWidget {
   final String? date;
+  final String labelText;
   final VoidCallback onActionPressed;
 
-  DataPickerCustom({required this.onActionPressed, this.date});
+  DataPickerCustom({required this.onActionPressed, this.date, required this.labelText});
 
 
 
@@ -25,9 +26,9 @@ class DataPickerCustom extends StatelessWidget {
                   //initialValue: cityName?.isNotEmpty ?? true ? cityName! : 'Город не выбран',
                   style: Theme.of(context).textTheme.bodyMedium,
                   enabled: false,
-                  decoration: const InputDecoration(
-                    labelText: 'Дата рождения',
-                    labelStyle: TextStyle(
+                  decoration: InputDecoration(
+                    labelText: labelText,
+                    labelStyle: const TextStyle(
                       color: AppColors.greyText,
                       fontSize: 12,
                       fontFamily: 'SfProDisplay',

@@ -1,4 +1,6 @@
 
+import 'dart:convert';
+
 List<int> splitDate(String date, String symbol)
 {
 
@@ -40,4 +42,18 @@ DateTime getDateFromString (String date)
 {
   List<int> temp = splitDate(date, '-');
   return DateTime(temp[0], temp[1], temp[2]);
+}
+
+String extractDateOrTimeFromJson(String jsonString, String fieldId) {
+  // Декодируем JSON строку
+  Map<String, dynamic> json = jsonDecode(jsonString);
+
+  // Извлекаем значение "date"
+  String dateStr = json[fieldId];
+
+  return dateStr;
+}
+
+String generateOnceTypeDate(String year, String month, String day, String startTime, String endTime){
+  return '{"date": "$year-$month-$day", "startTime": "$startTime", "endTime": "$endTime"}';
 }

@@ -5,6 +5,7 @@ import 'package:dvij_flutter/classes/place_category_class.dart';
 import 'package:dvij_flutter/elements/buttons/custom_only_text_button.dart';
 import 'package:dvij_flutter/elements/events_elements/today_widget.dart';
 import 'package:dvij_flutter/elements/for_cards_small_widget_with_icon_and_text.dart';
+import 'package:dvij_flutter/methods/date_functions.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/classes/place_class.dart';
@@ -109,6 +110,11 @@ class EventCardWidget extends StatelessWidget {
                     softWrap: true,
                   ),
                   SizedBox(height: 10.0),
+
+                  Text(extractDateOrTimeFromJson(event.onceDay, 'date')),
+                  Text('StartTime = ${extractDateOrTimeFromJson(event.onceDay, 'startTime')}'),
+                  Text('FinishTime = ${extractDateOrTimeFromJson(event.onceDay, 'endTime')}'),
+                  Text('${event.eventType}'),
 
                   if (today) TodayWidget(isTrue: today),
 

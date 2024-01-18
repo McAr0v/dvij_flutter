@@ -26,11 +26,11 @@ class Event {
   String instagram;
   String imageUrl;
   String placeId;
-  String startDate;
-  String endDate;
-  String startTime;
-  String endTime;
   String price;
+  String onceDay;
+  String longDays;
+  String regularDays;
+  String irregularDays;
   String? addedToFavouritesCount;
   String? canEdit;
   String? inFav;
@@ -54,10 +54,10 @@ class Event {
     required this.instagram,
     required this.imageUrl,
     required this.placeId,
-    required this.startDate,
-    required this.endDate,
-    required this.startTime,
-    required this.endTime,
+    required this.onceDay,
+    required this.longDays,
+    required this.regularDays,
+    required this.irregularDays,
     required this.price,
     this.addedToFavouritesCount,
     this.canEdit,
@@ -85,10 +85,10 @@ class Event {
     DataSnapshot instagramSnapshot = snapshot.child('instagram');
     DataSnapshot imageUrlSnapshot = snapshot.child('imageUrl');
     DataSnapshot placeIdSnapshot = snapshot.child('placeId');
-    DataSnapshot startDateSnapshot = snapshot.child('startDate');
-    DataSnapshot endDateSnapshot = snapshot.child('endDate');
-    DataSnapshot startTimeSnapshot = snapshot.child('startTime');
-    DataSnapshot endTimeSnapshot = snapshot.child('endTime');
+    DataSnapshot onceDayDateSnapshot = snapshot.child('onceDay');
+    DataSnapshot longDaysSnapshot = snapshot.child('longDays');
+    DataSnapshot regularDaysSnapshot = snapshot.child('regularDays');
+    DataSnapshot irregularDaysSnapshot = snapshot.child('irregularDays');
     DataSnapshot priceSnapshot = snapshot.child('price');
 
     return Event(
@@ -108,11 +108,12 @@ class Event {
         instagram: instagramSnapshot.value.toString() ?? '',
         imageUrl: imageUrlSnapshot.value.toString() ?? '',
         placeId: placeIdSnapshot.value.toString() ?? '',
-      startDate: startDateSnapshot.value.toString() ?? '',
-      endDate: endDateSnapshot.value.toString() ?? '',
-      startTime: startTimeSnapshot.value.toString() ?? '',
-      endTime: endTimeSnapshot.value.toString() ?? '',
-      price: priceSnapshot.value.toString() ?? ''
+        price: priceSnapshot.value.toString() ?? '',
+        onceDay: onceDayDateSnapshot.value.toString() ?? '',
+        longDays: longDaysSnapshot.value.toString() ?? '',
+        regularDays: regularDaysSnapshot.value.toString() ?? '',
+        irregularDays: irregularDaysSnapshot.value.toString() ?? ''
+
     );
   }
 
@@ -137,11 +138,11 @@ class Event {
       instagram: '',
       imageUrl: 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2Fdvij_unknow_user.jpg?alt=media&token=b63ea5ef-7bdf-49e9-a3ef-1d34d676b6a7',
       placeId: '',
-    startTime: '',
-    endTime: '',
-    startDate: '',
-    endDate: '',
     price: '',
+    onceDay: '',
+    longDays: '',
+    regularDays: '',
+    irregularDays: ''
 
   );
 
@@ -163,11 +164,11 @@ class Event {
         instagram: '',
         imageUrl: 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2Fdvij_unknow_user.jpg?alt=media&token=b63ea5ef-7bdf-49e9-a3ef-1d34d676b6a7',
         placeId: '',
-        startTime: '',
-        endTime: '',
-        startDate: '',
-        endDate: '',
         price: '',
+        onceDay: '',
+        longDays: '',
+        regularDays: '',
+        irregularDays: ''
     );
   }
 
@@ -187,6 +188,7 @@ class Event {
       // Записываем данные пользователя в базу данных
       await FirebaseDatabase.instance.ref().child(eventPath).set({
         'id': event.id,
+        'eventType': event.eventType,
         'headline': event.headline,
         'desc': event.desc,
         'creatorId': event.creatorId,
@@ -201,10 +203,10 @@ class Event {
         'instagram': event.instagram,
         'imageUrl': event.imageUrl,
         'placeId': event.placeId ?? '',
-        'startTime': event.startTime,
-        'endTime': event.endTime,
-        'startDate': event.startDate,
-        'endDate': event.endDate,
+        'onceDay': event.onceDay,
+        'longDays': event.longDays,
+        'regularDays': event.regularDays,
+        'irregularDays': event.irregularDays,
         'price': event.price ?? ''
 
       });
