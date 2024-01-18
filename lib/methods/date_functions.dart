@@ -61,3 +61,32 @@ String generateOnceTypeDate(DateTime date, String startTime, String endTime){
 String generateLongTypeDate(DateTime startDate, DateTime endDate, String startTime, String endTime){
   return '{"startDate": "${startDate.year}-${startDate.month}-${startDate.day}", "endDate": "${endDate.year}-${endDate.month}-${endDate.day}", "startTime": "$startTime", "endTime": "$endTime"}';
 }
+
+String generateRegularTypeDate(
+    String mondayStartTime,
+    String mondayFinishTime,
+    String tuesdayStartTime,
+    String tuesdayFinishTime,
+    String wednesdayStartTime,
+    String wednesdayFinishTime,
+    String thursdayStartTime,
+    String thursdayFinishTime,
+    String fridayStartTime,
+    String fridayFinishTime,
+    String saturdayStartTime,
+    String saturdayFinishTime,
+    String sundayStartTime,
+    String sundayFinishTime,
+    ){
+  return '{'
+      '"startTime1": "$mondayStartTime", "endTime1": "$mondayFinishTime", '
+      '"startTime2": "$tuesdayStartTime", "endTime2": "$tuesdayFinishTime", '
+      '"startTime3": "$wednesdayStartTime", "endTime3": "$wednesdayFinishTime", '
+      '"startTime4": "$thursdayStartTime", "endTime4": "$thursdayFinishTime", '
+      '"startTime5": "$fridayStartTime", "endTime5": "$fridayFinishTime", '
+      '"startTime6": "$saturdayStartTime", "endTime6": "$saturdayFinishTime", '
+      '"startTime7": "$sundayStartTime", "endTime7": "$sundayFinishTime"'
+      '}';
+}
+
+

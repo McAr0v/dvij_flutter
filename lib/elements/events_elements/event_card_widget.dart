@@ -25,6 +25,8 @@ class EventCardWidget extends StatelessWidget {
 
     bool today = false;
 
+    int currentDayOfWeek = DateTime.now().weekday;
+
     if (event.today == 'true') today = true;
 
     String eventCategory = EventCategory.getEventCategoryFromCategoriesList(event.category).name;
@@ -117,6 +119,10 @@ class EventCardWidget extends StatelessWidget {
 
                   if (event.longDays != '') Text(extractDateOrTimeFromJson(event.longDays, 'startDate')),
                   if (event.longDays != '') Text(extractDateOrTimeFromJson(event.longDays, 'endDate')),
+
+                  if (event.regularDays != '') Text(extractDateOrTimeFromJson(event.regularDays, 'startTime$currentDayOfWeek')),
+                  if (event.regularDays != '') Text(extractDateOrTimeFromJson(event.regularDays, 'endTime$currentDayOfWeek')),
+                  if (event.regularDays != '') Text('День недели - $currentDayOfWeek'),
 
                   Text('${event.eventType}'),
 

@@ -9,6 +9,7 @@ import 'package:dvij_flutter/elements/events_elements/event_category_picker_page
 import 'package:dvij_flutter/elements/places_elements/place_category_picker_page.dart';
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/long_type_date_time_picker_widget.dart';
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/once_type_date_time_picker_widget.dart';
+import 'package:dvij_flutter/elements/types_of_date_time_pickers/regular_type_date_time_picker_widget.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
@@ -89,6 +90,21 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
   String longDayStartTime = '00:00';
   String longDayFinishTime = '00:00';
 
+  String mondayStartTime = '00:00';
+  String mondayFinishTime = '00:00';
+  String tuesdayStartTime = '00:00';
+  String tuesdayFinishTime = '00:00';
+  String wednesdayStartTime = '00:00';
+  String wednesdayFinishTime = '00:00';
+  String thursdayStartTime = '00:00';
+  String thursdayFinishTime = '00:00';
+  String fridayStartTime = '00:00';
+  String fridayFinishTime = '00:00';
+  String saturdayStartTime = '00:00';
+  String saturdayFinishTime = '00:00';
+  String sundayStartTime = '00:00';
+  String sundayFinishTime = '00:00';
+
   bool loading = true;
   bool saving = false;
   bool tab1 = true;
@@ -162,16 +178,35 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
     if (eventTypeEnum == EventTypeEnum.long && widget.eventInfo.longDays != '') {
 
-     longStartDay = extractDateOrTimeFromJson(widget.eventInfo.onceDay, 'startDate');
-     longEndDay = extractDateOrTimeFromJson(widget.eventInfo.onceDay, 'endDate');
+     longStartDay = extractDateOrTimeFromJson(widget.eventInfo.longDays, 'startDate');
+     longEndDay = extractDateOrTimeFromJson(widget.eventInfo.longDays, 'endDate');
      selectedStartDayInLongType = DateTime.parse(longStartDay);
      selectedEndDayInLongType = DateTime.parse(longEndDay);
-     longDayStartTime = extractDateOrTimeFromJson(widget.eventInfo.onceDay, 'startTime');
-     longDayFinishTime = extractDateOrTimeFromJson(widget.eventInfo.onceDay, 'endTime');
+     longDayStartTime = extractDateOrTimeFromJson(widget.eventInfo.longDays, 'startTime');
+     longDayFinishTime = extractDateOrTimeFromJson(widget.eventInfo.longDays, 'endTime');
 
     } else {
       selectedStartDayInLongType = DateTime(2100);
       selectedEndDayInLongType = DateTime(2100);
+    }
+
+    if (eventTypeEnum == EventTypeEnum.regular && widget.eventInfo.regularDays != ''){
+
+      mondayStartTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'startTime1');
+      mondayFinishTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'endTime1');
+      tuesdayStartTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'startTime2');
+      tuesdayFinishTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'endTime2');
+      wednesdayStartTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'startTime3');
+      wednesdayFinishTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'endTime3');
+      thursdayStartTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'startTime4');
+      thursdayFinishTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'endTime4');
+      fridayStartTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'startTime5');
+      fridayFinishTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'endTime5');
+      saturdayStartTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'startTime6');
+      saturdayFinishTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'endTime6');
+      sundayStartTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'startTime7');
+      sundayFinishTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'endTime7');
+
     }
 
     if (widget.eventInfo.id == '') {
@@ -485,10 +520,93 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                           });
                         }
                     ),
-                    if (eventTypeEnum == EventTypeEnum.regular) Column(
-                      children: [
-                        Text('tab3')
-                      ],
+                    if (eventTypeEnum == EventTypeEnum.regular) RegularTypeDateTimePickerWidget(
+                        startTimeLabelText: "Начало мероприятия",
+                        endTimeLabelText: 'Конец мероприятия',
+                        mondayStartTime: mondayStartTime,
+                        mondayFinishTime: mondayFinishTime,
+                        tuesdayStartTime: tuesdayStartTime,
+                        tuesdayFinishTime: tuesdayFinishTime,
+                        wednesdayStartTime: wednesdayStartTime,
+                        wednesdayFinishTime: wednesdayFinishTime,
+                        thursdayStartTime: thursdayStartTime,
+                        thursdayFinishTime: thursdayFinishTime,
+                        fridayStartTime: fridayStartTime,
+                        fridayFinishTime: fridayFinishTime,
+                        saturdayStartTime: saturdayStartTime,
+                        saturdayFinishTime: saturdayFinishTime,
+                        sundayStartTime: sundayStartTime,
+                        sundayFinishTime: sundayFinishTime,
+                        onMondayStartTimeChanged: (String? time) {
+                          setState(() {
+                            mondayStartTime = time!;
+                          });
+                        },
+                        onMondayEndTimeChanged: (String? time) {
+                          setState(() {
+                            mondayFinishTime = time!;
+                          });
+                        },
+                        onTuesdayStartTimeChanged: (String? time) {
+                          setState(() {
+                            tuesdayStartTime = time!;
+                          });
+                        },
+                        onTuesdayEndTimeChanged: (String? time) {
+                          setState(() {
+                            tuesdayFinishTime = time!;
+                          });
+                        },
+                        onWednesdayStartTimeChanged: (String? time) {
+                          setState(() {
+                            wednesdayStartTime = time!;
+                          });
+                        },
+                        onWednesdayEndTimeChanged: (String? time) {
+                          setState(() {
+                            wednesdayFinishTime = time!;
+                          });
+                        },
+                        onThursdayStartTimeChanged: (String? time) {
+                          setState(() {
+                            thursdayStartTime = time!;
+                          });
+                        },
+                        onThursdayEndTimeChanged: (String? time) {
+                          setState(() {
+                            thursdayFinishTime = time!;
+                          });
+                        },
+                        onFridayStartTimeChanged: (String? time) {
+                          setState(() {
+                            fridayStartTime = time!;
+                          });
+                        },
+                        onFridayEndTimeChanged: (String? time) {
+                          setState(() {
+                            fridayFinishTime = time!;
+                          });
+                        },
+                        onSaturdayStartTimeChanged: (String? time) {
+                          setState(() {
+                            saturdayStartTime = time!;
+                          });
+                        },
+                        onSaturdayEndTimeChanged: (String? time) {
+                          setState(() {
+                            saturdayFinishTime = time!;
+                          });
+                        },
+                        onSundayStartTimeChanged: (String? time) {
+                          setState(() {
+                            sundayStartTime = time!;
+                          });
+                        },
+                        onSundayEndTimeChanged: (String? time) {
+                          setState(() {
+                            sundayFinishTime = time!;
+                          });
+                        }
                     ),
                     if (eventTypeEnum == EventTypeEnum.irregular) Column(
                       children: [
@@ -663,7 +781,22 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                                 longDayStartTime,
                                 longDayFinishTime
                             ), // сделать функционал
-                            regularDays: '', // сделать функционал
+                            regularDays: generateRegularTypeDate(
+                                mondayStartTime,
+                                mondayFinishTime,
+                                tuesdayStartTime,
+                                tuesdayFinishTime,
+                                wednesdayStartTime,
+                                wednesdayFinishTime,
+                                thursdayStartTime,
+                                thursdayFinishTime,
+                                fridayStartTime,
+                                fridayFinishTime,
+                                saturdayStartTime,
+                                saturdayFinishTime,
+                                sundayStartTime,
+                                sundayFinishTime
+                            ), // сделать функционал
                             irregularDays: '', // сделать функционал
                             price: 'price' // сделать функционал
                         );
@@ -866,6 +999,5 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
       }
     }
   }
-
 
 }
