@@ -54,6 +54,10 @@ String extractDateOrTimeFromJson(String jsonString, String fieldId) {
   return dateStr;
 }
 
-String generateOnceTypeDate(String year, String month, String day, String startTime, String endTime){
-  return '{"date": "$year-$month-$day", "startTime": "$startTime", "endTime": "$endTime"}';
+String generateOnceTypeDate(DateTime date, String startTime, String endTime){
+  return '{"date": "${date.year}-${date.month}-${date.day}", "startTime": "$startTime", "endTime": "$endTime"}';
+}
+
+String generateLongTypeDate(DateTime startDate, DateTime endDate, String startTime, String endTime){
+  return '{"startDate": "${startDate.year}-${startDate.month}-${startDate.day}", "endDate": "${endDate.year}-${endDate.month}-${endDate.day}", "startTime": "$startTime", "endTime": "$endTime"}';
 }

@@ -114,6 +114,10 @@ class EventCardWidget extends StatelessWidget {
                   Text(extractDateOrTimeFromJson(event.onceDay, 'date')),
                   Text('StartTime = ${extractDateOrTimeFromJson(event.onceDay, 'startTime')}'),
                   Text('FinishTime = ${extractDateOrTimeFromJson(event.onceDay, 'endTime')}'),
+
+                  if (event.longDays != '') Text(extractDateOrTimeFromJson(event.longDays, 'startDate')),
+                  if (event.longDays != '') Text(extractDateOrTimeFromJson(event.longDays, 'endDate')),
+
                   Text('${event.eventType}'),
 
                   if (today) TodayWidget(isTrue: today),

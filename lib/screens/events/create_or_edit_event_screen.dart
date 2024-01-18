@@ -453,12 +453,13 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                           setState(() {
                             selectedStartDayInLongType = temp;
                           });
-                          _selectDate(context, selectedStartDayInLongType, needClearInitialDate: true, isOnce: false, isStart: true);
+                          _selectDate(context, selectedStartDayInLongType, needClearInitialDate: true, isOnce: false, isStart: true, endDate: selectedEndDayInLongType);
+                          //_isStartBeforeEnd(true);
 
                         },
                         onStartDateActionPressedWithChosenDate: () {
-                          _selectDate(context, selectedStartDayInLongType, isOnce: false, isStart: true);
-                          //_selectDate(context);
+                          _selectDate(context, selectedStartDayInLongType, isOnce: false, isStart: true, endDate: selectedEndDayInLongType);
+                          //_isStartBeforeEnd(true);
                         },
                         onEndDateActionPressed: (){
                           // TODO Сделать проверку, чтобы по умолчанию выставлялись граничные даты в пикере, в зависимости от выбранной даты начала и конца
@@ -467,11 +468,11 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                             selectedEndDayInLongType = temp;
                           });
                           _selectDate(context, selectedEndDayInLongType, needClearInitialDate: true, isOnce: false, isStart: false, firstDate: selectedStartDayInLongType);
-
+                          //_isStartBeforeEnd(false);
                         },
                         onEndDateActionPressedWithChosenDate: () {
                           _selectDate(context, selectedEndDayInLongType, isOnce: false, isStart: false, firstDate: selectedStartDayInLongType);
-                          //_selectDate(context);
+
                         },
                         onStartTimeChanged: (String? time) {
                           setState(() {
@@ -652,13 +653,16 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                             imageUrl: avatarURL ?? widget.eventInfo.imageUrl,
                             placeId: 'placeId', // сделать функционал
                             onceDay: generateOnceTypeDate(
-                                selectedDayInOnceType.year.toString(),
-                                selectedDayInOnceType.month.toString(),
-                                selectedDayInOnceType.day.toString(),
+                                selectedDayInOnceType,
                                 onceDayStartTime,
                                 onceDayFinishTime
                             ), // сделать функционал
-                            longDays: '', // сделать функционал
+                            longDays: generateLongTypeDate(
+                                selectedStartDayInLongType,
+                                selectedEndDayInLongType,
+                                longDayStartTime,
+                                longDayFinishTime
+                            ), // сделать функционал
                             regularDays: '', // сделать функционал
                             irregularDays: '', // сделать функционал
                             price: 'price' // сделать функционал
@@ -794,7 +798,9 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
       {bool needClearInitialDate = false,
       bool isOnce = true,
       bool isStart = true,
-      DateTime? firstDate = null}
+      DateTime? firstDate = null,
+      DateTime? endDate = null,
+      }
       ) async {
     //DateTime initial = selectedDayInOnceType;
     //DateTime initialInMethod = initial;
@@ -806,7 +812,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
       context: context,
       initialDate: initial,
       firstDate: firstDate ?? DateTime.now(),
-      lastDate: DateTime(2100),
+      lastDate: endDate ?? DateTime(2100),
       helpText: 'Выбери дату',
       cancelText: 'Отмена',
       confirmText: 'Подтвердить',
@@ -825,12 +831,14 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
           setState(() {
             selectedStartDayInLongType = picked;
           });
+          _isStartBeforeEnd(true);
         }
       } else if (!isOnce && !isStart){
         if (picked != selectedEndDayInLongType){
           setState(() {
             selectedEndDayInLongType = picked;
           });
+          _isStartBeforeEnd(false);
         }
       }
 
@@ -843,6 +851,21 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
     }*/
   }
 
+  void _isStartBeforeEnd (bool startAfterEnd){
+    if (startAfterEnd){
+      if (selectedStartDayInLongType.isAfter(selectedEndDayInLongType)){
+        setState(() {
+          selectedStartDayInLongType = selectedEndDayInLongType;
+        });
+      }
+    } else {
+      if (selectedEndDayInLongType.isBefore(selectedStartDayInLongType)){
+        setState(() {
+          selectedEndDayInLongType = selectedStartDayInLongType;
+        });
+      }
+    }
+  }
 
 
 }
