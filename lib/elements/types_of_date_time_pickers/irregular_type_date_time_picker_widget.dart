@@ -1,6 +1,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../methods/date_functions.dart';
 import '../../themes/app_colors.dart';
@@ -86,6 +87,26 @@ class IrregularTypeDateTimePickerWidget extends StatelessWidget {
                     onEndTimeChanged,
                     context
                 ),
+
+                const SizedBox(width: 30,),
+
+                GestureDetector(
+                  onTap: onDeletePressed,
+                  child: Row(
+                    children: [
+                      Text(
+                          'Удалить',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.attentionRed),
+                      ),
+                      const SizedBox(width: 5,),
+                      const Icon(
+                          Icons.delete,
+                        color: AppColors.attentionRed,
+                      ),
+                    ],
+                  )
+                )
+
               ],
             ),
 

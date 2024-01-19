@@ -651,11 +651,11 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                                 setState(() {
                                   chosenIrregularDays[index] = temp;
                                 });
-                                _selectDate(context, chosenIrregularDays[index], needClearInitialDate: true);
+                                _selectDate(context, chosenIrregularDays[index], needClearInitialDate: true, isIrregular: true, index: index);
 
                               },
                               onDateActionPressedWithChosenDate:  () {
-                                _selectDate(context, chosenIrregularDays[index]);
+                                _selectDate(context, chosenIrregularDays[index], isIrregular: true, index: index);
                                 //_selectDate(context);
                               },
                               onStartTimeChanged: (String? time) {
@@ -668,7 +668,13 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                                   chosenIrregularEndTime[index] = time!;
                                 });
                               },
-                              onDeletePressed: (){}
+                              onDeletePressed: (){
+                                setState(() {
+                                  chosenIrregularDays.removeAt(index);
+                                  chosenIrregularStartTime.removeAt(index);
+                                  chosenIrregularEndTime.removeAt(index);
+                                });
+                              }
                           );
                         }
                     ),
@@ -686,7 +692,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                     ),
                     //EventTypeTabsWidget(eventType: eventTypeEnum),
 
-                    const SizedBox(height: 16.0),
+                    const SizedBox(height: 30.0),
 
                     if (chosenCity.id == '') CityElementInEditScreen(
                       cityName: 'Город не выбран',
@@ -1002,6 +1008,10 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
       {bool needClearInitialDate = false,
       bool isOnce = true,
       bool isStart = true,
+        // для нерегулярных дат
+      bool isIrregular = false,
+        // для нерегулярных дат
+      int index = 0,
       DateTime? firstDate = null,
       DateTime? endDate = null,
       }
@@ -1026,7 +1036,11 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
     if (picked != null){
 
-      if (isOnce && picked != selectedDayInOnceType) {
+      if (isIrregular) {
+        setState(() {
+          chosenIrregularDays[index] = picked;
+        });
+      } else if (isOnce && picked != selectedDayInOnceType) {
         setState(() {
           selectedDayInOnceType = picked;
         });
