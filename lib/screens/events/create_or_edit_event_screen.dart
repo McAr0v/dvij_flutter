@@ -7,6 +7,7 @@ import 'package:dvij_flutter/elements/category_element_in_edit_screen.dart';
 import 'package:dvij_flutter/elements/checkbox_with_desc.dart';
 import 'package:dvij_flutter/elements/events_elements/event_category_picker_page.dart';
 import 'package:dvij_flutter/elements/places_elements/place_category_picker_page.dart';
+import 'package:dvij_flutter/elements/types_of_date_time_pickers/irregular_type_date_time_picker_widget.dart';
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/long_type_date_time_picker_widget.dart';
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/once_type_date_time_picker_widget.dart';
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/regular_type_date_time_picker_widget.dart';
@@ -104,6 +105,20 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
   String saturdayFinishTime = '00:00';
   String sundayStartTime = '00:00';
   String sundayFinishTime = '00:00';
+
+  List<Map<String, dynamic>> irregularDates = [
+    {"date": "2024-01-18", "startTime": "14:00", "endTime": "16:00"},
+    // Добавьте другие даты в вашем списке
+  ];
+
+  // Здесь хранятся выбранные даты нерегулярных дней
+  List<DateTime> chosenIrregularDays = [];
+  // Это список для временного хранения дат в стринге из БД при парсинге
+  List<String> tempIrregularDaysString = [];
+  // Выбранные даты начала
+  List<String> chosenIrregularStartTime = [];
+  // Выбранные даты завершения
+  List<String> chosenIrregularEndTime = [];
 
   bool loading = true;
   bool saving = false;
@@ -207,6 +222,17 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
       sundayStartTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'startTime7');
       sundayFinishTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'endTime7');
 
+    }
+
+    if (eventTypeEnum == EventTypeEnum.irregular && widget.eventInfo.irregularDays != ''){
+
+      // Парсим даты и время в списки
+      parseInputString(widget.eventInfo.irregularDays, tempIrregularDaysString, chosenIrregularStartTime, chosenIrregularEndTime);
+
+      for (String date in tempIrregularDaysString){
+        // Преобразуем даты из String в DateTime и кидаем в нужный список
+        chosenIrregularDays.add(getDateFromString(date));
+      }
     }
 
     if (widget.eventInfo.id == '') {
@@ -608,10 +634,55 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                           });
                         }
                     ),
-                    if (eventTypeEnum == EventTypeEnum.irregular) Column(
-                      children: [
-                        Text('tab4')
-                      ],
+                    if (eventTypeEnum == EventTypeEnum.irregular && chosenIrregularDays.isNotEmpty) ListView.builder(
+                        padding: const EdgeInsets.all(0.0),
+                        shrinkWrap: true,
+                        itemCount: chosenIrregularDays.length,
+                        itemBuilder: (context, index) {
+                          return IrregularTypeDateTimePickerWidget(
+                              dateLabelText: "Дата проведения мероприятия",
+                              startTimeLabelText: 'Начало',
+                              endTimeLabelText: 'Завершение',
+                              selectedDate: chosenIrregularDays[index],
+                              startTime: chosenIrregularStartTime[index],
+                              endTime: chosenIrregularEndTime[index],
+                              onDateActionPressed: (){
+                                DateTime temp = DateTime.now();
+                                setState(() {
+                                  chosenIrregularDays[index] = temp;
+                                });
+                                _selectDate(context, chosenIrregularDays[index], needClearInitialDate: true);
+
+                              },
+                              onDateActionPressedWithChosenDate:  () {
+                                _selectDate(context, chosenIrregularDays[index]);
+                                //_selectDate(context);
+                              },
+                              onStartTimeChanged: (String? time) {
+                                setState(() {
+                                  chosenIrregularStartTime[index] = time!;
+                                });
+                              },
+                              onEndTimeChanged: (String? time) {
+                                setState(() {
+                                  chosenIrregularEndTime[index] = time!;
+                                });
+                              },
+                              onDeletePressed: (){}
+                          );
+                        }
+                    ),
+
+                    if (eventTypeEnum == EventTypeEnum.irregular) SizedBox(height: 20,),
+                    if (eventTypeEnum == EventTypeEnum.irregular) CustomButton(
+                        buttonText: "Добавить дату",
+                        onTapMethod: (){
+                          setState(() {
+                            chosenIrregularDays.add(DateTime.now());
+                            chosenIrregularStartTime.add('00:00');
+                            chosenIrregularEndTime.add('00:00');
+                          });
+                        }
                     ),
                     //EventTypeTabsWidget(eventType: eventTypeEnum),
 
@@ -997,6 +1068,28 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
           selectedEndDayInLongType = selectedStartDayInLongType;
         });
       }
+    }
+  }
+
+  void parseInputString(
+      String inputString, List<String> datesList, List<String> startTimeList, List<String> endTimeList) {
+    RegExp dateRegExp = RegExp(r'"date": "([^"]+)"');
+    RegExp startTimeRegExp = RegExp(r'"startTime": "([^"]+)"');
+    RegExp endTimeRegExp = RegExp(r'"endTime": "([^"]+)"');
+
+    List<Match> matches = dateRegExp.allMatches(inputString).toList();
+    for (Match match in matches) {
+      datesList.add(match.group(1)!);
+    }
+
+    matches = startTimeRegExp.allMatches(inputString).toList();
+    for (Match match in matches) {
+      startTimeList.add(match.group(1)!);
+    }
+
+    matches = endTimeRegExp.allMatches(inputString).toList();
+    for (Match match in matches) {
+      endTimeList.add(match.group(1)!);
     }
   }
 
