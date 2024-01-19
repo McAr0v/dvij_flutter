@@ -31,6 +31,8 @@ import '../../image_uploader/image_picker.dart';
 import '../../methods/date_functions.dart';
 import '../../themes/app_colors.dart';
 
+
+
 class CreateOrEditEventScreen extends StatefulWidget {
   final Event eventInfo;
 
@@ -43,9 +45,18 @@ class CreateOrEditEventScreen extends StatefulWidget {
 
 }
 
+extension IterableExtension<E> on Iterable<E> {
+  Iterable<T> mapIndexed<T>(T Function(int index, E item) f) {
+    var index = 0;
+    return map((e) => f(index++, e));
+  }
+}
+
 // ----- ЭКРАН РЕДАКТИРОВАНИЯ ПРОФИЛЯ -------
 
 class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
+
+
 
   // Инициализируем классы
   // TODO - эти классы так надо инициализировать? помоему можно будет просто обращаться к ним и все
@@ -634,49 +645,47 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                           });
                         }
                     ),
-                    if (eventTypeEnum == EventTypeEnum.irregular && chosenIrregularDays.isNotEmpty) ListView.builder(
-                        padding: const EdgeInsets.all(0.0),
-                        shrinkWrap: true,
-                        itemCount: chosenIrregularDays.length,
-                        itemBuilder: (context, index) {
-                          return IrregularTypeDateTimePickerWidget(
-                              dateLabelText: "Дата проведения мероприятия",
-                              startTimeLabelText: 'Начало',
-                              endTimeLabelText: 'Завершение',
-                              selectedDate: chosenIrregularDays[index],
-                              startTime: chosenIrregularStartTime[index],
-                              endTime: chosenIrregularEndTime[index],
-                              onDateActionPressed: (){
-                                DateTime temp = DateTime.now();
-                                setState(() {
-                                  chosenIrregularDays[index] = temp;
-                                });
-                                _selectDate(context, chosenIrregularDays[index], needClearInitialDate: true, isIrregular: true, index: index);
 
-                              },
-                              onDateActionPressedWithChosenDate:  () {
-                                _selectDate(context, chosenIrregularDays[index], isIrregular: true, index: index);
-                                //_selectDate(context);
-                              },
-                              onStartTimeChanged: (String? time) {
-                                setState(() {
-                                  chosenIrregularStartTime[index] = time!;
-                                });
-                              },
-                              onEndTimeChanged: (String? time) {
-                                setState(() {
-                                  chosenIrregularEndTime[index] = time!;
-                                });
-                              },
-                              onDeletePressed: (){
-                                setState(() {
-                                  chosenIrregularDays.removeAt(index);
-                                  chosenIrregularStartTime.removeAt(index);
-                                  chosenIrregularEndTime.removeAt(index);
-                                });
-                              }
-                          );
-                        }
+                    if (eventTypeEnum == EventTypeEnum.irregular && chosenIrregularDays.isNotEmpty) Column(
+                      children: List.generate(chosenIrregularDays.length, (index) {
+                        return IrregularTypeDateTimePickerWidget(
+                            dateLabelText: "Дата проведения мероприятия",
+                            startTimeLabelText: 'Начало',
+                            endTimeLabelText: 'Завершение',
+                            selectedDate: chosenIrregularDays[index],
+                            startTime: chosenIrregularStartTime[index],
+                            endTime: chosenIrregularEndTime[index],
+                            onDateActionPressed: (){
+                              DateTime temp = DateTime.now();
+                              setState(() {
+                                chosenIrregularDays[index] = temp;
+                              });
+                              _selectDate(context, chosenIrregularDays[index], needClearInitialDate: true, isIrregular: true, index: index);
+
+                            },
+                            onDateActionPressedWithChosenDate:  () {
+                              _selectDate(context, chosenIrregularDays[index], isIrregular: true, index: index);
+                              //_selectDate(context);
+                            },
+                            onStartTimeChanged: (String? time) {
+                              setState(() {
+                                chosenIrregularStartTime[index] = time!;
+                              });
+                            },
+                            onEndTimeChanged: (String? time) {
+                              setState(() {
+                                chosenIrregularEndTime[index] = time!;
+                              });
+                            },
+                            onDeletePressed: (){
+                              setState(() {
+                                chosenIrregularDays.removeAt(index);
+                                chosenIrregularStartTime.removeAt(index);
+                                chosenIrregularEndTime.removeAt(index);
+                              });
+                            }
+                        );
+                      }).toList(),
                     ),
 
                     if (eventTypeEnum == EventTypeEnum.irregular) SizedBox(height: 20,),
@@ -874,7 +883,11 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                                 sundayStartTime,
                                 sundayFinishTime
                             ), // сделать функционал
-                            irregularDays: '', // сделать функционал
+                            irregularDays: generateIrregularTypeDate(
+                                chosenIrregularDays,
+                                chosenIrregularStartTime,
+                                chosenIrregularEndTime
+                            ), // сделать функционал
                             price: 'price' // сделать функционал
                         );
 

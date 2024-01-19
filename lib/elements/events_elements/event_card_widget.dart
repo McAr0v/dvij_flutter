@@ -32,6 +32,25 @@ class EventCardWidget extends StatelessWidget {
     String eventCategory = EventCategory.getEventCategoryFromCategoriesList(event.category).name;
     String eventCity = City.getCityByIdFromList(event.city).name;
 
+    // Здесь хранятся выбранные даты нерегулярных дней
+    List<DateTime> chosenIrregularDays = [];
+    // Это список для временного хранения дат в стринге из БД при парсинге
+    List<String> tempIrregularDaysString = [];
+    // Выбранные даты начала
+    List<String> chosenIrregularStartTime = [];
+    // Выбранные даты завершения
+    List<String> chosenIrregularEndTime = [];
+
+    if (event.irregularDays != ''){
+      parseInputString(event.irregularDays, tempIrregularDaysString, chosenIrregularStartTime, chosenIrregularEndTime);
+
+      for (String date in tempIrregularDaysString){
+        // Преобразуем даты из String в DateTime и кидаем в нужный список
+        chosenIrregularDays.add(getDateFromString(date));
+      }
+    }
+
+
     return GestureDetector(
       onTap: onTap,
       child: Card(
@@ -124,6 +143,18 @@ class EventCardWidget extends StatelessWidget {
                   if (event.regularDays != '') Text(extractDateOrTimeFromJson(event.regularDays, 'endTime$currentDayOfWeek')),
                   if (event.regularDays != '') Text('День недели - $currentDayOfWeek'),
 
+                  if (event.irregularDays != '') Column(
+                    children: List.generate(chosenIrregularDays.length, (index) {
+                      return Column(
+                          children: [
+                            Text('Дата$index - ${chosenIrregularDays[index].year}.${chosenIrregularDays[index].month}.${chosenIrregularDays[index].day}'),
+                            Text('Время$index - ${chosenIrregularStartTime[index]}--${chosenIrregularEndTime[index]}'),
+                          ]
+                        );
+                      }
+                    ),
+                  ),
+
                   Text('${event.eventType}'),
 
                   if (today) TodayWidget(isTrue: today),
@@ -191,4 +222,27 @@ class EventCardWidget extends StatelessWidget {
       ),
     );
   }
+
+  void parseInputString(
+      String inputString, List<String> datesList, List<String> startTimeList, List<String> endTimeList) {
+    RegExp dateRegExp = RegExp(r'"date": "([^"]+)"');
+    RegExp startTimeRegExp = RegExp(r'"startTime": "([^"]+)"');
+    RegExp endTimeRegExp = RegExp(r'"endTime": "([^"]+)"');
+
+    List<Match> matches = dateRegExp.allMatches(inputString).toList();
+    for (Match match in matches) {
+      datesList.add(match.group(1)!);
+    }
+
+    matches = startTimeRegExp.allMatches(inputString).toList();
+    for (Match match in matches) {
+      startTimeList.add(match.group(1)!);
+    }
+
+    matches = endTimeRegExp.allMatches(inputString).toList();
+    for (Match match in matches) {
+      endTimeList.add(match.group(1)!);
+    }
+  }
+
 }

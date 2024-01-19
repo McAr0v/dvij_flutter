@@ -89,4 +89,28 @@ String generateRegularTypeDate(
       '}';
 }
 
+String generateIrregularTypeDate(
+    List<DateTime> dates,
+    List<String> startTimes,
+    List<String> endTimes,
+    ){
+
+  String result = '';
+
+  if (dates.isNotEmpty){
+
+    result = '[';
+
+    for (int i = 0; i<dates.length; i++){
+
+      result = '$result{"date": "${dates[i].year}-${dates[i].month}-${dates[i].day}", "startTime": "${startTimes[i]}", "endTime": "${endTimes[i]}"}, ';
+
+    }
+
+    result = '$result]';
+  }
+
+  return result;
+}
+
 
