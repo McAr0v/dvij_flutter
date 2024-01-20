@@ -139,6 +139,8 @@ class EventCardWidget extends StatelessWidget {
                   if (event.longDays != '') Text(extractDateOrTimeFromJson(event.longDays, 'startDate')),
                   if (event.longDays != '') Text(extractDateOrTimeFromJson(event.longDays, 'endDate')),
 
+                  if (event.regularDays != '') Text('RegularsDays'),
+
                   if (event.regularDays != '') Text(extractDateOrTimeFromJson(event.regularDays, 'startTime$currentDayOfWeek')),
                   if (event.regularDays != '') Text(extractDateOrTimeFromJson(event.regularDays, 'endTime$currentDayOfWeek')),
                   if (event.regularDays != '') Text('День недели - $currentDayOfWeek'),

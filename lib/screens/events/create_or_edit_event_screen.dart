@@ -10,7 +10,9 @@ import 'package:dvij_flutter/elements/places_elements/place_category_picker_page
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/irregular_type_date_time_picker_widget.dart';
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/long_type_date_time_picker_widget.dart';
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/once_type_date_time_picker_widget.dart';
+import 'package:dvij_flutter/elements/types_of_date_time_pickers/regular_two_type_date_time_picker_widget.dart';
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/regular_type_date_time_picker_widget.dart';
+import 'package:dvij_flutter/methods/days_functions.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
@@ -102,7 +104,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
   String longDayStartTime = '00:00';
   String longDayFinishTime = '00:00';
 
-  String mondayStartTime = '00:00';
+  /*String mondayStartTime = '00:00';
   String mondayFinishTime = '00:00';
   String tuesdayStartTime = '00:00';
   String tuesdayFinishTime = '00:00';
@@ -115,7 +117,10 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
   String saturdayStartTime = '00:00';
   String saturdayFinishTime = '00:00';
   String sundayStartTime = '00:00';
-  String sundayFinishTime = '00:00';
+  String sundayFinishTime = '00:00';*/
+
+  List<String> regularStartTimes = fillTimeListWithDefaultValues('00:00', 7);
+  List<String> regularFinishTimes = fillTimeListWithDefaultValues('00:00', 7);
 
   List<Map<String, dynamic>> irregularDates = [
     {"date": "2024-01-18", "startTime": "14:00", "endTime": "16:00"},
@@ -218,6 +223,9 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
     if (eventTypeEnum == EventTypeEnum.regular && widget.eventInfo.regularDays != ''){
 
+      _fillRegularList();
+
+      /*
       mondayStartTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'startTime1');
       mondayFinishTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'endTime1');
       tuesdayStartTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'startTime2');
@@ -232,6 +240,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
       saturdayFinishTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'endTime6');
       sundayStartTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'startTime7');
       sundayFinishTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'endTime7');
+      */
 
     }
 
@@ -557,7 +566,37 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                           });
                         }
                     ),
-                    if (eventTypeEnum == EventTypeEnum.regular) RegularTypeDateTimePickerWidget(
+
+                    if (eventTypeEnum == EventTypeEnum.regular) Card(
+                      surfaceTintColor: Colors.transparent,
+                      color: AppColors.greyOnBackground,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                        child: Column(
+                          children: List.generate(regularStartTimes.length, (index) {
+                            return RegularTwoTypeDateTimePickerWidget(
+                                startTimeLabelText: "Начало мероприятия",
+                                endTimeLabelText: 'Конец мероприятия',
+                                startTime: regularStartTimes[index],
+                                endTime: regularFinishTimes[index],
+                                index: index,
+                                onStartTimeChanged: (String? time) {
+                                  setState(() {
+                                    regularStartTimes[index] = time!;
+                                  });
+                                },
+                                onEndTimeChanged: (String? time) {
+                                  setState(() {
+                                    regularFinishTimes[index] = time!;
+                                  });
+                                },
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ),
+
+                    /*if (eventTypeEnum == EventTypeEnum.regular) RegularTypeDateTimePickerWidget(
                         startTimeLabelText: "Начало мероприятия",
                         endTimeLabelText: 'Конец мероприятия',
                         mondayStartTime: mondayStartTime,
@@ -644,7 +683,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                             sundayFinishTime = time!;
                           });
                         }
-                    ),
+                    ),*/
 
                     if (eventTypeEnum == EventTypeEnum.irregular && chosenIrregularDays.isNotEmpty) Column(
                       children: List.generate(chosenIrregularDays.length, (index) {
@@ -855,7 +894,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                             telegram: telegramController.text,
                             instagram: instagramController.text,
                             imageUrl: avatarURL ?? widget.eventInfo.imageUrl,
-                            placeId: 'placeId', // сделать функционал
+                            placeId: '', // сделать функционал
                             onceDay: generateOnceTypeDate(
                                 selectedDayInOnceType,
                                 onceDayStartTime,
@@ -867,22 +906,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                                 longDayStartTime,
                                 longDayFinishTime
                             ), // сделать функционал
-                            regularDays: generateRegularTypeDate(
-                                mondayStartTime,
-                                mondayFinishTime,
-                                tuesdayStartTime,
-                                tuesdayFinishTime,
-                                wednesdayStartTime,
-                                wednesdayFinishTime,
-                                thursdayStartTime,
-                                thursdayFinishTime,
-                                fridayStartTime,
-                                fridayFinishTime,
-                                saturdayStartTime,
-                                saturdayFinishTime,
-                                sundayStartTime,
-                                sundayFinishTime
-                            ), // сделать функционал
+                            regularDays: generateRegularTypeDateTwo(regularStartTimes, regularFinishTimes), // сделать функционал
                             irregularDays: generateIrregularTypeDate(
                                 chosenIrregularDays,
                                 chosenIrregularStartTime,
@@ -992,6 +1016,22 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
         chosenCategory = selectedCategory;
       });
       print("Selected category: ${selectedCategory.name}, ID: ${selectedCategory.id}");
+    }
+  }
+
+  void _fillRegularList (){
+    //int counter = 1;
+
+    for (int i = 0; i<regularStartTimes.length; i++){
+
+      regularStartTimes[i] = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'startTime${i+1}');
+      regularFinishTimes[i] = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'endTime${i+1}');
+
+
+      //regularStartTimes[i+1] = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'endTime$counter');
+
+      //counter++;
+
     }
   }
 

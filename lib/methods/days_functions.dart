@@ -68,6 +68,20 @@ bool isEventToday(String startTime, String endTime, /*DateTime currentDate*/) {
   return currentDate.isAfter(start) && currentDate.isBefore(end);
 }*/
 
+List<String> fillTimeListWithDefaultValues(String value, int count){
+
+  List<String> list = [];
+
+  for (int i = 0; i < count; i++){
+
+    list.add(value);
+
+  }
+
+  return list;
+
+}
+
 bool nowIsOpenPlace (Place place){
 
   DateTime currentDate = DateTime.now();

@@ -62,6 +62,43 @@ String generateLongTypeDate(DateTime startDate, DateTime endDate, String startTi
   return '{"startDate": "${startDate.year}-${startDate.month}-${startDate.day}", "endDate": "${endDate.year}-${endDate.month}-${endDate.day}", "startTime": "$startTime", "endTime": "$endTime"}';
 }
 
+String generateRegularTypeDateTwo(
+    List<String> startTimes,
+    List<String> endTimes
+    ){
+  String result = '';
+
+  String temp = '{'
+      '"startTime1": "01:00", "endTime1": "01:30", '
+      '"startTime2": "02:00", "endTime2": "02:30", '
+      '"startTime3": "03:00", "endTime3": "03:30", '
+      '"startTime4": "04:00", "endTime4": "04:30", '
+      '"startTime5": "05:00", "endTime5": "05:30", '
+      '"startTime6": "06:00", "endTime6": "06:30", '
+      '"startTime7": "07:00", "endTime7": "07:30"'
+      '}';
+
+  if (startTimes.isNotEmpty){
+
+    result = '{';
+
+    for (int i = 0; i<startTimes.length; i++){
+
+      if (i != 6){
+        result = '$result"startTime${i+1}": "${startTimes[i]}", "endTime${i+1}": "${endTimes[i]}", ';
+      } else {
+
+        result = '$result"startTime${i+1}": "${startTimes[i]}", "endTime${i+1}": "${endTimes[i]}"';
+
+      }
+    }
+
+    result = '$result}';
+  }
+
+  return result;
+}
+
 String generateRegularTypeDate(
     String mondayStartTime,
     String mondayFinishTime,
