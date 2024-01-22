@@ -191,6 +191,7 @@ class Event {
 
       String eventPath = 'events/${event.id}/event_info';
       String creatorPath = 'users/${event.creatorId}/myEvents/${event.id}';
+      String placePath = 'places/${event.placeId}/events/${event.id}';
 
       // Записываем данные пользователя в базу данных
       await FirebaseDatabase.instance.ref().child(eventPath).set({
@@ -224,6 +225,14 @@ class Event {
         'eventId': event.id,
         //'roleId': '-NngrYovmKAw_cp0pYfJ'
       });
+
+      if (event.placeId != '') {
+        await FirebaseDatabase.instance.ref().child(placePath).set(
+          {
+            'eventId': event.id,
+          }
+        );
+      }
 
       // Если успешно
       return 'success';
@@ -279,6 +288,31 @@ class Event {
       return 'success';
     } catch (error) {
       return 'Ошибка при удалении города: $error';
+    }
+  }
+
+  static Future<String> deleteEventIdFromPlace(
+      String eventId,
+      // List<UserCustom> users, Восстановить если надо добавлять других пользователей
+      String placeId
+      ) async {
+    try {
+
+      DatabaseReference reference = FirebaseDatabase.instance.ref().child('places/events').child(eventId);
+
+      // Проверяем, существует ли город с указанным ID
+      DataSnapshot snapshot = await reference.get();
+      if (!snapshot.exists) {
+        return 'Мероприятие не найдено';
+      }
+
+      // Удаляем место
+      await reference.remove();
+
+      return 'success';
+
+    } catch (error) {
+      return '$error';
     }
   }
 

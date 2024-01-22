@@ -799,6 +799,13 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
                           }
 
+                          // TODO проверить удаление из предыдущего заведения ID мероприятия при смене заведения
+                          if (widget.eventInfo.placeId != '' && widget.eventInfo.placeId != event.placeId) {
+
+                            await Event.deleteEventIdFromPlace(eventId, widget.eventInfo.placeId);
+
+                          }
+
 
                           // Выключаем экран загрузки
                           setState(() {
