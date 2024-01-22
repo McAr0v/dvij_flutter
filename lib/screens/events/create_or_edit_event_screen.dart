@@ -907,11 +907,19 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                                 longDayFinishTime
                             ), // сделать функционал
                             regularDays: generateRegularTypeDateTwo(regularStartTimes, regularFinishTimes), // сделать функционал
-                            irregularDays: generateIrregularTypeDate(
+                            /*irregularDays: generateIrregularTypeDate(
                                 chosenIrregularDays,
                                 chosenIrregularStartTime,
                                 chosenIrregularEndTime
-                            ), // сделать функционал
+                            ),*/
+
+                            irregularDays: sortDateTimeListAndRelatedData(
+                                chosenIrregularDays,
+                                chosenIrregularStartTime,
+                                chosenIrregularEndTime
+                            ),
+
+                            // сделать функционал
                             price: 'price' // сделать функционал
                         );
 

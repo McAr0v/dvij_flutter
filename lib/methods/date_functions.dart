@@ -1,6 +1,8 @@
 
 import 'dart:convert';
 
+import '../classes/pair.dart';
+
 List<int> splitDate(String date, String symbol)
 {
 
@@ -150,4 +152,24 @@ String generateIrregularTypeDate(
   return result;
 }
 
+String sortDateTimeListAndRelatedData(List<DateTime> dateTimeList, List<String> startTime, List<String> endTime) {
+  // Создаем список пар, содержащих DateTime и связанные данные
+  List<Pair<DateTime, Pair<String, String>>> combinedList = [];
 
+  for (int i = 0; i < dateTimeList.length; i++) {
+    combinedList.add(Pair(dateTimeList[i], Pair(startTime[i], endTime[i])));
+  }
+
+  // Сортируем список пар по DateTime
+  combinedList.sort((a, b) => a.first.compareTo(b.first));
+
+  // Обновляем исходные списки после сортировки
+  for (int i = 0; i < dateTimeList.length; i++) {
+    dateTimeList[i] = combinedList[i].first;
+    startTime[i] = combinedList[i].second.first;
+    endTime[i] = combinedList[i].second.second;
+  }
+
+  return generateIrregularTypeDate(dateTimeList, startTime, endTime);
+
+}
