@@ -3,6 +3,7 @@ import 'package:dvij_flutter/classes/event_category_class.dart';
 import 'package:dvij_flutter/classes/event_type_enum.dart';
 import 'package:dvij_flutter/classes/place_category_class.dart';
 import 'package:dvij_flutter/classes/place_class.dart';
+import 'package:dvij_flutter/classes/priceTypeOptions.dart';
 import 'package:dvij_flutter/elements/category_element_in_edit_screen.dart';
 import 'package:dvij_flutter/elements/checkbox_with_desc.dart';
 import 'package:dvij_flutter/elements/events_elements/event_category_picker_page.dart';
@@ -79,9 +80,11 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
   late TextEditingController cityController;
   late TextEditingController imageController;
 
+
   late String eventId;
   late String creatorId;
   late String createdTime;
+
 
   File? _imageFile;
 
@@ -92,6 +95,12 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
   late int accessLevel;
 
   EventTypeEnum eventTypeEnum = EventTypeEnum.once;
+
+  PriceTypeOption priceType = PriceTypeOption.free;
+
+  late TextEditingController fixedPriceController;
+  late TextEditingController startPriceController;
+  late TextEditingController endPriceController;
 
   // ПЕРЕМЕННЫЕ ВРЕМЕНИ РАБОТЫ?
   late DateTime selectedDayInOnceType;
@@ -117,6 +126,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
   List<String> chosenIrregularStartTime = [];
   // Выбранные даты завершения
   List<String> chosenIrregularEndTime = [];
+
 
   List<Place> myPlaces = [];
 
@@ -186,6 +196,8 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
     eventTypeEnum = Event.getEventTypeEnum(widget.eventInfo.eventType);
 
+    priceType = Event.getPriceTypeEnum(widget.eventInfo.priceType);
+
     if (eventTypeEnum == EventTypeEnum.once && widget.eventInfo.onceDay != ''){
       onceDay = extractDateOrTimeFromJson(widget.eventInfo.onceDay, 'date');
       selectedDayInOnceType = DateTime.parse(onceDay);
@@ -248,6 +260,15 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
       creatorId = widget.eventInfo.creatorId;
 
+    }
+
+    if (priceType == PriceTypeOption.fixed){
+      fixedPriceController.text = widget.eventInfo.price;
+    }
+
+    // TODO Здесь делаю. Надо написать функцию парсинга даты
+    if (priceType == PriceTypeOption.range){
+      //startPriceController.text = parseInputString(widget.eventInfo.price, datesList, startTimeList, endTimeList)
     }
 
     if (widget.eventInfo.createDate == ''){
@@ -918,7 +939,8 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                             ),
 
                             // сделать функционал
-                            price: 'price' // сделать функционал
+                            price: 'price', // сделать функционал
+                          priceType: ''
                         );
 
                         // Выгружаем пользователя в БД

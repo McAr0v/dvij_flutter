@@ -2,6 +2,7 @@ import 'package:dvij_flutter/classes/city_class.dart';
 import 'package:dvij_flutter/classes/event_type_enum.dart';
 import 'package:dvij_flutter/classes/place_category_class.dart';
 import 'package:dvij_flutter/classes/place_sorting_options.dart';
+import 'package:dvij_flutter/classes/priceTypeOptions.dart';
 import 'package:dvij_flutter/classes/user_class.dart';
 import 'package:dvij_flutter/methods/days_functions.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -26,6 +27,7 @@ class Event {
   String instagram;
   String imageUrl;
   String placeId;
+  String priceType;
   String price;
   String onceDay;
   String longDays;
@@ -58,6 +60,7 @@ class Event {
     required this.longDays,
     required this.regularDays,
     required this.irregularDays,
+    required this.priceType,
     required this.price,
     this.addedToFavouritesCount,
     this.canEdit,
@@ -90,6 +93,7 @@ class Event {
     DataSnapshot regularDaysSnapshot = snapshot.child('regularDays');
     DataSnapshot irregularDaysSnapshot = snapshot.child('irregularDays');
     DataSnapshot priceSnapshot = snapshot.child('price');
+    DataSnapshot priceTypeSnapshot = snapshot.child('priceType');
 
     return Event(
         id: idSnapshot.value.toString() ?? '',
@@ -109,6 +113,7 @@ class Event {
         imageUrl: imageUrlSnapshot.value.toString() ?? '',
         placeId: placeIdSnapshot.value.toString() ?? '',
         price: priceSnapshot.value.toString() ?? '',
+        priceType: priceTypeSnapshot.value.toString() ?? '',
         onceDay: onceDayDateSnapshot.value.toString() ?? '',
         longDays: longDaysSnapshot.value.toString() ?? '',
         regularDays: regularDaysSnapshot.value.toString() ?? '',
@@ -139,6 +144,7 @@ class Event {
       imageUrl: 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2Fdvij_unknow_user.jpg?alt=media&token=b63ea5ef-7bdf-49e9-a3ef-1d34d676b6a7',
       placeId: '',
     price: '',
+    priceType: '',
     onceDay: '',
     longDays: '',
     regularDays: '',
@@ -165,6 +171,7 @@ class Event {
         imageUrl: 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2Fdvij_unknow_user.jpg?alt=media&token=b63ea5ef-7bdf-49e9-a3ef-1d34d676b6a7',
         placeId: '',
         price: '',
+        priceType: '',
         onceDay: '',
         longDays: '',
         regularDays: '',
@@ -207,7 +214,8 @@ class Event {
         'longDays': event.longDays,
         'regularDays': event.regularDays,
         'irregularDays': event.irregularDays,
-        'price': event.price ?? ''
+        'price': event.price ?? '',
+        'priceType': event.priceType ?? ''
 
       });
 
@@ -768,6 +776,17 @@ class Event {
       case 'regular': return EventTypeEnum.regular;
       case 'irregular': return EventTypeEnum.irregular;
       default: return EventTypeEnum.once;
+
+    }
+  }
+
+  static PriceTypeOption getPriceTypeEnum (String priceType) {
+    switch (priceType){
+
+      case 'free': return PriceTypeOption.free;
+      case 'fixed': return PriceTypeOption.fixed;
+      case 'range': return PriceTypeOption.range;
+      default: return PriceTypeOption.free;
 
     }
   }
