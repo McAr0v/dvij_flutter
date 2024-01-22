@@ -84,7 +84,7 @@ class EventPriceWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Цена "От - до "',
+                          'Цена "От - До"',
                           style: Theme.of(context).textTheme.bodyMedium,
                           textAlign: TextAlign.start,
                         ),

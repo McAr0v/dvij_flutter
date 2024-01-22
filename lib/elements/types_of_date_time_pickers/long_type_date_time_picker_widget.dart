@@ -43,76 +43,69 @@ class LongTypeDateTimePickerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: AppColors.greyOnBackground,
-      surfaceTintColor: AppColors.greyOnBackground.withOpacity(0),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-        child: Column(
-          children: [
+    return Column(
+      children: [
 
 
-            /*Text(
+        /*Text(
               title,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(height: 1.1),
             ),
 
             SizedBox(height: 20,),*/
 
-            if (selectedStartDate == DateTime(2100))
-              DataPickerCustom(
-                onActionPressed: onStartDateActionPressed,
-                date: 'Дата начала не выбрана',
-                labelText: startDateLabelText,
-              )
+        if (selectedStartDate == DateTime(2100))
+          DataPickerCustom(
+            onActionPressed: onStartDateActionPressed,
+            date: 'Дата начала не выбрана',
+            labelText: startDateLabelText,
+          )
 
-            else DataPickerCustom(
-                onActionPressed: onStartDateActionPressedWithChosenDate,
-                date: getHumanDate('${selectedStartDate.year}-${selectedStartDate.month}-${selectedStartDate.day}', '-'),
-                labelText: startDateLabelText
+        else DataPickerCustom(
+            onActionPressed: onStartDateActionPressedWithChosenDate,
+            date: getHumanDate('${selectedStartDate.year}-${selectedStartDate.month}-${selectedStartDate.day}', '-'),
+            labelText: startDateLabelText
+        ),
+
+        SizedBox(height: 10,),
+
+        if (selectedEndDate == DateTime(2100))
+          DataPickerCustom(
+            onActionPressed: onEndDateActionPressed,
+            date: 'Дата завершения не выбрана',
+            labelText: endDateLabelText,
+          )
+
+        else DataPickerCustom(
+            onActionPressed: onEndDateActionPressedWithChosenDate,
+            date: getHumanDate('${selectedEndDate.year}-${selectedEndDate.month}-${selectedEndDate.day}', '-'),
+            labelText: endDateLabelText
+        ),
+
+        SizedBox(height: 10,),
+
+        Row(
+          //mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _buildTimeDropdown(
+                startTimeLabelText,
+                startTime,
+                onStartTimeChanged,
+                context
             ),
 
-            SizedBox(height: 10,),
+            const SizedBox(width: 30,),
 
-            if (selectedEndDate == DateTime(2100))
-              DataPickerCustom(
-                onActionPressed: onEndDateActionPressed,
-                date: 'Дата завершения не выбрана',
-                labelText: endDateLabelText,
-              )
-
-            else DataPickerCustom(
-                onActionPressed: onEndDateActionPressedWithChosenDate,
-                date: getHumanDate('${selectedEndDate.year}-${selectedEndDate.month}-${selectedEndDate.day}', '-'),
-                labelText: endDateLabelText
+            _buildTimeDropdown(
+                endTimeLabelText,
+                endTime,
+                onEndTimeChanged,
+                context
             ),
-
-            SizedBox(height: 10,),
-
-            Row(
-              //mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildTimeDropdown(
-                    startTimeLabelText,
-                    startTime,
-                    onStartTimeChanged,
-                    context
-                ),
-
-                const SizedBox(width: 30,),
-
-                _buildTimeDropdown(
-                    endTimeLabelText,
-                    endTime,
-                    onEndTimeChanged,
-                    context
-                ),
-              ],
-            ),
-
           ],
         ),
-      ),
+
+      ],
     );
   }
 

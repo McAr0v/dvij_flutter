@@ -38,80 +38,76 @@ class IrregularTypeDateTimePickerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: AppColors.greyOnBackground,
-      surfaceTintColor: AppColors.greyOnBackground.withOpacity(0),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-        child: Column(
-          children: [
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 0, vertical: 15),
+      child: Column(
+        children: [
 
 
-            /*Text(
+          /*Text(
               title,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(height: 1.1),
             ),
 
             SizedBox(height: 20,),*/
 
-            if (selectedDate == DateTime(2100))
-              DataPickerCustom(
-                onActionPressed: onDateActionPressed,
-                date: 'Дата не выбрана',
-                labelText: dateLabelText,
-              )
+          if (selectedDate == DateTime(2100))
+            DataPickerCustom(
+              onActionPressed: onDateActionPressed,
+              date: 'Дата не выбрана',
+              labelText: dateLabelText,
+            )
 
-            else DataPickerCustom(
-                onActionPressed: onDateActionPressedWithChosenDate,
-                date: getHumanDate('${selectedDate.year}-${selectedDate.month}-${selectedDate.day}', '-'),
-                labelText: dateLabelText,
-            ),
+          else DataPickerCustom(
+            onActionPressed: onDateActionPressedWithChosenDate,
+            date: getHumanDate('${selectedDate.year}-${selectedDate.month}-${selectedDate.day}', '-'),
+            labelText: dateLabelText,
+          ),
 
-            SizedBox(height: 10,),
+          SizedBox(height: 10,),
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildTimeDropdown(
-                    startTimeLabelText,
-                    startTime,
-                    onStartTimeChanged,
-                    context
-                ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildTimeDropdown(
+                  startTimeLabelText,
+                  startTime,
+                  onStartTimeChanged,
+                  context
+              ),
 
-                const SizedBox(width: 30,),
+              const SizedBox(width: 30,),
 
-                _buildTimeDropdown(
-                    endTimeLabelText,
-                    endTime,
-                    onEndTimeChanged,
-                    context
-                ),
+              _buildTimeDropdown(
+                  endTimeLabelText,
+                  endTime,
+                  onEndTimeChanged,
+                  context
+              ),
 
-                const SizedBox(width: 30,),
+              const SizedBox(width: 30,),
 
-                GestureDetector(
+              GestureDetector(
                   onTap: onDeletePressed,
                   child: Row(
                     children: [
                       Text(
-                          'Удалить',
+                        'Удалить',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.attentionRed),
                       ),
                       const SizedBox(width: 5,),
                       const Icon(
-                          Icons.delete,
+                        Icons.delete,
                         color: AppColors.attentionRed,
                       ),
                     ],
                   )
-                )
+              )
 
-              ],
-            ),
+            ],
+          ),
 
-          ],
-        ),
+        ],
       ),
     );
   }

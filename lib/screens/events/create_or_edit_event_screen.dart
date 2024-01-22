@@ -13,6 +13,7 @@ import 'package:dvij_flutter/elements/types_of_date_time_pickers/irregular_type_
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/long_type_date_time_picker_widget.dart';
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/once_type_date_time_picker_widget.dart';
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/regular_two_type_date_time_picker_widget.dart';
+import 'package:dvij_flutter/elements/types_of_date_time_pickers/type_of_date_widget.dart';
 import 'package:dvij_flutter/methods/days_functions.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -280,10 +281,38 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
     headlineController = TextEditingController(text: widget.eventInfo.headline);
     descController = TextEditingController(text: widget.eventInfo.desc);
 
-    phoneController = TextEditingController(text: widget.eventInfo.phone);
-    whatsappController = TextEditingController(text: widget.eventInfo.whatsapp);
-    telegramController = TextEditingController(text: widget.eventInfo.telegram);
-    instagramController = TextEditingController(text: widget.eventInfo.instagram);
+    if (widget.eventInfo.phone != '') {
+      phoneController = TextEditingController(text: widget.eventInfo.phone);
+    } else if (UserCustom.currentUser != null && UserCustom.currentUser!.phone != '') {
+      phoneController = TextEditingController(text: UserCustom.currentUser!.phone);
+    } else {
+      phoneController = TextEditingController(text: '');
+    }
+
+    if (widget.eventInfo.whatsapp != '') {
+      whatsappController = TextEditingController(text: widget.eventInfo.whatsapp);
+    } else if (UserCustom.currentUser != null && UserCustom.currentUser!.whatsapp != '') {
+      whatsappController = TextEditingController(text: UserCustom.currentUser!.whatsapp);
+    } else {
+      whatsappController = TextEditingController(text: '');
+    }
+
+    if (widget.eventInfo.telegram != '') {
+      telegramController = TextEditingController(text: widget.eventInfo.telegram);
+    } else if (UserCustom.currentUser != null && UserCustom.currentUser!.telegram != '') {
+      telegramController = TextEditingController(text: UserCustom.currentUser!.telegram);
+    } else {
+      telegramController = TextEditingController(text: '');
+    }
+
+    if (widget.eventInfo.instagram != '') {
+      instagramController = TextEditingController(text: widget.eventInfo.instagram);
+    } else if (UserCustom.currentUser != null && UserCustom.currentUser!.instagram != '') {
+      instagramController = TextEditingController(text: UserCustom.currentUser!.instagram);
+    } else {
+      instagramController = TextEditingController(text: '');
+    }
+
     cityController = TextEditingController(text: widget.eventInfo.city);
     streetController = TextEditingController(text: widget.eventInfo.street);
     houseController = TextEditingController(text: widget.eventInfo.house);
@@ -335,8 +364,6 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
                     const SizedBox(height: 16.0),
 
-                    const SizedBox(height: 16.0),
-
                     TextField(
                       style: Theme.of(context).textTheme.bodyMedium,
                       keyboardType: TextInputType.text,
@@ -364,6 +391,208 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                     ),
 
                     const SizedBox(height: 20.0),
+
+                    if (chosenCategory.id == '') CategoryElementInEditScreen(
+                      categoryName: 'Категория не выбрана',
+                      onActionPressed: () {
+                        //_showCityPickerDialog();
+                        _showCategoryPickerDialog();
+                      },
+                    ),
+
+                    if (chosenCategory.id != "") CategoryElementInEditScreen(
+                      categoryName: chosenCategory.name,
+                      onActionPressed: () {
+                        //_showCityPickerDialog();
+                        _showCategoryPickerDialog();
+                      },
+                    ),
+
+                    const SizedBox(height: 20.0),
+
+                    Card(
+                      surfaceTintColor: Colors.transparent,
+                      color: AppColors.greyOnBackground,
+                      child: Padding (
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                        child: Column (
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+
+                            TypeOfDateWidget(
+                              type: eventTypeEnum,
+                              onChooseType: (EventTypeEnum? newValue) {
+                                setState(() {
+                                  eventTypeEnum = newValue!;
+                                });
+                              },
+                            ),
+
+                            const SizedBox(height: 20.0),
+
+                            if (eventTypeEnum == EventTypeEnum.once) OnceTypeDateTimePickerWidget(
+                              //title: 'Выбери дату и время проведения мероприятия',
+                                dateLabelText: 'Дата проведения мероприятия',
+                                startTimeLabelText: "Начало мероприятия",
+                                endTimeLabelText: "Конец мероприятия",
+                                selectedDate: selectedDayInOnceType,
+                                startTime: onceDayStartTime,
+                                endTime: onceDayFinishTime,
+                                onDateActionPressed: (){
+                                  DateTime temp = DateTime.now();
+                                  setState(() {
+                                    selectedDayInOnceType = temp;
+                                  });
+                                  _selectDate(context, selectedDayInOnceType, needClearInitialDate: true);
+
+                                },
+                                onDateActionPressedWithChosenDate:  () {
+                                  _selectDate(context, selectedDayInOnceType);
+                                  //_selectDate(context);
+                                },
+                                onStartTimeChanged: (String? time) {
+                                  setState(() {
+                                    onceDayStartTime = time!;
+                                  });
+                                },
+                                onEndTimeChanged: (String? time) {
+                                  setState(() {
+                                    onceDayFinishTime = time!;
+                                  });
+                                }
+                            ),
+
+
+
+                            if (eventTypeEnum == EventTypeEnum.long) LongTypeDateTimePickerWidget(
+                                startDateLabelText: 'Дата начала мероприятия',
+                                endDateLabelText: 'Дата завершения мероприятия',
+                                startTimeLabelText: "Начало мероприятия",
+                                endTimeLabelText: "Конец мероприятия",
+                                selectedStartDate: selectedStartDayInLongType,
+                                selectedEndDate: selectedEndDayInLongType,
+                                startTime: longDayStartTime,
+                                endTime: longDayFinishTime,
+                                onStartDateActionPressed: (){
+                                  DateTime temp = DateTime.now();
+                                  setState(() {
+                                    selectedStartDayInLongType = temp;
+                                  });
+                                  _selectDate(context, selectedStartDayInLongType, needClearInitialDate: true, isOnce: false, isStart: true, endDate: selectedEndDayInLongType);
+                                  //_isStartBeforeEnd(true);
+
+                                },
+                                onStartDateActionPressedWithChosenDate: () {
+                                  _selectDate(context, selectedStartDayInLongType, isOnce: false, isStart: true, endDate: selectedEndDayInLongType);
+                                  //_isStartBeforeEnd(true);
+                                },
+                                onEndDateActionPressed: (){
+                                  // TODO Сделать проверку, чтобы по умолчанию выставлялись граничные даты в пикере, в зависимости от выбранной даты начала и конца
+                                  DateTime temp = selectedStartDayInLongType;
+                                  setState(() {
+                                    selectedEndDayInLongType = temp;
+                                  });
+                                  _selectDate(context, selectedEndDayInLongType, needClearInitialDate: true, isOnce: false, isStart: false, firstDate: selectedStartDayInLongType);
+                                  //_isStartBeforeEnd(false);
+                                },
+                                onEndDateActionPressedWithChosenDate: () {
+                                  _selectDate(context, selectedEndDayInLongType, isOnce: false, isStart: false, firstDate: selectedStartDayInLongType);
+
+                                },
+                                onStartTimeChanged: (String? time) {
+                                  setState(() {
+                                    longDayStartTime = time!;
+                                  });
+                                },
+                                onEndTimeChanged: (String? time) {
+                                  setState(() {
+                                    longDayFinishTime = time!;
+                                  });
+                                }
+                            ),
+
+                            if (eventTypeEnum == EventTypeEnum.regular) Column(
+                              children: List.generate(regularStartTimes.length, (index) {
+                                return RegularTwoTypeDateTimePickerWidget(
+                                  startTimeLabelText: "Начало мероприятия",
+                                  endTimeLabelText: 'Конец мероприятия',
+                                  startTime: regularStartTimes[index],
+                                  endTime: regularFinishTimes[index],
+                                  index: index,
+                                  onStartTimeChanged: (String? time) {
+                                    setState(() {
+                                      regularStartTimes[index] = time!;
+                                    });
+                                  },
+                                  onEndTimeChanged: (String? time) {
+                                    setState(() {
+                                      regularFinishTimes[index] = time!;
+                                    });
+                                  },
+                                );
+                              }).toList(),
+                            ),
+
+                            if (eventTypeEnum == EventTypeEnum.irregular && chosenIrregularDays.isNotEmpty) Column(
+                              children: List.generate(chosenIrregularDays.length, (index) {
+                                return IrregularTypeDateTimePickerWidget(
+                                    dateLabelText: "Дата проведения мероприятия",
+                                    startTimeLabelText: 'Начало',
+                                    endTimeLabelText: 'Завершение',
+                                    selectedDate: chosenIrregularDays[index],
+                                    startTime: chosenIrregularStartTime[index],
+                                    endTime: chosenIrregularEndTime[index],
+                                    onDateActionPressed: (){
+                                      DateTime temp = DateTime.now();
+                                      setState(() {
+                                        chosenIrregularDays[index] = temp;
+                                      });
+                                      _selectDate(context, chosenIrregularDays[index], needClearInitialDate: true, isIrregular: true, index: index);
+
+                                    },
+                                    onDateActionPressedWithChosenDate:  () {
+                                      _selectDate(context, chosenIrregularDays[index], isIrregular: true, index: index);
+                                      //_selectDate(context);
+                                    },
+                                    onStartTimeChanged: (String? time) {
+                                      setState(() {
+                                        chosenIrregularStartTime[index] = time!;
+                                      });
+                                    },
+                                    onEndTimeChanged: (String? time) {
+                                      setState(() {
+                                        chosenIrregularEndTime[index] = time!;
+                                      });
+                                    },
+                                    onDeletePressed: (){
+                                      setState(() {
+                                        chosenIrregularDays.removeAt(index);
+                                        chosenIrregularStartTime.removeAt(index);
+                                        chosenIrregularEndTime.removeAt(index);
+                                      });
+                                    }
+                                );
+                              }).toList(),
+                            ),
+
+                            if (eventTypeEnum == EventTypeEnum.irregular) SizedBox(height: 20,),
+                            if (eventTypeEnum == EventTypeEnum.irregular) CustomButton(
+                                buttonText: "Добавить дату",
+                                onTapMethod: (){
+                                  setState(() {
+                                    chosenIrregularDays.add(DateTime.now());
+                                    chosenIrregularStartTime.add('00:00');
+                                    chosenIrregularEndTime.add('00:00');
+                                  });
+                                }
+                            ),
+
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 15.0),
 
                     EventPriceWidget(
                       type: priceType,
@@ -393,7 +622,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                       fixedPriceController: fixedPriceController,
                     ),
 
-                    const SizedBox(height: 20.0),
+                    const SizedBox(height: 15.0),
 
                     ChoosePlaceInEventAndPromoWidget(
                         chosenPlace: chosenPlace,
@@ -426,312 +655,14 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                         houseController: houseController
                     ),
 
-                    const SizedBox(height: 40.0),
-
-                    Text(
-                      'Выбери тип мероприятия',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-
-                    const SizedBox(height: 5.0),
-
-                    Text(
-                      'От типа мероприятия будет зависить выбор даты проведения',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-
-                    const SizedBox(height: 16.0),
-
-                    DropdownButton<EventTypeEnum>(
-                      style: Theme.of(context).textTheme.bodySmall,
-                      isExpanded: true,
-                      value: eventTypeEnum,
-                      onChanged: (EventTypeEnum? newValue) {
-                        setState(() {
-                          eventTypeEnum = newValue!;
-                        });
-                      },
-                      items: [
-                        DropdownMenuItem(
-                          value: EventTypeEnum.once,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Разовое',
-                                style: Theme.of(context).textTheme.bodyMedium,
-                                textAlign: TextAlign.start,
-                              ),
-                              Text(
-                                'Состоится 1 раз в одну определенную дату',
-                                style: Theme.of(context).textTheme.labelMedium,
-                                textAlign: TextAlign.start,
-                              ),
-                            ],
-                          )
-                        ),
-                        DropdownMenuItem(
-                            value: EventTypeEnum.long,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Длительное',
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                  textAlign: TextAlign.start,
-                                ),
-                                Text(
-                                  'Проходит несколько дней подряд',
-                                  style: Theme.of(context).textTheme.labelMedium,
-                                  textAlign: TextAlign.start,
-                                ),
-                              ],
-                            )
-                        ),
-                        DropdownMenuItem(
-                            value: EventTypeEnum.regular,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Регулярное',
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                  textAlign: TextAlign.start,
-                                ),
-                                Text(
-                                  'Проходит каждую неделю в определенные дни',
-                                  style: Theme.of(context).textTheme.labelMedium,
-                                  textAlign: TextAlign.start,
-                                ),
-                              ],
-                            )
-                        ),
-                        DropdownMenuItem(
-                            value: EventTypeEnum.irregular,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'В разные даты',
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                  textAlign: TextAlign.start,
-                                ),
-                                Text(
-                                  'Проходит в разные даты - 1, 5, 13 и тд',
-                                  style: Theme.of(context).textTheme.labelMedium,
-                                  textAlign: TextAlign.start,
-                                ),
-                              ],
-                            )
-                        ),
-                      ],
-                    ),
-
                     const SizedBox(height: 20.0),
 
-                    Text(
-                      'Выбери дату и время проведения мероприятия',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(height: 1.1),
-                    ),
-
-                    SizedBox(height: 20,),
-
-                    if (eventTypeEnum == EventTypeEnum.once) OnceTypeDateTimePickerWidget(
-                        //title: 'Выбери дату и время проведения мероприятия',
-                        dateLabelText: 'Дата проведения мероприятия',
-                        startTimeLabelText: "Начало мероприятия",
-                        endTimeLabelText: "Конец мероприятия",
-                        selectedDate: selectedDayInOnceType,
-                        startTime: onceDayStartTime,
-                        endTime: onceDayFinishTime,
-                        onDateActionPressed: (){
-                          DateTime temp = DateTime.now();
-                          setState(() {
-                            selectedDayInOnceType = temp;
-                          });
-                          _selectDate(context, selectedDayInOnceType, needClearInitialDate: true);
-
-                        },
-                        onDateActionPressedWithChosenDate:  () {
-                          _selectDate(context, selectedDayInOnceType);
-                          //_selectDate(context);
-                        },
-                        onStartTimeChanged: (String? time) {
-                          setState(() {
-                            onceDayStartTime = time!;
-                          });
-                        },
-                        onEndTimeChanged: (String? time) {
-                          setState(() {
-                            onceDayFinishTime = time!;
-                          });
-                        }
-                    ),
-
-
-
-                    if (eventTypeEnum == EventTypeEnum.long) LongTypeDateTimePickerWidget(
-                        startDateLabelText: 'Дата начала мероприятия',
-                        endDateLabelText: 'Дата завершения мероприятия',
-                        startTimeLabelText: "Начало мероприятия",
-                        endTimeLabelText: "Конец мероприятия",
-                        selectedStartDate: selectedStartDayInLongType,
-                        selectedEndDate: selectedEndDayInLongType,
-                        startTime: longDayStartTime,
-                        endTime: longDayFinishTime,
-                        onStartDateActionPressed: (){
-                          DateTime temp = DateTime.now();
-                          setState(() {
-                            selectedStartDayInLongType = temp;
-                          });
-                          _selectDate(context, selectedStartDayInLongType, needClearInitialDate: true, isOnce: false, isStart: true, endDate: selectedEndDayInLongType);
-                          //_isStartBeforeEnd(true);
-
-                        },
-                        onStartDateActionPressedWithChosenDate: () {
-                          _selectDate(context, selectedStartDayInLongType, isOnce: false, isStart: true, endDate: selectedEndDayInLongType);
-                          //_isStartBeforeEnd(true);
-                        },
-                        onEndDateActionPressed: (){
-                          // TODO Сделать проверку, чтобы по умолчанию выставлялись граничные даты в пикере, в зависимости от выбранной даты начала и конца
-                          DateTime temp = selectedStartDayInLongType;
-                          setState(() {
-                            selectedEndDayInLongType = temp;
-                          });
-                          _selectDate(context, selectedEndDayInLongType, needClearInitialDate: true, isOnce: false, isStart: false, firstDate: selectedStartDayInLongType);
-                          //_isStartBeforeEnd(false);
-                        },
-                        onEndDateActionPressedWithChosenDate: () {
-                          _selectDate(context, selectedEndDayInLongType, isOnce: false, isStart: false, firstDate: selectedStartDayInLongType);
-
-                        },
-                        onStartTimeChanged: (String? time) {
-                          setState(() {
-                            longDayStartTime = time!;
-                          });
-                        },
-                        onEndTimeChanged: (String? time) {
-                          setState(() {
-                            longDayFinishTime = time!;
-                          });
-                        }
-                    ),
-
-                    if (eventTypeEnum == EventTypeEnum.regular) Card(
-                      surfaceTintColor: Colors.transparent,
-                      color: AppColors.greyOnBackground,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-                        child: Column(
-                          children: List.generate(regularStartTimes.length, (index) {
-                            return RegularTwoTypeDateTimePickerWidget(
-                                startTimeLabelText: "Начало мероприятия",
-                                endTimeLabelText: 'Конец мероприятия',
-                                startTime: regularStartTimes[index],
-                                endTime: regularFinishTimes[index],
-                                index: index,
-                                onStartTimeChanged: (String? time) {
-                                  setState(() {
-                                    regularStartTimes[index] = time!;
-                                  });
-                                },
-                                onEndTimeChanged: (String? time) {
-                                  setState(() {
-                                    regularFinishTimes[index] = time!;
-                                  });
-                                },
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                    ),
-
-                    if (eventTypeEnum == EventTypeEnum.irregular && chosenIrregularDays.isNotEmpty) Column(
-                      children: List.generate(chosenIrregularDays.length, (index) {
-                        return IrregularTypeDateTimePickerWidget(
-                            dateLabelText: "Дата проведения мероприятия",
-                            startTimeLabelText: 'Начало',
-                            endTimeLabelText: 'Завершение',
-                            selectedDate: chosenIrregularDays[index],
-                            startTime: chosenIrregularStartTime[index],
-                            endTime: chosenIrregularEndTime[index],
-                            onDateActionPressed: (){
-                              DateTime temp = DateTime.now();
-                              setState(() {
-                                chosenIrregularDays[index] = temp;
-                              });
-                              _selectDate(context, chosenIrregularDays[index], needClearInitialDate: true, isIrregular: true, index: index);
-
-                            },
-                            onDateActionPressedWithChosenDate:  () {
-                              _selectDate(context, chosenIrregularDays[index], isIrregular: true, index: index);
-                              //_selectDate(context);
-                            },
-                            onStartTimeChanged: (String? time) {
-                              setState(() {
-                                chosenIrregularStartTime[index] = time!;
-                              });
-                            },
-                            onEndTimeChanged: (String? time) {
-                              setState(() {
-                                chosenIrregularEndTime[index] = time!;
-                              });
-                            },
-                            onDeletePressed: (){
-                              setState(() {
-                                chosenIrregularDays.removeAt(index);
-                                chosenIrregularStartTime.removeAt(index);
-                                chosenIrregularEndTime.removeAt(index);
-                              });
-                            }
-                        );
-                      }).toList(),
-                    ),
-
-                    if (eventTypeEnum == EventTypeEnum.irregular) SizedBox(height: 20,),
-                    if (eventTypeEnum == EventTypeEnum.irregular) CustomButton(
-                        buttonText: "Добавить дату",
-                        onTapMethod: (){
-                          setState(() {
-                            chosenIrregularDays.add(DateTime.now());
-                            chosenIrregularStartTime.add('00:00');
-                            chosenIrregularEndTime.add('00:00');
-                          });
-                        }
-                    ),
-                    //EventTypeTabsWidget(eventType: eventTypeEnum),
-
-                    const SizedBox(height: 30.0),
-
-
-
-                    const SizedBox(height: 16.0),
-
-                    // ---- ВОТ ТУТ ДЕЛАЮ ----
-
-                    if (chosenCategory.id == '') CategoryElementInEditScreen(
-                      categoryName: 'Категория не выбрана',
-                      onActionPressed: () {
-                        //_showCityPickerDialog();
-                        _showCategoryPickerDialog();
-                      },
-                    ),
-
-                    if (chosenCategory.id != "") CategoryElementInEditScreen(
-                      categoryName: chosenCategory.name,
-                      onActionPressed: () {
-                        //_showCityPickerDialog();
-                        _showCategoryPickerDialog();
-                      },
-                    ),
-
-                    const SizedBox(height: 16.0),
                     TextField(
                       style: Theme.of(context).textTheme.bodyMedium,
                       keyboardType: TextInputType.phone,
                       controller: phoneController,
                       decoration: const InputDecoration(
-                        labelText: 'Телефон',
+                        labelText: 'Телефон для заказа билетов',
                       ),
                     ),
 
@@ -741,7 +672,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                       keyboardType: TextInputType.phone,
                       controller: whatsappController,
                       decoration: const InputDecoration(
-                        labelText: 'Whatsapp',
+                        labelText: 'Whatsapp для заказа билетов',
                       ),
                     ),
 
@@ -751,7 +682,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                       keyboardType: TextInputType.text,
                       controller: telegramController,
                       decoration: const InputDecoration(
-                        labelText: 'Telegram',
+                        labelText: 'Telegram для заказа билетов',
                       ),
                     ),
 
@@ -761,7 +692,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                       keyboardType: TextInputType.text,
                       controller: instagramController,
                       decoration: const InputDecoration(
-                        labelText: 'Instagram',
+                        labelText: 'Instagram для заказа билетов',
                       ),
                     ),
 
@@ -895,6 +826,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                         Navigator.pop(context);
                       },
                     ),
+                    const SizedBox(height: 20.0),
                   ],
                 ),
               ),
