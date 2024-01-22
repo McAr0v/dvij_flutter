@@ -7,6 +7,8 @@ import 'package:dvij_flutter/elements/category_element_in_edit_screen.dart';
 import 'package:dvij_flutter/elements/checkbox_with_desc.dart';
 import 'package:dvij_flutter/elements/events_elements/event_category_picker_page.dart';
 import 'package:dvij_flutter/elements/places_elements/place_category_picker_page.dart';
+import 'package:dvij_flutter/elements/places_elements/place_picker_page.dart';
+import 'package:dvij_flutter/elements/places_elements/place_widget_in_create_event_screen.dart';
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/irregular_type_date_time_picker_widget.dart';
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/long_type_date_time_picker_widget.dart';
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/once_type_date_time_picker_widget.dart';
@@ -104,28 +106,8 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
   String longDayStartTime = '00:00';
   String longDayFinishTime = '00:00';
 
-  /*String mondayStartTime = '00:00';
-  String mondayFinishTime = '00:00';
-  String tuesdayStartTime = '00:00';
-  String tuesdayFinishTime = '00:00';
-  String wednesdayStartTime = '00:00';
-  String wednesdayFinishTime = '00:00';
-  String thursdayStartTime = '00:00';
-  String thursdayFinishTime = '00:00';
-  String fridayStartTime = '00:00';
-  String fridayFinishTime = '00:00';
-  String saturdayStartTime = '00:00';
-  String saturdayFinishTime = '00:00';
-  String sundayStartTime = '00:00';
-  String sundayFinishTime = '00:00';*/
-
   List<String> regularStartTimes = fillTimeListWithDefaultValues('00:00', 7);
   List<String> regularFinishTimes = fillTimeListWithDefaultValues('00:00', 7);
-
-  List<Map<String, dynamic>> irregularDates = [
-    {"date": "2024-01-18", "startTime": "14:00", "endTime": "16:00"},
-    // Добавьте другие даты в вашем списке
-  ];
 
   // Здесь хранятся выбранные даты нерегулярных дней
   List<DateTime> chosenIrregularDays = [];
@@ -136,12 +118,18 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
   // Выбранные даты завершения
   List<String> chosenIrregularEndTime = [];
 
+  List<Place> myPlaces = [];
+
   bool loading = true;
   bool saving = false;
   bool tab1 = true;
   bool tab2 = false;
   bool tab3 = false;
   bool tab4 = false;
+
+
+  bool inPlace = true;
+  Place chosenPlace = Place.emptyPlace;
 
   List<City> _cities = [];
   List<EventCategory> _categories = [];
@@ -224,24 +212,6 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
     if (eventTypeEnum == EventTypeEnum.regular && widget.eventInfo.regularDays != ''){
 
       _fillRegularList();
-
-      /*
-      mondayStartTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'startTime1');
-      mondayFinishTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'endTime1');
-      tuesdayStartTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'startTime2');
-      tuesdayFinishTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'endTime2');
-      wednesdayStartTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'startTime3');
-      wednesdayFinishTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'endTime3');
-      thursdayStartTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'startTime4');
-      thursdayFinishTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'endTime4');
-      fridayStartTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'startTime5');
-      fridayFinishTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'endTime5');
-      saturdayStartTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'startTime6');
-      saturdayFinishTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'endTime6');
-      sundayStartTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'startTime7');
-      sundayFinishTime = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'endTime7');
-      */
-
     }
 
     if (eventTypeEnum == EventTypeEnum.irregular && widget.eventInfo.irregularDays != ''){
@@ -286,6 +256,16 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
     }
     else {
       createdTime = widget.eventInfo.createDate;
+    }
+
+    if (Place.currentMyPlaceList.isNotEmpty){
+
+      myPlaces = Place.currentMyPlaceList;
+
+    } else if (UserCustom.currentUser != null && UserCustom.currentUser!.uid != ''){
+
+      myPlaces = await Place.getMyPlaces(UserCustom.currentUser!.uid);
+
     }
 
     // Подгружаем в контроллеры содержимое из БД.
@@ -376,7 +356,133 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                       },
                     ),
 
-                    const SizedBox(height: 16.0),
+                    const SizedBox(height: 40.0),
+
+                    Text(
+                      'Выбери место проведения мероприятия',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(height: 1.1),
+                    ),
+
+                    const SizedBox(height: 5.0),
+
+                    Text(
+                      'Ты можешь указать заведение или просто написать адрес',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+
+                    SizedBox(height: 10,),
+
+                    Row (
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        GestureDetector(
+                          child: Card (
+                            color: inPlace? AppColors.brandColor : AppColors.greyForCards,
+                            //margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                            child: Padding (
+                              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                              child: Text (
+                                'Выбрать место',
+                                style: inPlace? Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.greyOnBackground) : Theme.of(context).textTheme.bodyMedium,
+                              ),
+                            ),
+                          ),
+                          onTap: (){
+                            setState(() {
+                              inPlace = true;
+                              streetController.text = '';
+                              houseController.text = '';
+                              chosenCity = City(id: '', name: '');
+                            });
+                          },
+                        ),
+                        GestureDetector(
+                          child: Card (
+                            color: !inPlace? AppColors.brandColor : AppColors.greyForCards,
+                            //margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                            child: Padding (
+                              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                              child: Text ('Написать адрес', style: !inPlace? Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.greyOnBackground) : Theme.of(context).textTheme.bodyMedium),
+                            ),
+                          ),
+                          onTap: (){
+                            setState(() {
+                              inPlace = false;
+                              chosenPlace = Place.empty();
+                              chosenCity = City(id: '', name: '');
+                            });
+                          },
+                        )
+                      ],
+                    ),
+
+                    const SizedBox(height: 20.0),
+
+                    if (inPlace) Column(
+                      children: [
+                        if (chosenPlace.id == '') CustomButton(
+                            buttonText: 'Выбрать заведение',
+                            onTapMethod: (){
+                              _showPlacePickerDialog();
+                            }
+                        ),
+                        if (chosenPlace.id != '') PlaceWidgetInCreateEventScreen(
+                          place: chosenPlace,
+                          onTapMethod: (){
+                            _showPlacePickerDialog();
+                          },
+                          onDeleteMethod: (){
+                            setState(() {
+                              chosenPlace = Place.empty();
+                              chosenCity = City(name: '', id: '');
+                            });
+                          },
+                        )
+                      ],
+                    ),
+
+                    if (!inPlace) Column(
+                      children: [
+                        if (chosenCity.id == '') CityElementInEditScreen(
+                          cityName: 'Город не выбран',
+                          onActionPressed: () {
+                            //_showCityPickerDialog();
+                            _showCityPickerDialog();
+                          },
+                        ),
+
+                        if (chosenCity.id != "") CityElementInEditScreen(
+                          cityName: chosenCity.name,
+                          onActionPressed: () {
+                            //_showCityPickerDialog();
+                            _showCityPickerDialog();
+                          },
+                        ),
+
+                        const SizedBox(height: 16.0),
+                        TextField(
+                          style: Theme.of(context).textTheme.bodyMedium,
+                          keyboardType: TextInputType.text,
+                          controller: streetController,
+                          decoration: const InputDecoration(
+                            labelText: 'Улица',
+                          ),
+                        ),
+
+                        const SizedBox(height: 16.0),
+                        TextField(
+                          style: Theme.of(context).textTheme.bodyMedium,
+                          keyboardType: TextInputType.text,
+                          controller: houseController,
+                          decoration: const InputDecoration(
+                            labelText: 'Номер дома',
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 40.0),
 
                     Text(
                       'Выбери тип мероприятия',
@@ -596,95 +702,6 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                       ),
                     ),
 
-                    /*if (eventTypeEnum == EventTypeEnum.regular) RegularTypeDateTimePickerWidget(
-                        startTimeLabelText: "Начало мероприятия",
-                        endTimeLabelText: 'Конец мероприятия',
-                        mondayStartTime: mondayStartTime,
-                        mondayFinishTime: mondayFinishTime,
-                        tuesdayStartTime: tuesdayStartTime,
-                        tuesdayFinishTime: tuesdayFinishTime,
-                        wednesdayStartTime: wednesdayStartTime,
-                        wednesdayFinishTime: wednesdayFinishTime,
-                        thursdayStartTime: thursdayStartTime,
-                        thursdayFinishTime: thursdayFinishTime,
-                        fridayStartTime: fridayStartTime,
-                        fridayFinishTime: fridayFinishTime,
-                        saturdayStartTime: saturdayStartTime,
-                        saturdayFinishTime: saturdayFinishTime,
-                        sundayStartTime: sundayStartTime,
-                        sundayFinishTime: sundayFinishTime,
-                        onMondayStartTimeChanged: (String? time) {
-                          setState(() {
-                            mondayStartTime = time!;
-                          });
-                        },
-                        onMondayEndTimeChanged: (String? time) {
-                          setState(() {
-                            mondayFinishTime = time!;
-                          });
-                        },
-                        onTuesdayStartTimeChanged: (String? time) {
-                          setState(() {
-                            tuesdayStartTime = time!;
-                          });
-                        },
-                        onTuesdayEndTimeChanged: (String? time) {
-                          setState(() {
-                            tuesdayFinishTime = time!;
-                          });
-                        },
-                        onWednesdayStartTimeChanged: (String? time) {
-                          setState(() {
-                            wednesdayStartTime = time!;
-                          });
-                        },
-                        onWednesdayEndTimeChanged: (String? time) {
-                          setState(() {
-                            wednesdayFinishTime = time!;
-                          });
-                        },
-                        onThursdayStartTimeChanged: (String? time) {
-                          setState(() {
-                            thursdayStartTime = time!;
-                          });
-                        },
-                        onThursdayEndTimeChanged: (String? time) {
-                          setState(() {
-                            thursdayFinishTime = time!;
-                          });
-                        },
-                        onFridayStartTimeChanged: (String? time) {
-                          setState(() {
-                            fridayStartTime = time!;
-                          });
-                        },
-                        onFridayEndTimeChanged: (String? time) {
-                          setState(() {
-                            fridayFinishTime = time!;
-                          });
-                        },
-                        onSaturdayStartTimeChanged: (String? time) {
-                          setState(() {
-                            saturdayStartTime = time!;
-                          });
-                        },
-                        onSaturdayEndTimeChanged: (String? time) {
-                          setState(() {
-                            saturdayFinishTime = time!;
-                          });
-                        },
-                        onSundayStartTimeChanged: (String? time) {
-                          setState(() {
-                            sundayStartTime = time!;
-                          });
-                        },
-                        onSundayEndTimeChanged: (String? time) {
-                          setState(() {
-                            sundayFinishTime = time!;
-                          });
-                        }
-                    ),*/
-
                     if (eventTypeEnum == EventTypeEnum.irregular && chosenIrregularDays.isNotEmpty) Column(
                       children: List.generate(chosenIrregularDays.length, (index) {
                         return IrregularTypeDateTimePickerWidget(
@@ -742,21 +759,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
                     const SizedBox(height: 30.0),
 
-                    if (chosenCity.id == '') CityElementInEditScreen(
-                      cityName: 'Город не выбран',
-                      onActionPressed: () {
-                        //_showCityPickerDialog();
-                        _showCityPickerDialog();
-                      },
-                    ),
 
-                    if (chosenCity.id != "") CityElementInEditScreen(
-                      cityName: chosenCity.name,
-                      onActionPressed: () {
-                        //_showCityPickerDialog();
-                        _showCityPickerDialog();
-                      },
-                    ),
 
                     const SizedBox(height: 16.0),
 
@@ -894,7 +897,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                             telegram: telegramController.text,
                             instagram: instagramController.text,
                             imageUrl: avatarURL ?? widget.eventInfo.imageUrl,
-                            placeId: '', // сделать функционал
+                            placeId: chosenPlace.id, // сделать функционал
                             onceDay: generateOnceTypeDate(
                                 selectedDayInOnceType,
                                 onceDayStartTime,
@@ -907,11 +910,6 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                                 longDayFinishTime
                             ), // сделать функционал
                             regularDays: generateRegularTypeDateTwo(regularStartTimes, regularFinishTimes), // сделать функционал
-                            /*irregularDays: generateIrregularTypeDate(
-                                chosenIrregularDays,
-                                chosenIrregularStartTime,
-                                chosenIrregularEndTime
-                            ),*/
 
                             irregularDays: sortDateTimeListAndRelatedData(
                                 chosenIrregularDays,
@@ -1049,6 +1047,38 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
       pageBuilder: (context, animation, secondaryAnimation) {
 
         return EventCategoryPickerPage(categories: categories);
+      },
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(0.0, 1.0);
+        const end = Offset.zero;
+        const curve = Curves.easeInOut;
+        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var offsetAnimation = animation.drive(tween);
+        return SlideTransition(position: offsetAnimation, child: child);
+      },
+      transitionDuration: Duration(milliseconds: 100),
+
+    );
+  }
+
+  void _showPlacePickerDialog() async {
+    final selectedPlace = await Navigator.of(context).push(_createPopupPlace(myPlaces));
+
+    if (selectedPlace != null) {
+      setState(() {
+        chosenPlace = selectedPlace;
+        chosenCity = City.getCityByIdFromList(chosenPlace.city);
+      });
+      //print("Selected category: ${selectedPlace.name}, ID: ${selectedPlace.id}");
+    }
+  }
+
+  Route _createPopupPlace(List<Place> places) {
+    return PageRouteBuilder(
+
+      pageBuilder: (context, animation, secondaryAnimation) {
+
+        return PlacePickerPage(places: places);
       },
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const begin = Offset(0.0, 1.0);
