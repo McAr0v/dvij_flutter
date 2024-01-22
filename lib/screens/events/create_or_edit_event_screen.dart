@@ -4,7 +4,9 @@ import 'package:dvij_flutter/classes/event_type_enum.dart';
 import 'package:dvij_flutter/classes/place_class.dart';
 import 'package:dvij_flutter/classes/priceTypeOptions.dart';
 import 'package:dvij_flutter/elements/category_element_in_edit_screen.dart';
+import 'package:dvij_flutter/elements/choose_place_in_event_and_promo.dart';
 import 'package:dvij_flutter/elements/events_elements/event_category_picker_page.dart';
+import 'package:dvij_flutter/elements/events_elements/event_price_widget.dart';
 import 'package:dvij_flutter/elements/places_elements/place_picker_page.dart';
 import 'package:dvij_flutter/elements/places_elements/place_widget_in_create_event_screen.dart';
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/irregular_type_date_time_picker_widget.dart';
@@ -361,27 +363,11 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                       },
                     ),
 
-                    const SizedBox(height: 40.0),
+                    const SizedBox(height: 20.0),
 
-                    Text(
-                      'Стоимость билетов',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(height: 1.1),
-                    ),
-
-                    const SizedBox(height: 5.0),
-
-                    Text(
-                      'Ты можешь выбрать из несольких вариантов - бесплатно, фиксированная цена или цена от и до',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-
-                    const SizedBox(height: 16.0),
-
-                    DropdownButton<PriceTypeOption>(
-                      style: Theme.of(context).textTheme.bodySmall,
-                      isExpanded: true,
-                      value: priceType,
-                      onChanged: (PriceTypeOption? newValue) {
+                    EventPriceWidget(
+                      type: priceType,
+                      onTap: (PriceTypeOption? newValue) {
                         setState(() {
                           priceType = newValue!;
 
@@ -402,219 +388,42 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
                         });
                       },
-                      items: [
-                        DropdownMenuItem(
-                            value: PriceTypeOption.free,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Бесплатно',
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                  textAlign: TextAlign.start,
-                                ),
-                                Text(
-                                  'Свободный вход для всех посетителей',
-                                  style: Theme.of(context).textTheme.labelMedium,
-                                  textAlign: TextAlign.start,
-                                ),
-                              ],
-                            )
-                        ),
-                        DropdownMenuItem(
-                            value: PriceTypeOption.fixed,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Фиксированная стоимость',
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                  textAlign: TextAlign.start,
-                                ),
-                                Text(
-                                  'Одна стоимость билетов для всех посетителей',
-                                  style: Theme.of(context).textTheme.labelMedium,
-                                  textAlign: TextAlign.start,
-                                ),
-                              ],
-                            )
-                        ),
-                        DropdownMenuItem(
-                            value: PriceTypeOption.range,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Цена "От - до "',
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                  textAlign: TextAlign.start,
-                                ),
-                                Text(
-                                  'Крайние стоимости билетов',
-                                  style: Theme.of(context).textTheme.labelMedium,
-                                  textAlign: TextAlign.start,
-                                ),
-                              ],
-                            )
-                        ),
-                      ],
-                    ),
-
-                    if (priceType != PriceTypeOption.free) const SizedBox(height: 20.0),
-
-                    if (priceType == PriceTypeOption.fixed) TextField(
-                      style: Theme.of(context).textTheme.bodyMedium,
-                      keyboardType: TextInputType.number,
-                      controller: fixedPriceController,
-                      decoration: const InputDecoration(
-                        labelText: 'Введи стоимость билетов',
-                      ),
-                    ),
-
-                    if (priceType == PriceTypeOption.range) TextField(
-                      style: Theme.of(context).textTheme.bodyMedium,
-                      keyboardType: TextInputType.number,
-                      controller: startPriceController,
-                      decoration: const InputDecoration(
-                        labelText: 'Введи стоимость самого дешевого билета',
-                      ),
-                    ),
-
-                    if (priceType == PriceTypeOption.range) const SizedBox(height: 15.0),
-
-                    if (priceType == PriceTypeOption.range) TextField(
-                      style: Theme.of(context).textTheme.bodyMedium,
-                      keyboardType: TextInputType.number,
-                      controller: endPriceController,
-                      decoration: const InputDecoration(
-                        labelText: 'Введи стоимость самого дорогого билета',
-                      ),
-                    ),
-
-                    const SizedBox(height: 40.0),
-
-                    Text(
-                      'Выбери место проведения мероприятия',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(height: 1.1),
-                    ),
-
-                    const SizedBox(height: 5.0),
-
-                    Text(
-                      'Ты можешь указать заведение или просто написать адрес',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-
-                    SizedBox(height: 10,),
-
-                    Row (
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        GestureDetector(
-                          child: Card (
-                            color: inPlace? AppColors.brandColor : AppColors.greyForCards,
-                            //margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                            child: Padding (
-                              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                              child: Text (
-                                'Выбрать место',
-                                style: inPlace? Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.greyOnBackground) : Theme.of(context).textTheme.bodyMedium,
-                              ),
-                            ),
-                          ),
-                          onTap: (){
-                            setState(() {
-                              inPlace = true;
-                              streetController.text = '';
-                              houseController.text = '';
-                              chosenCity = City(id: '', name: '');
-                            });
-                          },
-                        ),
-                        GestureDetector(
-                          child: Card (
-                            color: !inPlace? AppColors.brandColor : AppColors.greyForCards,
-                            //margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                            child: Padding (
-                              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                              child: Text ('Написать адрес', style: !inPlace? Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.greyOnBackground) : Theme.of(context).textTheme.bodyMedium),
-                            ),
-                          ),
-                          onTap: (){
-                            setState(() {
-                              inPlace = false;
-                              chosenPlace = Place.empty();
-                              chosenCity = City(id: '', name: '');
-                            });
-                          },
-                        )
-                      ],
+                      startPriceController: startPriceController,
+                      endPriceController: endPriceController,
+                      fixedPriceController: fixedPriceController,
                     ),
 
                     const SizedBox(height: 20.0),
 
-                    if (inPlace) Column(
-                      children: [
-                        if (chosenPlace.id == '') CustomButton(
-                            buttonText: 'Выбрать заведение',
-                            onTapMethod: (){
-                              _showPlacePickerDialog();
-                            }
-                        ),
-                        if (chosenPlace.id != '') PlaceWidgetInCreateEventScreen(
-                          place: chosenPlace,
-                          onTapMethod: (){
-                            _showPlacePickerDialog();
-                          },
-                          onDeleteMethod: (){
-                            setState(() {
-                              chosenPlace = Place.empty();
-                              chosenCity = City(name: '', id: '');
-                            });
-                          },
-                        )
-                      ],
-                    ),
-
-                    if (!inPlace) Column(
-                      children: [
-                        if (chosenCity.id == '') CityElementInEditScreen(
-                          cityName: 'Город не выбран',
-                          onActionPressed: () {
-                            //_showCityPickerDialog();
-                            _showCityPickerDialog();
-                          },
-                        ),
-
-                        if (chosenCity.id != "") CityElementInEditScreen(
-                          cityName: chosenCity.name,
-                          onActionPressed: () {
-                            //_showCityPickerDialog();
-                            _showCityPickerDialog();
-                          },
-                        ),
-
-                        const SizedBox(height: 16.0),
-                        TextField(
-                          style: Theme.of(context).textTheme.bodyMedium,
-                          keyboardType: TextInputType.text,
-                          controller: streetController,
-                          decoration: const InputDecoration(
-                            labelText: 'Улица',
-                          ),
-                        ),
-
-                        const SizedBox(height: 16.0),
-                        TextField(
-                          style: Theme.of(context).textTheme.bodyMedium,
-                          keyboardType: TextInputType.text,
-                          controller: houseController,
-                          decoration: const InputDecoration(
-                            labelText: 'Номер дома',
-                          ),
-                        ),
-                      ],
+                    ChoosePlaceInEventAndPromoWidget(
+                        chosenPlace: chosenPlace,
+                        onDeletePlace: (){
+                          setState(() {
+                            chosenPlace = Place.empty();
+                            chosenCity = City(name: '', id: '');
+                          });
+                        },
+                        onShowPickerPlace: _showPlacePickerDialog,
+                        inPlace: inPlace,
+                        chosenCity: chosenCity,
+                        onShowChosenCityPicker: _showCityPickerDialog,
+                        onTapChoosePlace: (){
+                          setState(() {
+                            inPlace = true;
+                            streetController.text = '';
+                            houseController.text = '';
+                            chosenCity = City(id: '', name: '');
+                          });
+                        },
+                        onTapInputAddress: (){
+                          setState(() {
+                            inPlace = false;
+                            chosenPlace = Place.empty();
+                            chosenCity = City(id: '', name: '');
+                          });
+                        },
+                        streetController: streetController,
+                        houseController: houseController
                     ),
 
                     const SizedBox(height: 40.0),
@@ -914,31 +723,6 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                         //_showCityPickerDialog();
                         _showCategoryPickerDialog();
                       },
-                    ),
-
-                    const SizedBox(height: 16.0),
-
-                    // TODO - Сделать Переключалку - выбор места или ввод адреса
-                    // TODO - Сделать если редактирование то автоматический выбор переключалки
-
-
-                    TextField(
-                      style: Theme.of(context).textTheme.bodyMedium,
-                      keyboardType: TextInputType.text,
-                      controller: streetController,
-                      decoration: const InputDecoration(
-                        labelText: 'Улица',
-                      ),
-                    ),
-
-                    const SizedBox(height: 16.0),
-                    TextField(
-                      style: Theme.of(context).textTheme.bodyMedium,
-                      keyboardType: TextInputType.text,
-                      controller: houseController,
-                      decoration: const InputDecoration(
-                        labelText: 'Номер дома',
-                      ),
                     ),
 
                     const SizedBox(height: 16.0),

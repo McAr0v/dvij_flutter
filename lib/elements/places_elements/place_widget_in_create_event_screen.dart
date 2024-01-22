@@ -90,21 +90,29 @@ class PlaceWidgetInCreateEventScreen extends StatelessWidget {
 
             // ---- Редактирование ----
 
-            IconButton(
-              icon: Icon(Icons.edit),
-              // --- Уходим на экран редактирования -----
-              onPressed: onTapMethod,
-            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.edit),
+                  // --- Уходим на экран редактирования -----
+                  onPressed: onTapMethod,
+                ),
 
-            //const SizedBox(width: 10.0),
+                //const SizedBox(width: 10.0),
 
-            // ---- Редактирование ----
+                // ---- Редактирование ----
 
-            IconButton(
-              icon: Icon(Icons.delete, color: AppColors.attentionRed,),
-              // --- Уходим на экран редактирования -----
-              onPressed: onDeleteMethod,
-            ),
+                IconButton(
+                  icon: Icon(Icons.delete, color: AppColors.attentionRed,),
+                  // --- Уходим на экран редактирования -----
+                  onPressed: onDeleteMethod,
+                ),
+              ],
+            )
+
+
 
           ],
         ),
