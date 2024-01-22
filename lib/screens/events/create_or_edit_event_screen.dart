@@ -1,20 +1,16 @@
 import 'dart:io';
 import 'package:dvij_flutter/classes/event_category_class.dart';
 import 'package:dvij_flutter/classes/event_type_enum.dart';
-import 'package:dvij_flutter/classes/place_category_class.dart';
 import 'package:dvij_flutter/classes/place_class.dart';
 import 'package:dvij_flutter/classes/priceTypeOptions.dart';
 import 'package:dvij_flutter/elements/category_element_in_edit_screen.dart';
-import 'package:dvij_flutter/elements/checkbox_with_desc.dart';
 import 'package:dvij_flutter/elements/events_elements/event_category_picker_page.dart';
-import 'package:dvij_flutter/elements/places_elements/place_category_picker_page.dart';
 import 'package:dvij_flutter/elements/places_elements/place_picker_page.dart';
 import 'package:dvij_flutter/elements/places_elements/place_widget_in_create_event_screen.dart';
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/irregular_type_date_time_picker_widget.dart';
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/long_type_date_time_picker_widget.dart';
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/once_type_date_time_picker_widget.dart';
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/regular_two_type_date_time_picker_widget.dart';
-import 'package:dvij_flutter/elements/types_of_date_time_pickers/regular_type_date_time_picker_widget.dart';
 import 'package:dvij_flutter/methods/days_functions.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -27,8 +23,6 @@ import '../../elements/choose_dialogs/city_choose_dialog.dart';
 import '../../elements/cities_elements/city_element_in_edit_screen.dart';
 import '../../elements/custom_snack_bar.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../elements/data_picker.dart';
-import '../../elements/events_elements/event_type_tab_element.dart';
 import '../../elements/image_in_edit_screen.dart';
 import '../../elements/loading_screen.dart';
 import '../../image_Uploader/image_uploader.dart';
@@ -43,25 +37,14 @@ class CreateOrEditEventScreen extends StatefulWidget {
 
   const CreateOrEditEventScreen({Key? key, required this.eventInfo}) : super(key: key);
 
-
-
   @override
   _CreateOrEditEventScreenState createState() => _CreateOrEditEventScreenState();
 
 }
 
-extension IterableExtension<E> on Iterable<E> {
-  Iterable<T> mapIndexed<T>(T Function(int index, E item) f) {
-    var index = 0;
-    return map((e) => f(index++, e));
-  }
-}
-
 // ----- ЭКРАН РЕДАКТИРОВАНИЯ ПРОФИЛЯ -------
 
 class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
-
-
 
   // Инициализируем классы
   // TODO - эти классы так надо инициализировать? помоему можно будет просто обращаться к ним и все
@@ -132,11 +115,6 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
   bool loading = true;
   bool saving = false;
-  bool tab1 = true;
-  bool tab2 = false;
-  bool tab3 = false;
-  bool tab4 = false;
-
 
   bool inPlace = true;
   Place chosenPlace = Place.emptyPlace;
@@ -144,9 +122,6 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
   List<City> _cities = [];
   List<EventCategory> _categories = [];
   late EventCategory chosenCategory;
-
-
-
 
   // --- Функция перехода на страницу профиля ----
 
@@ -190,13 +165,11 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
   Future<void> _initializeData() async {
     loading = true;
-    _categories = EventCategory.currentEventCategoryList;
 
-    accessLevel = UserCustom.accessLevel;
+    _categories = EventCategory.currentEventCategoryList;
+    //accessLevel = UserCustom.accessLevel;
 
     eventTypeEnum = Event.getEventTypeEnum(widget.eventInfo.eventType);
-
-    priceType = Event.getPriceTypeEnum(widget.eventInfo.priceType);
 
     if (eventTypeEnum == EventTypeEnum.once && widget.eventInfo.onceDay != ''){
       onceDay = extractDateOrTimeFromJson(widget.eventInfo.onceDay, 'date');
@@ -262,15 +235,6 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
     }
 
-    if (priceType == PriceTypeOption.fixed){
-      fixedPriceController.text = widget.eventInfo.price;
-    }
-
-    // TODO Здесь делаю. Надо написать функцию парсинга даты
-    if (priceType == PriceTypeOption.range){
-      //startPriceController.text = parseInputString(widget.eventInfo.price, datesList, startTimeList, endTimeList)
-    }
-
     if (widget.eventInfo.createDate == ''){
       DateTime now = DateTime.now();
       createdTime = '${now.day}.${now.month}.${now.year}';
@@ -289,34 +253,52 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
     }
 
-    // Подгружаем в контроллеры содержимое из БД.
-    Future.delayed(Duration.zero, () async {
+    priceType = Event.getPriceTypeEnum(widget.eventInfo.priceType);
 
-      //category = '';
-      headlineController = TextEditingController(text: widget.eventInfo.headline);
-      descController = TextEditingController(text: widget.eventInfo.desc);
+    if (priceType == PriceTypeOption.free) {
+      fixedPriceController = TextEditingController(text: '');
+      startPriceController = TextEditingController(text: '');
+      endPriceController = TextEditingController(text: '');
+    }
 
-      phoneController = TextEditingController(text: widget.eventInfo.phone);
-      whatsappController = TextEditingController(text: widget.eventInfo.whatsapp);
-      telegramController = TextEditingController(text: widget.eventInfo.telegram);
-      instagramController = TextEditingController(text: widget.eventInfo.instagram);
-      cityController = TextEditingController(text: widget.eventInfo.city);
-      streetController = TextEditingController(text: widget.eventInfo.street);
-      houseController = TextEditingController(text: widget.eventInfo.house);
+    if (priceType == PriceTypeOption.fixed){
+      fixedPriceController = TextEditingController(text: widget.eventInfo.price);
+      startPriceController = TextEditingController(text: '');
+      endPriceController = TextEditingController(text: '');
+    }
 
-      imageController = TextEditingController(text: widget.eventInfo.imageUrl);
+    if (priceType == PriceTypeOption.range){
+      fixedPriceController = TextEditingController(text: widget.eventInfo.price);
+      List<String> temp = widget.eventInfo.priceType.split('-');
+      startPriceController = TextEditingController(text: temp[0]);
+      endPriceController = TextEditingController(text: temp[1]);
+    }
 
-      _cities = City.currentCityList;
-      _categories = EventCategory.currentEventCategoryList;
 
-      chosenCategory = EventCategory.getEventCategoryFromCategoriesList(widget.eventInfo.category);
+    headlineController = TextEditingController(text: widget.eventInfo.headline);
+    descController = TextEditingController(text: widget.eventInfo.desc);
 
-      chosenCity = City.getCityNameInCitiesList(widget.eventInfo.city);
+    phoneController = TextEditingController(text: widget.eventInfo.phone);
+    whatsappController = TextEditingController(text: widget.eventInfo.whatsapp);
+    telegramController = TextEditingController(text: widget.eventInfo.telegram);
+    instagramController = TextEditingController(text: widget.eventInfo.instagram);
+    cityController = TextEditingController(text: widget.eventInfo.city);
+    streetController = TextEditingController(text: widget.eventInfo.street);
+    houseController = TextEditingController(text: widget.eventInfo.house);
 
-      setState(() {
-        loading = false;
-      });
+    imageController = TextEditingController(text: widget.eventInfo.imageUrl);
+
+    _cities = City.currentCityList;
+    _categories = EventCategory.currentEventCategoryList;
+
+    chosenCategory = EventCategory.getEventCategoryFromCategoriesList(widget.eventInfo.category);
+
+    chosenCity = City.getCityNameInCitiesList(widget.eventInfo.city);
+
+    setState(() {
+      loading = false;
     });
+
   }
 
   @override
@@ -352,6 +334,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                     const SizedBox(height: 16.0),
 
                     const SizedBox(height: 16.0),
+
                     TextField(
                       style: Theme.of(context).textTheme.bodyMedium,
                       keyboardType: TextInputType.text,
@@ -362,6 +345,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                     ),
 
                     const SizedBox(height: 16.0),
+
                     TextField(
                       style: Theme.of(context).textTheme.bodyMedium,
                       keyboardType: TextInputType.multiline,
@@ -375,6 +359,136 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                         // Обработка события, когда пользователь нажимает Enter
                         // Вы можете добавить здесь любой код, который нужно выполнить при нажатии Enter
                       },
+                    ),
+
+                    const SizedBox(height: 40.0),
+
+                    Text(
+                      'Стоимость билетов',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(height: 1.1),
+                    ),
+
+                    const SizedBox(height: 5.0),
+
+                    Text(
+                      'Ты можешь выбрать из несольких вариантов - бесплатно, фиксированная цена или цена от и до',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+
+                    const SizedBox(height: 16.0),
+
+                    DropdownButton<PriceTypeOption>(
+                      style: Theme.of(context).textTheme.bodySmall,
+                      isExpanded: true,
+                      value: priceType,
+                      onChanged: (PriceTypeOption? newValue) {
+                        setState(() {
+                          priceType = newValue!;
+
+                          if (newValue == PriceTypeOption.free){
+                            fixedPriceController.text = '';
+                            startPriceController.text = '';
+                            endPriceController.text = '';
+                          }
+
+                          if (newValue == PriceTypeOption.fixed){
+                            startPriceController.text = '';
+                            endPriceController.text = '';
+                          }
+
+                          if (newValue == PriceTypeOption.range){
+                            fixedPriceController.text = '';
+                          }
+
+                        });
+                      },
+                      items: [
+                        DropdownMenuItem(
+                            value: PriceTypeOption.free,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Бесплатно',
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                  textAlign: TextAlign.start,
+                                ),
+                                Text(
+                                  'Свободный вход для всех посетителей',
+                                  style: Theme.of(context).textTheme.labelMedium,
+                                  textAlign: TextAlign.start,
+                                ),
+                              ],
+                            )
+                        ),
+                        DropdownMenuItem(
+                            value: PriceTypeOption.fixed,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Фиксированная стоимость',
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                  textAlign: TextAlign.start,
+                                ),
+                                Text(
+                                  'Одна стоимость билетов для всех посетителей',
+                                  style: Theme.of(context).textTheme.labelMedium,
+                                  textAlign: TextAlign.start,
+                                ),
+                              ],
+                            )
+                        ),
+                        DropdownMenuItem(
+                            value: PriceTypeOption.range,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Цена "От - до "',
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                  textAlign: TextAlign.start,
+                                ),
+                                Text(
+                                  'Крайние стоимости билетов',
+                                  style: Theme.of(context).textTheme.labelMedium,
+                                  textAlign: TextAlign.start,
+                                ),
+                              ],
+                            )
+                        ),
+                      ],
+                    ),
+
+                    if (priceType != PriceTypeOption.free) const SizedBox(height: 20.0),
+
+                    if (priceType == PriceTypeOption.fixed) TextField(
+                      style: Theme.of(context).textTheme.bodyMedium,
+                      keyboardType: TextInputType.number,
+                      controller: fixedPriceController,
+                      decoration: const InputDecoration(
+                        labelText: 'Введи стоимость билетов',
+                      ),
+                    ),
+
+                    if (priceType == PriceTypeOption.range) TextField(
+                      style: Theme.of(context).textTheme.bodyMedium,
+                      keyboardType: TextInputType.number,
+                      controller: startPriceController,
+                      decoration: const InputDecoration(
+                        labelText: 'Введи стоимость самого дешевого билета',
+                      ),
+                    ),
+
+                    if (priceType == PriceTypeOption.range) const SizedBox(height: 15.0),
+
+                    if (priceType == PriceTypeOption.range) TextField(
+                      style: Theme.of(context).textTheme.bodyMedium,
+                      keyboardType: TextInputType.number,
+                      controller: endPriceController,
+                      decoration: const InputDecoration(
+                        labelText: 'Введи стоимость самого дорогого билета',
+                      ),
                     ),
 
                     const SizedBox(height: 40.0),
@@ -939,8 +1053,8 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                             ),
 
                             // сделать функционал
-                            price: 'price', // сделать функционал
-                          priceType: ''
+                            price: Event.getPriceString(priceType, fixedPriceController.text, startPriceController.text, endPriceController.text), // сделать функционал
+                          priceType: Event.getNamePriceTypeEnum(priceType)
                         );
 
                         // Выгружаем пользователя в БД

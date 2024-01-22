@@ -791,6 +791,24 @@ class Event {
     }
   }
 
+  static String getNamePriceTypeEnum (PriceTypeOption priceType) {
+    switch (priceType){
+
+    case PriceTypeOption.free: return 'free';
+    case PriceTypeOption.fixed: return 'fixed';
+    case PriceTypeOption.range: return 'range';
+
+    }
+  }
+
+  static String getPriceString (PriceTypeOption priceType, String fixedPrice, String startPrice, String endPrice){
+    switch (priceType){
+      case PriceTypeOption.free: return '';
+      case PriceTypeOption.fixed: return fixedPrice;
+      case PriceTypeOption.range: return '$startPrice-$endPrice';
+    }
+  }
+
   static String getNameEventTypeEnum (EventTypeEnum enumItem) {
 
     switch (enumItem){
