@@ -10,7 +10,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'event_category_class.dart';
 import 'event_sorting_options.dart';
 
-class Event {
+class EventCustom {
   String id;
   String eventType;
   String headline;
@@ -39,7 +39,7 @@ class Event {
   String? today;
   String? inFavCounter;
 
-  Event({
+  EventCustom({
     required this.id,
     required this.eventType,
     required this.headline,
@@ -70,7 +70,7 @@ class Event {
 
   });
 
-  factory Event.fromSnapshot(DataSnapshot snapshot) {
+  factory EventCustom.fromSnapshot(DataSnapshot snapshot) {
     // Указываем путь к нашим полям
     DataSnapshot idSnapshot = snapshot.child('id');
     DataSnapshot eventTypeSnapshot = snapshot.child('eventType');
@@ -95,7 +95,7 @@ class Event {
     DataSnapshot priceSnapshot = snapshot.child('price');
     DataSnapshot priceTypeSnapshot = snapshot.child('priceType');
 
-    return Event(
+    return EventCustom(
         id: idSnapshot.value.toString() ?? '',
         eventType: eventTypeSnapshot.value.toString() ?? '',
         headline: headlineSnapshot.value.toString() ?? '',
@@ -122,11 +122,11 @@ class Event {
     );
   }
 
-  static List<Event> currentFeedEventsList = [];
-  static List<Event> currentFavEventsList = [];
-  static List<Event> currentMyEventsList = [];
+  static List<EventCustom> currentFeedEventsList = [];
+  static List<EventCustom> currentFavEventsList = [];
+  static List<EventCustom> currentMyEventsList = [];
 
-  static Event emptyEvent = Event(
+  static EventCustom emptyEvent = EventCustom(
       id: '',
       eventType: '',
       headline: '',
@@ -152,8 +152,8 @@ class Event {
 
   );
 
-  factory Event.empty() {
-    return Event(
+  factory EventCustom.empty() {
+    return EventCustom(
         id: '',
         eventType: '',
         headline: '',
@@ -185,7 +185,7 @@ class Event {
   // Метод для добавления нового пола или редактирования пола в Firebase
 
   // --- ФУНКЦИЯ ЗАПИСИ ДАННЫХ Места -----
-  static Future<String?> createOrEditEvent(Event event) async {
+  static Future<String?> createOrEditEvent(EventCustom event) async {
 
     try {
 
@@ -316,9 +316,9 @@ class Event {
     }
   }
 
-  static Future<List<Event>> getAllEvents() async {
+  static Future<List<EventCustom>> getAllEvents() async {
 
-    List<Event> events = [];
+    List<EventCustom> events = [];
     currentFeedEventsList = [];
 
     // Указываем путь
@@ -335,10 +335,10 @@ class Event {
       // заполняем город (City.fromSnapshot) из снимка данных
       // и обавляем в список городов
 
-      Event event = Event.fromSnapshot(childSnapshot.child('event_info'));
+      EventCustom event = EventCustom.fromSnapshot(childSnapshot.child('event_info'));
 
-      String favCount = await Event.getFavCount(event.id);
-      String inFav = await Event.addedInFavOrNot(event.id);
+      String favCount = await EventCustom.getFavCount(event.id);
+      String inFav = await EventCustom.addedInFavOrNot(event.id);
       //bool fromPlace = eventFromPlace(event.placeId);
 
       event.inFav = inFav;
@@ -358,9 +358,9 @@ class Event {
     return placeId != '';
   }*/
 
-  static Future<List<Event>> getFavEvents(String userId) async {
+  static Future<List<EventCustom>> getFavEvents(String userId) async {
 
-    List<Event> events = [];
+    List<EventCustom> events = [];
     currentFavEventsList = [];
     List<String> eventsId = [];
 
@@ -389,7 +389,7 @@ class Event {
 
       for (var event in eventsId){
 
-        Event temp = await getEventById(event);
+        EventCustom temp = await getEventById(event);
 
         if (temp.id != ''){
           currentFavEventsList.add(temp);
@@ -403,9 +403,9 @@ class Event {
     return events;
   }
 
-  static Future<List<Event>> getMyEvents(String userId) async {
+  static Future<List<EventCustom>> getMyEvents(String userId) async {
 
-    List<Event> events = [];
+    List<EventCustom> events = [];
     currentMyEventsList = [];
     List<String> eventsId = [];
 
@@ -434,7 +434,7 @@ class Event {
 
       for (var event in eventsId){
 
-        Event temp = await getEventById(event);
+        EventCustom temp = await getEventById(event);
 
         if (temp.id != ''){
           currentMyEventsList.add(temp);
@@ -449,16 +449,16 @@ class Event {
   }
 
 
-  static List<Event> filterEvents(
+  static List<EventCustom> filterEvents(
       EventCategory eventCategoryFromFilter,
       City cityFromFilter,
       bool freePrice,
       bool today,
       bool onlyFromPlaceEvents,
-      List<Event> eventsList
+      List<EventCustom> eventsList
       ) {
 
-    List<Event> events = [];
+    List<EventCustom> events = [];
 
     for (int i = 0; i<eventsList.length; i++){
 
@@ -485,7 +485,7 @@ class Event {
       bool freePrice,
       bool today,
       bool onlyFromPlaceEvents,
-      Event event,
+      EventCustom event,
       ) {
 
     City cityFromEvent = City.getCityByIdFromList(event.city);
@@ -503,7 +503,7 @@ class Event {
   }
 
 
-  static void sortEvents(EventSortingOption sorting, List<Event> events) {
+  static void sortEvents(EventSortingOption sorting, List<EventCustom> events) {
 
     switch (sorting){
 
@@ -521,9 +521,9 @@ class Event {
 
 
 
-  static Future<Event> getEventById(String eventId) async {
+  static Future<EventCustom> getEventById(String eventId) async {
 
-    Event returnedEvent = Event.empty();
+    EventCustom returnedEvent = EventCustom.empty();
 
     // Указываем путь
     final DatabaseReference reference = FirebaseDatabase.instance.ref().child('events');
@@ -539,14 +539,14 @@ class Event {
       // заполняем город (City.fromSnapshot) из снимка данных
       // и обавляем в список городов
 
-      Event event = Event.fromSnapshot(childSnapshot.child('event_info'));
+      EventCustom event = EventCustom.fromSnapshot(childSnapshot.child('event_info'));
 
       if (event.id == eventId) {
 
         returnedEvent = event;
-        String favCount = await Event.getFavCount(event.id);
-        String inFav = await Event.addedInFavOrNot(event.id);
-        String canEdit = await Event.canEditOrNot(event.id);
+        String favCount = await EventCustom.getFavCount(event.id);
+        String inFav = await EventCustom.addedInFavOrNot(event.id);
+        String canEdit = await EventCustom.canEditOrNot(event.id);
         event.canEdit = canEdit;
         event.inFav = inFav;
         event.addedToFavouritesCount = favCount;

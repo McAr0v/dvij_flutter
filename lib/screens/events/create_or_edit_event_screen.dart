@@ -36,7 +36,7 @@ import '../../themes/app_colors.dart';
 
 
 class CreateOrEditEventScreen extends StatefulWidget {
-  final Event eventInfo;
+  final EventCustom eventInfo;
 
   const CreateOrEditEventScreen({Key? key, required this.eventInfo}) : super(key: key);
 
@@ -172,7 +172,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
     _categories = EventCategory.currentEventCategoryList;
     //accessLevel = UserCustom.accessLevel;
 
-    eventTypeEnum = Event.getEventTypeEnum(widget.eventInfo.eventType);
+    eventTypeEnum = EventCustom.getEventTypeEnum(widget.eventInfo.eventType);
 
     if (eventTypeEnum == EventTypeEnum.once && widget.eventInfo.onceDay != ''){
       onceDay = extractDateOrTimeFromJson(widget.eventInfo.onceDay, 'date');
@@ -256,7 +256,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
     }
 
-    priceType = Event.getPriceTypeEnum(widget.eventInfo.priceType);
+    priceType = EventCustom.getPriceTypeEnum(widget.eventInfo.priceType);
 
     if (priceType == PriceTypeOption.free) {
       fixedPriceController = TextEditingController(text: '');
@@ -731,9 +731,9 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                           }
                         }
 
-                        Event event = Event(
+                        EventCustom event = EventCustom(
                             id: eventId,
-                            eventType: Event.getNameEventTypeEnum(eventTypeEnum), // сделать функционал
+                            eventType: EventCustom.getNameEventTypeEnum(eventTypeEnum), // сделать функционал
                             headline: headlineController.text,
                             desc: descController.text,
                             creatorId: creatorId,
@@ -768,41 +768,41 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                             ),
 
                             // сделать функционал
-                            price: Event.getPriceString(priceType, fixedPriceController.text, startPriceController.text, endPriceController.text), // сделать функционал
-                          priceType: Event.getNamePriceTypeEnum(priceType)
+                            price: EventCustom.getPriceString(priceType, fixedPriceController.text, startPriceController.text, endPriceController.text), // сделать функционал
+                          priceType: EventCustom.getNamePriceTypeEnum(priceType)
                         );
 
                         // Выгружаем пользователя в БД
-                        String? editInDatabase = await Event.createOrEditEvent(event);
+                        String? editInDatabase = await EventCustom.createOrEditEvent(event);
 
                         // Если выгрузка успешна
                         if (editInDatabase == 'success') {
 
-                          Event newEvent = await Event.getEventById(eventId);
+                          EventCustom newEvent = await EventCustom.getEventById(eventId);
 
                           // Если в передаваемом месте нет имени, т.е это создание
                           if (widget.eventInfo.headline == ''){
                             // То добавляем в списки новое созданное место
 
-                            Event.currentFeedEventsList.add(newEvent);
-                            Event.currentMyEventsList.add(newEvent);
+                            EventCustom.currentFeedEventsList.add(newEvent);
+                            EventCustom.currentMyEventsList.add(newEvent);
 
                           } else {
 
                             // Если редактирование то удаляем старые неотредактированные данные
-                            Event.deleteEventFromCurrentEventLists(eventId);
+                            EventCustom.deleteEventFromCurrentEventLists(eventId);
 
                             // Добавляем обновленное
-                            Event.currentFeedEventsList.add(newEvent);
-                            Event.currentMyEventsList.add(newEvent);
-                            if (bool.parse(newEvent.inFav!)) Event.currentFavEventsList.add(newEvent);
+                            EventCustom.currentFeedEventsList.add(newEvent);
+                            EventCustom.currentMyEventsList.add(newEvent);
+                            if (bool.parse(newEvent.inFav!)) EventCustom.currentFavEventsList.add(newEvent);
 
                           }
 
                           // TODO проверить удаление из предыдущего заведения ID мероприятия при смене заведения
                           if (widget.eventInfo.placeId != '' && widget.eventInfo.placeId != event.placeId) {
 
-                            await Event.deleteEventIdFromPlace(eventId, widget.eventInfo.placeId);
+                            await EventCustom.deleteEventIdFromPlace(eventId, widget.eventInfo.placeId);
 
                           }
 

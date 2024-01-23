@@ -6,6 +6,7 @@ import 'package:dvij_flutter/classes/place_class.dart';
 import 'package:dvij_flutter/elements/events_elements/event_filter_page.dart';
 import 'package:dvij_flutter/elements/places_elements/place_card_widget.dart';
 import 'package:dvij_flutter/elements/places_elements/place_filter_page.dart';
+import 'package:dvij_flutter/screens/events/event_view_screen.dart';
 import 'package:dvij_flutter/screens/places/place_view_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
@@ -30,7 +31,7 @@ class EventsFeedPage extends StatefulWidget {
 
 
 class _EventsFeedPageState extends State<EventsFeedPage> {
-  late List<Event> eventsList; // Список мест
+  late List<EventCustom> eventsList; // Список мест
   late List<EventCategory> eventCategoriesList; // Список категорий мест
 
   // --- Переменные фильтра по умолчанию ----
@@ -86,24 +87,24 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
     // ----- Работаем со списком заведений -----
 
     // ---- Если список пуст ----
-    if (Event.currentFeedEventsList.isEmpty){
+    if (EventCustom.currentFeedEventsList.isEmpty){
       // ---- Считываем с БД заведения -----
-      List<Event> tempEventsList = await Event.getAllEvents();
+      List<EventCustom> tempEventsList = await EventCustom.getAllEvents();
 
       // --- Фильтруем список -----
       setState(() {
-        eventsList = Event.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempEventsList);
+        eventsList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempEventsList);
       });
 
     } else {
       // --- Если список не пустой ----
       // --- Подгружаем готовый список ----
-      List<Event> tempList = [];
-      tempList = Event.currentFeedEventsList;
+      List<EventCustom> tempList = [];
+      tempList = EventCustom.currentFeedEventsList;
 
       // --- Фильтруем список ----
       setState(() {
-        eventsList = Event.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempList);
+        eventsList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempList);
       });
     }
 
@@ -138,10 +139,10 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
 
             eventsList = [];
 
-            List<Event> tempEventsList = await Event.getAllEvents();
+            List<EventCustom> tempEventsList = await EventCustom.getAllEvents();
 
             setState(() {
-              eventsList = Event.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempEventsList);
+              eventsList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempEventsList);
 
             });
 
@@ -206,7 +207,7 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
                                 onChanged: (EventSortingOption? newValue) {
                                   setState(() {
                                     _selectedSortingOption = newValue!;
-                                    Event.sortEvents(_selectedSortingOption, eventsList);
+                                    EventCustom.sortEvents(_selectedSortingOption, eventsList);
                                   });
                                 },
                                 items: const [
@@ -263,10 +264,10 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
                                   onTap: () async {
 
                                     // TODO - переделать на мероприятия
-                                    final results = await Navigator.push(
+                                    /*final results = await Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => PlaceViewScreen(placeId: eventsList[index].id),
+                                        builder: (context) => EventViewScreen(eventId: eventsList[index].id),
                                       ),
                                     );
 
@@ -275,7 +276,7 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
                                         eventsList[index].inFav = results[0].toString();
                                         eventsList[index].addedToFavouritesCount = results[1].toString();
                                       });
-                                    }
+                                    }*/
                                   },
 
                                 // --- Функция на нажатие на карточке кнопки ИЗБРАННОЕ ---
@@ -295,7 +296,7 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
                                     if (eventsList[index].inFav == 'true')
                                     {
                                       // --- Удаляем из избранных ---
-                                      String resDel = await Event.deleteEventFromFav(eventsList[index].id);
+                                      String resDel = await EventCustom.deleteEventFromFav(eventsList[index].id);
                                       // ---- Инициализируем счетчик -----
                                       int favCounter = int.parse(eventsList[index].addedToFavouritesCount!);
 
@@ -307,7 +308,7 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
                                           favCounter --;
                                           eventsList[index].addedToFavouritesCount = favCounter.toString();
                                           // Обновляем общий список из БД
-                                          Event.updateCurrentEventListFavInformation(eventsList[index].id, favCounter.toString(), 'false');
+                                          EventCustom.updateCurrentEventListFavInformation(eventsList[index].id, favCounter.toString(), 'false');
 
                                         });
                                         showSnackBar('Удалено из избранных', AppColors.attentionRed, 1);
@@ -320,7 +321,7 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
                                       // --- Если заведение не в избранном ----
 
                                       // -- Добавляем в избранное ----
-                                      String res = await Event.addEventToFav(eventsList[index].id);
+                                      String res = await EventCustom.addEventToFav(eventsList[index].id);
 
                                       // ---- Инициализируем счетчик добавивших в избранное
                                       int favCounter = int.parse(eventsList[index].addedToFavouritesCount!);
@@ -333,7 +334,7 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
                                           favCounter ++;
                                           eventsList[index].addedToFavouritesCount = favCounter.toString();
                                           // Обновляем список из БД
-                                          Event.updateCurrentEventListFavInformation(eventsList[index].id, favCounter.toString(), 'true');
+                                          EventCustom.updateCurrentEventListFavInformation(eventsList[index].id, favCounter.toString(), 'true');
                                         });
 
                                         showSnackBar('Добавлено в избранные', Colors.green, 1);
@@ -414,12 +415,12 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
       });
 
       // --- Заново подгружаем список из БД ---
-      List<Event> tempList = [];
-      tempList = Event.currentFeedEventsList;
+      List<EventCustom> tempList = [];
+      tempList = EventCustom.currentFeedEventsList;
 
       // --- Фильтруем список согласно новым выбранным данным из фильтра ----
       setState(() {
-        eventsList = Event.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempList);
+        eventsList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempList);
       });
 
       setState(() {

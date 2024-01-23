@@ -14,7 +14,7 @@ import '../../screens/places/place_view_screen.dart';
 import '../places_elements/now_is_work_widget.dart';
 
 class EventCardWidget extends StatelessWidget {
-  final Event event;
+  final EventCustom event;
   final Function()? onFavoriteIconPressed; // Добавьте функцию обратного вызова
   final Function()? onTap; // Добавьте функцию обратного вызова
 
