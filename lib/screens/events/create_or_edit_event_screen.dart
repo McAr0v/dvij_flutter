@@ -230,6 +230,9 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
     if (widget.eventInfo.placeId != '') {
       chosenPlace = await Place.getPlaceById(widget.eventInfo.placeId);
+      inPlace = true;
+    } else {
+      inPlace = false;
     }
 
     if (widget.eventInfo.creatorId == '') {
@@ -276,7 +279,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
     if (priceType == PriceTypeOption.range){
       fixedPriceController = TextEditingController(text: widget.eventInfo.price);
-      List<String> temp = widget.eventInfo.priceType.split('-');
+      List<String> temp = widget.eventInfo.price.split('-');
       startPriceController = TextEditingController(text: temp[0]);
       endPriceController = TextEditingController(text: temp[1]);
     }
@@ -776,6 +779,8 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                           priceType: EventCustom.getNamePriceTypeEnum(priceType)
                         );
 
+
+
                         // Выгружаем пользователя в БД
                         String? editInDatabase = await EventCustom.createOrEditEvent(event);
 
@@ -783,6 +788,12 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                         if (editInDatabase == 'success') {
 
                           EventCustom newEvent = await EventCustom.getEventById(eventId);
+                          // TODO Проверить удаление, если было заведение, а потом сменили адрес вручную
+                          if (widget.eventInfo.placeId != '' && widget.eventInfo.placeId != chosenPlace.id) {
+
+                            await EventCustom.deleteEventIdFromPlace(eventId, widget.eventInfo.placeId);
+
+                          }
 
                           // Если в передаваемом месте нет имени, т.е это создание
                           if (widget.eventInfo.headline == ''){
@@ -803,12 +814,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
                           }
 
-                          // TODO проверить удаление из предыдущего заведения ID мероприятия при смене заведения
-                          if (widget.eventInfo.placeId != '' && widget.eventInfo.placeId != event.placeId) {
 
-                            await EventCustom.deleteEventIdFromPlace(eventId, widget.eventInfo.placeId);
-
-                          }
 
 
                           // Выключаем экран загрузки

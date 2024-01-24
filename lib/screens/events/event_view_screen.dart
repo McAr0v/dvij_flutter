@@ -73,6 +73,8 @@ class _EventViewScreenState extends State<EventViewScreen> {
 
   Place place = Place.emptyPlace;
 
+  String price = '';
+
   // --- Переключатель показа экрана загрузки -----
 
   bool loading = true;
@@ -100,6 +102,15 @@ class _EventViewScreenState extends State<EventViewScreen> {
 
       priceType = EventCustom.getPriceTypeEnum(event.priceType);
 
+      if (priceType == PriceTypeOption.free) {
+        price = 'Вход бесплатный';
+      } else if (priceType == PriceTypeOption.fixed){
+        price = '${event.price} тенге';
+      } else if (priceType == PriceTypeOption.range){
+        List<String> temp = event.price.split('-');
+        price = 'От ${temp[0]} тенге - до ${temp[1]} тенге';
+      }
+
       if (event.placeId != '') {
         // placeAdminsList = await UserCustom.getPlaceAdminsUsers(event.placeId);
 
@@ -108,6 +119,8 @@ class _EventViewScreenState extends State<EventViewScreen> {
 
 
       }
+
+
 
       // Выдаем права на редактирование мероприятия
       // Если наш пользователь создатель
@@ -340,6 +353,13 @@ class _EventViewScreenState extends State<EventViewScreen> {
 
                         const SizedBox(height: 16.0),
 
+                        HeadlineAndDesc(
+                            headline: price,
+                            description: 'Стоимость билетов'
+                        ),
+
+                        const SizedBox(height: 16.0),
+
                         SocialButtonsWidget(telegramUsername: event.telegram, instagramUsername: event.instagram, whatsappUsername: event.whatsapp, phoneNumber: event.phone,),
 
                         const SizedBox(height: 16.0),
@@ -356,6 +376,15 @@ class _EventViewScreenState extends State<EventViewScreen> {
                         //const SizedBox(height: 16.0),
 
                         const SizedBox(height: 16.0),
+
+
+
+                        if (event.street != '') HeadlineAndDesc(
+                            headline: '${City.getCityNameInCitiesList(event.city).name}, ${event.street} ${event.house} ',
+                            description: 'Место проведения'
+                        ),
+
+                        SizedBox(height: 20,),
 
                         Card(
                           margin: EdgeInsets.zero,
@@ -379,9 +408,11 @@ class _EventViewScreenState extends State<EventViewScreen> {
                           ),
                         ),
 
-                        SizedBox(height: 20,),
 
-                        Column(
+
+                        if (event.placeId != '') SizedBox(height: 20,),
+
+                        if (event.placeId != '')  Column(
                           mainAxisSize: MainAxisSize.max,
                           children: [
                             Card(
@@ -390,16 +421,21 @@ class _EventViewScreenState extends State<EventViewScreen> {
                               color: AppColors.greyOnBackground,
                               child: Padding (
                                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                                  child: Row (
+                                  child: Column (
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Expanded(
-                                        child: Text(
-                                          'Место проведения: ${place.name}',
-                                          style: Theme.of(context).textTheme.titleMedium,
-                                        ),
-                                      )
+                                      Row (
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              'Место проведения: ${place.name}',
+                                              style: Theme.of(context).textTheme.titleMedium,
+                                            ),
+                                          )
+                                        ],
+                                      ),
                                     ],
-                                  )
+                                  ),
                               ),
                             ),
 

@@ -304,7 +304,7 @@ class EventCustom {
       ) async {
     try {
 
-      DatabaseReference reference = FirebaseDatabase.instance.ref().child('places/events').child(eventId);
+      DatabaseReference reference = FirebaseDatabase.instance.ref().child('places/$placeId/events').child(eventId);
 
       // Проверяем, существует ли город с указанным ID
       DataSnapshot snapshot = await reference.get();
