@@ -475,6 +475,35 @@ class UserCustom {
     return null;
   }
 
+  static Future<UserCustom> getUserById(String id) async {
+
+    UserCustom user = UserCustom.empty('', '');
+
+    // Указываем путь
+    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('users');
+
+    // Получаем снимок данных папки
+    DataSnapshot snapshot = await reference.get();
+
+    // Итерируем по каждому дочернему элементу
+    // Здесь сделано так потому что мы не знаем ключа города
+    // и нам нужен каждый город, независимо от ключа
+
+    for (var childSnapshot in snapshot.children) {
+      // заполняем город (City.fromSnapshot) из снимка данных
+      // и обавляем в список городов
+
+      UserCustom randomUser = UserCustom.fromSnapshot(childSnapshot.child('user_info'));
+
+      if (randomUser.uid == id) {
+        return randomUser;
+      }
+    }
+
+    // Возвращаем список
+    return user;
+  }
+
   static Future<String?> writeUserPlaceRole(String userId, String placeId, String roleId) async {
 
     try {

@@ -10,7 +10,7 @@ class TodayWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      isTrue ? 'Сегодня' : 'Не сегодня', // Задайте разный текст в зависимости от булевого значения
+      isTrue ? 'Сегодня' : '', // Задайте разный текст в зависимости от булевого значения
       style: Theme.of(context).textTheme.bodySmall?.copyWith(color: isTrue? Colors.green : AppColors.attentionRed),
     );
   }

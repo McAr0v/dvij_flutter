@@ -264,7 +264,7 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
                                   onTap: () async {
 
                                     // TODO - переделать на мероприятия
-                                    /*final results = await Navigator.push(
+                                    final results = await Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => EventViewScreen(eventId: eventsList[index].id),
@@ -276,7 +276,7 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
                                         eventsList[index].inFav = results[0].toString();
                                         eventsList[index].addedToFavouritesCount = results[1].toString();
                                       });
-                                    }*/
+                                    }
                                   },
 
                                 // --- Функция на нажатие на карточке кнопки ИЗБРАННОЕ ---

@@ -1,6 +1,8 @@
 
 import 'dart:convert';
 
+import '../classes/event_class.dart';
+import '../classes/event_type_enum.dart';
 import '../classes/pair.dart';
 
 List<int> splitDate(String date, String symbol)
@@ -56,12 +58,20 @@ String extractDateOrTimeFromJson(String jsonString, String fieldId) {
   return dateStr;
 }
 
+String correctMonthOrDate (int month) {
+  if (month < 10) {
+    return '0$month';
+  } else {
+    return '$month';
+  }
+}
+
 String generateOnceTypeDate(DateTime date, String startTime, String endTime){
-  return '{"date": "${date.year}-${date.month}-${date.day}", "startTime": "$startTime", "endTime": "$endTime"}';
+  return '{"date": "${date.year}-${correctMonthOrDate(date.month)}-${correctMonthOrDate(date.day)}", "startTime": "$startTime", "endTime": "$endTime"}';
 }
 
 String generateLongTypeDate(DateTime startDate, DateTime endDate, String startTime, String endTime){
-  return '{"startDate": "${startDate.year}-${startDate.month}-${startDate.day}", "endDate": "${endDate.year}-${endDate.month}-${endDate.day}", "startTime": "$startTime", "endTime": "$endTime"}';
+  return '{"startDate": "${startDate.year}-${correctMonthOrDate(startDate.month)}-${correctMonthOrDate(startDate.day)}", "endDate": "${endDate.year}-${correctMonthOrDate(endDate.month)}-${correctMonthOrDate(endDate.day)}", "startTime": "$startTime", "endTime": "$endTime"}';
 }
 
 String generateRegularTypeDateTwo(
@@ -86,7 +96,7 @@ String generateRegularTypeDateTwo(
 
     for (int i = 0; i<startTimes.length; i++){
 
-      if (i != 6){
+      if (i != startTimes.length-1){
         result = '$result"startTime${i+1}": "${startTimes[i]}", "endTime${i+1}": "${endTimes[i]}", ';
       } else {
 
@@ -142,7 +152,7 @@ String generateIrregularTypeDate(
 
     for (int i = 0; i<dates.length; i++){
 
-      result = '$result{"date": "${dates[i].year}-${dates[i].month}-${dates[i].day}", "startTime": "${startTimes[i]}", "endTime": "${endTimes[i]}"}, ';
+      result = '$result{"date": "${dates[i].year}-${correctMonthOrDate(dates[i].month)}-${correctMonthOrDate(dates[i].day)}", "startTime": "${startTimes[i]}", "endTime": "${endTimes[i]}"}, ';
 
     }
 
@@ -172,4 +182,81 @@ String sortDateTimeListAndRelatedData(List<DateTime> dateTimeList, List<String> 
 
   return generateIrregularTypeDate(dateTimeList, startTime, endTime);
 
+}
+
+bool todayEventOrNot(EventCustom event) {
+
+  if (event.eventType == EventCustom.getNameEventTypeEnum(EventTypeEnum.once)){
+
+    String onceDay = extractDateOrTimeFromJson(event.onceDay, 'date');
+    DateTime dayInOnceType = DateTime.parse(onceDay);
+
+    return checkDateOnToday(dayInOnceType);
+
+  } else if (event.eventType == EventCustom.getNameEventTypeEnum(EventTypeEnum.long)){
+
+    String longStartDay = extractDateOrTimeFromJson(event.longDays, 'startDate');
+    String longEndDay = extractDateOrTimeFromJson(event.longDays, 'endDate');
+    DateTime startDayInLongType = DateTime.parse(longStartDay);
+    DateTime endDayInLongType = DateTime.parse(longEndDay);
+
+    return checkLongDatesOnToday(startDayInLongType, endDayInLongType);
+
+  } else if (event.eventType == EventCustom.getNameEventTypeEnum(EventTypeEnum.regular)){
+
+    return checkRegularDatesOnToday(event.regularDays);
+
+  } else if (event.eventType == EventCustom.getNameEventTypeEnum(EventTypeEnum.irregular)){
+
+// Это список для временного хранения дат в стринге из БД при парсинге
+    List<String> tempIrregularDaysString = [];
+
+// Парсим даты
+    parseIrregularDatesString(event.irregularDays, tempIrregularDaysString);
+
+    for (String date in tempIrregularDaysString){
+// Преобразуем дату из String в DateTime
+      DateTime tempDate = getDateFromString(date);
+// Проверяем - дату - сегодня или нет
+      bool result = checkDateOnToday(tempDate);
+      if (result) return true;
+    }
+    return false;
+  }
+  return false;
+}
+
+void parseIrregularDatesString(
+    String inputString, List<String> datesList) {
+  RegExp dateRegExp = RegExp(r'"date": "([^"]+)"');
+
+  List<Match> matches = dateRegExp.allMatches(inputString).toList();
+  for (Match match in matches) {
+    datesList.add(match.group(1)!);
+  }
+}
+
+
+bool checkRegularDatesOnToday (String regularTimes) {
+
+  int currentDay = DateTime.now().add(const Duration(hours: 6)).weekday;
+
+  String startTimeToday = extractDateOrTimeFromJson(regularTimes, 'startTime$currentDay');
+  String endTimeToday = extractDateOrTimeFromJson(regularTimes, 'endTime$currentDay');
+
+  if (startTimeToday == '00:00' && endTimeToday == '00:00') {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+bool checkLongDatesOnToday(DateTime startDate, DateTime endDate){
+  DateTime today = DateTime.now().add(const Duration(hours: 6));
+  return today.isAfter(startDate.subtract(Duration(days: 1))) && today.isBefore(endDate.add(Duration(days: 1)));
+}
+
+bool checkDateOnToday(DateTime eventDate) {
+  DateTime today = DateTime.now().add(const Duration(hours: 6));
+  return eventDate.year == today.year && eventDate.month == today.month && eventDate.day == today.day;
 }

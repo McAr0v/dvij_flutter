@@ -1,11 +1,16 @@
 import 'package:dvij_flutter/classes/event_class.dart';
+import 'package:dvij_flutter/elements/events_elements/today_widget.dart';
 import 'package:dvij_flutter/elements/headline_and_desc.dart';
 import 'package:dvij_flutter/elements/places_elements/now_is_work_widget.dart';
+import 'package:dvij_flutter/elements/places_elements/place_widget_in_view_screen_in_event_and_promo.dart';
 import 'package:dvij_flutter/elements/places_elements/place_work_time_element.dart';
 import 'package:dvij_flutter/elements/social_elements/social_buttons_widget.dart';
+import 'package:dvij_flutter/elements/user_element_widget.dart';
 import 'package:dvij_flutter/go_to_url/openUrlPage.dart';
 import 'package:dvij_flutter/methods/date_functions.dart';
+import 'package:dvij_flutter/screens/events/create_or_edit_event_screen.dart';
 import 'package:dvij_flutter/screens/places/create_or_edit_place_screen.dart';
+import 'package:dvij_flutter/screens/places/place_view_screen.dart';
 import 'package:dvij_flutter/screens/profile/edit_profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
@@ -14,23 +19,28 @@ import 'package:dvij_flutter/elements/custom_snack_bar.dart';
 import 'package:dvij_flutter/elements/pop_up_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../classes/city_class.dart';
+import '../../classes/event_category_class.dart';
+import '../../classes/event_type_enum.dart';
 import '../../classes/gender_class.dart';
 import '../../classes/place_category_class.dart';
 import '../../classes/place_class.dart';
 import '../../classes/place_role_class.dart';
+import '../../classes/priceTypeOptions.dart';
 import '../../classes/role_in_app.dart';
 import '../../classes/user_class.dart';
 import '../../elements/exit_dialog/exit_dialog.dart';
 import '../../elements/for_cards_small_widget_with_icon_and_text.dart';
 import '../../elements/loading_screen.dart';
+import '../../elements/places_elements/place_card_widget.dart';
 import '../../elements/places_elements/place_managers_element_list_item.dart';
+import '../../elements/snack_bar.dart';
 import '../../methods/days_functions.dart';
 import '../place_admins_screens/place_manager_add_screen.dart';
 
 
 // --- ЭКРАН ЗАЛОГИНЕВШЕГОСЯ ПОЛЬЗОВАТЕЛЯ -----
 
-/*class EventViewScreen extends StatefulWidget {
+class EventViewScreen extends StatefulWidget {
   final String eventId;
   const EventViewScreen({Key? key, required this.eventId}) : super(key: key);
 
@@ -42,28 +52,31 @@ class _EventViewScreenState extends State<EventViewScreen> {
 
   // ---- Инициализируем пустые переменные ----
 
-  UserCustom userInfo = UserCustom.empty('', '');
+  //UserCustom userInfo = UserCustom.empty('', '');
 
-  ////////
-  List<UserCustom> users = [];
-  List<String> placeManagersIDs = [];
+  // -- Список админов заведения
+  //List<UserCustom> placeAdminsList = [];
+
+  bool today = false;
+
   UserCustom creator = UserCustom.empty('', '');
-  //PlaceRole creatorPlaceRole = PlaceRole(name: '', id: '', desc: '', controlLevel: '');
-  //PlaceRole currentUserPlaceRole = PlaceRole(name: '', id: '', desc: '', controlLevel: '');
+  PlaceRole currentUserPlaceRole = PlaceRole(name: '', id: '', desc: '', controlLevel: '');
 
   EventCustom event = EventCustom.empty();
   String city = '';
   String category = '';
 
-  bool canEdit = false;
+  EventTypeEnum eventTypeEnum = EventTypeEnum.once;
+  PriceTypeOption priceType = PriceTypeOption.free;
 
   DateTime currentDate = DateTime.now();
-  //bool isOpen = false;
+
+  Place place = Place.emptyPlace;
 
   // --- Переключатель показа экрана загрузки -----
 
   bool loading = true;
-  //bool deleting = false;
+  bool deleting = false;
   String inFav = 'false';
   int favCounter = 0;
 
@@ -80,58 +93,43 @@ class _EventViewScreenState extends State<EventViewScreen> {
 
   Future<void> fetchAndSetData() async {
     try {
-      ///////
 
-      //event = await Place.getPlaceById(widget.eventId);
       event = await EventCustom.getEventById(widget.eventId);
 
-      // Получаем список управляющих заведением, в котором проводится мероприятия
+      eventTypeEnum = EventCustom.getEventTypeEnum(event.eventType);
+
+      priceType = EventCustom.getPriceTypeEnum(event.priceType);
+
       if (event.placeId != '') {
-        users = await UserCustom.getPlaceAdminsUsers(event.placeId);
+        // placeAdminsList = await UserCustom.getPlaceAdminsUsers(event.placeId);
+
+        // Считываем информацию о заведении
+        place = await Place.getPlaceById(event.placeId);
+
+
       }
 
-      if (UserCustom.currentUser != null) {
+      // Выдаем права на редактирование мероприятия
+      // Если наш пользователь создатель
+    if (UserCustom.currentUser != null && UserCustom.currentUser!.uid == event.creatorId){
 
-        if (UserCustom.currentUser!.uid == event.creatorId  || users.contains(element))
+      // Отдаем права создателя
+      currentUserPlaceRole = PlaceRole.getPlaceRoleFromListById('-NngrYovmKAw_cp0pYfJ');
 
+    } else if (UserCustom.currentUser != null && UserCustom.currentUser!.uid != event.creatorId){
+      if (event.placeId != '') {
+        // Если не создатель, то пытаемся понять, может он админ заведения
+        currentUserPlaceRole = await UserCustom.getPlaceRoleInUserById(place.id, UserCustom.currentUser!.uid);
       }
 
+    }
 
-
-
-
-      if (event.name != ''){
-
-        if (UserCustom.currentUser != null){
-          userInfo = UserCustom.currentUser!;
-          currentUserPlaceRole = await UserCustom.getPlaceRoleInUserById(widget.eventId, userInfo.uid);
-
-          creator = (await UserCustom.readUserData(event.creatorId))!;
-          //users.add(creator);
-          creatorPlaceRole = PlaceRole.getPlaceRoleFromListById('-NngrYovmKAw_cp0pYfJ');
-
-          creator.roleInPlace = creatorPlaceRole.id;
-
-          if (creator.uid == userInfo.uid) {
-            currentUserPlaceRole = creatorPlaceRole;
-          }
-
-          if (int.parse(currentUserPlaceRole.controlLevel) >= 90){
-            users = await UserCustom.getPlaceAdminsUsers(widget.eventId);
-          }
-
-        }
-        else {
-          userInfo = UserCustom.empty('', '');
-        }
-      }
+    creator = await UserCustom.getUserById(event.creatorId);
 
       city = City.getCityName(event.city);
-      category = PlaceCategory.getPlaceCategoryName(event.category);
+      category = EventCategory.getEventCategoryName(event.category);
       inFav = event.inFav!;
       favCounter = int.parse(event.addedToFavouritesCount!);
-      isOpen = nowIsOpenPlace(event);
-
 
       // ---- Убираем экран загрузки -----
       setState(() {
@@ -143,54 +141,12 @@ class _EventViewScreenState extends State<EventViewScreen> {
   }
 
   // ---- Функция перехода в профиль ----
-  void navigateToPlaces() {
+  void navigateToEvents() {
     Navigator.pushNamedAndRemoveUntil(
       context,
-      '/Places',
+      '/Events',
           (route) => false,
     );
-  }
-
-  void navigateToAddManager() async {
-    final result = await Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => PlaceManagerAddScreen(placeId: widget.eventId, isEdit: false, placeCreator: event.creatorId))
-    );
-
-    // Проверяем результат и вызываем функцию fetchAndSetData
-    if (result != null) {
-      fetchAndSetData();
-    }
-
-  }
-
-  void navigateToEditManager(UserCustom user) async {
-    final result = await Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PlaceManagerAddScreen(
-          placeId: widget.eventId,
-          isEdit: true,
-          placeRole: PlaceRole.getPlaceRoleFromListById(user.roleInPlace!),
-          user: user,
-          placeCreator: event.creatorId,
-        ),
-      ),
-    );
-
-    // Проверяем результат и вызываем функцию fetchAndSetData
-    if (result != null) {
-      fetchAndSetData();
-    }
-
-  }
-
-
-
-  // ---- Функция отображения всплывающих сообщений -----
-  void showSnackBar(String message, Color color, int showTime) {
-    final snackBar = customSnackBar(message: message, backgroundColor: color, showTime: showTime);
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   @override
@@ -198,7 +154,7 @@ class _EventViewScreenState extends State<EventViewScreen> {
 
     return Scaffold(
         appBar: AppBar(
-          title: Text(event.name != '' ? event.name : 'Загрузка...'),
+          title: Text(event.headline != '' ? event.headline : 'Загрузка...'),
           leading: IconButton(
             icon: const Icon(Icons.chevron_left),
             onPressed: () {
@@ -211,7 +167,7 @@ class _EventViewScreenState extends State<EventViewScreen> {
           children: [
             // ---- Экран загрузки ----
             if (loading) const LoadingScreen(loadingText: 'Подожди, идет загрузка данных',)
-            else if (deleting) const LoadingScreen(loadingText: 'Подожди, удаляем заведение',)
+            else if (deleting) const LoadingScreen(loadingText: 'Подожди, удаляем мероприятие',)
             else ListView(
 
                 children: [
@@ -251,7 +207,7 @@ class _EventViewScreenState extends State<EventViewScreen> {
                               if (UserCustom.currentUser?.uid == '' || UserCustom.currentUser?.uid == null)
                               {
 
-                                showSnackBar('Чтобы добавлять в избранное, нужно зарегистрироваться!', AppColors.attentionRed, 2);
+                                showSnackBar(context, 'Чтобы добавлять в избранное, нужно зарегистрироваться!', AppColors.attentionRed, 2);
 
                               }
 
@@ -260,47 +216,46 @@ class _EventViewScreenState extends State<EventViewScreen> {
                                 if (inFav == 'true')
                                 {
 
-                                  String resDel = await Place.deletePlaceFromFav(event.id);
+                                  String resDel = await EventCustom.deleteEventFromFav(event.id);
 
                                   if (resDel == 'success'){
                                     setState(() {
                                       inFav = 'false';
                                       favCounter --;
-                                      Place.updateCurrentPlaceListFavInformation(event.id, favCounter.toString(), inFav);
+                                      EventCustom.updateCurrentEventListFavInformation(event.id, favCounter.toString(), inFav);
                                     });
 
-                                    showSnackBar('Удалено из избранных', AppColors.attentionRed, 1);
+                                    showSnackBar(context, 'Удалено из избранных', AppColors.attentionRed, 1);
+
                                   } else {
 
-                                    showSnackBar(resDel, AppColors.attentionRed, 1);
+                                    showSnackBar(context, resDel, AppColors.attentionRed, 1);
                                   }
 
 
 
                                 }
                                 else {
-                                  String res = await Place.addPlaceToFav(event.id);
+                                  String res = await EventCustom.addEventToFav(event.id);
                                   if (res == 'success') {
 
                                     setState(() {
                                       inFav = 'true';
                                       favCounter ++;
-                                      Place.updateCurrentPlaceListFavInformation(event.id, favCounter.toString(), inFav);
+                                      EventCustom.updateCurrentEventListFavInformation(event.id, favCounter.toString(), inFav);
                                     });
 
-                                    showSnackBar('Добавлено в избранные', Colors.green, 1);
+                                    showSnackBar(context, 'Добавлено в избранные', Colors.green, 1);
 
                                   } else {
 
-                                    showSnackBar(res, AppColors.attentionRed, 1);
+                                    showSnackBar(context, res, AppColors.attentionRed, 1);
 
                                   }
 
                                 }
 
                               }
-
-
 
                             },
                           ),
@@ -320,8 +275,6 @@ class _EventViewScreenState extends State<EventViewScreen> {
                       ],
                     ),
 
-
-
                   // --- Контент под аватаркой -----
 
                   SingleChildScrollView(
@@ -333,23 +286,28 @@ class _EventViewScreenState extends State<EventViewScreen> {
 
                         // TODO - Такая проверка не пойдет. Иначе пользователь никак не сможет перейти на экран редактирования
 
-                        if (event.name != '') Row(
+                        if (event.headline != '') Row(
                           children: [
                             Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      event.name,
+                                      event.headline,
                                       style: Theme.of(context).textTheme.titleMedium,
                                     ),
-                                    Text(
+                                    if (place.id != '') Text(
+                                      '${place.name}, ${City.getCityName(place.city)}, ${place.street}, ${place.house}',
+                                      style: Theme.of(context).textTheme.bodySmall,
+                                    ),
+                                    if (place.id == '') Text(
                                       '$city, ${event.street}, ${event.house}',
                                       style: Theme.of(context).textTheme.bodySmall,
                                     )
                                   ],
                                 )
                             ),
+
                             const SizedBox(width: 16.0),
 
                             // TODO - сделать скрытие кнопки редактирования места если нет доступа к редактированию
@@ -365,7 +323,7 @@ class _EventViewScreenState extends State<EventViewScreen> {
                               onPressed: () async {
                                 Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => CreateOrEditPlaceScreen(placeInfo: event))
+                                    MaterialPageRoute(builder: (context) => CreateOrEditEventScreen(eventInfo: event))
                                 );
                               },
                               // Действие при нажатии на кнопку редактирования
@@ -373,15 +331,12 @@ class _EventViewScreenState extends State<EventViewScreen> {
                           ],
                         ),
 
-
-
                         // ---- Остальные данные пользователя ----
-
-
 
                         const SizedBox(height: 5.0),
 
-                        NowIsWorkWidget(isTrue: isOpen),
+                        // ПЕРЕДЕЛАТЬ ПОД СЕГОДНЯ
+                        TodayWidget(isTrue: bool.parse(event.today!)),
 
                         const SizedBox(height: 16.0),
 
@@ -389,117 +344,172 @@ class _EventViewScreenState extends State<EventViewScreen> {
 
                         const SizedBox(height: 16.0),
 
-                        if (event.desc != '') HeadlineAndDesc(headline: event.desc, description: 'Описание места'),
+                        if (event.desc != '') HeadlineAndDesc(headline: event.desc, description: 'Описание мероприятия'),
+
+                        //const SizedBox(height: 16.0),
+
+                        // Переделать под расписание
+                        /*PlaceWorkTimeCard(
+                          place: event,
+                        ),*/
+
+                        //const SizedBox(height: 16.0),
 
                         const SizedBox(height: 16.0),
 
-                        PlaceWorkTimeCard(
-                          place: event,
+                        Card(
+                          margin: EdgeInsets.zero,
+                          surfaceTintColor: Colors.transparent,
+                          color: AppColors.greyOnBackground,
+                          child: Padding (
+                            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                            child: Column (
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Организатор',
+                                  style: Theme.of(context).textTheme.titleMedium,
+                                ),
+
+                                const SizedBox(height: 16.0),
+
+                                if (creator.uid != '') UserElementWidget(user: creator),
+                              ],
+                            ),
+                          ),
                         ),
 
-                        const SizedBox(height: 16.0),
+                        SizedBox(height: 20,),
+
+                        Column(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Card(
+                              margin: EdgeInsets.zero,
+                              surfaceTintColor: Colors.transparent,
+                              color: AppColors.greyOnBackground,
+                              child: Padding (
+                                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                                  child: Row (
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          'Место проведения: ${place.name}',
+                                          style: Theme.of(context).textTheme.titleMedium,
+                                        ),
+                                      )
+                                    ],
+                                  )
+                              ),
+                            ),
+
+                            PlaceCardWidget(
+                              // TODO Сделать обновление иконки избранного и счетчика при возврате из экрана просмотра заведения
+                              place: place,
+
+                              onTap: () async {
+
+                                final results = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => PlaceViewScreen(placeId: place.id),
+                                  ),
+                                );
+
+                                if (results != null) {
+                                  setState(() {
+                                    place.inFav = results[0].toString();
+                                    place.addedToFavouritesCount = results[1].toString();
+                                  });
+                                }
+                              },
+
+                              // --- Функция на нажатие на карточке кнопки ИЗБРАННОЕ ---
+                              onFavoriteIconPressed: () async {
+
+                                // TODO Сделать проверку на подтвержденный Email
+                                // ---- Если не зарегистрирован или не вошел ----
+                                if (UserCustom.currentUser?.uid == '' || UserCustom.currentUser?.uid == null)
+                                {
+                                  showSnackBar(context, 'Чтобы добавлять в избранное, нужно зарегистрироваться!', AppColors.attentionRed, 2);
+                                }
+
+                                // --- Если пользователь залогинен -----
+                                else {
+
+                                  // --- Если уже в избранном ----
+                                  if (place.inFav == 'true')
+                                  {
+                                    // --- Удаляем из избранных ---
+                                    String resDel = await Place.deletePlaceFromFav(place.id);
+                                    // ---- Инициализируем счетчик -----
+                                    int favCounter = int.parse(place.addedToFavouritesCount!);
+
+                                    if (resDel == 'success'){
+                                      // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
+                                      setState(() {
+                                        // Обновляем текущий список
+                                        place.inFav = 'false';
+                                        favCounter --;
+                                        place.addedToFavouritesCount = favCounter.toString();
+                                        // Обновляем общий список из БД
+                                        Place.updateCurrentPlaceListFavInformation(place.id, favCounter.toString(), 'false');
+
+                                      });
+                                      showSnackBar(context, 'Удалено из избранных', AppColors.attentionRed, 1);
+                                    } else {
+                                      // Если удаление из избранных не прошло, показываем сообщение
+                                      showSnackBar(context, resDel, AppColors.attentionRed, 1);
+                                    }
+                                  }
+                                  else {
+                                    // --- Если заведение не в избранном ----
+
+                                    // -- Добавляем в избранное ----
+                                    String res = await Place.addPlaceToFav(place.id);
+                                    // ---- Инициализируем счетчик добавивших в избранное
+                                    int favCounter = int.parse(place.addedToFavouritesCount!);
+
+                                    if (res == 'success') {
+                                      // --- Если добавилось успешно, так же обновляем текущий список и список из БД
+                                      setState(() {
+                                        // Обновляем текущий список
+                                        place.inFav = 'true';
+                                        favCounter ++;
+                                        place.addedToFavouritesCount = favCounter.toString();
+                                        // Обновляем список из БД
+                                        Place.updateCurrentPlaceListFavInformation(place.id, favCounter.toString(), 'true');
+                                      });
+
+                                      showSnackBar(context, 'Добавлено в избранные', Colors.green, 1);
+
+                                    } else {
+                                      // Если добавление прошло неудачно, отображаем всплывающее окно
+                                      showSnackBar(context, res, AppColors.attentionRed, 1);
+                                    }
+                                  }
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 30.0),
 
                         if (event.createDate != '') HeadlineAndDesc(headline: event.createDate, description: 'Создано в движе', ),
 
                         // TODO - Сделать ограничение на редактирование
                         const SizedBox(height: 16.0),
 
-                        Text(
-                          'Мероприятия ${event.name}:',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-
-                        const SizedBox(height: 30.0),
-
-                        Text(
-                          'Акции ${event.name}:',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-
-                        const SizedBox(height: 30.0),
-
-                        if (currentUserPlaceRole.controlLevel != '' && int.parse(currentUserPlaceRole.controlLevel) >= 90) Container(
-                          padding: const EdgeInsets.fromLTRB(20, 10, 20, 0), // Отступы
-                          decoration: BoxDecoration(
-                            color: AppColors.greyOnBackground, // Цвет фона
-                            borderRadius: BorderRadius.circular(10.0), // Скругление углов
-                          ),
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Управляющие местом:',
-                                            style: Theme.of(context).textTheme.titleMedium,
-                                          ),
-                                          Text(
-                                            'Это пользователи, которые смогут управлять местом',
-                                            style: Theme.of(context).textTheme.bodySmall,
-                                          ),
-                                        ],
-                                      )
-                                  ),
-                                  const SizedBox(width: 16.0),
-
-                                  // TODO - сделать скрытие кнопки редактирования места если нет доступа к редактированию
-                                  // --- Кнопка редактирования ----
-                                  IconButton(
-                                    icon: Icon(
-                                      Icons.add,
-                                      color: Theme.of(context).colorScheme.background,
-                                    ),
-                                    style: ButtonStyle(
-                                      backgroundColor: MaterialStateProperty.all(Colors.green),
-                                    ),
-                                    onPressed: () async {
-                                      navigateToAddManager();
-                                    },
-                                    // Действие при нажатии на кнопку редактирования
-                                  ),
-                                ],
-                              ),
-
-                              const SizedBox(height: 20,),
-
-                              if (creator.name != '') PlaceManagersElementListItem(
-                                user: creator,
-                                showButton: false,
-                                onTapMethod: () async {
-
-                                },
-                              ),
-
-                              if (users.isNotEmpty) Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: users.map((user) {
-                                  return Padding(
-                                    padding: const EdgeInsets.all(0.0),
-                                    child: PlaceManagersElementListItem(
-                                      user: user,
-                                      showButton: true,
-                                      onTapMethod: () async {
-                                        navigateToEditManager(user);
-                                      },
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                            ],
-                          ),
-                        ),
                         const SizedBox(height: 30.0),
 
                         if (
                         currentUserPlaceRole.controlLevel != ''
-                            && int.parse(currentUserPlaceRole.controlLevel) == 100
+                            && int.parse(currentUserPlaceRole.controlLevel) >= 90
                         ) CustomButton(
-                          buttonText: 'Удалить заведение',
+                          buttonText: 'Удалить мероприятие',
                           onTapMethod: () async {
-                            bool? confirmed = await exitDialog(context, "Ты правда хочешь удалить заведение? Ты не сможешь восстановить данные" , 'Да', 'Нет');
+                            bool? confirmed = await exitDialog(context, "Ты правда хочешь удалить мероприятие? Ты не сможешь восстановить данные" , 'Да', 'Нет');
 
                             if (confirmed != null && confirmed){
 
@@ -507,20 +517,21 @@ class _EventViewScreenState extends State<EventViewScreen> {
                                 deleting = true;
                               });
 
-                              String delete = await Place.deletePlace(widget.eventId, users, event.creatorId);
+                              String delete = await EventCustom.deleteEvent(widget.eventId, event.creatorId, event.placeId);
 
                               if (delete == 'success'){
 
-                                Place.deletePlaceFormCurrentPlaceLists(widget.eventId);
+                                EventCustom.deleteEventFromCurrentEventLists(widget.eventId);
+                                //Place.deletePlaceFormCurrentPlaceLists(widget.eventId);
 
-                                showSnackBar('Место успешно удалено', Colors.green, 2);
-                                navigateToPlaces();
+                                showSnackBar(context, 'Мероприятие успешно удалено', Colors.green, 2);
+                                navigateToEvents();
 
                                 setState(() {
                                   deleting = false;
                                 });
                               } else {
-                                showSnackBar('Место не было удалено по ошибке: $delete', AppColors.attentionRed, 2);
+                                showSnackBar(context, 'Мероприятие не было удалено по ошибке: $delete', AppColors.attentionRed, 2);
                                 setState(() {
                                   deleting = false;
                                 });
@@ -540,4 +551,4 @@ class _EventViewScreenState extends State<EventViewScreen> {
         )
     );
   }
-}*/
+}

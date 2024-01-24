@@ -132,6 +132,8 @@ class EventCardWidget extends StatelessWidget {
                   ),
                   SizedBox(height: 10.0),
 
+                  Text('Открыто Сегодня - ${event.today}'),
+
                   Text(extractDateOrTimeFromJson(event.onceDay, 'date')),
                   Text('StartTime = ${extractDateOrTimeFromJson(event.onceDay, 'startTime')}'),
                   Text('FinishTime = ${extractDateOrTimeFromJson(event.onceDay, 'endTime')}'),

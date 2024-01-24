@@ -228,6 +228,10 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
     }
 
+    if (widget.eventInfo.placeId != '') {
+      chosenPlace = await Place.getPlaceById(widget.eventInfo.placeId);
+    }
+
     if (widget.eventInfo.creatorId == '') {
 
       creatorId = UserCustom.currentUser!.uid;

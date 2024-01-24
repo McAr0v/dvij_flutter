@@ -7,6 +7,7 @@ class SmallWidgetForCardsWithIconAndText extends StatelessWidget {
   final String text;
   final Color iconColor;
   final Color backgroundColor;
+  final Color textColor;
   final bool side;
   final VoidCallback? onPressed; // Добавлено для обработки нажатия
 
@@ -15,6 +16,7 @@ class SmallWidgetForCardsWithIconAndText extends StatelessWidget {
     this.icon,
     required this.text,
     required this.iconColor,
+    this.textColor = AppColors.white,
     this.backgroundColor = AppColors.greyOnBackground,
     this.side = true,
     this.onPressed, // Добавлено для обработки нажатия
@@ -41,7 +43,7 @@ class SmallWidgetForCardsWithIconAndText extends StatelessWidget {
             if (side && icon != null) SizedBox(width: 10),
             Text(
               text,
-              style: Theme.of(context).textTheme.labelMedium,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(color: textColor),
             ),
             if (!side && icon != null) SizedBox(width: 10),
             if (!side && icon != null) Icon(

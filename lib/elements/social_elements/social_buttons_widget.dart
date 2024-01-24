@@ -21,39 +21,39 @@ class SocialButtonsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       //color: AppColors.greyOnBackground, // Цвет фона
-      padding: EdgeInsets.all(8.0), // Отступы
+      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8), // Отступы
       decoration: BoxDecoration(
         color: AppColors.greyOnBackground,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
         //mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           if (phoneNumber != null && phoneNumber != '')
             GestureDetector(
-              onTap: () => openSocialProfile(phoneNumber!, 'phone'),
-              child: Card(
-                color: AppColors.brandColor,
-                margin: EdgeInsets.all(0),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const FaIcon(
-                        FontAwesomeIcons.phone,
-                        size: 20,
-                        color: AppColors.greyOnBackground,
+                onTap: () => openSocialProfile(phoneNumber!, 'phone'),
+                child: Card(
+                  color: AppColors.brandColor,
+                  margin: EdgeInsets.all(0),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: const FaIcon(
+                          FontAwesomeIcons.phone,
+                          size: 20,
+                          color: AppColors.greyOnBackground,
+                        ),
+                        onPressed: () => openSocialProfile(phoneNumber!, 'phone'),
                       ),
-                      onPressed: () => openSocialProfile(phoneNumber!, 'phone'),
-                    ),
-                    Text(
-                      phoneNumber!,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.greyOnBackground),
-                    ),
-                    SizedBox(width: 15,)
-                  ],
-                ),
-              )
+                      Text(
+                        phoneNumber!,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.greyOnBackground),
+                      ),
+                      SizedBox(width: 15,)
+                    ],
+                  ),
+                )
             ),
 
           //if (phoneNumber != null && phoneNumber != '') const SizedBox(width: 15,),
@@ -61,7 +61,7 @@ class SocialButtonsWidget extends StatelessWidget {
           if (instagramUsername != null && instagramUsername != '')
             IconButton(
               icon: const FaIcon(
-                  FontAwesomeIcons.instagram,
+                FontAwesomeIcons.instagram,
                 size: 30,
               ),
               onPressed: () => openSocialProfile(instagramUsername!, 'instagram'),
@@ -72,7 +72,7 @@ class SocialButtonsWidget extends StatelessWidget {
           if (telegramUsername != null && telegramUsername != '')
             IconButton(
               icon: const FaIcon(
-                  FontAwesomeIcons.telegram,
+                FontAwesomeIcons.telegram,
                 size: 30,
               ),
               onPressed: () => openSocialProfile(telegramUsername!, 'telegram'),
@@ -83,7 +83,7 @@ class SocialButtonsWidget extends StatelessWidget {
           if (whatsappUsername != null && whatsappUsername != '')
             IconButton(
               icon: const FaIcon(
-                  FontAwesomeIcons.whatsapp,
+                FontAwesomeIcons.whatsapp,
                 size: 30,
               ),
               onPressed: () => openSocialProfile(whatsappUsername!, 'whatsapp'),

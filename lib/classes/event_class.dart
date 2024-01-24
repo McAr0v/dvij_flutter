@@ -7,6 +7,7 @@ import 'package:dvij_flutter/classes/user_class.dart';
 import 'package:dvij_flutter/methods/days_functions.dart';
 import 'package:firebase_database/firebase_database.dart';
 
+import '../methods/date_functions.dart';
 import 'event_category_class.dart';
 import 'event_sorting_options.dart';
 
@@ -248,7 +249,8 @@ class EventCustom {
   static Future<String> deleteEvent(
       String eventId,
       // List<UserCustom> users, Восстановить если надо добавлять других пользователей
-      String creatorId
+      String creatorId,
+      String placeId
       ) async {
     try {
 
@@ -279,6 +281,10 @@ class EventCustom {
         DatabaseReference userReference = FirebaseDatabase.instance.ref().child('users').child(creatorId).child('myEvents').child(eventId);
 
         await userReference.remove();
+      }
+
+      if (placeId != '') {
+        await EventCustom.deleteEventIdFromPlace(eventId, placeId);
       }
 
 
@@ -343,6 +349,7 @@ class EventCustom {
 
       event.inFav = inFav;
       event.addedToFavouritesCount = favCount;
+      event.today = todayEventOrNot(event).toString();
 
       currentFeedEventsList.add(event);
 
@@ -550,14 +557,15 @@ class EventCustom {
         event.canEdit = canEdit;
         event.inFav = inFav;
         event.addedToFavouritesCount = favCount;
-
+        event.today = todayEventOrNot(event).toString();
       }
-
     }
 
     // Возвращаем список
     return returnedEvent;
   }
+
+
 
   static Future<String> getFavCount(String eventId) async {
 
@@ -825,12 +833,12 @@ class EventCustom {
     }
   }
 
-  static String getNamePriceTypeEnum (PriceTypeOption priceType) {
+  static String getNamePriceTypeEnum (PriceTypeOption priceType, {bool translate = false}) {
     switch (priceType){
 
-    case PriceTypeOption.free: return 'free';
-    case PriceTypeOption.fixed: return 'fixed';
-    case PriceTypeOption.range: return 'range';
+    case PriceTypeOption.free: return !translate? 'free' : 'Бесплатный вход';
+    case PriceTypeOption.fixed: return !translate? 'fixed' : 'Фиксированная';
+    case PriceTypeOption.range: return !translate? 'range' : 'От - До';
 
     }
   }
@@ -843,14 +851,14 @@ class EventCustom {
     }
   }
 
-  static String getNameEventTypeEnum (EventTypeEnum enumItem) {
+  static String getNameEventTypeEnum (EventTypeEnum enumItem, {bool translate = false}) {
 
     switch (enumItem){
 
-      case EventTypeEnum.once: return 'once';
-      case EventTypeEnum.long: return 'long';
-      case EventTypeEnum.regular: return 'regular';
-      case EventTypeEnum.irregular: return 'irregular';
+      case EventTypeEnum.once: return !translate? 'once' : 'Разовое';
+      case EventTypeEnum.long: return !translate? 'long' : 'Длительное';
+      case EventTypeEnum.regular: return !translate? 'regular' : 'Регулярное';
+      case EventTypeEnum.irregular: return !translate? 'irregular' : 'По расписанию';
 
     }
   }
