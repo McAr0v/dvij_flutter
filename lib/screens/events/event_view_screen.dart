@@ -403,6 +403,7 @@ class _EventViewScreenState extends State<EventViewScreen> {
 
                         // ---- Остальные данные пользователя ----
 
+                        // TODO Проверить вывод времени в функции определения сегодня
                         if (event.today != 'false') const SizedBox(height: 5.0),
 
                         // ПЕРЕДЕЛАТЬ ПОД СЕГОДНЯ
@@ -410,34 +411,69 @@ class _EventViewScreenState extends State<EventViewScreen> {
 
                         const SizedBox(height: 16.0),
 
-                        HeadlineAndDesc(
-                            headline: price,
-                            description: 'Стоимость билетов'
+                        Container(
+                          decoration: BoxDecoration(
+                            //color: backgroundColor,
+                            color: AppColors.greyOnBackground,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              //const SizedBox(height: 16.0),
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Заказ билетов', style: Theme.of(context).textTheme.titleMedium,),
+                                    Text('В этом разделе указана цена и контактные данные для бронирования билетов', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.greyText),),
+                                    const SizedBox(height: 20,),
+                                    Row(children: [
+                                      Expanded(
+                                          child: HeadlineAndDesc(
+                                              headline: price,
+                                              description: 'Стоимость билетов'
+                                          )
+                                      )
+                                    ],)
+                                  ],
+                                ),
+                              ),
+
+                              //const SizedBox(height: 16.0),
+
+                              SocialButtonsWidget(telegramUsername: event.telegram, instagramUsername: event.instagram, whatsappUsername: event.whatsapp, phoneNumber: event.phone,),
+                              const SizedBox(height: 20.0),
+                            ],
+                          ),
                         ),
 
                         const SizedBox(height: 16.0),
 
-                        SocialButtonsWidget(telegramUsername: event.telegram, instagramUsername: event.instagram, whatsappUsername: event.whatsapp, phoneNumber: event.phone,),
-
-                        const SizedBox(height: 30.0),
-
                         if (eventTypeEnum == EventTypeEnum.once) ScheduleOnceAndLongWidget(
-                            headline: 'Дата проведения',
-                            desc: 'Мероприятие проводится один раз',
+                            dateHeadline: 'Дата проведения',
+                            dateDesc: 'Мероприятие проводится один раз',
                             eventTypeEnum: eventTypeEnum,
                             startTime: onceDayStartTime,
                             endTime: onceDayFinishTime,
                             onceDate: onceDay,
+                          price: price,
+                          priceHeadline: 'Стоимость билетов',
+                          priceDesc: '123',
                         ),
 
                         if (eventTypeEnum == EventTypeEnum.long) ScheduleOnceAndLongWidget(
-                            headline: 'Расписание',
-                            desc: 'Мероприятие проводится каждый день в течении указанного периода',
+                            dateHeadline: 'Расписание',
+                            dateDesc: 'Мероприятие проводится каждый день в течении указанного периода',
                             eventTypeEnum: eventTypeEnum,
                             startTime: longDayStartTime,
                             endTime: longDayFinishTime,
                           longStartDate: longStartDay,
-                          longEndDate: longEndDay
+                          longEndDate: longEndDay,
+                          price: price,
+                          priceHeadline: 'Стоимость билетов',
+                          priceDesc: '123',
                         ),
 
                         if (eventTypeEnum == EventTypeEnum.regular) ScheduleRegularAndIrregularWidget(
@@ -457,11 +493,11 @@ class _EventViewScreenState extends State<EventViewScreen> {
                           desc: 'Мероприятие проводится в определенные дни',
                         ),
 
-                        const SizedBox(height: 16.0),
+                        const SizedBox(height: 20.0),
 
 
 
-                        const SizedBox(height: 16.0),
+                        //const SizedBox(height: 16.0),
 
                         if (event.desc != '') HeadlineAndDesc(headline: event.desc, description: 'Описание мероприятия'),
 

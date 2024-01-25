@@ -95,11 +95,11 @@ class IrregularTypeDateTimePickerWidget extends StatelessWidget {
                         'Удалить',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.attentionRed),
                       ),
-                      const SizedBox(width: 5,),
-                      const Icon(
+                      //const SizedBox(width: 5,),
+                      /*const Icon(
                         Icons.delete,
                         color: AppColors.attentionRed,
-                      ),
+                      ),*/
                     ],
                   )
               )

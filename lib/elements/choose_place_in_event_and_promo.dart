@@ -67,7 +67,7 @@ class ChoosePlaceInEventAndPromoWidget extends StatelessWidget {
                     color: inPlace? AppColors.brandColor : AppColors.greyForCards,
                     //margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                     child: Padding (
-                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                       child: Text (
                         'Выбрать место',
                         style: inPlace? Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.greyOnBackground) : Theme.of(context).textTheme.bodyMedium,
@@ -81,7 +81,7 @@ class ChoosePlaceInEventAndPromoWidget extends StatelessWidget {
                     color: !inPlace? AppColors.brandColor : AppColors.greyForCards,
                     //margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                     child: Padding (
-                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                       child: Text ('Написать адрес', style: !inPlace? Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.greyOnBackground) : Theme.of(context).textTheme.bodyMedium),
                     ),
                   ),

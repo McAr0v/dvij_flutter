@@ -446,8 +446,8 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                             if (eventTypeEnum == EventTypeEnum.once) OnceTypeDateTimePickerWidget(
                               //title: 'Выбери дату и время проведения мероприятия',
                                 dateLabelText: 'Дата проведения мероприятия',
-                                startTimeLabelText: "Начало мероприятия",
-                                endTimeLabelText: "Конец мероприятия",
+                                startTimeLabelText: "Начало",
+                                endTimeLabelText: "Завершение",
                                 selectedDate: selectedDayInOnceType,
                                 startTime: onceDayStartTime,
                                 endTime: onceDayFinishTime,
@@ -480,8 +480,8 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                             if (eventTypeEnum == EventTypeEnum.long) LongTypeDateTimePickerWidget(
                                 startDateLabelText: 'Дата начала мероприятия',
                                 endDateLabelText: 'Дата завершения мероприятия',
-                                startTimeLabelText: "Начало мероприятия",
-                                endTimeLabelText: "Конец мероприятия",
+                                startTimeLabelText: "Начало",
+                                endTimeLabelText: "Завершение",
                                 selectedStartDate: selectedStartDayInLongType,
                                 selectedEndDate: selectedEndDayInLongType,
                                 startTime: longDayStartTime,
@@ -527,8 +527,8 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                             if (eventTypeEnum == EventTypeEnum.regular) Column(
                               children: List.generate(regularStartTimes.length, (index) {
                                 return RegularTwoTypeDateTimePickerWidget(
-                                  startTimeLabelText: "Начало мероприятия",
-                                  endTimeLabelText: 'Конец мероприятия',
+                                  startTimeLabelText: "Начало",
+                                  endTimeLabelText: 'Завершение',
                                   startTime: regularStartTimes[index],
                                   endTime: regularFinishTimes[index],
                                   index: index,
