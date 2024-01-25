@@ -1,5 +1,7 @@
 import 'package:dvij_flutter/classes/place_class.dart';
 import 'package:dvij_flutter/classes/user_class.dart';
+import 'package:dvij_flutter/elements/social_elements/social_buttons_mini_widget.dart';
+import 'package:dvij_flutter/elements/social_elements/social_buttons_widget.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -69,7 +71,9 @@ class UserElementWidget extends StatelessWidget {
             ),
           ],
         ),
-        //const SizedBox(height: 20,)
+        const SizedBox(height: 20,),
+        SocialButtonsMiniWidget(telegramUsername: user.telegram, instagramUsername: user.instagram, whatsappUsername: user.whatsapp, phoneNumber: user.phone,),
+
       ],
     );
   }

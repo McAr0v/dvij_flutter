@@ -21,17 +21,42 @@ String switchMonth (String month)
   switch (month)
   {
     case '1': return 'января';
+    case '01': return 'января';
     case '2': return 'февраля';
+    case '02': return 'февраля';
     case '3': return 'марта';
+    case '03': return 'марта';
     case '4': return 'апреля';
+    case '04': return 'апреля';
     case '5': return 'мая';
+    case '05': return 'мая';
     case '6': return 'июня';
+    case '06': return 'июня';
     case '7': return 'июля';
+    case '07': return 'июля';
     case '8': return 'августа';
+    case '08': return 'августа';
     case '9': return 'сентября';
+    case '09': return 'сентября';
     case '10': return 'октября';
     case '11': return 'ноября';
     default: return 'декабря';
+  }
+}
+
+String getHumanWeekday (int weekdayIndex, bool cut)
+{
+  switch (weekdayIndex)
+  {
+    case 0: return !cut ? 'Понедельник' : 'Пн';
+    case 1: return !cut ? 'Вторник' : 'Вт';
+    case 2: return !cut ? 'Среда' : 'Ср';
+    case 3: return !cut ? 'Четверг' : 'Чт';
+    case 4: return !cut ? 'Пятница' : 'Пт';
+    case 5: return !cut ? 'Суббота' : 'Сб';
+    case 6: return !cut ? 'Воскресенье' : 'Вс';
+
+    default: return !cut ? 'Неизвестный индекс дня недели' : 'Err';
   }
 }
 

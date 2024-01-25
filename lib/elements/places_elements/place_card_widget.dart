@@ -13,8 +13,9 @@ class PlaceCardWidget extends StatelessWidget {
   final Place place;
   final Function()? onFavoriteIconPressed; // Добавьте функцию обратного вызова
   final Function()? onTap; // Добавьте функцию обратного вызова
+  Color surfaceColor;
 
-  const PlaceCardWidget({super.key, required this.place, this.onFavoriteIconPressed, required this.onTap});
+  PlaceCardWidget({super.key, required this.place, this.onFavoriteIconPressed, required this.onTap, this.surfaceColor = AppColors.greyOnBackground});
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +86,7 @@ class PlaceCardWidget extends StatelessWidget {
             ),
             // Фон с информацией
             Container(
-              color: AppColors.greyOnBackground, // Полупрозрачный черный цвет
+              color: surfaceColor, // Полупрозрачный черный цвет
               padding: EdgeInsets.fromLTRB(20, 20, 20, 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -140,7 +141,7 @@ class PlaceCardWidget extends StatelessWidget {
                         text: 'Мероприятий: ${place.eventsCount}',
                         side: true,
                         iconColor: AppColors.white,
-                        backgroundColor: AppColors.greyBackground,
+                        backgroundColor: surfaceColor == AppColors.greyOnBackground ? AppColors.greyBackground : AppColors.greyOnBackground,
                       ),
 
                       SizedBox(width: 10.0),
@@ -150,7 +151,7 @@ class PlaceCardWidget extends StatelessWidget {
                         text: 'Акций: ${place.promoCount}',
                         side: true,
                         iconColor: AppColors.white,
-                        backgroundColor: AppColors.greyBackground,
+                        backgroundColor: surfaceColor == AppColors.greyOnBackground ? AppColors.greyBackground : AppColors.greyOnBackground,
                       )
                     ],
                   ),

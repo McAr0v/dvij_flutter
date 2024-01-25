@@ -33,7 +33,7 @@ class RegularTwoTypeDateTimePickerWidget extends StatelessWidget {
     return Row(
       //mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        Text('$index', style: Theme.of(context).textTheme.bodyMedium,),
+        Text(getHumanWeekday(index, true), style: Theme.of(context).textTheme.bodyMedium,),
         SizedBox(width: 20.0),
         _buildTimeDropdown(
             startTimeLabelText,

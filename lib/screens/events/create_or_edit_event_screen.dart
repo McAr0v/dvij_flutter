@@ -177,6 +177,12 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
     if (eventTypeEnum == EventTypeEnum.once && widget.eventInfo.onceDay != ''){
       onceDay = extractDateOrTimeFromJson(widget.eventInfo.onceDay, 'date');
       selectedDayInOnceType = DateTime.parse(onceDay);
+
+      // Если в выбранной дате из БД день раньше, чем сегодня, то меняем выбранный день на сегодня
+      if (selectedDayInOnceType.isBefore(DateTime.now().add(const Duration(hours: 6)))){
+        selectedDayInOnceType = DateTime.now().add(const Duration(hours: 6));
+      }
+
       onceDayStartTime = extractDateOrTimeFromJson(widget.eventInfo.onceDay, 'startTime');
       onceDayFinishTime = extractDateOrTimeFromJson(widget.eventInfo.onceDay, 'endTime');
     } else {
@@ -902,11 +908,6 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
       regularStartTimes[i] = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'startTime${i+1}');
       regularFinishTimes[i] = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'endTime${i+1}');
 
-
-      //regularStartTimes[i+1] = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'endTime$counter');
-
-      //counter++;
-
     }
   }
 
@@ -1045,6 +1046,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
     }
   }
 
+  // TODO Вынести эту функцию в отдельный класс. Она скопирована в EventViewScreen
   void parseInputString(
       String inputString, List<String> datesList, List<String> startTimeList, List<String> endTimeList) {
     RegExp dateRegExp = RegExp(r'"date": "([^"]+)"');

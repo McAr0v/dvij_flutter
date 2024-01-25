@@ -1,6 +1,7 @@
 import 'package:dvij_flutter/classes/city_class.dart';
 import 'package:dvij_flutter/classes/place_category_class.dart';
 import 'package:dvij_flutter/classes/place_class.dart';
+import 'package:dvij_flutter/elements/headline_and_desc.dart';
 import 'package:dvij_flutter/elements/places_elements/place_card_widget.dart';
 import 'package:dvij_flutter/elements/places_elements/place_filter_page.dart';
 import 'package:dvij_flutter/screens/places/place_view_screen.dart';
@@ -267,9 +268,18 @@ class _PlacesFeedPageState extends State<PlacesFeedPage> {
                     if (placesList.isNotEmpty) Expanded(
                         child: ListView.builder(
                             padding: const EdgeInsets.all(15.0),
-                            itemCount: placesList.length,
+                            itemCount: placesList.length+1,
                             itemBuilder: (context, index) {
-                              return PlaceCardWidget(
+                              if (index == 1)  {
+                                return const Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 20,
+                                        horizontal: 20),
+                                  child: HeadlineAndDesc(headline: 'Здесь реклама', description: 'реклама'),
+                                );
+                              }
+                              if (index < 1) {
+                                return PlaceCardWidget(
                                 // TODO Сделать обновление иконки избранного и счетчика при возврате из экрана просмотра заведения
                                 place: placesList[index],
 
@@ -360,6 +370,99 @@ class _PlacesFeedPageState extends State<PlacesFeedPage> {
                                   }
                                 },
                               );
+                              } else {
+                                return PlaceCardWidget(
+                                  // TODO Сделать обновление иконки избранного и счетчика при возврате из экрана просмотра заведения
+                                  place: placesList[index-1],
+
+                                  onTap: () async {
+
+                                    final results = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => PlaceViewScreen(placeId: placesList[index-1].id),
+                                      ),
+                                    );
+
+                                    if (results != null) {
+                                      setState(() {
+                                        placesList[index-1].inFav = results[0].toString();
+                                        placesList[index-1].addedToFavouritesCount = results[1].toString();
+                                      });
+                                    }
+
+                                    //final results = await Navigator.of(context).push(_createPopupFilter(placeCategoriesList));
+
+                                  },
+
+                                  // --- Функция на нажатие на карточке кнопки ИЗБРАННОЕ ---
+                                  onFavoriteIconPressed: () async {
+
+                                    // TODO Сделать проверку на подтвержденный Email
+                                    // ---- Если не зарегистрирован или не вошел ----
+                                    if (UserCustom.currentUser?.uid == '' || UserCustom.currentUser?.uid == null)
+                                    {
+                                      showSnackBar('Чтобы добавлять в избранное, нужно зарегистрироваться!', AppColors.attentionRed, 2);
+                                    }
+
+                                    // --- Если пользователь залогинен -----
+                                    else {
+
+                                      // --- Если уже в избранном ----
+                                      if (placesList[index-1].inFav == 'true')
+                                      {
+                                        // --- Удаляем из избранных ---
+                                        String resDel = await Place.deletePlaceFromFav(placesList[index].id);
+                                        // ---- Инициализируем счетчик -----
+                                        int favCounter = int.parse(placesList[index].addedToFavouritesCount!);
+
+                                        if (resDel == 'success'){
+                                          // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
+                                          setState(() {
+                                            // Обновляем текущий список
+                                            placesList[index-1].inFav = 'false';
+                                            favCounter --;
+                                            placesList[index-1].addedToFavouritesCount = favCounter.toString();
+                                            // Обновляем общий список из БД
+                                            Place.updateCurrentPlaceListFavInformation(placesList[index].id, favCounter.toString(), 'false');
+
+                                          });
+                                          showSnackBar('Удалено из избранных', AppColors.attentionRed, 1);
+                                        } else {
+                                          // Если удаление из избранных не прошло, показываем сообщение
+                                          showSnackBar(resDel, AppColors.attentionRed, 1);
+                                        }
+                                      }
+                                      else {
+                                        // --- Если заведение не в избранном ----
+
+                                        // -- Добавляем в избранное ----
+                                        String res = await Place.addPlaceToFav(placesList[index-1].id);
+                                        // ---- Инициализируем счетчик добавивших в избранное
+                                        int favCounter = int.parse(placesList[index-1].addedToFavouritesCount!);
+
+                                        if (res == 'success') {
+                                          // --- Если добавилось успешно, так же обновляем текущий список и список из БД
+                                          setState(() {
+                                            // Обновляем текущий список
+                                            placesList[index-1].inFav = 'true';
+                                            favCounter ++;
+                                            placesList[index-1].addedToFavouritesCount = favCounter.toString();
+                                            // Обновляем список из БД
+                                            Place.updateCurrentPlaceListFavInformation(placesList[index-1].id, favCounter.toString(), 'true');
+                                          });
+
+                                          showSnackBar('Добавлено в избранные', Colors.green, 1);
+
+                                        } else {
+                                          // Если добавление прошло неудачно, отображаем всплывающее окно
+                                          showSnackBar(res, AppColors.attentionRed, 1);
+                                        }
+                                      }
+                                    }
+                                  },
+                                );
+                              }
                             }
                         )
                     )

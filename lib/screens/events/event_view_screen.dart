@@ -4,6 +4,7 @@ import 'package:dvij_flutter/elements/headline_and_desc.dart';
 import 'package:dvij_flutter/elements/places_elements/now_is_work_widget.dart';
 import 'package:dvij_flutter/elements/places_elements/place_widget_in_view_screen_in_event_and_promo.dart';
 import 'package:dvij_flutter/elements/places_elements/place_work_time_element.dart';
+import 'package:dvij_flutter/elements/shedule_elements/shedule_once_and_long_widget.dart';
 import 'package:dvij_flutter/elements/social_elements/social_buttons_widget.dart';
 import 'package:dvij_flutter/elements/user_element_widget.dart';
 import 'package:dvij_flutter/go_to_url/openUrlPage.dart';
@@ -33,6 +34,7 @@ import '../../elements/for_cards_small_widget_with_icon_and_text.dart';
 import '../../elements/loading_screen.dart';
 import '../../elements/places_elements/place_card_widget.dart';
 import '../../elements/places_elements/place_managers_element_list_item.dart';
+import '../../elements/shedule_elements/schedule_regular_and_irregular_widget.dart';
 import '../../elements/snack_bar.dart';
 import '../../methods/days_functions.dart';
 import '../place_admins_screens/place_manager_add_screen.dart';
@@ -82,6 +84,24 @@ class _EventViewScreenState extends State<EventViewScreen> {
   String inFav = 'false';
   int favCounter = 0;
 
+  String onceDay = '';
+  String onceDayStartTime = '';
+  String onceDayFinishTime = '';
+
+  String longStartDay = '';
+  String longEndDay = '';
+  String longDayStartTime = '';
+  String longDayFinishTime = '';
+
+  List<String> regularStartTimes = fillTimeListWithDefaultValues('00:00', 7);
+  List<String> regularFinishTimes = fillTimeListWithDefaultValues('00:00', 7);
+
+  List<String> tempIrregularDaysString = [];
+  // Выбранные даты начала
+  List<String> chosenIrregularStartTime = [];
+  // Выбранные даты завершения
+  List<String> chosenIrregularEndTime = [];
+
   // ---- Инициализация экрана -----
   @override
   void initState() {
@@ -100,6 +120,32 @@ class _EventViewScreenState extends State<EventViewScreen> {
 
       eventTypeEnum = EventCustom.getEventTypeEnum(event.eventType);
 
+      if (eventTypeEnum == EventTypeEnum.once && event.onceDay != ''){
+        onceDay = extractDateOrTimeFromJson(event.onceDay, 'date');
+        onceDayStartTime = extractDateOrTimeFromJson(event.onceDay, 'startTime');
+        onceDayFinishTime = extractDateOrTimeFromJson(event.onceDay, 'endTime');
+      }
+
+      if (eventTypeEnum == EventTypeEnum.long && event.longDays != '') {
+        longStartDay = extractDateOrTimeFromJson(event.longDays, 'startDate');
+        longEndDay = extractDateOrTimeFromJson(event.longDays, 'endDate');
+        longDayStartTime = extractDateOrTimeFromJson(event.longDays, 'startTime');
+        longDayFinishTime = extractDateOrTimeFromJson(event.longDays, 'endTime');
+      }
+
+      if (eventTypeEnum == EventTypeEnum.regular && event.regularDays != ''){
+
+        _fillRegularList();
+      }
+
+      if (eventTypeEnum == EventTypeEnum.irregular && event.irregularDays != ''){
+
+        // TODO Вынести эту функцию в отдельный класс. Она скопирована из CreateOrEditEventScreen
+        // Парсим даты и время в списки
+        parseInputString(event.irregularDays, tempIrregularDaysString, chosenIrregularStartTime, chosenIrregularEndTime);
+
+      }
+
       priceType = EventCustom.getPriceTypeEnum(event.priceType);
 
       if (priceType == PriceTypeOption.free) {
@@ -108,7 +154,7 @@ class _EventViewScreenState extends State<EventViewScreen> {
         price = '${event.price} тенге';
       } else if (priceType == PriceTypeOption.range){
         List<String> temp = event.price.split('-');
-        price = 'От ${temp[0]} тенге - до ${temp[1]} тенге';
+        price = 'от ${temp[0]} тенге - до ${temp[1]} тенге';
       }
 
       if (event.placeId != '') {
@@ -160,6 +206,17 @@ class _EventViewScreenState extends State<EventViewScreen> {
       '/Events',
           (route) => false,
     );
+  }
+
+  void _fillRegularList (){
+
+
+    for (int i = 0; i<regularStartTimes.length; i++){
+
+      regularStartTimes[i] = extractDateOrTimeFromJson(event.regularDays, 'startTime${i+1}');
+      regularFinishTimes[i] = extractDateOrTimeFromJson(event.regularDays, 'endTime${i+1}');
+
+    }
   }
 
   @override
@@ -346,10 +403,10 @@ class _EventViewScreenState extends State<EventViewScreen> {
 
                         // ---- Остальные данные пользователя ----
 
-                        const SizedBox(height: 5.0),
+                        if (event.today != 'false') const SizedBox(height: 5.0),
 
                         // ПЕРЕДЕЛАТЬ ПОД СЕГОДНЯ
-                        TodayWidget(isTrue: bool.parse(event.today!)),
+                        if (event.today != 'false') TodayWidget(isTrue: bool.parse(event.today!)),
 
                         const SizedBox(height: 16.0),
 
@@ -361,6 +418,48 @@ class _EventViewScreenState extends State<EventViewScreen> {
                         const SizedBox(height: 16.0),
 
                         SocialButtonsWidget(telegramUsername: event.telegram, instagramUsername: event.instagram, whatsappUsername: event.whatsapp, phoneNumber: event.phone,),
+
+                        const SizedBox(height: 30.0),
+
+                        if (eventTypeEnum == EventTypeEnum.once) ScheduleOnceAndLongWidget(
+                            headline: 'Дата проведения',
+                            desc: 'Мероприятие проводится один раз',
+                            eventTypeEnum: eventTypeEnum,
+                            startTime: onceDayStartTime,
+                            endTime: onceDayFinishTime,
+                            onceDate: onceDay,
+                        ),
+
+                        if (eventTypeEnum == EventTypeEnum.long) ScheduleOnceAndLongWidget(
+                            headline: 'Расписание',
+                            desc: 'Мероприятие проводится каждый день в течении указанного периода',
+                            eventTypeEnum: eventTypeEnum,
+                            startTime: longDayStartTime,
+                            endTime: longDayFinishTime,
+                          longStartDate: longStartDay,
+                          longEndDate: longEndDay
+                        ),
+
+                        if (eventTypeEnum == EventTypeEnum.regular) ScheduleRegularAndIrregularWidget(
+                            eventTypeEnum: eventTypeEnum,
+                            regularStartTimes: regularStartTimes,
+                            regularFinishTimes: regularFinishTimes,
+                          headline: 'Расписание',
+                          desc: 'Мероприятие проводится каждую неделю в определенные дни',
+                        ),
+
+                        if (eventTypeEnum == EventTypeEnum.irregular) ScheduleRegularAndIrregularWidget(
+                          eventTypeEnum: eventTypeEnum,
+                          irregularDays: tempIrregularDaysString,
+                          irregularStartTime: chosenIrregularStartTime,
+                          irregularEndTime: chosenIrregularEndTime,
+                          headline: 'Расписание',
+                          desc: 'Мероприятие проводится в определенные дни',
+                        ),
+
+                        const SizedBox(height: 16.0),
+
+
 
                         const SizedBox(height: 16.0),
 
@@ -403,6 +502,7 @@ class _EventViewScreenState extends State<EventViewScreen> {
                                 const SizedBox(height: 16.0),
 
                                 if (creator.uid != '') UserElementWidget(user: creator),
+
                               ],
                             ),
                           ),
@@ -415,10 +515,14 @@ class _EventViewScreenState extends State<EventViewScreen> {
                         if (event.placeId != '')  Column(
                           mainAxisSize: MainAxisSize.max,
                           children: [
-                            Card(
+                            Container(
                               margin: EdgeInsets.zero,
-                              surfaceTintColor: Colors.transparent,
-                              color: AppColors.greyOnBackground,
+                              decoration: BoxDecoration(
+                                color: AppColors.greyOnBackground,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              //surfaceTintColor: Colors.transparent,
+                              //color: AppColors.greyOnBackground,
                               child: Padding (
                                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                                   child: Column (
@@ -431,102 +535,108 @@ class _EventViewScreenState extends State<EventViewScreen> {
                                               'Место проведения: ${place.name}',
                                               style: Theme.of(context).textTheme.titleMedium,
                                             ),
-                                          )
+                                          ),
                                         ],
                                       ),
+
+                                      SizedBox(height: 20,),
+
+                                      PlaceCardWidget(
+                                        // TODO Сделать обновление иконки избранного и счетчика при возврате из экрана просмотра заведения
+                                        place: place,
+                                        surfaceColor: AppColors.greyBackground,
+
+                                        onTap: () async {
+
+                                          final results = await Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => PlaceViewScreen(placeId: place.id),
+                                            ),
+                                          );
+
+                                          if (results != null) {
+                                            setState(() {
+                                              place.inFav = results[0].toString();
+                                              place.addedToFavouritesCount = results[1].toString();
+                                            });
+                                          }
+                                        },
+
+                                        // --- Функция на нажатие на карточке кнопки ИЗБРАННОЕ ---
+                                        onFavoriteIconPressed: () async {
+
+                                          // TODO Сделать проверку на подтвержденный Email
+                                          // ---- Если не зарегистрирован или не вошел ----
+                                          if (UserCustom.currentUser?.uid == '' || UserCustom.currentUser?.uid == null)
+                                          {
+                                            showSnackBar(context, 'Чтобы добавлять в избранное, нужно зарегистрироваться!', AppColors.attentionRed, 2);
+                                          }
+
+                                          // --- Если пользователь залогинен -----
+                                          else {
+
+                                            // --- Если уже в избранном ----
+                                            if (place.inFav == 'true')
+                                            {
+                                              // --- Удаляем из избранных ---
+                                              String resDel = await Place.deletePlaceFromFav(place.id);
+                                              // ---- Инициализируем счетчик -----
+                                              int favCounter = int.parse(place.addedToFavouritesCount!);
+
+                                              if (resDel == 'success'){
+                                                // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
+                                                setState(() {
+                                                  // Обновляем текущий список
+                                                  place.inFav = 'false';
+                                                  favCounter --;
+                                                  place.addedToFavouritesCount = favCounter.toString();
+                                                  // Обновляем общий список из БД
+                                                  Place.updateCurrentPlaceListFavInformation(place.id, favCounter.toString(), 'false');
+
+                                                });
+                                                showSnackBar(context, 'Удалено из избранных', AppColors.attentionRed, 1);
+                                              } else {
+                                                // Если удаление из избранных не прошло, показываем сообщение
+                                                showSnackBar(context, resDel, AppColors.attentionRed, 1);
+                                              }
+                                            }
+                                            else {
+                                              // --- Если заведение не в избранном ----
+
+                                              // -- Добавляем в избранное ----
+                                              String res = await Place.addPlaceToFav(place.id);
+                                              // ---- Инициализируем счетчик добавивших в избранное
+                                              int favCounter = int.parse(place.addedToFavouritesCount!);
+
+                                              if (res == 'success') {
+                                                // --- Если добавилось успешно, так же обновляем текущий список и список из БД
+                                                setState(() {
+                                                  // Обновляем текущий список
+                                                  place.inFav = 'true';
+                                                  favCounter ++;
+                                                  place.addedToFavouritesCount = favCounter.toString();
+                                                  // Обновляем список из БД
+                                                  Place.updateCurrentPlaceListFavInformation(place.id, favCounter.toString(), 'true');
+                                                });
+
+                                                showSnackBar(context, 'Добавлено в избранные', Colors.green, 1);
+
+                                              } else {
+                                                // Если добавление прошло неудачно, отображаем всплывающее окно
+                                                showSnackBar(context, res, AppColors.attentionRed, 1);
+                                              }
+                                            }
+                                          }
+                                        },
+                                      ),
+
                                     ],
                                   ),
                               ),
                             ),
 
-                            PlaceCardWidget(
-                              // TODO Сделать обновление иконки избранного и счетчика при возврате из экрана просмотра заведения
-                              place: place,
 
-                              onTap: () async {
-
-                                final results = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => PlaceViewScreen(placeId: place.id),
-                                  ),
-                                );
-
-                                if (results != null) {
-                                  setState(() {
-                                    place.inFav = results[0].toString();
-                                    place.addedToFavouritesCount = results[1].toString();
-                                  });
-                                }
-                              },
-
-                              // --- Функция на нажатие на карточке кнопки ИЗБРАННОЕ ---
-                              onFavoriteIconPressed: () async {
-
-                                // TODO Сделать проверку на подтвержденный Email
-                                // ---- Если не зарегистрирован или не вошел ----
-                                if (UserCustom.currentUser?.uid == '' || UserCustom.currentUser?.uid == null)
-                                {
-                                  showSnackBar(context, 'Чтобы добавлять в избранное, нужно зарегистрироваться!', AppColors.attentionRed, 2);
-                                }
-
-                                // --- Если пользователь залогинен -----
-                                else {
-
-                                  // --- Если уже в избранном ----
-                                  if (place.inFav == 'true')
-                                  {
-                                    // --- Удаляем из избранных ---
-                                    String resDel = await Place.deletePlaceFromFav(place.id);
-                                    // ---- Инициализируем счетчик -----
-                                    int favCounter = int.parse(place.addedToFavouritesCount!);
-
-                                    if (resDel == 'success'){
-                                      // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
-                                      setState(() {
-                                        // Обновляем текущий список
-                                        place.inFav = 'false';
-                                        favCounter --;
-                                        place.addedToFavouritesCount = favCounter.toString();
-                                        // Обновляем общий список из БД
-                                        Place.updateCurrentPlaceListFavInformation(place.id, favCounter.toString(), 'false');
-
-                                      });
-                                      showSnackBar(context, 'Удалено из избранных', AppColors.attentionRed, 1);
-                                    } else {
-                                      // Если удаление из избранных не прошло, показываем сообщение
-                                      showSnackBar(context, resDel, AppColors.attentionRed, 1);
-                                    }
-                                  }
-                                  else {
-                                    // --- Если заведение не в избранном ----
-
-                                    // -- Добавляем в избранное ----
-                                    String res = await Place.addPlaceToFav(place.id);
-                                    // ---- Инициализируем счетчик добавивших в избранное
-                                    int favCounter = int.parse(place.addedToFavouritesCount!);
-
-                                    if (res == 'success') {
-                                      // --- Если добавилось успешно, так же обновляем текущий список и список из БД
-                                      setState(() {
-                                        // Обновляем текущий список
-                                        place.inFav = 'true';
-                                        favCounter ++;
-                                        place.addedToFavouritesCount = favCounter.toString();
-                                        // Обновляем список из БД
-                                        Place.updateCurrentPlaceListFavInformation(place.id, favCounter.toString(), 'true');
-                                      });
-
-                                      showSnackBar(context, 'Добавлено в избранные', Colors.green, 1);
-
-                                    } else {
-                                      // Если добавление прошло неудачно, отображаем всплывающее окно
-                                      showSnackBar(context, res, AppColors.attentionRed, 1);
-                                    }
-                                  }
-                                }
-                              },
-                            ),
                           ],
                         ),
 
@@ -586,5 +696,27 @@ class _EventViewScreenState extends State<EventViewScreen> {
           ],
         )
     );
+  }
+}
+
+void parseInputString(
+    String inputString, List<String> datesList, List<String> startTimeList, List<String> endTimeList) {
+  RegExp dateRegExp = RegExp(r'"date": "([^"]+)"');
+  RegExp startTimeRegExp = RegExp(r'"startTime": "([^"]+)"');
+  RegExp endTimeRegExp = RegExp(r'"endTime": "([^"]+)"');
+
+  List<Match> matches = dateRegExp.allMatches(inputString).toList();
+  for (Match match in matches) {
+    datesList.add(match.group(1)!);
+  }
+
+  matches = startTimeRegExp.allMatches(inputString).toList();
+  for (Match match in matches) {
+    startTimeList.add(match.group(1)!);
+  }
+
+  matches = endTimeRegExp.allMatches(inputString).toList();
+  for (Match match in matches) {
+    endTimeList.add(match.group(1)!);
   }
 }
