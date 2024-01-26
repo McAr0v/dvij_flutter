@@ -34,6 +34,7 @@ import '../../elements/for_cards_small_widget_with_icon_and_text.dart';
 import '../../elements/loading_screen.dart';
 import '../../elements/places_elements/place_card_widget.dart';
 import '../../elements/places_elements/place_managers_element_list_item.dart';
+import '../../elements/shedule_elements/schedule_once_and_long_widget_two.dart';
 import '../../elements/shedule_elements/schedule_regular_and_irregular_widget.dart';
 import '../../elements/snack_bar.dart';
 import '../../methods/days_functions.dart';
@@ -412,6 +413,20 @@ class _EventViewScreenState extends State<EventViewScreen> {
                         const SizedBox(height: 16.0),
 
                         Container(
+                          margin: EdgeInsets.zero,
+                          decoration: BoxDecoration(
+                            color: AppColors.greyOnBackground,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Padding (
+                            child: HeadlineAndDesc(headline: price, description: 'Стоимость билетов'),
+                            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                          ),
+                        ),
+
+                        const SizedBox(height: 16.0),
+
+                        Container(
                           decoration: BoxDecoration(
                             //color: backgroundColor,
                             color: AppColors.greyOnBackground,
@@ -422,21 +437,15 @@ class _EventViewScreenState extends State<EventViewScreen> {
                             children: [
                               //const SizedBox(height: 16.0),
                               Padding(
-                                padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                                padding: EdgeInsets.fromLTRB(20, 20, 20, 10),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text('Заказ билетов', style: Theme.of(context).textTheme.titleMedium,),
-                                    Text('В этом разделе указана цена и контактные данные для бронирования билетов', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.greyText),),
-                                    const SizedBox(height: 20,),
-                                    Row(children: [
-                                      Expanded(
-                                          child: HeadlineAndDesc(
-                                              headline: price,
-                                              description: 'Стоимость билетов'
-                                          )
-                                      )
-                                    ],)
+                                    //const SizedBox(height: 20,),
+                                    Text(priceType == PriceTypeOption.free ? 'Подтвердить участие' : 'Заказать билеты', style: Theme.of(context).textTheme.titleMedium,),
+                                    Text('По контактам ниже вы можете связаться с организатором', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.greyText),),
+
+
                                   ],
                                 ),
                               ),
@@ -451,30 +460,30 @@ class _EventViewScreenState extends State<EventViewScreen> {
 
                         const SizedBox(height: 16.0),
 
+                        if (event.desc != '') HeadlineAndDesc(headline: event.desc, description: 'Описание мероприятия'),
+
+                        const SizedBox(height: 16.0),
+
                         if (eventTypeEnum == EventTypeEnum.once) ScheduleOnceAndLongWidget(
-                            dateHeadline: 'Дата проведения',
-                            dateDesc: 'Мероприятие проводится один раз',
-                            eventTypeEnum: eventTypeEnum,
-                            startTime: onceDayStartTime,
-                            endTime: onceDayFinishTime,
-                            onceDate: onceDay,
-                          price: price,
-                          priceHeadline: 'Стоимость билетов',
-                          priceDesc: '123',
+                          dateHeadline: 'Дата проведения',
+                          dateDesc: 'Мероприятие проводится один раз',
+                          eventTypeEnum: eventTypeEnum,
+                          startTime: onceDayStartTime,
+                          endTime: onceDayFinishTime,
+                          onceDate: onceDay,
                         ),
 
                         if (eventTypeEnum == EventTypeEnum.long) ScheduleOnceAndLongWidget(
-                            dateHeadline: 'Расписание',
-                            dateDesc: 'Мероприятие проводится каждый день в течении указанного периода',
-                            eventTypeEnum: eventTypeEnum,
-                            startTime: longDayStartTime,
-                            endTime: longDayFinishTime,
+                          dateHeadline: 'Расписание',
+                          dateDesc: 'Мероприятие проводится каждый день в течении указанного периода',
+                          eventTypeEnum: eventTypeEnum,
+                          startTime: longDayStartTime,
+                          endTime: longDayFinishTime,
                           longStartDate: longStartDay,
                           longEndDate: longEndDay,
-                          price: price,
-                          priceHeadline: 'Стоимость билетов',
-                          priceDesc: '123',
                         ),
+
+
 
                         if (eventTypeEnum == EventTypeEnum.regular) ScheduleRegularAndIrregularWidget(
                             eventTypeEnum: eventTypeEnum,
@@ -493,33 +502,75 @@ class _EventViewScreenState extends State<EventViewScreen> {
                           desc: 'Мероприятие проводится в определенные дни',
                         ),
 
-                        const SizedBox(height: 20.0),
-
-
-
-                        //const SizedBox(height: 16.0),
-
-                        if (event.desc != '') HeadlineAndDesc(headline: event.desc, description: 'Описание мероприятия'),
-
-                        //const SizedBox(height: 16.0),
-
-                        // Переделать под расписание
-                        /*PlaceWorkTimeCard(
-                          place: event,
-                        ),*/
-
-                        //const SizedBox(height: 16.0),
-
                         const SizedBox(height: 16.0),
 
+                        Column(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Container(
+                              margin: EdgeInsets.zero,
+                              decoration: BoxDecoration(
+                                color: AppColors.greyOnBackground,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              //surfaceTintColor: Colors.transparent,
+                              //color: AppColors.greyOnBackground,
+                              child: Padding (
+                                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                                child: Column (
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row (
+                                      children: [
+                                        Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  'Место проведения: ${place.name}',
+                                                  style: Theme.of(context).textTheme.titleMedium,
+                                                ),
+                                                Text(
+                                                  place.id != '' ? 'Ты можешь перейти в заведение и ознакомиться с ним подробнее' : 'Адрес, где будет проводится мероприятие',
+                                                  style: Theme.of(context).textTheme.labelMedium!.copyWith(color: AppColors.greyText),
+                                                ),
+                                              ],
+                                            )
+                                        ),
+                                      ],
+                                    ),
+
+                                    SizedBox(height: 20,),
+
+                                    if (event.street != '' && place.id == '') HeadlineAndDesc(
+                                        headline: '${City.getCityNameInCitiesList(event.city).name}, ${event.street} ${event.house} ',
+                                        description: 'Место проведения'
+                                    ),
+
+                                    if (place.id != '')PlaceWidgetInViewScreenInEventAndPromoScreen(
+                                      // TODO Сделать обновление иконки избранного и счетчика при возврате из экрана просмотра заведения
+                                      place: place,
+                                      onTapMethod: () async {
+                                        await Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => PlaceViewScreen(placeId: place.id),
+                                          ),
+                                        );
+                                      },
+                                    ),
 
 
-                        if (event.street != '') HeadlineAndDesc(
-                            headline: '${City.getCityNameInCitiesList(event.city).name}, ${event.street} ${event.house} ',
-                            description: 'Место проведения'
+                                  ],
+                                ),
+                              ),
+                            ),
+
+
+                          ],
                         ),
 
-                        SizedBox(height: 20,),
+                        const SizedBox(height: 16.0),
 
                         Card(
                           margin: EdgeInsets.zero,
@@ -531,8 +582,13 @@ class _EventViewScreenState extends State<EventViewScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Организатор',
+                                  'Создатель мероприятия',
                                   style: Theme.of(context).textTheme.titleMedium,
+                                ),
+
+                                Text(
+                                  'Ты можешь написать создателю и задать вопросы',
+                                  style: Theme.of(context).textTheme.labelMedium!.copyWith(color: AppColors.greyText),
                                 ),
 
                                 const SizedBox(height: 16.0),
@@ -545,143 +601,9 @@ class _EventViewScreenState extends State<EventViewScreen> {
                         ),
 
 
+                        if (event.createDate != '' && int.parse(currentUserPlaceRole.controlLevel) >= 90) const SizedBox(height: 30.0),
 
-                        if (event.placeId != '') SizedBox(height: 20,),
-
-                        if (event.placeId != '')  Column(
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            Container(
-                              margin: EdgeInsets.zero,
-                              decoration: BoxDecoration(
-                                color: AppColors.greyOnBackground,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              //surfaceTintColor: Colors.transparent,
-                              //color: AppColors.greyOnBackground,
-                              child: Padding (
-                                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                                  child: Column (
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row (
-                                        children: [
-                                          Expanded(
-                                            child: Text(
-                                              'Место проведения: ${place.name}',
-                                              style: Theme.of(context).textTheme.titleMedium,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-
-                                      SizedBox(height: 20,),
-
-                                      PlaceCardWidget(
-                                        // TODO Сделать обновление иконки избранного и счетчика при возврате из экрана просмотра заведения
-                                        place: place,
-                                        surfaceColor: AppColors.greyBackground,
-
-                                        onTap: () async {
-
-                                          final results = await Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => PlaceViewScreen(placeId: place.id),
-                                            ),
-                                          );
-
-                                          if (results != null) {
-                                            setState(() {
-                                              place.inFav = results[0].toString();
-                                              place.addedToFavouritesCount = results[1].toString();
-                                            });
-                                          }
-                                        },
-
-                                        // --- Функция на нажатие на карточке кнопки ИЗБРАННОЕ ---
-                                        onFavoriteIconPressed: () async {
-
-                                          // TODO Сделать проверку на подтвержденный Email
-                                          // ---- Если не зарегистрирован или не вошел ----
-                                          if (UserCustom.currentUser?.uid == '' || UserCustom.currentUser?.uid == null)
-                                          {
-                                            showSnackBar(context, 'Чтобы добавлять в избранное, нужно зарегистрироваться!', AppColors.attentionRed, 2);
-                                          }
-
-                                          // --- Если пользователь залогинен -----
-                                          else {
-
-                                            // --- Если уже в избранном ----
-                                            if (place.inFav == 'true')
-                                            {
-                                              // --- Удаляем из избранных ---
-                                              String resDel = await Place.deletePlaceFromFav(place.id);
-                                              // ---- Инициализируем счетчик -----
-                                              int favCounter = int.parse(place.addedToFavouritesCount!);
-
-                                              if (resDel == 'success'){
-                                                // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
-                                                setState(() {
-                                                  // Обновляем текущий список
-                                                  place.inFav = 'false';
-                                                  favCounter --;
-                                                  place.addedToFavouritesCount = favCounter.toString();
-                                                  // Обновляем общий список из БД
-                                                  Place.updateCurrentPlaceListFavInformation(place.id, favCounter.toString(), 'false');
-
-                                                });
-                                                showSnackBar(context, 'Удалено из избранных', AppColors.attentionRed, 1);
-                                              } else {
-                                                // Если удаление из избранных не прошло, показываем сообщение
-                                                showSnackBar(context, resDel, AppColors.attentionRed, 1);
-                                              }
-                                            }
-                                            else {
-                                              // --- Если заведение не в избранном ----
-
-                                              // -- Добавляем в избранное ----
-                                              String res = await Place.addPlaceToFav(place.id);
-                                              // ---- Инициализируем счетчик добавивших в избранное
-                                              int favCounter = int.parse(place.addedToFavouritesCount!);
-
-                                              if (res == 'success') {
-                                                // --- Если добавилось успешно, так же обновляем текущий список и список из БД
-                                                setState(() {
-                                                  // Обновляем текущий список
-                                                  place.inFav = 'true';
-                                                  favCounter ++;
-                                                  place.addedToFavouritesCount = favCounter.toString();
-                                                  // Обновляем список из БД
-                                                  Place.updateCurrentPlaceListFavInformation(place.id, favCounter.toString(), 'true');
-                                                });
-
-                                                showSnackBar(context, 'Добавлено в избранные', Colors.green, 1);
-
-                                              } else {
-                                                // Если добавление прошло неудачно, отображаем всплывающее окно
-                                                showSnackBar(context, res, AppColors.attentionRed, 1);
-                                              }
-                                            }
-                                          }
-                                        },
-                                      ),
-
-                                    ],
-                                  ),
-                              ),
-                            ),
-
-
-                          ],
-                        ),
-
-                        const SizedBox(height: 30.0),
-
-                        if (event.createDate != '') HeadlineAndDesc(headline: event.createDate, description: 'Создано в движе', ),
-
-                        // TODO - Сделать ограничение на редактирование
-                        const SizedBox(height: 16.0),
+                        if (event.createDate != '' && int.parse(currentUserPlaceRole.controlLevel) >= 90) HeadlineAndDesc(headline: event.createDate, description: 'Создано в движе', ),
 
                         const SizedBox(height: 30.0),
 

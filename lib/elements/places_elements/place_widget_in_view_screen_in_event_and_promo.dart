@@ -71,6 +71,16 @@ class PlaceWidgetInViewScreenInEventAndPromoScreen extends StatelessWidget {
                       '${City.getCityName(place.city)}, ул. ${place.street} - ${place.house}',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
+
+                    const SizedBox(height: 5.0),
+
+
+
+                    Text(
+                      'Мероприятий - ${place.eventsCount}, Акций - ${place.promoCount}',
+                      style: Theme.of(context).textTheme.labelMedium!.copyWith(color: AppColors.greyText),
+                    ),
+
                   ],
                 ),
               ),

@@ -67,6 +67,13 @@ String getHumanDate (String date, String symbol)
   return '${stringElements[2]} $month ${stringElements[0]}';
 }
 
+String getOurDateFormat (String date, String symbol)
+{
+  List<String> stringElements = date.split(symbol);
+  String month = switchMonth(stringElements[1]);
+  return '${stringElements[2]}.${stringElements[1]}.${stringElements[0]}';
+}
+
 DateTime getDateFromString (String date)
 {
   List<int> temp = splitDate(date, '-');

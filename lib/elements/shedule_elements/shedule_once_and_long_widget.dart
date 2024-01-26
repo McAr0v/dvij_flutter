@@ -14,9 +14,6 @@ class ScheduleOnceAndLongWidget extends StatelessWidget {
   final String endTime;
   final String dateHeadline;
   final String dateDesc;
-  final String priceHeadline;
-  final String priceDesc;
-  final String price;
   final double verticalPadding;
   final Color backgroundColor;
   final EventTypeEnum eventTypeEnum;
@@ -27,9 +24,6 @@ class ScheduleOnceAndLongWidget extends StatelessWidget {
     this.verticalPadding = 20,
     required this.dateHeadline,
     required this.dateDesc,
-    required this.priceHeadline,
-    required this.priceDesc,
-    required this.price,
     this.backgroundColor = AppColors.greyOnBackground,
     required this.eventTypeEnum,
     this.onceDate = '',
@@ -94,15 +88,7 @@ class ScheduleOnceAndLongWidget extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 20,),
-                    Text(priceHeadline, style: Theme.of(context).textTheme.titleMedium,),
-                    Text(priceDesc, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.greyText),),
                     const SizedBox(height: 10,),
-                    HeadlineAndDesc(
-                        headline: price,
-                        description: 'Стоимость билетов'
-                    )
-
                   ],
                 )
             )
