@@ -221,9 +221,18 @@ bool todayEventOrNot(EventCustom event) {
   if (event.eventType == EventCustom.getNameEventTypeEnum(EventTypeEnum.once)){
 
     String onceDay = extractDateOrTimeFromJson(event.onceDay, 'date');
-    DateTime dayInOnceType = DateTime.parse(onceDay);
+    String startTime = extractDateOrTimeFromJson(event.onceDay, 'startTime');
+    String endTime = extractDateOrTimeFromJson(event.onceDay, 'endTime');
 
-    return checkDateOnToday(dayInOnceType);
+    // Разделяем часы и минуты для парсинга
+    List<String> startHourAndMinutes = startTime.split(':');
+    List<String> endHourAndMinutes = endTime.split(':');
+
+    DateTime startDateOnlyDate = DateTime.parse(onceDay);
+    DateTime startDateWithHours = DateTime.parse('$onceDay ${startHourAndMinutes[0]}:${startHourAndMinutes[1]}');
+    DateTime endDateWithHours = DateTime.parse('$onceDay ${endHourAndMinutes[0]}:${endHourAndMinutes[1]}');
+
+    return checkDateOnToday(startDateOnlyDate, startDateWithHours, endDateWithHours);
 
   } else if (event.eventType == EventCustom.getNameEventTypeEnum(EventTypeEnum.long)){
 
@@ -240,34 +249,47 @@ bool todayEventOrNot(EventCustom event) {
 
   } else if (event.eventType == EventCustom.getNameEventTypeEnum(EventTypeEnum.irregular)){
 
-// Это список для временного хранения дат в стринге из БД при парсинге
+    // Это списки для временного хранения дат и времени из стринга из БД при парсинге
     List<String> tempIrregularDaysString = [];
+    List<String> tempStartTimeString = [];
+    List<String> tempEndTimeString = [];
 
-// Парсим даты
-    parseIrregularDatesString(event.irregularDays, tempIrregularDaysString);
+    // Парсим даты и время
+    parseIrregularDatesString(event.irregularDays, tempIrregularDaysString, tempStartTimeString, tempEndTimeString);
 
-    for (String date in tempIrregularDaysString){
-// Преобразуем дату из String в DateTime
-      DateTime tempDate = getDateFromString(date);
-// Проверяем - дату - сегодня или нет
-      bool result = checkDateOnToday(tempDate);
+    // Проходим по списку
+    for (int i = 0; i<tempIrregularDaysString.length; i++){
+
+      // Парсим в списки часы и минуты
+      List<String> startHourAndMinutes = tempStartTimeString[i].split(':');
+      List<String> endHourAndMinutes = tempEndTimeString[i].split(':');
+
+      // По принципу работы с одиночной датой - парсим начальную дату без часов, а так же начальные и конечные даты с часами
+      DateTime tempStartDateOnlyDate = DateTime.parse(tempIrregularDaysString[i]);
+      DateTime tempStartDateWithHours = DateTime.parse(('${tempIrregularDaysString[i]} ${startHourAndMinutes[0]}:${startHourAndMinutes[1]}'));
+      DateTime tempEndDateWithHours = DateTime.parse(('${tempIrregularDaysString[i]} ${endHourAndMinutes[0]}:${endHourAndMinutes[1]}'));
+
+      // Как и в одиночной дате, сравниваем с текущим временем
+      bool result = checkDateOnToday(tempStartDateOnlyDate, tempStartDateWithHours, tempEndDateWithHours);
+      // Первый попавшийся элемент в списке вернет тру, значит сегодня
       if (result) return true;
     }
+    // Если не попался ни один из списка нерегулярных дат, вернет фалс
     return false;
   }
   return false;
 }
 
-void parseIrregularDatesString(
-    String inputString, List<String> datesList) {
-  RegExp dateRegExp = RegExp(r'"date": "([^"]+)"');
+void parseIrregularDatesString(String inputString, List<String> datesList, List<String> startTimesList, List<String> endTimesList) {
+  RegExp dateRegExp = RegExp(r'"date": "([^"]+)", "startTime": "([^"]+)", "endTime": "([^"]+)"');
 
   List<Match> matches = dateRegExp.allMatches(inputString).toList();
   for (Match match in matches) {
     datesList.add(match.group(1)!);
+    startTimesList.add(match.group(2)!);
+    endTimesList.add(match.group(3)!);
   }
 }
-
 
 bool checkRegularDatesOnToday (String regularTimes) {
 
@@ -318,8 +340,21 @@ bool checkLongDatesOnToday(DateTime startDate, DateTime endDate){
   return today.isAfter(startDate.subtract(Duration(days: 1))) && today.isBefore(endDate.add(Duration(days: 1)));
 }
 
-bool checkDateOnToday(DateTime eventDate) {
+bool checkDateOnToday(DateTime startEventDateOnlyDate, DateTime startEventDateWithHours, DateTime endEventDateWithOurs) {
+  // Получаем текущее время
   DateTime today = DateTime.now().add(const Duration(hours: 6));
 
-  return eventDate.year == today.year && eventDate.month == today.month && eventDate.day == today.day;
+  // Переменная для учета, если мероприятие заканчивается после полуночи
+  DateTime currentEndEventDate = endEventDateWithOurs;
+
+  // Здесь специальная начальная дата с часами - для сравнения с конечной датой
+  // Если она больше, значит мероприятие кончится после полуночи
+  // И в переменную учета мы добавляем 1 день
+  if (startEventDateWithHours.isAfter(endEventDateWithOurs)){
+    currentEndEventDate = endEventDateWithOurs.add(Duration(days: 1));
+  }
+
+  // Вернет тру, если текущая дата будет после начальной даты
+  // И до времени окончания мероприятия
+  return today.isAfter(startEventDateOnlyDate) && today.isBefore(currentEndEventDate);
 }
