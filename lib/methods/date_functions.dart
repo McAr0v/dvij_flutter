@@ -60,11 +60,18 @@ String getHumanWeekday (int weekdayIndex, bool cut)
   }
 }
 
-String getHumanDate (String date, String symbol)
+String getHumanDate (String date, String symbol, {bool needYear = true})
 {
   List<String> stringElements = date.split(symbol);
   String month = switchMonth(stringElements[1]);
-  return '${stringElements[2]} $month ${stringElements[0]}';
+
+  if (needYear) {
+    return '${stringElements[2]} $month ${stringElements[0]}';
+  } else {
+    return '${stringElements[2]} $month';
+  }
+
+
 }
 
 String getOurDateFormat (String date, String symbol)
@@ -201,8 +208,8 @@ String sortDateTimeListAndRelatedData(List<DateTime> dateTimeList, List<String> 
   for (int i = 0; i < dateTimeList.length; i++) {
     // Конвертируем время из строк в DateTime
 
-    DateTime startDateTime = DateTime.parse("${dateTimeList[i].year}-${correctMonthOrDate(dateTimeList[i].month)}-${dateTimeList[i].day} ${startTime[i]}");
-    DateTime endDateTime = DateTime.parse("${dateTimeList[i].year}-${correctMonthOrDate(dateTimeList[i].month)}-${dateTimeList[i].day} ${endTime[i]}");
+    DateTime startDateTime = DateTime.parse("${dateTimeList[i].year}-${correctMonthOrDate(dateTimeList[i].month)}-${correctMonthOrDate(dateTimeList[i].day)} ${startTime[i]}");
+    DateTime endDateTime = DateTime.parse("${dateTimeList[i].year}-${correctMonthOrDate(dateTimeList[i].month)}-${correctMonthOrDate(dateTimeList[i].day)} ${endTime[i]}");
     
     if (startDateTime.isAfter(endDateTime)){
       endDateTime = endDateTime.add(Duration(days: 1));
@@ -213,7 +220,7 @@ String sortDateTimeListAndRelatedData(List<DateTime> dateTimeList, List<String> 
   }
 
   // Сортируем список пар по DateTime
-  combinedList.sort((a, b) => a.second.first.compareTo(b.second.second));
+  combinedList.sort((a, b) => a.second.first.compareTo(b.second.first));
 
   // Обновляем исходные списки после сортировки
   for (int i = 0; i < dateTimeList.length; i++) {

@@ -744,6 +744,14 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                           }
                         }
 
+                        if (chosenPlace.id != ''){
+                          setState(() {
+                            streetController.text = chosenPlace.street;
+                            houseController.text = chosenPlace.house;
+                          });
+
+                        }
+
                         EventCustom event = EventCustom(
                             id: eventId,
                             eventType: EventCustom.getNameEventTypeEnum(eventTypeEnum), // сделать функционал

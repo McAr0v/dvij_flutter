@@ -1,15 +1,20 @@
 import 'package:dvij_flutter/classes/city_class.dart';
 import 'package:dvij_flutter/classes/event_category_class.dart';
 import 'package:dvij_flutter/classes/event_class.dart';
+import 'package:dvij_flutter/classes/event_type_enum.dart';
 import 'package:dvij_flutter/classes/place_category_class.dart';
 import 'package:dvij_flutter/elements/buttons/custom_only_text_button.dart';
 import 'package:dvij_flutter/elements/events_elements/today_widget.dart';
-import 'package:dvij_flutter/elements/for_cards_small_widget_with_icon_and_text.dart';
+import 'package:dvij_flutter/elements/text_and_icons_widgets/for_cards_small_widget_with_icon_and_text.dart';
+import 'package:dvij_flutter/elements/text_and_icons_widgets/headline_and_desc.dart';
+import 'package:dvij_flutter/elements/text_and_icons_widgets/icon_and_text_widget.dart';
 import 'package:dvij_flutter/methods/date_functions.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/classes/place_class.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../../methods/price_methods.dart';
 import '../../screens/places/place_view_screen.dart';
 import '../places_elements/now_is_work_widget.dart';
 
@@ -23,14 +28,27 @@ class EventCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    bool today = false;
-
-    int currentDayOfWeek = DateTime.now().weekday;
-
-    if (event.today == 'true') today = true;
-
     String eventCategory = EventCategory.getEventCategoryFromCategoriesList(event.category).name;
     String eventCity = City.getCityByIdFromList(event.city).name;
+
+    EventTypeEnum eventType = EventCustom.getEventTypeEnum(event.eventType);
+
+    String startDate = '';
+    String endDate = '';
+    String startTime = '';
+    String endTime = '';
+
+    if (eventType == EventTypeEnum.once && event.onceDay != ''){
+      startDate = extractDateOrTimeFromJson(event.onceDay, 'date');
+      startTime = extractDateOrTimeFromJson(event.onceDay, 'startTime');
+      endTime = extractDateOrTimeFromJson(event.onceDay, 'endTime');
+    }
+    if (eventType == EventTypeEnum.long && event.longDays != ''){
+      startDate = extractDateOrTimeFromJson(event.longDays, 'startDate');
+      endDate = extractDateOrTimeFromJson(event.longDays, 'endDate');
+      startTime = extractDateOrTimeFromJson(event.longDays, 'startTime');
+      endTime = extractDateOrTimeFromJson(event.longDays, 'endTime');
+    }
 
     // Здесь хранятся выбранные даты нерегулярных дней
     List<DateTime> chosenIrregularDays = [];
@@ -114,6 +132,7 @@ class EventCardWidget extends StatelessWidget {
               padding: EdgeInsets.fromLTRB(20, 20, 20, 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
 
                   Text(
@@ -130,40 +149,25 @@ class EventCardWidget extends StatelessWidget {
                     style: Theme.of(context).textTheme.labelMedium,
                     softWrap: true,
                   ),
-                  SizedBox(height: 10.0),
 
-                  Text('Открыто Сегодня - ${event.today}'),
+                  const SizedBox(height: 10.0),
 
-                  Text(extractDateOrTimeFromJson(event.onceDay, 'date')),
-                  Text('StartTime = ${extractDateOrTimeFromJson(event.onceDay, 'startTime')}'),
-                  Text('FinishTime = ${extractDateOrTimeFromJson(event.onceDay, 'endTime')}'),
+                  Row(
+                    children: [
+                      if (event.today == 'true') Text(
+                        'Сегодня',
+                        style: Theme.of(context).textTheme.labelMedium!.copyWith(color: Colors.green),
+                      ),
 
-                  if (event.longDays != '') Text(extractDateOrTimeFromJson(event.longDays, 'startDate')),
-                  if (event.longDays != '') Text(extractDateOrTimeFromJson(event.longDays, 'endDate')),
+                      if (event.today == 'true') const SizedBox(width: 15,),
 
-                  if (event.regularDays != '') Text('RegularsDays'),
+                      if (event.placeId != '') Text(
+                        'В заведении',
+                        style: Theme.of(context).textTheme.labelMedium!.copyWith(color: Colors.green),
+                      ),
 
-                  if (event.regularDays != '') Text(extractDateOrTimeFromJson(event.regularDays, 'startTime$currentDayOfWeek')),
-                  if (event.regularDays != '') Text(extractDateOrTimeFromJson(event.regularDays, 'endTime$currentDayOfWeek')),
-                  if (event.regularDays != '') Text('День недели - $currentDayOfWeek'),
-
-                  if (event.irregularDays != '') Column(
-                    children: List.generate(chosenIrregularDays.length, (index) {
-                      return Column(
-                          children: [
-                            Text('Дата$index - ${chosenIrregularDays[index].year}.${chosenIrregularDays[index].month}.${chosenIrregularDays[index].day}'),
-                            Text('Время$index - ${chosenIrregularStartTime[index]}--${chosenIrregularEndTime[index]}'),
-                          ]
-                        );
-                      }
-                    ),
+                    ],
                   ),
-
-                  Text('${event.eventType}'),
-
-                  if (today) TodayWidget(isTrue: today),
-
-                  NowIsWorkWidget(isTrue: today),
 
                   const SizedBox(height: 10.0),
 
@@ -176,48 +180,69 @@ class EventCardWidget extends StatelessWidget {
                     overflow: TextOverflow.ellipsis, // Определяет, что делать с текстом, который не помещается в виджет
                   ),
 
+                  SizedBox(height: 20.0),
 
-                  /*SizedBox(height: 10.0),
-
-                  Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      SmallWidgetForCardsWithIconAndText(
-                        icon: Icons.event,
-                        text: 'Мероприятий: ${event.eventsCount}',
-                        side: true,
-                        iconColor: AppColors.white,
-                        backgroundColor: AppColors.greyBackground,
+
+                      if (eventType == EventTypeEnum.once)  Row(
+                        children: [
+                          IconAndTextWidget(
+                            icon: FontAwesomeIcons.calendar,
+                            text: getHumanDate(startDate, '-', needYear: false),
+                            textSize: 'label',
+                            padding: 10,
+                          ),
+
+                          const SizedBox(width: 20,),
+
+                          IconAndTextWidget(
+                            icon: FontAwesomeIcons.clock,
+                            text: 'c $startTime до $endTime',
+                            textSize: 'label',
+                            padding: 10,
+                          ),
+                        ],
                       ),
 
-                      SizedBox(width: 10.0),
+                      if (eventType == EventTypeEnum.long) Row(
+                        children: [
+                          IconAndTextWidget(
+                              icon: FontAwesomeIcons.calendar,
+                              text: '${getHumanDate(startDate, '-', needYear: false)} - ${getHumanDate(endDate, '-', needYear: false)}',
+                              textSize: 'label',
+                              padding: 10,
+                          ),
 
-                      SmallWidgetForCardsWithIconAndText(
-                        icon: Icons.event,
-                        text: 'Акций: ${event.promoCount}',
-                        side: true,
-                        iconColor: AppColors.white,
-                        backgroundColor: AppColors.greyBackground,
-                      )
+                          const SizedBox(width: 20,),
+
+                          IconAndTextWidget(
+                            icon: FontAwesomeIcons.clock,
+                            text: 'c $startTime до $endTime',
+                            textSize: 'label',
+                            padding: 10,
+                          ),
+                        ],
+                      ),
+
+
+
+                      SizedBox(height: 20,),
+
+                      IconAndTextWidget(
+                        icon: FontAwesomeIcons.dollarSign,
+                        text: PriceMethods.getFormattedPriceString(event.priceType, event.price),
+                        textSize: 'label',
+                        padding: 10,
+                      ),
+
                     ],
-                  ),*/
+                  ),
 
-                  SizedBox(height: 10.0),
+                  SizedBox(height: 10,),
 
-                  // Дополнительные поля, например, мероприятия, избранное и т.д.
-                  // Их можно заполнить данными из вашей базы данных
-                  // ...
-
-                  // Кнопки редактирования и удаления, если есть доступ к редактированию
-                  /*if (place.canEdit == 'true')
-                    const Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        CustomOnlyTextButton(
-                          buttonText: 'Редактировать',
-                          textColor: Colors.green,
-                        ),
-                      ],
-                    ),*/
                 ],
               ),
             ),

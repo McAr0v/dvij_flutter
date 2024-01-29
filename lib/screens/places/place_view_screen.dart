@@ -1,4 +1,4 @@
-import 'package:dvij_flutter/elements/headline_and_desc.dart';
+import 'package:dvij_flutter/elements/text_and_icons_widgets/headline_and_desc.dart';
 import 'package:dvij_flutter/elements/places_elements/now_is_work_widget.dart';
 import 'package:dvij_flutter/elements/places_elements/place_work_time_element.dart';
 import 'package:dvij_flutter/elements/social_elements/social_buttons_widget.dart';
@@ -20,7 +20,7 @@ import '../../classes/place_role_class.dart';
 import '../../classes/role_in_app.dart';
 import '../../classes/user_class.dart';
 import '../../elements/exit_dialog/exit_dialog.dart';
-import '../../elements/for_cards_small_widget_with_icon_and_text.dart';
+import '../../elements/text_and_icons_widgets/for_cards_small_widget_with_icon_and_text.dart';
 import '../../elements/loading_screen.dart';
 import '../../elements/places_elements/place_managers_element_list_item.dart';
 import '../../methods/days_functions.dart';

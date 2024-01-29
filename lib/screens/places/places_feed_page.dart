@@ -1,7 +1,7 @@
 import 'package:dvij_flutter/classes/city_class.dart';
 import 'package:dvij_flutter/classes/place_category_class.dart';
 import 'package:dvij_flutter/classes/place_class.dart';
-import 'package:dvij_flutter/elements/headline_and_desc.dart';
+import 'package:dvij_flutter/elements/text_and_icons_widgets/headline_and_desc.dart';
 import 'package:dvij_flutter/elements/places_elements/place_card_widget.dart';
 import 'package:dvij_flutter/elements/places_elements/place_filter_page.dart';
 import 'package:dvij_flutter/screens/places/place_view_screen.dart';

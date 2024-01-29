@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../themes/app_colors.dart';
+import '../../themes/app_colors.dart';
 
 class TextWithLink extends StatelessWidget {
   final String text; // передаваемая переменная

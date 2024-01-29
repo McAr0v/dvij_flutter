@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../classes/event_type_enum.dart';
 import '../../themes/app_colors.dart';
-import '../headline_and_desc.dart';
+import '../text_and_icons_widgets/headline_and_desc.dart';
 
 class ScheduleOnceAndLongWidget extends StatelessWidget {
   final double horizontalPadding;

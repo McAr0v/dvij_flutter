@@ -1,6 +1,6 @@
 import 'package:dvij_flutter/classes/event_class.dart';
 import 'package:dvij_flutter/elements/events_elements/today_widget.dart';
-import 'package:dvij_flutter/elements/headline_and_desc.dart';
+import 'package:dvij_flutter/elements/text_and_icons_widgets/headline_and_desc.dart';
 import 'package:dvij_flutter/elements/places_elements/now_is_work_widget.dart';
 import 'package:dvij_flutter/elements/places_elements/place_widget_in_view_screen_in_event_and_promo.dart';
 import 'package:dvij_flutter/elements/places_elements/place_work_time_element.dart';
@@ -9,6 +9,7 @@ import 'package:dvij_flutter/elements/social_elements/social_buttons_widget.dart
 import 'package:dvij_flutter/elements/user_element_widget.dart';
 import 'package:dvij_flutter/go_to_url/openUrlPage.dart';
 import 'package:dvij_flutter/methods/date_functions.dart';
+import 'package:dvij_flutter/methods/price_methods.dart';
 import 'package:dvij_flutter/screens/events/create_or_edit_event_screen.dart';
 import 'package:dvij_flutter/screens/places/create_or_edit_place_screen.dart';
 import 'package:dvij_flutter/screens/places/place_view_screen.dart';
@@ -30,7 +31,7 @@ import '../../classes/priceTypeOptions.dart';
 import '../../classes/role_in_app.dart';
 import '../../classes/user_class.dart';
 import '../../elements/exit_dialog/exit_dialog.dart';
-import '../../elements/for_cards_small_widget_with_icon_and_text.dart';
+import '../../elements/text_and_icons_widgets/for_cards_small_widget_with_icon_and_text.dart';
 import '../../elements/loading_screen.dart';
 import '../../elements/places_elements/place_card_widget.dart';
 import '../../elements/places_elements/place_managers_element_list_item.dart';
@@ -149,14 +150,7 @@ class _EventViewScreenState extends State<EventViewScreen> {
 
       priceType = EventCustom.getPriceTypeEnum(event.priceType);
 
-      if (priceType == PriceTypeOption.free) {
-        price = 'Вход бесплатный';
-      } else if (priceType == PriceTypeOption.fixed){
-        price = '${event.price} тенге';
-      } else if (priceType == PriceTypeOption.range){
-        List<String> temp = event.price.split('-');
-        price = 'от ${temp[0]} тенге - до ${temp[1]} тенге';
-      }
+      price = PriceMethods.getFormattedPriceString(event.priceType, event.price);
 
       if (event.placeId != '') {
         // placeAdminsList = await UserCustom.getPlaceAdminsUsers(event.placeId);
