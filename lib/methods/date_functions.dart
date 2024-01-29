@@ -271,15 +271,45 @@ void parseIrregularDatesString(
 
 bool checkRegularDatesOnToday (String regularTimes) {
 
-  int currentDay = DateTime.now().add(const Duration(hours: 6)).weekday;
+  // Инициализируем сегодня
 
+  // берем день недели для парсинга времени проведения
+  int currentDay = DateTime.now().add(const Duration(hours: 6)).weekday;
+  // Берем сегодня как DateTime для сравнивания
+  DateTime currentDayDate = DateTime.now().add(const Duration(hours: 6));
+
+  // Получаем время начала и завершения из строки из БД
   String startTimeToday = extractDateOrTimeFromJson(regularTimes, 'startTime$currentDay');
   String endTimeToday = extractDateOrTimeFromJson(regularTimes, 'endTime$currentDay');
 
-  if (startTimeToday == '00:00' && endTimeToday == '00:00') {
-    return false;
-  } else {
+  // Разделяем часы и минуты для парсинга
+  List<String> startHourAndMinutes = startTimeToday.split(':');
+  List<String> endHourAndMinutes = endTimeToday.split(':');
+
+  // Парсим начальную дату до минут для сравнения
+  DateTime parsedStartTimeToMinutes = DateTime.parse('${currentDayDate.year}-${correctMonthOrDate(currentDayDate.month)}-${currentDayDate.day} ${startHourAndMinutes[0]}:${startHourAndMinutes[1]}');
+
+  // Парсим начальную дату уже без точности до минут
+  DateTime parsedStartTime = DateTime.parse('${currentDayDate.year}-${correctMonthOrDate(currentDayDate.month)}-${currentDayDate.day}');
+  // Парсим конечную дату с точностью до минуты
+  DateTime parsedEndTime = DateTime.parse('${currentDayDate.year}-${correctMonthOrDate(currentDayDate.month)}-${currentDayDate.day} ${endHourAndMinutes[0]}:${endHourAndMinutes[1]}');
+
+  // Проверка - если время завершения раньше чем время начала
+  // Именно для этого нужна переменная начального времени с точностью до минуты
+  // Если как бы завершение будет проходить в следущий день, то добавляем к финишной дате 1 день
+  if (parsedStartTimeToMinutes.isAfter(parsedEndTime)){
+    parsedEndTime = parsedEndTime.add(const Duration(days: 1));
+  }
+
+  // Если текущая дата после начальной даты без точности до минут и раньше чем дата завершения
+  // PS - Так сделано специально. Если мероприятие еще не началось, но будет сегодня, надпись должна отображаться
+  // и в то же время если мы уже перешагнули через время завершения, то не нужно отображать уже надпись
+
+  if (currentDayDate.isAfter(parsedStartTime) && currentDayDate.isBefore(parsedEndTime)) {
     return true;
+  } else {
+    // В любых других случаях
+    return false;
   }
 }
 
@@ -290,5 +320,6 @@ bool checkLongDatesOnToday(DateTime startDate, DateTime endDate){
 
 bool checkDateOnToday(DateTime eventDate) {
   DateTime today = DateTime.now().add(const Duration(hours: 6));
+
   return eventDate.year == today.year && eventDate.month == today.month && eventDate.day == today.day;
 }
