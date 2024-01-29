@@ -196,20 +196,30 @@ String generateIrregularTypeDate(
 
 String sortDateTimeListAndRelatedData(List<DateTime> dateTimeList, List<String> startTime, List<String> endTime) {
   // Создаем список пар, содержащих DateTime и связанные данные
-  List<Pair<DateTime, Pair<String, String>>> combinedList = [];
+  List<Pair<DateTime, Pair<DateTime, DateTime>>> combinedList = [];
 
   for (int i = 0; i < dateTimeList.length; i++) {
-    combinedList.add(Pair(dateTimeList[i], Pair(startTime[i], endTime[i])));
+    // Конвертируем время из строк в DateTime
+
+    DateTime startDateTime = DateTime.parse("${dateTimeList[i].year}-${correctMonthOrDate(dateTimeList[i].month)}-${dateTimeList[i].day} ${startTime[i]}");
+    DateTime endDateTime = DateTime.parse("${dateTimeList[i].year}-${correctMonthOrDate(dateTimeList[i].month)}-${dateTimeList[i].day} ${endTime[i]}");
+    
+    if (startDateTime.isAfter(endDateTime)){
+      endDateTime = endDateTime.add(Duration(days: 1));
+    }
+
+    // Создаем пару DateTime и связанные данные
+    combinedList.add(Pair(dateTimeList[i], Pair(startDateTime, endDateTime)));
   }
 
   // Сортируем список пар по DateTime
-  combinedList.sort((a, b) => a.first.compareTo(b.first));
+  combinedList.sort((a, b) => a.second.first.compareTo(b.second.second));
 
   // Обновляем исходные списки после сортировки
   for (int i = 0; i < dateTimeList.length; i++) {
     dateTimeList[i] = combinedList[i].first;
-    startTime[i] = combinedList[i].second.first;
-    endTime[i] = combinedList[i].second.second;
+    startTime[i] = "${correctMonthOrDate(combinedList[i].second.first.hour)}:${correctMonthOrDate(combinedList[i].second.first.minute)}";
+    endTime[i] = "${correctMonthOrDate(combinedList[i].second.second.hour)}:${correctMonthOrDate(combinedList[i].second.second.minute)}";
   }
 
   return generateIrregularTypeDate(dateTimeList, startTime, endTime);
