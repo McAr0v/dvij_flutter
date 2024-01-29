@@ -238,10 +238,23 @@ bool todayEventOrNot(EventCustom event) {
 
     String longStartDay = extractDateOrTimeFromJson(event.longDays, 'startDate');
     String longEndDay = extractDateOrTimeFromJson(event.longDays, 'endDate');
-    DateTime startDayInLongType = DateTime.parse(longStartDay);
-    DateTime endDayInLongType = DateTime.parse(longEndDay);
 
-    return checkLongDatesOnToday(startDayInLongType, endDayInLongType);
+    String startTime = extractDateOrTimeFromJson(event.longDays, 'startTime');
+    String endTime = extractDateOrTimeFromJson(event.longDays, 'endTime');
+
+    // Разделяем часы и минуты для парсинга
+    List<String> startHourAndMinutes = startTime.split(':');
+    List<String> endHourAndMinutes = endTime.split(':');
+
+    DateTime startDayInLongTypeOnlyDate = DateTime.parse(longStartDay);
+    DateTime endDayInLongTypeWithHoursStartTime = DateTime.parse('$longEndDay ${startHourAndMinutes[0]}:${startHourAndMinutes[1]}');
+    DateTime endDayInLongTypeWithHoursEndTime = DateTime.parse('$longEndDay ${endHourAndMinutes[0]}:${endHourAndMinutes[1]}');
+
+    return checkLongDatesOnToday(
+        startDayInLongTypeOnlyDate,
+        endDayInLongTypeWithHoursStartTime,
+        endDayInLongTypeWithHoursEndTime
+    );
 
   } else if (event.eventType == EventCustom.getNameEventTypeEnum(EventTypeEnum.regular)){
 
@@ -335,9 +348,53 @@ bool checkRegularDatesOnToday (String regularTimes) {
   }
 }
 
-bool checkLongDatesOnToday(DateTime startDate, DateTime endDate){
+bool checkLongDatesOnToday(
+    DateTime startDateOnlyDate,
+    DateTime endDateWithHoursStartTime,
+    DateTime endDateWithHoursEndTime,
+    ){
+  // Берем текущее время
   DateTime today = DateTime.now().add(const Duration(hours: 6));
-  return today.isAfter(startDate.subtract(Duration(days: 1))) && today.isBefore(endDate.add(Duration(days: 1)));
+
+  // Создаем переменную на случай если заканчивается после полуночи
+  DateTime currentEndDateEndTime = endDateWithHoursEndTime;
+
+  // Флаг - надо ли в проверке окончания мероприятия ИМЕННО СЕГОДНЯ добавлять еще один день
+  bool needDuration = false;
+
+  // Если в день завершения начальное время после конечного
+  // Значит заканчивается после полуночи
+  if (endDateWithHoursStartTime.isAfter(endDateWithHoursEndTime)){
+    // Добавляем к времени завершения 1 день
+    currentEndDateEndTime = endDateWithHoursEndTime.add(Duration(days: 1));
+    // Ставим флаг, что в дальнейшем при сравнении НА СЕГОДНЯ нужно так же добавить 1 день
+    needDuration = true;
+  }
+
+  // Если сегодня попадает в наш диапазон дат
+  if (today.isAfter(startDateOnlyDate) && today.isBefore(currentEndDateEndTime)){
+
+    // Делаем переменные, чтобы сравнить - конкретно сегодня еще проходит мероприятие
+    // Или уже нент
+    DateTime tempStartTime = DateTime(today.year, today.month, today.day);
+    DateTime tempEndTime = DateTime(today.year, today.month, today.day, endDateWithHoursEndTime.hour, endDateWithHoursEndTime.minute);
+
+    // Если заканчивается после полудня, то мы так же добавляем один день к конечному времени
+    if (needDuration) {
+      tempEndTime = tempEndTime.add(Duration(days: 1));
+    }
+
+    // Если сегодня мероприятие еще не началось, но и не завершилось
+    if (today.isAfter(tempStartTime) && today.isBefore(tempEndTime)){
+      // Возвращаем тру
+      return true;
+    } else {
+      return false;
+    }
+
+  } else {
+    return false;
+  }
 }
 
 bool checkDateOnToday(DateTime startEventDateOnlyDate, DateTime startEventDateWithHours, DateTime endEventDateWithOurs) {
