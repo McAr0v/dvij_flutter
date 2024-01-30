@@ -3,16 +3,32 @@ import 'package:flutter/material.dart';
 
 import '../../themes/app_colors.dart';
 
-Future<bool?> exitDialog(BuildContext context, String message, String confirmText, String cancelText) async {
+Future<bool?> exitDialog(BuildContext context, String message, String confirmText, String cancelText, String headline) async {
   return await showDialog<bool>(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
         backgroundColor: AppColors.greyOnBackground,
-        title: Text(
-            message,
-          style: Theme.of(context).textTheme.titleMedium,
+        title: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+
+            Text(
+              headline,
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+
+            SizedBox(height: 20,),
+
+            Text(
+              message,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+
+          ],
         ),
+
         actions: [
           TextButton(
             style: ButtonStyle(

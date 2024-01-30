@@ -52,12 +52,15 @@ class _EventCategoryPickerPageState extends State<EventCategoryPickerPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      'Выбери категорию мероприятия',
-                      style: Theme.of(context).textTheme.displayMedium,
-                    ),
+                  Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          'Выбери категорию мероприятия',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(height: 1.1),
+                          softWrap: true,
+                        ),
+                      ),
                   ),
                   IconButton(
                     icon: Icon(Icons.close),

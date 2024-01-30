@@ -607,7 +607,7 @@ class _EventViewScreenState extends State<EventViewScreen> {
                         ) CustomButton(
                           buttonText: 'Удалить мероприятие',
                           onTapMethod: () async {
-                            bool? confirmed = await exitDialog(context, "Ты правда хочешь удалить мероприятие? Ты не сможешь восстановить данные" , 'Да', 'Нет');
+                            bool? confirmed = await exitDialog(context, "Ты правда хочешь удалить мероприятие? Ты не сможешь восстановить данные" , 'Да', 'Нет', 'Удаление мероприятия');
 
                             if (confirmed != null && confirmed){
 

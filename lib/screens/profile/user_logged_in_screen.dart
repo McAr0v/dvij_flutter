@@ -249,7 +249,7 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
 
                         );*/
 
-                        bool? confirmed = await exitDialog(context, "Ты правда хочешь уйти от нас?" , 'Да', 'Нет');
+                        bool? confirmed = await exitDialog(context, "Ты правда хочешь уйти от нас?" , 'Да', 'Нет', 'Выход из профиля');
 
                         // ---- Если пользователь нажал ВЫЙТИ ----
 

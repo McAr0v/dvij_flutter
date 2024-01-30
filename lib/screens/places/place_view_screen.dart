@@ -484,7 +484,7 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
                       ) CustomButton(
                           buttonText: 'Удалить заведение',
                           onTapMethod: () async {
-                            bool? confirmed = await exitDialog(context, "Ты правда хочешь удалить заведение? Ты не сможешь восстановить данные" , 'Да', 'Нет');
+                            bool? confirmed = await exitDialog(context, "Ты правда хочешь удалить заведение? Ты не сможешь восстановить данные" , 'Да', 'Нет', 'Удаление заведения');
 
                             if (confirmed != null && confirmed){
 
