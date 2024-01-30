@@ -95,8 +95,8 @@ class _EventViewScreenState extends State<EventViewScreen> {
   String longDayStartTime = '';
   String longDayFinishTime = '';
 
-  List<String> regularStartTimes = fillTimeListWithDefaultValues('00:00', 7);
-  List<String> regularFinishTimes = fillTimeListWithDefaultValues('00:00', 7);
+  List<String> regularStartTimes = fillTimeListWithDefaultValues('Не выбрано', 7);
+  List<String> regularFinishTimes = fillTimeListWithDefaultValues('Не выбрано', 7);
 
   List<String> tempIrregularDaysString = [];
   // Выбранные даты начала

@@ -15,7 +15,7 @@ class IconAndTextWidget extends StatelessWidget {
     Key? key,
     required this.icon,
     required this.text,
-    this.textSize = 'body',
+    this.textSize = 'bodySmall',
     this.iconSize = 20,
     this.padding = 5,
     this.textColor = AppColors.white,
@@ -32,6 +32,7 @@ class IconAndTextWidget extends StatelessWidget {
 
     switch (textSize) {
       case 'body': style = Theme.of(context).textTheme.bodyMedium?.copyWith(color: textColor);
+      case 'bodySmall': style = Theme.of(context).textTheme.bodySmall?.copyWith(color: textColor);
       case 'label': style = Theme.of(context).textTheme.labelMedium?.copyWith(color: textColor);
       case 'title': style = Theme.of(context).textTheme.titleMedium?.copyWith(color: textColor);
       default: style = Theme.of(context).textTheme.bodyMedium?.copyWith(color: textColor);

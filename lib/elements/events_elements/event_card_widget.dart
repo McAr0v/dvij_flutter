@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:dvij_flutter/classes/place_class.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../../methods/days_functions.dart';
 import '../../methods/price_methods.dart';
 import '../../screens/places/place_view_screen.dart';
 import '../places_elements/now_is_work_widget.dart';
@@ -37,6 +38,9 @@ class EventCardWidget extends StatelessWidget {
     String endDate = '';
     String startTime = '';
     String endTime = '';
+
+    List<String> regularStartTimes = fillTimeListWithDefaultValues('Не выбрано', 7);
+    List<String> regularFinishTimes = fillTimeListWithDefaultValues('Не выбрано', 7);
     
     DateTime timeNow = DateTime.now().add(Duration(hours: 6));
     int currentWeekDayNumber = timeNow.weekday;
@@ -53,6 +57,15 @@ class EventCardWidget extends StatelessWidget {
       endTime = extractDateOrTimeFromJson(event.longDays, 'endTime');
     }
 
+    if (eventType == EventTypeEnum.regular && event.regularDays != ''){
+      for (int i = 0; i<regularStartTimes.length; i++){
+
+        regularStartTimes[i] = extractDateOrTimeFromJson(event.regularDays, 'startTime${i+1}');
+        regularFinishTimes[i] = extractDateOrTimeFromJson(event.regularDays, 'endTime${i+1}');
+
+      }
+    }
+
     // Здесь хранятся выбранные даты нерегулярных дней
     List<DateTime> chosenIrregularDays = [];
     // Это список для временного хранения дат в стринге из БД при парсинге
@@ -62,6 +75,8 @@ class EventCardWidget extends StatelessWidget {
     // Выбранные даты завершения
     List<String> chosenIrregularEndTime = [];
 
+    List<int> irregularTodayIndexes = [];
+
     if (event.irregularDays != ''){
       parseInputString(event.irregularDays, tempIrregularDaysString, chosenIrregularStartTime, chosenIrregularEndTime);
 
@@ -69,7 +84,16 @@ class EventCardWidget extends StatelessWidget {
         // Преобразуем даты из String в DateTime и кидаем в нужный список
         chosenIrregularDays.add(getDateFromString(date));
       }
+
+      for (int i = 0; i<chosenIrregularDays.length; i++){
+
+        if (chosenIrregularDays[i].day == timeNow.day && chosenIrregularDays[i].month == timeNow.month){
+          irregularTodayIndexes.add(i);
+        }
+      }
     }
+
+
 
 
     return GestureDetector(
@@ -195,7 +219,7 @@ class EventCardWidget extends StatelessWidget {
                           IconAndTextWidget(
                             icon: FontAwesomeIcons.calendar,
                             text: getHumanDate(startDate, '-', needYear: false),
-                            textSize: 'label',
+                            textSize: 'bodySmall',
                             padding: 10,
                           ),
 
@@ -204,7 +228,7 @@ class EventCardWidget extends StatelessWidget {
                           IconAndTextWidget(
                             icon: FontAwesomeIcons.clock,
                             text: 'c $startTime до $endTime',
-                            textSize: 'label',
+                            textSize: 'bodySmall',
                             padding: 10,
                           ),
                         ],
@@ -232,7 +256,99 @@ class EventCardWidget extends StatelessWidget {
                       
                       if (eventType == EventTypeEnum.regular) Row(
                         children: [
-                          Text(timeNow.toString())
+                          const Icon(
+                            FontAwesomeIcons.clock,
+                            size: 20,
+                            color: AppColors.white,
+                          ),
+                          SizedBox(width: 10),
+                          Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Проводится по расписанию каждую неделю',
+                                    style: Theme.of(context).textTheme.labelMedium!.copyWith(color: AppColors.greyText),
+                                    softWrap: true,
+                                  ),
+
+                                  if(
+                                  regularStartTimes[currentWeekDayNumber-1] != 'Не выбрано'
+                                  && regularFinishTimes[currentWeekDayNumber-1] != 'Не выбрано'
+                                  ) Text(
+                                    '${getHumanWeekday(currentWeekDayNumber-1, false)}: c ${regularStartTimes[currentWeekDayNumber-1]} до ${regularFinishTimes[currentWeekDayNumber-1]}',
+                                    style: Theme.of(context).textTheme.bodySmall,
+                                    softWrap: true,
+                                  ),
+
+                                  if(
+                                      regularStartTimes[currentWeekDayNumber-1] == 'Не выбрано'
+                                      || regularFinishTimes[currentWeekDayNumber-1] == 'Не выбрано'
+                                  ) Text(
+                                    'Сегодня не проводится. Смотри расписание на другие дни',
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.attentionRed),
+                                    softWrap: true,
+                                  ),
+
+                                ],
+                              )
+                          )
+                        ],
+                      ),
+
+                      if (eventType == EventTypeEnum.irregular) Row(
+                        children: [
+                          const Icon(
+                            FontAwesomeIcons.clock,
+                            size: 20,
+                            color: AppColors.white,
+                          ),
+                          SizedBox(width: 10),
+                          Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Проводится по расписанию в разные дни',
+                                    style: Theme.of(context).textTheme.labelMedium!.copyWith(color: AppColors.greyText),
+                                    softWrap: true,
+                                  ),
+
+                                  if (irregularTodayIndexes.isNotEmpty) SizedBox(height: 5,),
+
+                                  if (irregularTodayIndexes.isEmpty) Text(
+                                    'Сегодня мероприятие не проводится. Смотри другие даты в полном расписании в карточке',
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.attentionRed),
+                                    softWrap: true,
+                                  ),
+
+                                  if (irregularTodayIndexes.isNotEmpty) Text(
+                                    'Расписание на сегодня:',
+                                    style: Theme.of(context).textTheme.bodyMedium,
+                                    softWrap: true,
+                                  ),
+
+                                  if (irregularTodayIndexes.isNotEmpty) Column(
+                                    children: List.generate(irregularTodayIndexes.length, (indexInIndexesList) {
+                                      return Column( // сюда можно вставить шаблон элемента
+                                          children: [
+
+                                            Text(
+                                              'c ${chosenIrregularStartTime[irregularTodayIndexes[indexInIndexesList]]} до ${chosenIrregularEndTime[irregularTodayIndexes[indexInIndexesList]]}',
+                                              style: Theme.of(context).textTheme.bodySmall,
+                                              softWrap: true,
+                                            ),
+
+                                            //Text('Время$indexInIndexesList - ${chosenIrregularStartTime[indexInIndexesList]}--${chosenIrregularEndTime[indexInIndexesList]}'),
+                                          ]
+                                      );
+                                    }
+                                    ),
+                                  ),
+
+                                ],
+                              )
+                          )
                         ],
                       ),
 
@@ -243,7 +359,7 @@ class EventCardWidget extends StatelessWidget {
                       IconAndTextWidget(
                         icon: FontAwesomeIcons.dollarSign,
                         text: PriceMethods.getFormattedPriceString(event.priceType, event.price),
-                        textSize: 'label',
+                        textSize: 'bodySmall',
                         padding: 10,
                       ),
 
