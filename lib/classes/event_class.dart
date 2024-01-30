@@ -460,7 +460,9 @@ class EventCustom {
       bool freePrice,
       bool today,
       bool onlyFromPlaceEvents,
-      List<EventCustom> eventsList
+      List<EventCustom> eventsList,
+      DateTime selectedStartDatePeriod,
+      DateTime selectedEndDatePeriod,
       ) {
 
     List<EventCustom> events = [];
@@ -474,6 +476,8 @@ class EventCustom {
         today,
         onlyFromPlaceEvents,
         eventsList[i],
+        selectedStartDatePeriod,
+        selectedEndDatePeriod
       );
 
       if (result) {
@@ -491,6 +495,8 @@ class EventCustom {
       bool today,
       bool onlyFromPlaceEvents,
       EventCustom event,
+      DateTime selectedStartDatePeriod,
+      DateTime selectedEndDatePeriod,
       ) {
 
     City cityFromEvent = City.getCityByIdFromList(event.city);

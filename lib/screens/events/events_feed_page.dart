@@ -41,6 +41,8 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
   bool freePrice = false;
   bool today = false;
   bool onlyFromPlaceEvents = false;
+  DateTime selectedStartDatePeriod = DateTime(2100);
+  DateTime selectedEndDatePeriod = DateTime(2100);
 
   // --- Переменная сортировки по умолчанию ----
 
@@ -82,7 +84,7 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
 
     // ---- Устанавливаем счетчик выбранных в фильтре настроек ----
 
-    _setFiltersCount(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents);
+    _setFiltersCount(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, selectedStartDatePeriod, selectedEndDatePeriod);
 
     // ----- Работаем со списком заведений -----
 
@@ -93,7 +95,7 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
 
       // --- Фильтруем список -----
       setState(() {
-        eventsList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempEventsList);
+        eventsList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempEventsList, selectedStartDatePeriod, selectedEndDatePeriod);
       });
 
     } else {
@@ -104,7 +106,7 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
 
       // --- Фильтруем список ----
       setState(() {
-        eventsList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempList);
+        eventsList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempList, selectedStartDatePeriod, selectedEndDatePeriod);
       });
     }
 
@@ -142,7 +144,7 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
             List<EventCustom> tempEventsList = await EventCustom.getAllEvents();
 
             setState(() {
-              eventsList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempEventsList);
+              eventsList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempEventsList, selectedStartDatePeriod, selectedEndDatePeriod);
 
             });
 
@@ -365,6 +367,8 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
       bool freePriceFromFilter,
       bool todayFromFilter,
       bool onlyFromPlaceEventsFromFilter,
+      DateTime selectedStartDatePeriod,
+      DateTime selectedEndDatePeriod
       ){
 
     int count = 0;
@@ -383,6 +387,8 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
     if (todayFromFilter) count++;
 
     if (onlyFromPlaceEventsFromFilter) count++;
+
+    if (selectedStartDatePeriod != DateTime(2100)) count++;
 
     // --- Обновляем счетчик на странице -----
     setState(() {
@@ -407,10 +413,12 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
         freePrice = results [2];
         today = results [3];
         onlyFromPlaceEvents = results [4];
+        selectedStartDatePeriod = results[5];
+        selectedEndDatePeriod = results[6];
         eventsList = [];
 
         // ---- Обновляем счетчик выбранных настроек ----
-        _setFiltersCount(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents);
+        _setFiltersCount(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, selectedStartDatePeriod, selectedEndDatePeriod);
 
       });
 
@@ -420,7 +428,7 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
 
       // --- Фильтруем список согласно новым выбранным данным из фильтра ----
       setState(() {
-        eventsList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempList);
+        eventsList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempList, selectedStartDatePeriod, selectedEndDatePeriod);
       });
 
       setState(() {
@@ -443,7 +451,9 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
             chosenCity: cityFromFilter,
             freePrice: freePrice,
             onlyFromPlaceEvents: onlyFromPlaceEvents,
-            today: today
+            today: today,
+          selectedEndDatePeriod: selectedEndDatePeriod,
+          selectedStartDatePeriod: selectedStartDatePeriod,
         );
       },
       transitionsBuilder: (context, animation, secondaryAnimation, child) {

@@ -19,6 +19,8 @@ class EventFilterPage extends StatefulWidget {
   bool freePrice;
   bool today;
   bool onlyFromPlaceEvents;
+  DateTime selectedStartDatePeriod;
+  DateTime selectedEndDatePeriod;
 
   EventFilterPage({super.key,
     required this.categories,
@@ -26,7 +28,10 @@ class EventFilterPage extends StatefulWidget {
     required this.chosenCity,
     required this.freePrice,
     required this.onlyFromPlaceEvents,
-    required this.today
+    required this.today,
+    required this.selectedStartDatePeriod,
+    required this.selectedEndDatePeriod
+
   });
 
   @override
@@ -43,7 +48,9 @@ class _EventFilterPageState extends State<EventFilterPage> {
   bool freePrice = false;
   bool today = false;
   bool onlyFromPlaceEvents = false;
-  EventSortingOption _selectedSortingOption = EventSortingOption.nameAsc;
+  DateTime selectedStartDatePeriod = DateTime(2100);
+  DateTime selectedEndDatePeriod = DateTime(2100);
+  //EventSortingOption _selectedSortingOption = EventSortingOption.nameAsc;
 
   @override
   void initState() {
@@ -55,6 +62,8 @@ class _EventFilterPageState extends State<EventFilterPage> {
     freePrice = widget.freePrice;
     today = widget.today;
     onlyFromPlaceEvents = widget.onlyFromPlaceEvents;
+    selectedStartDatePeriod = widget.selectedStartDatePeriod;
+    selectedEndDatePeriod = widget.selectedEndDatePeriod;
   }
 
   @override
@@ -208,7 +217,7 @@ class _EventFilterPageState extends State<EventFilterPage> {
               CustomButton(
                 buttonText: 'Применить фильтр',
                 onTapMethod: (){
-                  List<dynamic> arguments = [chosenCity, chosenCategory, freePrice, today, onlyFromPlaceEvents];
+                  List<dynamic> arguments = [chosenCity, chosenCategory, freePrice, today, onlyFromPlaceEvents, selectedStartDatePeriod, selectedEndDatePeriod];
                   Navigator.of(context).pop(arguments);
                 },
               ),
@@ -237,6 +246,8 @@ class _EventFilterPageState extends State<EventFilterPage> {
                     freePrice = false;
                     onlyFromPlaceEvents = false;
                     today = false;
+                    selectedStartDatePeriod  = DateTime(2100);
+                    selectedEndDatePeriod = DateTime(2100);
                   });
                 },
               ),

@@ -104,7 +104,7 @@ class EventCardWidget extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
         ),
-        margin: const EdgeInsets.only(bottom: 10),
+        margin: const EdgeInsets.only(bottom: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -208,8 +208,6 @@ class EventCardWidget extends StatelessWidget {
                   ),
 
                   SizedBox(height: 20.0),
-
-                  Text(DateTime.now().toString()),
 
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

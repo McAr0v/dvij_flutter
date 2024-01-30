@@ -42,6 +42,8 @@ class _EventsMyPageState extends State<EventsMyPage> {
   bool freePrice = false;
   bool today = false;
   bool onlyFromPlaceEvents = false;
+  DateTime selectedStartDatePeriod = DateTime(2100);
+  DateTime selectedEndDatePeriod = DateTime(2100);
 
   EventCustom eventEmpty = EventCustom.emptyEvent;
 
@@ -101,7 +103,7 @@ class _EventsMyPageState extends State<EventsMyPage> {
         // --- Фильтруем список -----
         setState(() {
 
-          eventsMyList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempEventsList);
+          eventsMyList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempEventsList, selectedStartDatePeriod, selectedEndDatePeriod);
         });
       }
 
@@ -114,7 +116,7 @@ class _EventsMyPageState extends State<EventsMyPage> {
 
       // --- Фильтруем список ----
       setState(() {
-        eventsMyList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempList);
+        eventsMyList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempList, selectedStartDatePeriod, selectedEndDatePeriod);
       });
     }
 
@@ -154,7 +156,7 @@ class _EventsMyPageState extends State<EventsMyPage> {
             List<EventCustom> tempEventsList = await EventCustom.getMyEvents(UserCustom.currentUser!.uid);
 
             setState(() {
-              eventsMyList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempEventsList);
+              eventsMyList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempEventsList, selectedStartDatePeriod, selectedEndDatePeriod);
             });
 
           }
@@ -444,6 +446,8 @@ class _EventsMyPageState extends State<EventsMyPage> {
         freePrice = results [2];
         today = results [3];
         onlyFromPlaceEvents = results [4];
+        selectedStartDatePeriod = results[5];
+        selectedEndDatePeriod = results[6];
         eventsMyList = [];
 
         // ---- Обновляем счетчик выбранных настроек ----
@@ -457,7 +461,7 @@ class _EventsMyPageState extends State<EventsMyPage> {
 
       // --- Фильтруем список согласно новым выбранным данным из фильтра ----
       setState(() {
-        eventsMyList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempList);
+        eventsMyList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempList, selectedStartDatePeriod, selectedEndDatePeriod);
       });
 
       setState(() {
@@ -480,7 +484,9 @@ class _EventsMyPageState extends State<EventsMyPage> {
             chosenCity: cityFromFilter,
             freePrice: freePrice,
             onlyFromPlaceEvents: onlyFromPlaceEvents,
-            today: today
+            today: today,
+          selectedStartDatePeriod: selectedStartDatePeriod,
+          selectedEndDatePeriod: selectedEndDatePeriod,
         );
       },
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
