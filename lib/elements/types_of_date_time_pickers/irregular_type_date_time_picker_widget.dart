@@ -67,7 +67,7 @@ class IrregularTypeDateTimePickerWidget extends StatelessWidget {
           SizedBox(height: 10,),
 
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _buildTimeDropdown(
                   startTimeLabelText,
@@ -76,7 +76,7 @@ class IrregularTypeDateTimePickerWidget extends StatelessWidget {
                   context
               ),
 
-              const SizedBox(width: 30,),
+              //const SizedBox(width: 10,),
 
               _buildTimeDropdown(
                   endTimeLabelText,
@@ -85,9 +85,20 @@ class IrregularTypeDateTimePickerWidget extends StatelessWidget {
                   context
               ),
 
-              const SizedBox(width: 30,),
+              //const SizedBox(width: 10,),
 
-              GestureDetector(
+              Card(
+                color: AppColors.attentionRed,
+                child: IconButton(
+                  onPressed: onDeletePressed,
+                  icon: Icon(
+                    Icons.delete,
+                    color: AppColors.greyOnBackground,
+                  ),
+                ),
+              ),
+
+              /*GestureDetector(
                   onTap: onDeletePressed,
                   child: Row(
                     children: [
@@ -102,7 +113,7 @@ class IrregularTypeDateTimePickerWidget extends StatelessWidget {
                       ),*/
                     ],
                   )
-              )
+              )*/
 
             ],
           ),
@@ -123,7 +134,7 @@ class IrregularTypeDateTimePickerWidget extends StatelessWidget {
           items: _timeList.map((String time) {
             return DropdownMenuItem<String>(
               value: time,
-              child: Text(time),
+              child: Text(time, style: Theme.of(context).textTheme.bodyMedium,),
             );
           }).toList(),
         ),
@@ -136,6 +147,7 @@ class IrregularTypeDateTimePickerWidget extends StatelessWidget {
   }
 
   final List<String> _timeList = [
+    "Не выбрано",
     "00:00",
     "00:30",
     "01:00",

@@ -150,6 +150,102 @@ String generateRegularTypeDateTwo(
   return result;
 }
 
+String checkTimeAndDate(
+    EventTypeEnum eventType,
+    DateTime selectedDayInOnceType,
+    String onceDayStartTime,
+    String onceDayFinishTime,
+    DateTime selectedStartDayInLongType,
+    DateTime selectedEndDayInLongType,
+    String longDayStartTime,
+    String longDayFinishTime,
+    List<String> regularStartTimes,
+    List<String> regularFinishTimes,
+    List<DateTime> chosenIrregularDays,
+    List<String> chosenIrregularStartTime,
+    List<String> chosenIrregularEndTime,
+
+    ){
+  if (eventType == EventTypeEnum.once){
+    return checkOnceDayOnErrors(selectedDayInOnceType, onceDayStartTime, onceDayFinishTime);
+  } else if (eventType == EventTypeEnum.long) {
+    if (selectedStartDayInLongType == DateTime(2100) || selectedEndDayInLongType == DateTime(2100)){
+      return 'Не выбрана дата!';
+    } else if (longDayStartTime == longDayFinishTime) {
+      return 'Время начала и время завершения не могут быть одинаковы';
+    } else if (longDayStartTime == 'Не выбрано' || longDayFinishTime == 'Не выбрано'){
+      return 'Не выбрано время!';
+    } else {
+      return 'success';
+    }
+  } else if (eventType == EventTypeEnum.regular) {
+
+    bool emptyTimes = true;
+    bool haveErrorInTime = false;
+
+    for (int i = 0; i<regularStartTimes.length; i++){
+      if (regularStartTimes[i] != regularFinishTimes[i]){
+        emptyTimes = false;
+        if (regularStartTimes[i] == 'Не выбрано' || regularFinishTimes[i] == 'Не выбрано'){
+          haveErrorInTime = true;
+        }
+      }
+    }
+
+    if (emptyTimes) {
+      return 'Не указано расписание ни для одного дня!';
+    } else if (haveErrorInTime) {
+      return 'Где-то не выбрано время начала или завершения';
+    } else {
+      return 'success';
+    }
+
+
+  } else if (eventType == EventTypeEnum.irregular) {
+    bool notHaveErrors = true;
+    String errorMessage = '';
+
+    if (chosenIrregularDays.isEmpty || chosenIrregularEndTime.isEmpty || chosenIrregularStartTime.isEmpty){
+      return 'Список нерегулярных дат пуст. Выберите хотя бы 1 дату';
+    }
+        
+    for (int i = 0; i<chosenIrregularDays.length; i++){
+      String tempMessage = checkOnceDayOnErrors(chosenIrregularDays[i], chosenIrregularStartTime[i], chosenIrregularEndTime[i]);
+      if (tempMessage != 'success'){
+        notHaveErrors = false;
+        errorMessage = tempMessage;
+      }
+    }
+    
+    if (notHaveErrors) {
+      return 'success';
+    } else {
+      return errorMessage;
+    }
+
+  } else {
+    return 'Произошла ошибка с датой или временем. Проверь их';
+  }
+}
+
+String checkOnceDayOnErrors(
+    DateTime selectedDayInOnceType,
+    String onceDayStartTime,
+    String onceDayFinishTime,
+    ){
+
+  if (selectedDayInOnceType == DateTime(2100)){
+    return 'Не выбрана дата!';
+  } else if (onceDayStartTime == onceDayFinishTime) {
+    return 'Время начала и время завершения не могут быть одинаковы';
+  } else if (onceDayStartTime == 'Не выбрано' || onceDayFinishTime == 'Не выбрано'){
+    return 'Не выбрано время!';
+  } else {
+    return 'success';
+  }
+  
+}
+
 String generateRegularTypeDate(
     String mondayStartTime,
     String mondayFinishTime,

@@ -65,7 +65,10 @@ class RegularTwoTypeDateTimePickerWidget extends StatelessWidget {
           items: _timeList.map((String time) {
             return DropdownMenuItem<String>(
               value: time,
-              child: Text(time),
+              child: Text(
+                  time,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
             );
           }).toList(),
         ),
@@ -75,6 +78,7 @@ class RegularTwoTypeDateTimePickerWidget extends StatelessWidget {
   }
 
   final List<String> _timeList = [
+    "Не выбрано",
     "00:00",
     "00:30",
     "01:00",

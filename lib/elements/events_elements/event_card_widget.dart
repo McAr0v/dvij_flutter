@@ -37,6 +37,9 @@ class EventCardWidget extends StatelessWidget {
     String endDate = '';
     String startTime = '';
     String endTime = '';
+    
+    DateTime timeNow = DateTime.now().add(Duration(hours: 6));
+    int currentWeekDayNumber = timeNow.weekday;
 
     if (eventType == EventTypeEnum.once && event.onceDay != ''){
       startDate = extractDateOrTimeFromJson(event.onceDay, 'date');
@@ -224,6 +227,12 @@ class EventCardWidget extends StatelessWidget {
                             textSize: 'label',
                             padding: 10,
                           ),
+                        ],
+                      ),
+                      
+                      if (eventType == EventTypeEnum.regular) Row(
+                        children: [
+                          Text(timeNow.toString())
                         ],
                       ),
 

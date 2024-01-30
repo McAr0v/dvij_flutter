@@ -91,18 +91,18 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
   // ПЕРЕМЕННЫЕ ВРЕМЕНИ РАБОТЫ?
   late DateTime selectedDayInOnceType;
   late String onceDay;
-  String onceDayStartTime = '00:00';
-  String onceDayFinishTime = '00:00';
+  String onceDayStartTime = 'Не выбрано';
+  String onceDayFinishTime = 'Не выбрано';
 
   late DateTime selectedStartDayInLongType;
   late DateTime selectedEndDayInLongType;
   late String longStartDay;
   late String longEndDay;
-  String longDayStartTime = '00:00';
-  String longDayFinishTime = '00:00';
+  String longDayStartTime = 'Не выбрано';
+  String longDayFinishTime = 'Не выбрано';
 
-  List<String> regularStartTimes = fillTimeListWithDefaultValues('00:00', 7);
-  List<String> regularFinishTimes = fillTimeListWithDefaultValues('00:00', 7);
+  List<String> regularStartTimes = fillTimeListWithDefaultValues('Не выбрано', 7);
+  List<String> regularFinishTimes = fillTimeListWithDefaultValues('Не выбрано', 7);
 
   // Здесь хранятся выбранные даты нерегулярных дней
   List<DateTime> chosenIrregularDays = [];
@@ -594,8 +594,8 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                                 onTapMethod: (){
                                   setState(() {
                                     chosenIrregularDays.add(DateTime.now());
-                                    chosenIrregularStartTime.add('00:00');
-                                    chosenIrregularEndTime.add('00:00');
+                                    chosenIrregularStartTime.add('Не выбрано');
+                                    chosenIrregularEndTime.add('Не выбрано');
                                   });
                                 }
                             ),
@@ -717,133 +717,156 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                       buttonText: 'Сохранить изменения',
                       onTapMethod: () async {
 
-                        // Включаем экран загрузки
-                        setState(() {
-                          saving = true;
-                        });
-
-                        // Создаем переменную для нового аватара
-                        String? avatarURL;
-
-                        // ---- ЕСЛИ ВЫБРАНА НОВАЯ КАРТИНКА -------
-                        if (_imageFile != null) {
-
-                          // Сжимаем изображение
-                          final compressedImage = await imagePickerService.compressImage(_imageFile!);
-
-
-
-                          // Выгружаем изображение в БД и получаем URL картинки
-                          avatarURL = await imageUploader.uploadImageInPlace(eventId, compressedImage);
-
-                          // Если URL аватарки есть
-                          if (avatarURL != null) {
-                            // TODO: Сделать вывод какой-то, что картинка загружена
-                          } else {
-                            // TODO: Сделать обработку ошибок, если не удалось загрузить картинку в базу данных пользователя
-                          }
-                        }
-
-                        if (chosenPlace.id != ''){
-                          setState(() {
-                            streetController.text = chosenPlace.street;
-                            houseController.text = chosenPlace.house;
-                          });
-
-                        }
-
-                        EventCustom event = EventCustom(
-                            id: eventId,
-                            eventType: EventCustom.getNameEventTypeEnum(eventTypeEnum), // сделать функционал
-                            headline: headlineController.text,
-                            desc: descController.text,
-                            creatorId: creatorId,
-                            createDate: createdTime,
-                            category: chosenCategory.id,
-                            city: chosenCity.id,
-                            street: streetController.text,
-                            house: houseController.text,
-                            phone: phoneController.text,
-                            whatsapp: whatsappController.text,
-                            telegram: telegramController.text,
-                            instagram: instagramController.text,
-                            imageUrl: avatarURL ?? widget.eventInfo.imageUrl,
-                            placeId: chosenPlace.id, // сделать функционал
-                            onceDay: generateOnceTypeDate(
-                                selectedDayInOnceType,
-                                onceDayStartTime,
-                                onceDayFinishTime
-                            ), // сделать функционал
-                            longDays: generateLongTypeDate(
-                                selectedStartDayInLongType,
-                                selectedEndDayInLongType,
-                                longDayStartTime,
-                                longDayFinishTime
-                            ), // сделать функционал
-                            regularDays: generateRegularTypeDateTwo(regularStartTimes, regularFinishTimes), // сделать функционал
-
-                            irregularDays: sortDateTimeListAndRelatedData(
-                                chosenIrregularDays,
-                                chosenIrregularStartTime,
-                                chosenIrregularEndTime
-                            ),
-
-                            // сделать функционал
-                            price: EventCustom.getPriceString(priceType, fixedPriceController.text, startPriceController.text, endPriceController.text), // сделать функционал
-                          priceType: EventCustom.getNamePriceTypeEnum(priceType)
+                        String checkDates = checkTimeAndDate(
+                            eventTypeEnum,
+                            selectedDayInOnceType,
+                            onceDayStartTime,
+                            onceDayFinishTime,
+                            selectedStartDayInLongType,
+                            selectedEndDayInLongType,
+                            longDayStartTime,
+                            longDayFinishTime,
+                            regularStartTimes,
+                            regularFinishTimes,
+                            chosenIrregularDays,
+                            chosenIrregularStartTime,
+                            chosenIrregularEndTime
                         );
 
-
-
-                        // Выгружаем пользователя в БД
-                        String? editInDatabase = await EventCustom.createOrEditEvent(event);
-
-                        // Если выгрузка успешна
-                        if (editInDatabase == 'success') {
-
-                          EventCustom newEvent = await EventCustom.getEventById(eventId);
-                          // TODO Проверить удаление, если было заведение, а потом сменили адрес вручную
-                          if (widget.eventInfo.placeId != '' && widget.eventInfo.placeId != chosenPlace.id) {
-
-                            await EventCustom.deleteEventIdFromPlace(eventId, widget.eventInfo.placeId);
-
-                          }
-
-                          // Если в передаваемом месте нет имени, т.е это создание
-                          if (widget.eventInfo.headline == ''){
-                            // То добавляем в списки новое созданное место
-
-                            EventCustom.currentFeedEventsList.add(newEvent);
-                            EventCustom.currentMyEventsList.add(newEvent);
-
-                          } else {
-
-                            // Если редактирование то удаляем старые неотредактированные данные
-                            EventCustom.deleteEventFromCurrentEventLists(eventId);
-
-                            // Добавляем обновленное
-                            EventCustom.currentFeedEventsList.add(newEvent);
-                            EventCustom.currentMyEventsList.add(newEvent);
-                            if (bool.parse(newEvent.inFav!)) EventCustom.currentFavEventsList.add(newEvent);
-
-                          }
-
-
-
-
-                          // Выключаем экран загрузки
+                        if (checkDates != 'success'){
                           setState(() {
                             saving = false;
                           });
-                          // Показываем всплывающее сообщение
-                          showSnackBar(
-                            "Прекрасно! Данные опубликованы!",
-                            Colors.green,
-                            1,
+                          showSnackBar(checkDates, AppColors.attentionRed, 2);
+                        } else {
+                          // Выгружаем пользователя в БД
+
+                          // Включаем экран загрузки
+                          setState(() {
+                            saving = true;
+                          });
+
+                          // Создаем переменную для нового аватара
+                          String? avatarURL;
+
+                          // ---- ЕСЛИ ВЫБРАНА НОВАЯ КАРТИНКА -------
+                          if (_imageFile != null) {
+
+                            // Сжимаем изображение
+                            final compressedImage = await imagePickerService.compressImage(_imageFile!);
+
+
+
+                            // Выгружаем изображение в БД и получаем URL картинки
+                            avatarURL = await imageUploader.uploadImageInPlace(eventId, compressedImage);
+
+                            // Если URL аватарки есть
+                            if (avatarURL != null) {
+                              // TODO: Сделать вывод какой-то, что картинка загружена
+                            } else {
+                              // TODO: Сделать обработку ошибок, если не удалось загрузить картинку в базу данных пользователя
+                            }
+                          }
+
+                          if (chosenPlace.id != ''){
+                            setState(() {
+                              streetController.text = chosenPlace.street;
+                              houseController.text = chosenPlace.house;
+                            });
+
+                          }
+
+                          EventCustom event = EventCustom(
+                              id: eventId,
+                              eventType: EventCustom.getNameEventTypeEnum(eventTypeEnum), // сделать функционал
+                              headline: headlineController.text,
+                              desc: descController.text,
+                              creatorId: creatorId,
+                              createDate: createdTime,
+                              category: chosenCategory.id,
+                              city: chosenCity.id,
+                              street: streetController.text,
+                              house: houseController.text,
+                              phone: phoneController.text,
+                              whatsapp: whatsappController.text,
+                              telegram: telegramController.text,
+                              instagram: instagramController.text,
+                              imageUrl: avatarURL ?? widget.eventInfo.imageUrl,
+                              placeId: chosenPlace.id, // сделать функционал
+                              onceDay: generateOnceTypeDate(
+                                  selectedDayInOnceType,
+                                  onceDayStartTime,
+                                  onceDayFinishTime
+                              ), // сделать функционал
+                              longDays: generateLongTypeDate(
+                                  selectedStartDayInLongType,
+                                  selectedEndDayInLongType,
+                                  longDayStartTime,
+                                  longDayFinishTime
+                              ), // сделать функционал
+                              regularDays: generateRegularTypeDateTwo(regularStartTimes, regularFinishTimes), // сделать функционал
+
+                              irregularDays: sortDateTimeListAndRelatedData(
+                                  chosenIrregularDays,
+                                  chosenIrregularStartTime,
+                                  chosenIrregularEndTime
+                              ),
+
+                              // сделать функционал
+                              price: EventCustom.getPriceString(priceType, fixedPriceController.text, startPriceController.text, endPriceController.text), // сделать функционал
+                              priceType: EventCustom.getNamePriceTypeEnum(priceType)
                           );
 
-                          // Уходим в профиль
-                          navigateToEvents();
+                          String? editInDatabase = await EventCustom.createOrEditEvent(event);
+
+                          // Если выгрузка успешна
+                          if (editInDatabase == 'success') {
+
+                            EventCustom newEvent = await EventCustom.getEventById(eventId);
+                            // TODO Проверить удаление, если было заведение, а потом сменили адрес вручную
+                            if (widget.eventInfo.placeId != '' && widget.eventInfo.placeId != chosenPlace.id) {
+
+                              await EventCustom.deleteEventIdFromPlace(eventId, widget.eventInfo.placeId);
+
+                            }
+
+                            // Если в передаваемом месте нет имени, т.е это создание
+                            if (widget.eventInfo.headline == ''){
+                              // То добавляем в списки новое созданное место
+
+                              EventCustom.currentFeedEventsList.add(newEvent);
+                              EventCustom.currentMyEventsList.add(newEvent);
+
+                            } else {
+
+                              // Если редактирование то удаляем старые неотредактированные данные
+                              EventCustom.deleteEventFromCurrentEventLists(eventId);
+
+                              // Добавляем обновленное
+                              EventCustom.currentFeedEventsList.add(newEvent);
+                              EventCustom.currentMyEventsList.add(newEvent);
+                              if (bool.parse(newEvent.inFav!)) EventCustom.currentFavEventsList.add(newEvent);
+
+                            }
+
+
+
+
+                            // Выключаем экран загрузки
+                            setState(() {
+                              saving = false;
+                            });
+                            // Показываем всплывающее сообщение
+                            showSnackBar(
+                              "Прекрасно! Данные опубликованы!",
+                              Colors.green,
+                              1,
+                            );
+
+                            // Уходим в профиль
+                            navigateToEvents();
+
+                          }
 
                         }
 
