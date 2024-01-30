@@ -42,7 +42,7 @@ class EventCardWidget extends StatelessWidget {
     List<String> regularStartTimes = fillTimeListWithDefaultValues('Не выбрано', 7);
     List<String> regularFinishTimes = fillTimeListWithDefaultValues('Не выбрано', 7);
     
-    DateTime timeNow = DateTime.now().add(Duration(hours: 6));
+    DateTime timeNow = DateTime.now();
     int currentWeekDayNumber = timeNow.weekday;
 
     if (eventType == EventTypeEnum.once && event.onceDay != ''){
@@ -208,6 +208,8 @@ class EventCardWidget extends StatelessWidget {
                   ),
 
                   SizedBox(height: 20.0),
+
+                  Text(DateTime.now().toString()),
 
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

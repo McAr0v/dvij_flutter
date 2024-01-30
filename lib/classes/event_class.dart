@@ -38,7 +38,6 @@ class EventCustom {
   String? canEdit;
   String? inFav;
   String? today;
-  String? inFavCounter;
 
   EventCustom({
     required this.id,
@@ -67,7 +66,6 @@ class EventCustom {
     this.canEdit,
     this.inFav,
     this.today,
-    this.inFavCounter,
 
   });
 
@@ -518,9 +516,9 @@ class EventCustom {
 
       case EventSortingOption.nameDesc: events.sort((a, b) => b.headline.compareTo(a.headline)); break;
 
-      case EventSortingOption.favCountAsc: events.sort((a, b) => int.parse(a.inFavCounter!).compareTo(int.parse(b.inFavCounter!))); break;
+      case EventSortingOption.favCountAsc: events.sort((a, b) => int.parse(a.addedToFavouritesCount!).compareTo(int.parse(b.addedToFavouritesCount!))); break;
 
-      case EventSortingOption.favCountDesc: events.sort((a, b) => int.parse(b.inFavCounter!).compareTo(int.parse(a.inFavCounter!))); break;
+      case EventSortingOption.favCountDesc: events.sort((a, b) => int.parse(b.addedToFavouritesCount!).compareTo(int.parse(a.addedToFavouritesCount!))); break;
 
     }
 

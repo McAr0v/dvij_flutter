@@ -428,9 +428,9 @@ bool checkRegularDatesOnToday (String regularTimes) {
   // Инициализируем сегодня
 
   // берем день недели для парсинга времени проведения
-  int currentDay = DateTime.now().add(const Duration(hours: 6)).weekday;
+  int currentDay = DateTime.now().weekday;
   // Берем сегодня как DateTime для сравнивания
-  DateTime currentDayDate = DateTime.now().add(const Duration(hours: 6));
+  DateTime currentDayDate = DateTime.now();
 
   // Получаем время начала и завершения из строки из БД
   String startTimeToday = extractDateOrTimeFromJson(regularTimes, 'startTime$currentDay');
@@ -481,7 +481,7 @@ bool checkLongDatesOnToday(
     DateTime endDateWithHoursEndTime,
     ){
   // Берем текущее время
-  DateTime today = DateTime.now().add(const Duration(hours: 6));
+  DateTime today = DateTime.now();
 
   // Создаем переменную на случай если заканчивается после полуночи
   DateTime currentEndDateEndTime = endDateWithHoursEndTime;
@@ -526,7 +526,7 @@ bool checkLongDatesOnToday(
 
 bool checkDateOnToday(DateTime startEventDateOnlyDate, DateTime startEventDateWithHours, DateTime endEventDateWithOurs) {
   // Получаем текущее время
-  DateTime today = DateTime.now().add(const Duration(hours: 6));
+  DateTime today = DateTime.now();
 
   // Переменная для учета, если мероприятие заканчивается после полуночи
   DateTime currentEndEventDate = endEventDateWithOurs;
