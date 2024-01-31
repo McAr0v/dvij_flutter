@@ -8,9 +8,11 @@ import 'package:flutter/material.dart';
 import '../../classes/city_class.dart';
 import '../../classes/event_sorting_options.dart';
 import '../../classes/place_sorting_options.dart';
+import '../../methods/date_functions.dart';
 import '../../themes/app_colors.dart';
 import '../choose_dialogs/city_choose_dialog.dart';
 import '../cities_elements/city_element_in_edit_screen.dart';
+import '../data_picker.dart';
 
 class EventFilterPage extends StatefulWidget {
   final List<EventCategory> categories;
@@ -150,6 +152,61 @@ class _EventFilterPageState extends State<EventFilterPage> {
                               //_showCityPickerDialog();
                               _showCategoryPickerDialog();
                             },
+                          ),
+
+                          const SizedBox(height: 16.0),
+
+                          if (selectedStartDatePeriod == DateTime(2100))
+                            DataPickerCustom(
+                              onActionPressed: (){
+                                DateTime temp = DateTime.now();
+                                setState(() {
+                                  selectedStartDatePeriod = temp;
+                                  //selectedEndDatePeriod = temp;
+                                });
+                                _selectDate(context, selectedStartDatePeriod, needClearInitialDate: true, isStart: true, endDate: selectedEndDatePeriod);
+                              },
+                              date: 'Дата начала не выбрана',
+                              labelText: 'Начало периода',
+                            )
+
+                          else DataPickerCustom(
+                              onActionPressed: (){
+                                _selectDate(context, selectedStartDatePeriod, needClearInitialDate: false, isStart: true, endDate: selectedEndDatePeriod);
+
+                              },
+                              date: getHumanDate('${selectedStartDatePeriod.year}-${selectedStartDatePeriod.month}-${selectedStartDatePeriod.day}', '-'),
+                              labelText: 'Начало периода'
+                          ),
+
+                          const SizedBox(height: 16.0),
+
+                          if (selectedEndDatePeriod == DateTime(2100))
+                            DataPickerCustom(
+                              onActionPressed: (){
+
+
+                                setState(() {
+                                  if (selectedStartDatePeriod == DateTime(2100)){
+                                    selectedStartDatePeriod = DateTime.now();
+                                  }
+
+                                  DateTime temp = selectedStartDatePeriod;
+
+                                  selectedEndDatePeriod = temp;
+                                });
+                                _selectDate(context, selectedEndDatePeriod, needClearInitialDate: false, isStart: false, firstDate: selectedStartDatePeriod);
+                              },
+                              date: 'Дата предела периода не выбрана',
+                              labelText: 'Конец периода',
+                            )
+
+                          else DataPickerCustom(
+                              onActionPressed: (){
+                                _selectDate(context, selectedEndDatePeriod, needClearInitialDate: false, isStart: false, firstDate: selectedStartDatePeriod);
+                              },
+                              date: getHumanDate('${selectedEndDatePeriod.year}-${selectedEndDatePeriod.month}-${selectedEndDatePeriod.day}', '-'),
+                              labelText: 'Конец периода'
                           ),
 
                           const SizedBox(height: 16.0),
@@ -334,6 +391,63 @@ class _EventFilterPageState extends State<EventFilterPage> {
       transitionDuration: Duration(milliseconds: 100),
 
     );
+  }
+
+  Future<void> _selectDate(
+      BuildContext context,
+      DateTime initial,
+      {bool needClearInitialDate = false,
+        bool isStart = true,
+        DateTime? firstDate = null,
+        DateTime? endDate = null,
+      }
+      ) async {
+
+    if (needClearInitialDate == true) initial = DateTime.now();
+
+    final DateTime? picked = await showDatePicker(
+
+      locale: const Locale('ru', 'RU'),
+      context: context,
+      initialDate: initial,
+      firstDate: firstDate ?? DateTime.now(),
+      lastDate: endDate ?? DateTime(2100),
+      helpText: 'Выбери дату',
+      cancelText: 'Отмена',
+      confirmText: 'Подтвердить',
+      keyboardType: TextInputType.datetime,
+      currentDate: DateTime.now(),
+    );
+
+    if (picked != null) {
+      if (isStart) {
+        setState(() {
+          selectedStartDatePeriod = picked;
+        });
+        _isStartBeforeEnd(true);
+      } else {
+        setState(() {
+          selectedEndDatePeriod = picked;
+        });
+        _isStartBeforeEnd(false);
+      }
+    }
+  }
+
+  void _isStartBeforeEnd (bool startAfterEnd){
+    if (startAfterEnd){
+      if (selectedStartDatePeriod.isAfter(selectedEndDatePeriod)){
+        setState(() {
+          selectedStartDatePeriod = selectedEndDatePeriod;
+        });
+      }
+    } else {
+      if (selectedEndDatePeriod.isBefore(selectedStartDatePeriod)){
+        setState(() {
+          selectedEndDatePeriod = selectedStartDatePeriod;
+        });
+      }
+    }
   }
 
 }
