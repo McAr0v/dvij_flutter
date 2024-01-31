@@ -507,8 +507,9 @@ class EventCustom {
     bool checkFreePrice = freePrice == false || event.price == '';
     bool checkToday = today == false || bool.parse(event.today!) == true;
     bool checkFromPlaceEvent = onlyFromPlaceEvents == false || event.placeId != '';
+    bool checkDate = selectedStartDatePeriod == DateTime(2100) || checkDatesForFilter(event, selectedStartDatePeriod, selectedEndDatePeriod);
 
-    return category && city && checkFreePrice && checkToday && checkFromPlaceEvent;
+    return category && city && checkFreePrice && checkToday && checkFromPlaceEvent && checkDate;
 
 
   }

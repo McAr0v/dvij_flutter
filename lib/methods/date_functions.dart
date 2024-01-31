@@ -1,9 +1,11 @@
 
 import 'dart:convert';
 
+import '../classes/event_category_class.dart';
 import '../classes/event_class.dart';
 import '../classes/event_type_enum.dart';
 import '../classes/pair.dart';
+import '../screens/events/event_view_screen.dart';
 
 List<int> splitDate(String date, String symbol)
 {
@@ -541,4 +543,129 @@ bool checkDateOnToday(DateTime startEventDateOnlyDate, DateTime startEventDateWi
   // Вернет тру, если текущая дата будет после начальной даты
   // И до времени окончания мероприятия
   return today.isAfter(startEventDateOnlyDate) && today.isBefore(currentEndEventDate);
+}
+
+bool checkDatesForFilter (
+    EventCustom event,
+    DateTime selectedStartDatePeriod,
+    DateTime selectedEndDatePeriod,
+    ) {
+
+  EventTypeEnum eventTypeEnum = EventCustom.getEventTypeEnum(event.eventType);
+
+  switch (eventTypeEnum) {
+    case EventTypeEnum.once: return checkOnceDayForFilter(event, selectedStartDatePeriod, selectedEndDatePeriod);
+    case EventTypeEnum.long: return checkLongDayForFilter(event, selectedStartDatePeriod, selectedEndDatePeriod);
+    case EventTypeEnum.regular: return checkRegularDayForFilter(event, selectedStartDatePeriod, selectedEndDatePeriod);
+    case EventTypeEnum.irregular: return checkIrregularDayForFilter(event, selectedStartDatePeriod, selectedEndDatePeriod);
+  }
+
+}
+
+bool checkOnceDayForFilter (
+    EventCustom event,
+    DateTime selectedStartDatePeriod,
+    DateTime selectedEndDatePeriod,
+    ) {
+
+  // ФУНКЦИЯ ПРОВЕРКИ ОДИНОЧНОЙ ДАТЫ НА ПОПАДАНИЕ В ЗАДАННЫЙ ПЕРИОД
+
+  DateTime eventDate = DateTime.parse(extractDateOrTimeFromJson(event.onceDay, 'date'));
+
+  return (eventDate.isAtSameMomentAs(selectedStartDatePeriod) || eventDate.isAfter(selectedStartDatePeriod)) &&
+      (eventDate.isBefore(selectedEndDatePeriod) || eventDate.isAtSameMomentAs(selectedEndDatePeriod));
+
+}
+
+bool checkLongDayForFilter (
+    EventCustom event,
+    DateTime selectedStartDatePeriod,
+    DateTime selectedEndDatePeriod,
+    ) {
+
+  // ФУНКЦИЯ ПРОВЕРКИ ДАТЫ В ВИДЕ ПЕРИОДА НА ПОПАДАНИЕ В ЗАДАННЫЙ ПЕРИОД
+
+  DateTime eventStartDate = DateTime.parse(extractDateOrTimeFromJson(event.longDays, 'startDate'));
+  DateTime eventEndDate = DateTime.parse(extractDateOrTimeFromJson(event.longDays, 'endDate'));
+
+  return (eventStartDate.isAtSameMomentAs(selectedEndDatePeriod) || eventStartDate.isBefore(selectedEndDatePeriod) &&
+  eventEndDate.isAtSameMomentAs(selectedStartDatePeriod) || eventEndDate.isAfter(selectedStartDatePeriod));
+
+}
+
+bool checkRegularDayForFilter (
+    EventCustom event,
+    DateTime selectedStartDatePeriod,
+    DateTime selectedEndDatePeriod,
+    ) {
+
+  // ФУНКЦИЯ ПРОВЕРКИ РЕГУЛЯРНОЙ ДАТЫ НА ПОПАДАНИЕ В ЗАДАННЫЙ ПЕРИОД
+
+  bool result = false;
+
+  List<int> eventWeekDays = [];
+  List<int> filterWeekDays = [];
+
+  // Считываем дни недели, в которые проводится мероприятие
+  for (int i = 0; i<7; i++){
+
+    String tempStartTime = extractDateOrTimeFromJson(event.regularDays, 'startTime${i+1}');
+
+    if (tempStartTime != 'Не выбрано') eventWeekDays.add(i+1);
+
+  }
+
+  // Считываем дни недели периода из фильтра
+
+  for (int i = 0; i<7; i++){
+
+    DateTime tempDate = selectedStartDatePeriod.add(Duration(days: i));
+
+    if (tempDate.isBefore(selectedEndDatePeriod) || tempDate.isAtSameMomentAs(selectedEndDatePeriod)){
+      filterWeekDays.add(tempDate.weekday);
+    }
+  }
+
+  for (int eventWeekDay in eventWeekDays){
+    if (eventWeekDays.isNotEmpty && filterWeekDays.isNotEmpty && filterWeekDays.contains(eventWeekDay)) {
+      result = true;
+    }
+  }
+
+  return result;
+
+}
+
+bool checkIrregularDayForFilter(
+    EventCustom event,
+    DateTime selectedStartDatePeriod,
+    DateTime selectedEndDatePeriod,
+    ){
+
+  List<String> tempIrregularDaysString = [];
+  List<String> tempStartTimeString = [];
+  List<String> tempEndTimeString = [];
+
+  // Парсим даты и время
+  parseIrregularDatesString(event.irregularDays, tempIrregularDaysString, tempStartTimeString, tempEndTimeString);
+
+  // Проходим по списку
+  for (int i = 0; i<tempIrregularDaysString.length; i++){
+
+    // По принципу работы с одиночной датой - парсим начальную дату без часов, а так же начальные и конечные даты с часами
+    DateTime tempOnlyDate = DateTime.parse(tempIrregularDaysString[i]);
+
+    // Как и в одиночной дате, сравниваем с текущим временем
+
+    if (
+    (tempOnlyDate.isAfter(selectedStartDatePeriod) || tempOnlyDate.isAtSameMomentAs(selectedStartDatePeriod))
+        && (tempOnlyDate.isBefore(selectedEndDatePeriod) || tempOnlyDate.isAtSameMomentAs(selectedEndDatePeriod))
+    ){
+      return true;
+    }
+
+  }
+
+  return false;
+
 }
