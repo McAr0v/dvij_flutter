@@ -2,6 +2,7 @@ import 'package:dvij_flutter/classes/event_category_class.dart';
 import 'package:dvij_flutter/classes/place_category_class.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/elements/category_element_in_edit_screen.dart';
+import 'package:dvij_flutter/elements/date_elements/period_date_picker.dart';
 import 'package:dvij_flutter/elements/events_elements/event_category_picker_page.dart';
 import 'package:dvij_flutter/elements/places_elements/place_category_picker_page.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +13,7 @@ import '../../methods/date_functions.dart';
 import '../../themes/app_colors.dart';
 import '../choose_dialogs/city_choose_dialog.dart';
 import '../cities_elements/city_element_in_edit_screen.dart';
-import '../data_picker.dart';
+import '../date_elements/data_picker.dart';
 
 class EventFilterPage extends StatefulWidget {
   final List<EventCategory> categories;
@@ -87,13 +88,27 @@ class _EventFilterPageState extends State<EventFilterPage> {
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      'Фильтр и сортировка:',
-                      style: Theme.of(context).textTheme.displayMedium,
-                    ),
+                  Expanded(
+                      child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column (
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Фильтр и сортировка:',
+                                style: Theme.of(context).textTheme.displayMedium,
+                              ),
+                              SizedBox(height: 5,),
+                              Text(
+                                'Для наиболее точного поиска мероприятия укажи все возможные элементы фильтра',
+                                style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.greyText),
+                                softWrap: true,
+                              ),
+                            ],
+                          )
+                      )
                   ),
                   IconButton(
                     icon: const Icon(Icons.close),
@@ -115,101 +130,217 @@ class _EventFilterPageState extends State<EventFilterPage> {
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const SizedBox(height: 16.0),
 
-                          // TODO Сделать во всех фильтрах иконку крестик сброса отдельного значения, а не всего фильтра
+                          //Text('Фильтр по городу и категории:', style: Theme.of(context).textTheme.titleMedium,),
+                          //Text('Укажи эти настройки чтобы отобразить только нужные мероприятия', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.greyText),),
 
-                          if (chosenCity.id == '') CityElementInEditScreen(
-                            cityName: 'Город не выбран',
-                            onActionPressed: () {
-                              //_showCityPickerDialog();
-                              _showCityPickerDialog();
-                            },
-                          ),
+                          //SizedBox(height: 20,),
 
-                          if (chosenCity.id != "") CityElementInEditScreen(
-                            cityName: chosenCity.name,
-                            onActionPressed: () {
-                              //_showCityPickerDialog();
-                              _showCityPickerDialog();
-                            },
-                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                  child: Column(
+                                    children: [
+                                      if (chosenCity.id == '') CityElementInEditScreen(
+                                        cityName: 'Город не выбран',
+                                        onActionPressed: () {
+                                          //_showCityPickerDialog();
+                                          _showCityPickerDialog();
+                                        },
+                                      ),
 
-                          const SizedBox(height: 16.0),
-
-                          if (chosenCategory.id == '') CategoryElementInEditScreen(
-                            categoryName: 'Категория не выбрана',
-                            onActionPressed: () {
-                              //_showCityPickerDialog();
-                              _showCategoryPickerDialog();
-                            },
-                          ),
-
-                          if (chosenCategory.id != "") CategoryElementInEditScreen(
-                            categoryName: chosenCategory.name,
-                            onActionPressed: () {
-                              //_showCityPickerDialog();
-                              _showCategoryPickerDialog();
-                            },
-                          ),
-
-                          const SizedBox(height: 16.0),
-
-                          if (selectedStartDatePeriod == DateTime(2100))
-                            DataPickerCustom(
-                              onActionPressed: (){
-                                DateTime temp = DateTime.now();
-                                setState(() {
-                                  selectedStartDatePeriod = temp;
-                                  //selectedEndDatePeriod = temp;
-                                });
-                                _selectDate(context, selectedStartDatePeriod, needClearInitialDate: true, isStart: true, endDate: selectedEndDatePeriod);
-                              },
-                              date: 'Дата начала не выбрана',
-                              labelText: 'Начало периода',
-                            )
-
-                          else DataPickerCustom(
-                              onActionPressed: (){
-                                _selectDate(context, selectedStartDatePeriod, needClearInitialDate: false, isStart: true, endDate: selectedEndDatePeriod);
-
-                              },
-                              date: getHumanDate('${selectedStartDatePeriod.year}-${selectedStartDatePeriod.month}-${selectedStartDatePeriod.day}', '-'),
-                              labelText: 'Начало периода'
+                                      if (chosenCity.id != "") CityElementInEditScreen(
+                                        cityName: chosenCity.name,
+                                        onActionPressed: () {
+                                          //_showCityPickerDialog();
+                                          _showCityPickerDialog();
+                                        },
+                                      ),
+                                    ],
+                                  )
+                              ),
+                              if (chosenCity.id != '') Card(
+                                color: AppColors.attentionRed,
+                                child: IconButton(
+                                  onPressed: (){
+                                    setState(() {
+                                      chosenCity = City(name: '', id: '');
+                                    });
+                                  },
+                                  icon: Icon(
+                                    Icons.close,
+                                    color: AppColors.greyOnBackground,
+                                  ),
+                                ),
+                              )
+                            ],
                           ),
 
                           const SizedBox(height: 16.0),
 
-                          if (selectedEndDatePeriod == DateTime(2100))
-                            DataPickerCustom(
-                              onActionPressed: (){
+                          Row(
+                            children: [
+                              Expanded(
+                                  child: Column(
+                                    children: [
+                                      if (chosenCategory.id == '') CategoryElementInEditScreen(
+                                        categoryName: 'Категория не выбрана',
+                                        onActionPressed: () {
+                                          //_showCityPickerDialog();
+                                          _showCategoryPickerDialog();
+                                        },
+                                      ),
 
-
-                                setState(() {
-                                  if (selectedStartDatePeriod == DateTime(2100)){
-                                    selectedStartDatePeriod = DateTime.now();
-                                  }
-
-                                  DateTime temp = selectedStartDatePeriod;
-
-                                  selectedEndDatePeriod = temp;
-                                });
-                                _selectDate(context, selectedEndDatePeriod, needClearInitialDate: false, isStart: false, firstDate: selectedStartDatePeriod);
-                              },
-                              date: 'Дата предела периода не выбрана',
-                              labelText: 'Конец периода',
-                            )
-
-                          else DataPickerCustom(
-                              onActionPressed: (){
-                                _selectDate(context, selectedEndDatePeriod, needClearInitialDate: false, isStart: false, firstDate: selectedStartDatePeriod);
-                              },
-                              date: getHumanDate('${selectedEndDatePeriod.year}-${selectedEndDatePeriod.month}-${selectedEndDatePeriod.day}', '-'),
-                              labelText: 'Конец периода'
+                                      if (chosenCategory.id != "") CategoryElementInEditScreen(
+                                        categoryName: chosenCategory.name,
+                                        onActionPressed: () {
+                                          //_showCityPickerDialog();
+                                          _showCategoryPickerDialog();
+                                        },
+                                      ),
+                                    ],
+                                  )
+                              ),
+                              if (chosenCategory.id != '') Card(
+                                color: AppColors.attentionRed,
+                                child: IconButton(
+                                  onPressed: (){
+                                    setState(() {
+                                      chosenCategory = EventCategory(name: '', id: '');
+                                    });
+                                  },
+                                  icon: Icon(
+                                    Icons.close,
+                                    color: AppColors.greyOnBackground,
+                                  ),
+                                ),
+                              )
+                            ],
                           ),
 
+
+
                           const SizedBox(height: 16.0),
+
+                          //Text('Фильтр по датам', style: Theme.of(context).textTheme.titleMedium,),
+                          //Text('Выбери интересующие даты чтобы отобразить мероприятия, проводимые в заданный временной промежуток:', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.greyText),),
+
+                          //SizedBox(height: 20,),
+
+                          Row(
+                            children: [
+                              Expanded(
+                                  child: Column(
+                                    children: [
+                                      if (selectedStartDatePeriod == DateTime(2100))
+                                        DataPickerCustom(
+                                          onActionPressed: (){
+                                            DateTime temp = DateTime.now();
+                                            setState(() {
+                                              selectedStartDatePeriod = temp;
+                                              //selectedEndDatePeriod = temp;
+                                            });
+                                            _selectDate(context, selectedStartDatePeriod, needClearInitialDate: true, isStart: true, endDate: selectedEndDatePeriod);
+                                          },
+                                          date: 'Не выбрано',
+                                          labelText: 'Период проведения: Начальная дата',
+                                        )
+
+                                      else DataPickerCustom(
+                                          onActionPressed: (){
+                                            _selectDate(context, selectedStartDatePeriod, needClearInitialDate: false, isStart: true, endDate: selectedEndDatePeriod);
+
+                                          },
+                                          date: getHumanDate('${selectedStartDatePeriod.year}-${selectedStartDatePeriod.month}-${selectedStartDatePeriod.day}', '-'),
+                                          labelText: 'Период проведения: Начальная дата'
+                                      ),
+                                    ],
+                                  )
+                              ),
+                              if (selectedStartDatePeriod != DateTime(2100)) Card(
+                                color: AppColors.attentionRed,
+                                child: IconButton(
+                                  onPressed: (){
+                                    setState(() {
+                                      selectedStartDatePeriod = DateTime(2100);
+                                    });
+                                  },
+                                  icon: Icon(
+                                    Icons.close,
+                                    color: AppColors.greyOnBackground,
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+
+
+
+                          const SizedBox(height: 16.0),
+
+                          Row(
+                            children: [
+                              Expanded(
+                                  child: Column(
+                                    children: [
+                                      if (selectedEndDatePeriod == DateTime(2100))
+                                        DataPickerCustom(
+                                          onActionPressed: (){
+
+
+                                            setState(() {
+                                              if (selectedStartDatePeriod == DateTime(2100)){
+                                                selectedStartDatePeriod = DateTime.now();
+                                              }
+
+                                              DateTime temp = selectedStartDatePeriod;
+
+                                              selectedEndDatePeriod = temp;
+                                            });
+                                            _selectDate(context, selectedEndDatePeriod, needClearInitialDate: false, isStart: false, firstDate: selectedStartDatePeriod);
+                                          },
+                                          date: 'Не выбрано',
+                                          labelText: 'Период проведения: Конечная дата',
+                                        )
+
+                                      else DataPickerCustom(
+                                          onActionPressed: (){
+                                            _selectDate(context, selectedEndDatePeriod, needClearInitialDate: false, isStart: false, firstDate: selectedStartDatePeriod);
+                                          },
+                                          date: getHumanDate('${selectedEndDatePeriod.year}-${selectedEndDatePeriod.month}-${selectedEndDatePeriod.day}', '-'),
+                                          labelText: 'Период проведения: Конечная дата'
+                                      ),
+                                    ],
+                                  )
+                              ),
+                              if (selectedEndDatePeriod != DateTime(2100)) Card(
+                                color: AppColors.attentionRed,
+                                child: IconButton(
+                                  onPressed: (){
+                                    setState(() {
+                                      selectedEndDatePeriod = DateTime(2100);
+                                    });
+                                  },
+                                  icon: Icon(
+                                    Icons.close,
+                                    color: AppColors.greyOnBackground,
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+
+
+
+                          const SizedBox(height: 16),
+
+                          //Text('Дополнительные настройки', style: Theme.of(context).textTheme.titleMedium,),
+                          //Text('Выбери интересующие даты чтобы отобразить мероприятия, проводимые в заданный временной промежуток:', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.greyText),),
+
+                          //const SizedBox(height: 10),
 
                           Row(
                             children: [
@@ -260,41 +391,63 @@ class _EventFilterPageState extends State<EventFilterPage> {
                               Text(
                                 'Только мероприятия от заведений',
                                 style: Theme.of(context).textTheme.bodyMedium,
-                              )
+                              ),
+
+
 
                             ],
                           ),
+
+                          //const SizedBox(height: 30.0),
+
                         ],
                       ),
                     ),
                   )
               ),
-              //const SizedBox(height: 20.0),
+              //const SizedBox(height: 16.0),
 
-              CustomButton(
-                buttonText: 'Применить фильтр',
-                onTapMethod: (){
-                  List<dynamic> arguments = [chosenCity, chosenCategory, freePrice, today, onlyFromPlaceEvents, selectedStartDatePeriod, selectedEndDatePeriod];
-                  Navigator.of(context).pop(arguments);
-                },
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  CustomButton(
+                    buttonText: 'Применить фильтр',
+                    onTapMethod: (){
+                      if (selectedEndDatePeriod == DateTime(2100) && selectedStartDatePeriod != DateTime(2100)){
+                        setState(() {
+                          selectedEndDatePeriod = selectedStartDatePeriod;
+                        });
+                      } else if (selectedStartDatePeriod == DateTime(2100) && selectedEndDatePeriod != DateTime(2100)){
+                        setState(() {
+                          selectedStartDatePeriod = selectedEndDatePeriod;
+                        });
+                      }
+                      List<dynamic> arguments = [chosenCity, chosenCategory, freePrice, today, onlyFromPlaceEvents, selectedStartDatePeriod, selectedEndDatePeriod];
+                      Navigator.of(context).pop(arguments);
+                    },
+                  ),
+
+                  const SizedBox(width: 10.0),
+
+                  Expanded(
+                    child: CustomButton(
+                      buttonText: 'Отменить',
+                      state: 'secondary',
+                      onTapMethod: (){
+                        setState(() {
+                          Navigator.of(context).pop();
+                        });
+                      },
+                    ),
+                  )
+
+                ],
               ),
 
-              const SizedBox(height: 20.0),
+              /*const SizedBox(height: 20.0),
 
               CustomButton(
-                buttonText: 'Выйти из фильтра',
-                state: 'secondary',
-                onTapMethod: (){
-                  setState(() {
-                    Navigator.of(context).pop();
-                  });
-                },
-              ),
-
-              const SizedBox(height: 50.0),
-
-              CustomButton(
-                buttonText: 'Очистить фильтр',
+                buttonText: 'Очистить',
                 state: 'error',
                 onTapMethod: (){
                   setState(() {
@@ -307,7 +460,10 @@ class _EventFilterPageState extends State<EventFilterPage> {
                     selectedEndDatePeriod = DateTime(2100);
                   });
                 },
-              ),
+              ),*/
+
+              const SizedBox(height: 16.0),
+
             ],
           ),
         ),

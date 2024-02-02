@@ -3,7 +3,7 @@ import 'package:dvij_flutter/classes/gender_class.dart';
 import 'package:dvij_flutter/classes/place_category_class.dart';
 import 'package:dvij_flutter/classes/place_class.dart';
 import 'package:dvij_flutter/classes/place_role_class.dart';
-import 'package:dvij_flutter/elements/data_picker.dart';
+import 'package:dvij_flutter/elements/date_elements/data_picker.dart';
 import 'package:dvij_flutter/elements/genders_elements/gender_element_in_edit_screen.dart';
 import 'package:dvij_flutter/elements/genders_elements/gender_picker_page.dart';
 import 'package:dvij_flutter/elements/category_element_in_edit_screen.dart';
