@@ -2,6 +2,7 @@ import 'package:dvij_flutter/classes/event_category_class.dart';
 import 'package:dvij_flutter/classes/place_category_class.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/elements/category_element_in_edit_screen.dart';
+import 'package:dvij_flutter/elements/checkbox_with_desc.dart';
 import 'package:dvij_flutter/elements/date_elements/period_date_picker.dart';
 import 'package:dvij_flutter/elements/events_elements/event_category_picker_page.dart';
 import 'package:dvij_flutter/elements/filter_elements/clear_item_widget.dart';
@@ -42,33 +43,47 @@ class EventFilterPage extends StatefulWidget {
   _EventFilterPageState createState() => _EventFilterPageState();
 }
 
+// -- Виджет отображения фильтра в мероприятиях ---
+
 class _EventFilterPageState extends State<EventFilterPage> {
+
+  // ---- Объявляем переменные ----
 
   List<EventCategory> categories = [];
   EventCategory chosenCategory = EventCategory(name: '', id: '');
+
   City chosenCity = City(name: '', id: '');
   List<City> _cities = [];
 
   bool freePrice = false;
   bool today = false;
   bool onlyFromPlaceEvents = false;
+
   DateTime selectedStartDatePeriod = DateTime(2100);
   DateTime selectedEndDatePeriod = DateTime(2100);
-  //EventSortingOption _selectedSortingOption = EventSortingOption.nameAsc;
 
   @override
   void initState() {
     super.initState();
-    categories = List.from(widget.categories);
+
+    // ---- Инициализируем переменные ----
+
     _cities = City.currentCityList;
     chosenCity = widget.chosenCity;
+
+    categories = List.from(widget.categories);
     chosenCategory = widget.chosenCategory;
+
     freePrice = widget.freePrice;
     today = widget.today;
     onlyFromPlaceEvents = widget.onlyFromPlaceEvents;
+
     selectedStartDatePeriod = widget.selectedStartDatePeriod;
     selectedEndDatePeriod = widget.selectedEndDatePeriod;
+
   }
+
+  // ---- САМ ЭКРАН ФИЛЬТРА -----
 
   @override
   Widget build(BuildContext context) {
@@ -87,6 +102,7 @@ class _EventFilterPageState extends State<EventFilterPage> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // ---- Заголовок фильтра и иконка ---
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,6 +113,9 @@ class _EventFilterPageState extends State<EventFilterPage> {
                           child: Column (
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+
+                              // ---- Заголовок -----
+
                               Text(
                                 'Фильтр и сортировка:',
                                 style: Theme.of(context).textTheme.displayMedium,
@@ -111,6 +130,9 @@ class _EventFilterPageState extends State<EventFilterPage> {
                           )
                       )
                   ),
+
+                  // --- Иконка ----
+
                   IconButton(
                     icon: const Icon(Icons.close),
                     onPressed: () {
@@ -119,12 +141,15 @@ class _EventFilterPageState extends State<EventFilterPage> {
                   ),
                 ],
               ),
+
               SizedBox(height: 8.0),
+
+              // ---- Содержимое фильтра -----
+
               Expanded(
                   child: SingleChildScrollView (
                     child: Container (
                       padding: EdgeInsets.all(15),
-                      //color: AppColors.greyOnBackground,
                       decoration: BoxDecoration(
                         color: AppColors.greyBackground,
                         borderRadius: BorderRadius.circular(8.0),
@@ -133,14 +158,11 @@ class _EventFilterPageState extends State<EventFilterPage> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+
                           const SizedBox(height: 16.0),
 
-                          //Text('Фильтр по городу и категории:', style: Theme.of(context).textTheme.titleMedium,),
-                          //Text('Укажи эти настройки чтобы отобразить только нужные мероприятия', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.greyText),),
+                          // ---- Город ----
 
-                          //SizedBox(height: 20,),
-
-                          //// ЗДЕСЬ ДЕЛАЮ /////
                           ClearItemWidget(
                               showButton: chosenCity.id != '' ? true : false,
                               widget: CityElementInEditScreen(
@@ -158,6 +180,8 @@ class _EventFilterPageState extends State<EventFilterPage> {
                           ),
 
                           const SizedBox(height: 16.0),
+
+                          // --- Категория ------
 
                           ClearItemWidget(
                               showButton: chosenCategory.id != '' ? true : false,
@@ -177,187 +201,112 @@ class _EventFilterPageState extends State<EventFilterPage> {
 
                           const SizedBox(height: 16.0),
 
-                          //Text('Фильтр по датам', style: Theme.of(context).textTheme.titleMedium,),
-                          //Text('Выбери интересующие даты чтобы отобразить мероприятия, проводимые в заданный временной промежуток:', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.greyText),),
+                          // ---- Начало периода по датам ----
 
-                          //SizedBox(height: 20,),
+                          ClearItemWidget(
+                              showButton: selectedStartDatePeriod != DateTime(2100) ? true : false,
+                              widget: DataPickerCustom(
+                                onActionPressed: (){
 
-                          Row(
-                            children: [
-                              Expanded(
-                                  child: Column(
-                                    children: [
-                                      if (selectedStartDatePeriod == DateTime(2100))
-                                        DataPickerCustom(
-                                          onActionPressed: (){
-                                            DateTime temp = DateTime.now();
-                                            setState(() {
-                                              selectedStartDatePeriod = temp;
-                                              //selectedEndDatePeriod = temp;
-                                            });
-                                            _selectDate(context, selectedStartDatePeriod, needClearInitialDate: true, isStart: true, endDate: selectedEndDatePeriod);
-                                          },
-                                          date: 'Не выбрано',
-                                          labelText: 'Период проведения: Начальная дата',
-                                        )
-
-                                      else DataPickerCustom(
-                                          onActionPressed: (){
-                                            _selectDate(context, selectedStartDatePeriod, needClearInitialDate: false, isStart: true, endDate: selectedEndDatePeriod);
-
-                                          },
-                                          date: getHumanDate('${selectedStartDatePeriod.year}-${selectedStartDatePeriod.month}-${selectedStartDatePeriod.day}', '-'),
-                                          labelText: 'Период проведения: Начальная дата'
-                                      ),
-                                    ],
-                                  )
-                              ),
-                              if (selectedStartDatePeriod != DateTime(2100)) Card(
-                                color: AppColors.attentionRed,
-                                child: IconButton(
-                                  onPressed: (){
+                                  if (selectedStartDatePeriod == DateTime(2100)){
+                                    DateTime temp = DateTime.now();
                                     setState(() {
-                                      selectedStartDatePeriod = DateTime(2100);
+                                      selectedStartDatePeriod = temp;
                                     });
-                                  },
-                                  icon: Icon(
-                                    Icons.close,
-                                    color: AppColors.greyOnBackground,
-                                  ),
-                                ),
-                              )
-                            ],
+                                  }
+                                  _selectDate(
+                                      context,
+                                      selectedStartDatePeriod,
+                                      needClearInitialDate: selectedStartDatePeriod != DateTime(2100) ? true : false,
+                                      isStart: true,
+                                      endDate: selectedEndDatePeriod
+                                  );
+
+                                },
+                                date: selectedStartDatePeriod != DateTime(2100) ?
+                                getHumanDate('${selectedStartDatePeriod.year}-${selectedStartDatePeriod.month}-${selectedStartDatePeriod.day}', '-')
+                                    : 'Не выбрано',
+                                labelText: 'Период проведения: Начальная дата',
+                              ),
+                              onButtonPressed: (){
+                                setState(() {
+                                  selectedStartDatePeriod = DateTime(2100);
+                                });
+                              }
                           ),
-
-
 
                           const SizedBox(height: 16.0),
 
-                          Row(
-                            children: [
-                              Expanded(
-                                  child: Column(
-                                    children: [
-                                      if (selectedEndDatePeriod == DateTime(2100))
-                                        DataPickerCustom(
-                                          onActionPressed: (){
+                          // --- Конечная дата поиска ----
 
+                          ClearItemWidget(
+                              showButton: selectedEndDatePeriod != DateTime(2100) ? true : false,
+                              widget: DataPickerCustom(
+                                onActionPressed: (){
+                                  setState(() {
 
-                                            setState(() {
-                                              if (selectedStartDatePeriod == DateTime(2100)){
-                                                selectedStartDatePeriod = DateTime.now();
-                                              }
-
-                                              DateTime temp = selectedStartDatePeriod;
-
-                                              selectedEndDatePeriod = temp;
-                                            });
-                                            _selectDate(context, selectedEndDatePeriod, needClearInitialDate: false, isStart: false, firstDate: selectedStartDatePeriod);
-                                          },
-                                          date: 'Не выбрано',
-                                          labelText: 'Период проведения: Конечная дата',
-                                        )
-
-                                      else DataPickerCustom(
-                                          onActionPressed: (){
-                                            _selectDate(context, selectedEndDatePeriod, needClearInitialDate: false, isStart: false, firstDate: selectedStartDatePeriod);
-                                          },
-                                          date: getHumanDate('${selectedEndDatePeriod.year}-${selectedEndDatePeriod.month}-${selectedEndDatePeriod.day}', '-'),
-                                          labelText: 'Период проведения: Конечная дата'
-                                      ),
-                                    ],
-                                  )
+                                    if(selectedEndDatePeriod == DateTime(2100) ){
+                                      if (selectedStartDatePeriod == DateTime(2100)){
+                                        selectedStartDatePeriod = DateTime.now();
+                                      }
+                                      DateTime temp = selectedStartDatePeriod;
+                                      selectedEndDatePeriod = temp;
+                                    }
+                                  });
+                                  _selectDate(context, selectedEndDatePeriod, needClearInitialDate: false, isStart: false, firstDate: selectedStartDatePeriod);
+                                },
+                                date: selectedEndDatePeriod != DateTime(2100) ?
+                                    getHumanDate('${selectedEndDatePeriod.year}-${selectedEndDatePeriod.month}-${selectedEndDatePeriod.day}', '-')
+                                    : 'Не выбрано',
+                                labelText: 'Период проведения: Конечная дата',
                               ),
-                              if (selectedEndDatePeriod != DateTime(2100)) Card(
-                                color: AppColors.attentionRed,
-                                child: IconButton(
-                                  onPressed: (){
-                                    setState(() {
-                                      selectedEndDatePeriod = DateTime(2100);
-                                    });
-                                  },
-                                  icon: Icon(
-                                    Icons.close,
-                                    color: AppColors.greyOnBackground,
-                                  ),
-                                ),
-                              )
-                            ],
+                              onButtonPressed: (){
+                                setState(() {
+                                  selectedEndDatePeriod = DateTime(2100);
+                                });
+                              }
                           ),
-
-
 
                           const SizedBox(height: 16),
 
-                          //Text('Дополнительные настройки', style: Theme.of(context).textTheme.titleMedium,),
-                          //Text('Выбери интересующие даты чтобы отобразить мероприятия, проводимые в заданный временной промежуток:', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.greyText),),
+                          // --- Чек бокс бесплатные ----
 
-                          //const SizedBox(height: 10),
-
-                          Row(
-                            children: [
-
-                              Checkbox(
-                                value: freePrice,
-                                onChanged: (value) {
-                                  toggleCheckBox('freePrice');
-                                },
-                              ),
-                              // ---- Надпись у чекбокса -----
-                              Text(
-                                'Только бесплатные',
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              )
-
-                            ],
+                          CheckboxWithText(
+                              value: freePrice,
+                              label: 'Только бесплатные',
+                              description: '',
+                              onChanged: (value) {
+                                toggleCheckBox('freePrice');
+                              }
                           ),
 
-                          Row(
-                            children: [
+                          // --- Чек бокс сегодня ----
 
-                              Checkbox(
-                                value: today,
-                                onChanged: (value) {
-                                  toggleCheckBox('today');
-                                },
-                              ),
-                              // ---- Надпись у чекбокса -----
-                              Text(
-                                'Состоится сегодня',
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              )
-
-                            ],
+                          CheckboxWithText(
+                              value: today,
+                              label: 'Проводится сегодня',
+                              description: '',
+                              onChanged: (value) {
+                                toggleCheckBox('today');
+                              }
                           ),
 
-                          Row(
-                            children: [
-
-                              Checkbox(
-                                value: onlyFromPlaceEvents,
-                                onChanged: (value) {
-                                  toggleCheckBox('onlyFromPlaceEvents');
-                                },
-                              ),
-                              // ---- Надпись у чекбокса -----
-                              Text(
-                                'Только мероприятия от заведений',
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-
-
-
-                            ],
+                          // ---- Чек бокс только в заведении -----
+                          CheckboxWithText(
+                              value: onlyFromPlaceEvents,
+                              label: 'Проходит в заведении',
+                              description: '',
+                              onChanged: (value) {
+                                toggleCheckBox('onlyFromPlaceEvents');
+                              }
                           ),
-
-                          //const SizedBox(height: 30.0),
-
                         ],
                       ),
                     ),
                   )
               ),
-              //const SizedBox(height: 16.0),
+
+              // ---- Кнопки ПРИМЕНИТЬ / Отменить ---
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -365,15 +314,20 @@ class _EventFilterPageState extends State<EventFilterPage> {
                   CustomButton(
                     buttonText: 'Применить фильтр',
                     onTapMethod: (){
+
                       if (selectedEndDatePeriod == DateTime(2100) && selectedStartDatePeriod != DateTime(2100)){
+                        // --- Если выбрана начальная дата, а конечная не выбрана
+                        // --- Ставим в качестве начальной даты конечную
                         setState(() {
                           selectedEndDatePeriod = selectedStartDatePeriod;
                         });
                       } else if (selectedStartDatePeriod == DateTime(2100) && selectedEndDatePeriod != DateTime(2100)){
+                        // --- Если наоборот, по аналогии на стартовую дату ставим конечную
                         setState(() {
                           selectedStartDatePeriod = selectedEndDatePeriod;
                         });
                       }
+                      // ---- Возвращаем результаты фильтра на предыдущую страницу ----
                       List<dynamic> arguments = [chosenCity, chosenCategory, freePrice, today, onlyFromPlaceEvents, selectedStartDatePeriod, selectedEndDatePeriod];
                       Navigator.of(context).pop(arguments);
                     },
@@ -387,6 +341,7 @@ class _EventFilterPageState extends State<EventFilterPage> {
                       state: 'secondary',
                       onTapMethod: (){
                         setState(() {
+                          // --- При отмене просто уходим, без аргументов
                           Navigator.of(context).pop();
                         });
                       },
@@ -395,24 +350,6 @@ class _EventFilterPageState extends State<EventFilterPage> {
 
                 ],
               ),
-
-              /*const SizedBox(height: 20.0),
-
-              CustomButton(
-                buttonText: 'Очистить',
-                state: 'error',
-                onTapMethod: (){
-                  setState(() {
-                    chosenCategory = EventCategory(name: '', id: '');
-                    chosenCity = City(name: '', id: '');
-                    freePrice = false;
-                    onlyFromPlaceEvents = false;
-                    today = false;
-                    selectedStartDatePeriod  = DateTime(2100);
-                    selectedEndDatePeriod = DateTime(2100);
-                  });
-                },
-              ),*/
 
               const SizedBox(height: 16.0),
 
@@ -424,6 +361,10 @@ class _EventFilterPageState extends State<EventFilterPage> {
   }
 
   void toggleCheckBox(String checkBoxName) {
+
+    // --- Функция переключения чек-боксов
+    // --- В зависимости от ключевого слова
+
     setState(() {
       switch (checkBoxName){
         case 'freePrice': {
@@ -477,7 +418,6 @@ class _EventFilterPageState extends State<EventFilterPage> {
       setState(() {
         chosenCity = selectedCity;
       });
-      print("Selected city: ${selectedCity.name}, ID: ${selectedCity.id}");
     }
   }
 

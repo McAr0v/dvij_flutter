@@ -1,6 +1,8 @@
 import 'package:dvij_flutter/classes/place_category_class.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/elements/category_element_in_edit_screen.dart';
+import 'package:dvij_flutter/elements/checkbox_with_desc.dart';
+import 'package:dvij_flutter/elements/filter_elements/clear_item_widget.dart';
 import 'package:dvij_flutter/elements/places_elements/place_category_picker_page.dart';
 import 'package:flutter/material.dart';
 import '../../classes/city_class.dart';
@@ -30,21 +32,28 @@ class PlaceFilterPage extends StatefulWidget {
   _PlaceFilterPageState createState() => _PlaceFilterPageState();
 }
 
+// ---- Виджет фильтра заведений ----
+
 class _PlaceFilterPageState extends State<PlaceFilterPage> {
+
+  // ---- Объявляем переменные ---
 
   List<PlaceCategory> categories = [];
   PlaceCategory chosenCategory = PlaceCategory(name: '', id: '');
+
   City chosenCity = City(name: '', id: '');
   List<City> _cities = [];
 
   bool nowIsOpen = false;
   bool haveEvents = false;
   bool havePromos = false;
-  PlaceSortingOption _selectedSortingOption = PlaceSortingOption.nameAsc;
 
   @override
   void initState() {
     super.initState();
+
+    // --- Инициализируем переменные ----
+
     categories = List.from(widget.categories);
     _cities = City.currentCityList;
     chosenCity = widget.chosenCity;
@@ -71,16 +80,38 @@ class _PlaceFilterPageState extends State<PlaceFilterPage> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+
+              // ---- Заголовок и кнопка закрыть ----
+
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      'Фильтр и сортировка:',
-                      style: Theme.of(context).textTheme.displayMedium,
-                    ),
+                  Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column (
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+
+                            // --- Заголовок -----
+
+                            Text(
+                              'Фильтр и сортировка:',
+                              style: Theme.of(context).textTheme.displayMedium,
+                            ),
+                            SizedBox(height: 5,),
+                            Text(
+                              'Для наиболее точного поиска укажи все возможные элементы фильтра',
+                              style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.greyText),
+                              softWrap: true,
+                            ),
+                          ],
+                        )
+                      ),
                   ),
+
+                  // --- Кнопка закрыть ---
+
                   IconButton(
                     icon: const Icon(Icons.close),
                     onPressed: () {
@@ -89,12 +120,15 @@ class _PlaceFilterPageState extends State<PlaceFilterPage> {
                   ),
                 ],
               ),
+
               SizedBox(height: 8.0),
+
+              // --- Содержимое фильтра ----
+
               Expanded(
                   child: SingleChildScrollView (
                     child: Container (
                       padding: EdgeInsets.all(15),
-                      //color: AppColors.greyOnBackground,
                       decoration: BoxDecoration(
                         color: AppColors.greyBackground,
                         borderRadius: BorderRadius.circular(8.0),
@@ -102,138 +136,126 @@ class _PlaceFilterPageState extends State<PlaceFilterPage> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          const SizedBox(height: 16.0),
-
-                          if (chosenCity.id == '') CityElementInEditScreen(
-                            cityName: 'Город не выбран',
-                            onActionPressed: () {
-                              //_showCityPickerDialog();
-                              _showCityPickerDialog();
-                            },
-                          ),
-
-                          if (chosenCity.id != "") CityElementInEditScreen(
-                            cityName: chosenCity.name,
-                            onActionPressed: () {
-                              //_showCityPickerDialog();
-                              _showCityPickerDialog();
-                            },
-                          ),
 
                           const SizedBox(height: 16.0),
 
-                          if (chosenCategory.id == '') CategoryElementInEditScreen(
-                            categoryName: 'Категория не выбрана',
-                            onActionPressed: () {
-                              //_showCityPickerDialog();
-                              _showCategoryPickerDialog();
-                            },
-                          ),
+                          // ---- Город ----
 
-                          if (chosenCategory.id != "") CategoryElementInEditScreen(
-                            categoryName: chosenCategory.name,
-                            onActionPressed: () {
-                              //_showCityPickerDialog();
-                              _showCategoryPickerDialog();
-                            },
+                          ClearItemWidget(
+                              showButton: chosenCity.id != '' ? true : false,
+                              widget: CityElementInEditScreen(
+                                cityName: chosenCity.id != '' ? chosenCity.name : 'Город не выбран',
+                                onActionPressed: () {
+                                  _showCityPickerDialog();
+                                },
+                              ),
+                              onButtonPressed: (){
+                                setState(() {
+                                  chosenCity = City(name: '', id: '');
+                                });
+                              }
                           ),
 
                           const SizedBox(height: 16.0),
 
-                          Row(
-                            children: [
+                          // --- Категория ----
 
-                              Checkbox(
-                                value: nowIsOpen,
-                                onChanged: (value) {
-                                  toggleCheckBox('nowIsOpen');
+                          ClearItemWidget(
+                              showButton: chosenCategory.id != '' ? true : false,
+                              widget: CategoryElementInEditScreen(
+                                categoryName: chosenCategory.id != '' ? chosenCategory.name : 'Категория не выбрана',
+                                onActionPressed: () {
+                                  //_showCityPickerDialog();
+                                  _showCategoryPickerDialog();
                                 },
                               ),
-                              // ---- Надпись у чекбокса -----
-                              Text(
-                                'Сейчас открыто',
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              )
-
-                            ],
+                              onButtonPressed: (){
+                                setState(() {
+                                  chosenCategory = PlaceCategory(name: '', id: '');
+                                });
+                              }
                           ),
 
-                          Row(
-                            children: [
+                          const SizedBox(height: 16.0),
 
-                              Checkbox(
-                                value: haveEvents,
-                                onChanged: (value) {
-                                  toggleCheckBox('haveEvents');
-                                },
-                              ),
-                              // ---- Надпись у чекбокса -----
-                              Text(
-                                'Есть мероприятия',
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              )
-
-                            ],
+                          CheckboxWithText(
+                              value: nowIsOpen,
+                              label: 'Сейчас открыто',
+                              description: 'Показать заведения, которые работают в данный момент',
+                              onChanged: (value) {
+                                toggleCheckBox('nowIsOpen');
+                              },
+                            verticalPadding: 10,
                           ),
 
-                          Row(
-                            children: [
+                          CheckboxWithText(
+                            value: haveEvents,
+                            label: 'Есть мероприятия',
+                            description: 'Показать заведения, в которых проходит хотя бы одно мероприятие',
+                            onChanged: (value) {
+                              toggleCheckBox('haveEvents');
+                            },
+                            verticalPadding: 10,
+                          ),
 
-                              Checkbox(
-                                value: havePromos,
-                                onChanged: (value) {
-                                  toggleCheckBox('havePromos');
-                                },
-                              ),
-                              // ---- Надпись у чекбокса -----
-                              Text(
-                                'Есть акции',
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              )
+                          CheckboxWithText(
+                            value: havePromos,
+                            label: 'Есть акции',
+                            description: 'Показать заведения, в которых проходит хотя бы одна акция',
+                            onChanged: (value) {
+                              toggleCheckBox('havePromos');
+                            },
+                            verticalPadding: 10,
+                          ),
 
-                            ],
+                          SizedBox(height: 50,),
+
+                          CustomButton(
+                            buttonText: 'Очистить фильтр',
+                            state: 'error',
+                            onTapMethod: (){
+                              setState(() {
+                                chosenCategory = PlaceCategory(name: '', id: '');
+                                chosenCity = City(name: '', id: '');
+                                nowIsOpen = false;
+                                havePromos = false;
+                                haveEvents = false;
+                              });
+                            },
                           ),
                         ],
                       ),
                     ),
                   )
               ),
-              //const SizedBox(height: 20.0),
 
-              CustomButton(
-                buttonText: 'Применить фильтр',
-                onTapMethod: (){
-                  List<dynamic> arguments = [chosenCity, chosenCategory, nowIsOpen, haveEvents, havePromos];
-                  Navigator.of(context).pop(arguments);
-                },
-              ),
+              // --- Кнопки Применить / Отменить ----
 
-              const SizedBox(height: 20.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  CustomButton(
+                    buttonText: 'Применить фильтр',
+                    onTapMethod: (){
+                      List<dynamic> arguments = [chosenCity, chosenCategory, nowIsOpen, haveEvents, havePromos];
+                      Navigator.of(context).pop(arguments);
+                    },
+                  ),
 
-              CustomButton(
-                buttonText: 'Выйти из фильтра',
-                state: 'secondary',
-                onTapMethod: (){
-                  setState(() {
-                    Navigator.of(context).pop();
-                  });
-                },
-              ),
+                  const SizedBox(width: 10.0),
 
-              const SizedBox(height: 50.0),
-
-              CustomButton(
-                buttonText: 'Очистить фильтр',
-                state: 'error',
-                onTapMethod: (){
-                  setState(() {
-                    chosenCategory = PlaceCategory(name: '', id: '');
-                    chosenCity = City(name: '', id: '');
-                    nowIsOpen = false;
-                    havePromos = false;
-                    haveEvents = false;
-                  });
-                },
+                  Expanded(
+                    child: CustomButton(
+                      buttonText: 'Выйти из фильтра',
+                      state: 'secondary',
+                      onTapMethod: (){
+                        setState(() {
+                          Navigator.of(context).pop();
+                        });
+                      },
+                    ),
+                  )
+                ],
               ),
             ],
           ),

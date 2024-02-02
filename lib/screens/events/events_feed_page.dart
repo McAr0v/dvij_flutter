@@ -1,22 +1,16 @@
 import 'package:dvij_flutter/classes/city_class.dart';
 import 'package:dvij_flutter/classes/event_category_class.dart';
 import 'package:dvij_flutter/classes/event_sorting_options.dart';
-import 'package:dvij_flutter/classes/place_category_class.dart';
-import 'package:dvij_flutter/classes/place_class.dart';
 import 'package:dvij_flutter/elements/events_elements/event_filter_page.dart';
-import 'package:dvij_flutter/elements/places_elements/place_card_widget.dart';
-import 'package:dvij_flutter/elements/places_elements/place_filter_page.dart';
 import 'package:dvij_flutter/screens/events/event_view_screen.dart';
-import 'package:dvij_flutter/screens/places/place_view_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../classes/event_class.dart';
-import '../../classes/place_sorting_options.dart';
 import '../../classes/user_class.dart';
-import '../../elements/custom_snack_bar.dart';
 import '../../elements/events_elements/event_card_widget.dart';
 import '../../elements/loading_screen.dart';
+import '../../elements/snack_bar.dart';
 
 
 // ---- ЭКРАН ЛЕНТЫ ЗАВЕДЕНИЙ ------
@@ -31,31 +25,36 @@ class EventsFeedPage extends StatefulWidget {
 
 
 class _EventsFeedPageState extends State<EventsFeedPage> {
-  late List<EventCustom> eventsList; // Список мест
-  late List<EventCategory> eventCategoriesList; // Список категорий мест
+
+  // --- ОБЪЯВЛЯЕМ ПЕРЕМЕННЫЕ -----
+
+  late List<EventCustom> eventsList;
+  late List<EventCategory> eventCategoriesList;
 
   // --- Переменные фильтра по умолчанию ----
 
   EventCategory eventCategoryFromFilter = EventCategory(name: '', id: '');
   City cityFromFilter = City(name: '', id: '');
+
   bool freePrice = false;
   bool today = false;
   bool onlyFromPlaceEvents = false;
+
   DateTime selectedStartDatePeriod = DateTime(2100);
   DateTime selectedEndDatePeriod = DateTime(2100);
+
+  // --- Счетчик выбранных значений фильтра ---
+
+  int filterCount = 0;
 
   // --- Переменная сортировки по умолчанию ----
 
   EventSortingOption _selectedSortingOption = EventSortingOption.nameAsc;
 
-  // Переменная, включающая экран загрузки
+  // ---- Переменные состояния экрана ----
+
   bool loading = true;
-
-  // Переменная, включающая экран обновления
   bool refresh = false;
-
-  // Счетчик выбранных значений фильтра
-  int filterCount = 0;
 
   @override
   void initState(){
@@ -64,15 +63,20 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
     _initializeData();
   }
 
-  // --- Функция инициализации данных ----
-
   Future<void> _initializeData() async {
+
+    // --- Функция инициализации данных ----
 
     setState(() {
       loading = true;
     });
 
+    // --- Подгружаем список категорий заведений -----
+
+    eventCategoriesList = EventCategory.currentEventCategoryList;
+
     // ---- Подгружаем город в фильтр из данных пользователя ---
+
     if (UserCustom.currentUser != null){
       if (UserCustom.currentUser!.city != ''){
         City usersCity = City.getCityByIdFromList(UserCustom.currentUser!.city);
@@ -82,57 +86,64 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
       }
     }
 
-    // ---- Устанавливаем счетчик выбранных в фильтре настроек ----
+    // ---- Устанавливаем счетчик выбранных настроек в фильтре ----
 
-    _setFiltersCount(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, selectedStartDatePeriod, selectedEndDatePeriod);
+    _setFiltersCount(
+        eventCategoryFromFilter,
+        cityFromFilter,
+        freePrice,
+        today,
+        onlyFromPlaceEvents,
+        selectedStartDatePeriod,
+        selectedEndDatePeriod
+    );
 
-    // ----- Работаем со списком заведений -----
+    // ----- РАБОТАЕМ СО СПИСКОМ МЕРОПРИЯТИЙ -----
 
-    // ---- Если список пуст ----
+    List<EventCustom> tempEventsList = [];
+
     if (EventCustom.currentFeedEventsList.isEmpty){
+      // ---- Если список пуст ----
       // ---- Считываем с БД заведения -----
-      List<EventCustom> tempEventsList = await EventCustom.getAllEvents();
 
-      // --- Фильтруем список -----
-      setState(() {
-        eventsList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempEventsList, selectedStartDatePeriod, selectedEndDatePeriod);
-      });
+     tempEventsList = await EventCustom.getAllEvents();
 
     } else {
       // --- Если список не пустой ----
       // --- Подгружаем готовый список ----
-      List<EventCustom> tempList = [];
-      tempList = EventCustom.currentFeedEventsList;
 
-      // --- Фильтруем список ----
-      setState(() {
-        eventsList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempList, selectedStartDatePeriod, selectedEndDatePeriod);
-      });
+      tempEventsList = EventCustom.currentFeedEventsList;
+
     }
 
-    // Подгружаем список категорий заведений
-    eventCategoriesList = EventCategory.currentEventCategoryList;
+    // --- Фильтруем список ----
+
+    setState(() {
+      eventsList = EventCustom.filterEvents(
+          eventCategoryFromFilter,
+          cityFromFilter,
+          freePrice,
+          today,
+          onlyFromPlaceEvents,
+          tempEventsList,
+          selectedStartDatePeriod,
+          selectedEndDatePeriod
+      );
+    });
 
     setState(() {
       loading = false;
     });
   }
 
-  // --- Функция отображения всплывающего окна ----
-
-  void showSnackBar(String message, Color color, int showTime) {
-    final snackBar = customSnackBar(message: message, backgroundColor: color, showTime: showTime);
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  }
-
-
   // ---- Сам экран ленты заведений ----
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // - Обновление списка, если тянуть экран вниз
         body: RefreshIndicator (
+          // ---- Виджет обновления списка при протягивании экрана вниз ----
+
           onRefresh: () async {
 
             setState(() {
@@ -288,7 +299,7 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
                                   // ---- Если не зарегистрирован или не вошел ----
                                   if (UserCustom.currentUser?.uid == '' || UserCustom.currentUser?.uid == null)
                                   {
-                                    showSnackBar('Чтобы добавлять в избранное, нужно зарегистрироваться!', AppColors.attentionRed, 2);
+                                    showSnackBar(context, 'Чтобы добавлять в избранное, нужно зарегистрироваться!', AppColors.attentionRed, 2);
                                   }
 
                                   // --- Если пользователь залогинен -----
@@ -313,10 +324,10 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
                                           EventCustom.updateCurrentEventListFavInformation(eventsList[index].id, favCounter.toString(), 'false');
 
                                         });
-                                        showSnackBar('Удалено из избранных', AppColors.attentionRed, 1);
+                                        showSnackBar(context, 'Удалено из избранных', AppColors.attentionRed, 1);
                                       } else {
                                         // Если удаление из избранных не прошло, показываем сообщение
-                                        showSnackBar(resDel, AppColors.attentionRed, 1);
+                                        showSnackBar(context, resDel, AppColors.attentionRed, 1);
                                       }
                                     }
                                     else {
@@ -339,11 +350,11 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
                                           EventCustom.updateCurrentEventListFavInformation(eventsList[index].id, favCounter.toString(), 'true');
                                         });
 
-                                        showSnackBar('Добавлено в избранные', Colors.green, 1);
+                                        showSnackBar(context, 'Добавлено в избранные', Colors.green, 1);
 
                                       } else {
                                         // Если добавление прошло неудачно, отображаем всплывающее окно
-                                        showSnackBar(res, AppColors.attentionRed, 1);
+                                        showSnackBar(context , res, AppColors.attentionRed, 1);
                                       }
                                     }
                                   }
