@@ -4,6 +4,7 @@ import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/elements/category_element_in_edit_screen.dart';
 import 'package:dvij_flutter/elements/date_elements/period_date_picker.dart';
 import 'package:dvij_flutter/elements/events_elements/event_category_picker_page.dart';
+import 'package:dvij_flutter/elements/filter_elements/clear_item_widget.dart';
 import 'package:dvij_flutter/elements/places_elements/place_category_picker_page.dart';
 import 'package:flutter/material.dart';
 import '../../classes/city_class.dart';
@@ -139,89 +140,40 @@ class _EventFilterPageState extends State<EventFilterPage> {
 
                           //SizedBox(height: 20,),
 
-                          Row(
-                            children: [
-                              Expanded(
-                                  child: Column(
-                                    children: [
-                                      if (chosenCity.id == '') CityElementInEditScreen(
-                                        cityName: 'Город не выбран',
-                                        onActionPressed: () {
-                                          //_showCityPickerDialog();
-                                          _showCityPickerDialog();
-                                        },
-                                      ),
-
-                                      if (chosenCity.id != "") CityElementInEditScreen(
-                                        cityName: chosenCity.name,
-                                        onActionPressed: () {
-                                          //_showCityPickerDialog();
-                                          _showCityPickerDialog();
-                                        },
-                                      ),
-                                    ],
-                                  )
+                          //// ЗДЕСЬ ДЕЛАЮ /////
+                          ClearItemWidget(
+                              showButton: chosenCity.id != '' ? true : false,
+                              widget: CityElementInEditScreen(
+                                cityName: chosenCity.id == '' ? 'Город не выбран' : chosenCity.name,
+                                onActionPressed: () {
+                                  //_showCityPickerDialog();
+                                  _showCityPickerDialog();
+                                },
                               ),
-                              if (chosenCity.id != '') Card(
-                                color: AppColors.attentionRed,
-                                child: IconButton(
-                                  onPressed: (){
-                                    setState(() {
-                                      chosenCity = City(name: '', id: '');
-                                    });
-                                  },
-                                  icon: Icon(
-                                    Icons.close,
-                                    color: AppColors.greyOnBackground,
-                                  ),
-                                ),
-                              )
-                            ],
+                              onButtonPressed: (){
+                                setState(() {
+                                  chosenCity = City(name: '', id: '');
+                                });
+                              }
                           ),
 
                           const SizedBox(height: 16.0),
 
-                          Row(
-                            children: [
-                              Expanded(
-                                  child: Column(
-                                    children: [
-                                      if (chosenCategory.id == '') CategoryElementInEditScreen(
-                                        categoryName: 'Категория не выбрана',
-                                        onActionPressed: () {
-                                          //_showCityPickerDialog();
-                                          _showCategoryPickerDialog();
-                                        },
-                                      ),
-
-                                      if (chosenCategory.id != "") CategoryElementInEditScreen(
-                                        categoryName: chosenCategory.name,
-                                        onActionPressed: () {
-                                          //_showCityPickerDialog();
-                                          _showCategoryPickerDialog();
-                                        },
-                                      ),
-                                    ],
-                                  )
+                          ClearItemWidget(
+                              showButton: chosenCategory.id != '' ? true : false,
+                              widget: CategoryElementInEditScreen(
+                                categoryName: chosenCategory.id == '' ? 'Категория не выбрана' : chosenCategory.name,
+                                onActionPressed: () {
+                                  //_showCityPickerDialog();
+                                  _showCategoryPickerDialog();
+                                },
                               ),
-                              if (chosenCategory.id != '') Card(
-                                color: AppColors.attentionRed,
-                                child: IconButton(
-                                  onPressed: (){
-                                    setState(() {
-                                      chosenCategory = EventCategory(name: '', id: '');
-                                    });
-                                  },
-                                  icon: Icon(
-                                    Icons.close,
-                                    color: AppColors.greyOnBackground,
-                                  ),
-                                ),
-                              )
-                            ],
+                              onButtonPressed: (){
+                                setState(() {
+                                  chosenCategory = EventCategory(name: '', id: '');
+                                });
+                              }
                           ),
-
-
 
                           const SizedBox(height: 16.0),
 
