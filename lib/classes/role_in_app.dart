@@ -31,6 +31,19 @@ class RoleInApp {
 
   }
 
+  static  RoleInApp getRoleInAppFromList (String roleId){
+    if (currentRoleInAppList.isNotEmpty){
+      for(RoleInApp role in currentRoleInAppList){
+        if (role.id == roleId){
+          return role;
+          break;
+        }
+      }
+    }
+    return RoleInApp(name: '', id: '');
+
+  }
+
   // Функция фильтрации ролей по вводимому значению
 
   static List<RoleInApp> filterRolesInApp(List<RoleInApp> inputList, String filter) {

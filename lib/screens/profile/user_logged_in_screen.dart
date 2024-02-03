@@ -75,11 +75,17 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
       uid = userInfo.uid;
       // --- Читаем данные пользователя из БД
 
-      // TODO - город, гендер и роль взять из списков уже загруженных с бд
+      if (userInfo.gender != ''){
+        chosenGender = Gender.getGenderFromList(userInfo.gender);
+      }
 
-      chosenGender = await Gender.getGenderById(userInfo.gender) as Gender;
-      chosenCity = await City.getCityById(userInfo.city) as City;
-      chosenRoleInApp = await RoleInApp.getRoleInAppById(userInfo.role) as RoleInApp;
+      if (userInfo.city != ''){
+        chosenCity = City.getCityByIdFromList(userInfo.city);
+      }
+
+      if (userInfo.role != ''){
+        chosenRoleInApp = RoleInApp.getRoleInAppFromList(userInfo.role);
+      }
 
       // ---- Убираем экран загрузки -----
       setState(() {
@@ -236,18 +242,6 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
                       state: 'error',
                       buttonText: 'Выйти из профиля',
                       onTapMethod: () async {
-
-                        // --- Открываем диалог ----
-                        // TODO - Доделать экран диалога!!!
-
-                        /*bool? confirmed = await PopUpDialog.showConfirmationDialog(
-                          context,
-                          title: "Ты правда хочешь уйти от нас?",
-                          backgroundColor: AppColors.greyBackground,
-                          confirmButtonText: "Да",
-                          cancelButtonText: "Нет",
-
-                        );*/
 
                         bool? confirmed = await exitDialog(context, "Ты правда хочешь уйти от нас?" , 'Да', 'Нет', 'Выход из профиля');
 

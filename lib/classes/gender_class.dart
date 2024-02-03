@@ -31,6 +31,19 @@ class Gender {
 
   }
 
+  static Gender getGenderFromList (String genderId){
+    if (currentGenderList.isNotEmpty){
+      for(Gender gender in currentGenderList){
+        if (gender.id == genderId){
+          return gender;
+          break;
+        }
+      }
+    }
+    return Gender(name: '', id: '');
+
+  }
+
   // Функция фильтрации пола по вводимому значению
 
   static List<Gender> filterGenders(List<Gender> inputList, String filter) {
