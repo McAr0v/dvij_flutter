@@ -6,11 +6,14 @@ import 'package:dvij_flutter/screens/events/event_view_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../../classes/ad_class.dart';
 import '../../classes/event_class.dart';
+import '../../classes/pair.dart';
 import '../../classes/user_class.dart';
 import '../../elements/events_elements/event_card_widget.dart';
 import '../../elements/loading_screen.dart';
 import '../../elements/snack_bar.dart';
+import '../../elements/text_and_icons_widgets/headline_and_desc.dart';
 
 
 // ---- ЭКРАН ЛЕНТЫ ЗАВЕДЕНИЙ ------
@@ -55,6 +58,19 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
 
   bool loading = true;
   bool refresh = false;
+
+  // TODO - Сделать загрузку рекламы из БД
+  // --- Рекламные переменные -----
+
+  // --- Список рекламы ---
+  List<String> adList = ['Реклама №1', 'Реклама №2', 'Реклама №3', 'Реклама №4', 'Реклама №5'];
+  List<Pair> allElementsList = [];
+  // ---- Список для хранения индексов элементов рекламы
+  List<int> adIndexesList = [];
+  // --- Шаг - сколько элементов списка будет между рекламными постами
+  int adStep = 2;
+  // --- Индекс первого рекламного элемента
+  int firstIndexOfAd = 1;
 
   @override
   void initState(){
@@ -129,6 +145,14 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
           selectedStartDatePeriod,
           selectedEndDatePeriod
       );
+    });
+
+    // --- Считываем индексы, где будет стоять реклама ----
+
+    adIndexesList = AdCustom.getAdIndexesList(adList, adStep, firstIndexOfAd);
+
+    setState(() {
+      allElementsList = AdCustom.generateIndexedList(adIndexesList, eventsList.length);
     });
 
     setState(() {
@@ -271,96 +295,107 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
                     if (eventsList.isNotEmpty) Expanded(
                         child: ListView.builder(
                             padding: const EdgeInsets.all(15.0),
-                            itemCount: eventsList.length,
+                            itemCount: allElementsList.length,
                             itemBuilder: (context, index) {
-                              return EventCardWidget(
-                                  event: eventsList[index], 
+                              if (allElementsList[index].first == 'ad')  {
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 20,
+                                      horizontal: 20),
+                                  child: HeadlineAndDesc(headline: adList[allElementsList[index].second], description: 'реклама'),
+                                );
+                              } else {
+                                int indexWithAddCountCorrection = allElementsList[index].second;
+                                return EventCardWidget(
+                                  event: eventsList[indexWithAddCountCorrection],
                                   onTap: () async {
 
                                     // TODO - переделать на мероприятия
                                     final results = await Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => EventViewScreen(eventId: eventsList[index].id),
+                                        builder: (context) => EventViewScreen(eventId: eventsList[indexWithAddCountCorrection].id),
                                       ),
                                     );
 
                                     if (results != null) {
                                       setState(() {
-                                        eventsList[index].inFav = results[0].toString();
-                                        eventsList[index].addedToFavouritesCount = results[1].toString();
+                                        eventsList[indexWithAddCountCorrection].inFav = results[0].toString();
+                                        eventsList[indexWithAddCountCorrection].addedToFavouritesCount = results[1].toString();
                                       });
                                     }
                                   },
 
-                                // --- Функция на нажатие на карточке кнопки ИЗБРАННОЕ ---
-                                onFavoriteIconPressed: () async {
+                                  // --- Функция на нажатие на карточке кнопки ИЗБРАННОЕ ---
+                                  onFavoriteIconPressed: () async {
 
-                                  // TODO Сделать проверку на подтвержденный Email
-                                  // ---- Если не зарегистрирован или не вошел ----
-                                  if (UserCustom.currentUser?.uid == '' || UserCustom.currentUser?.uid == null)
-                                  {
-                                    showSnackBar(context, 'Чтобы добавлять в избранное, нужно зарегистрироваться!', AppColors.attentionRed, 2);
-                                  }
-
-                                  // --- Если пользователь залогинен -----
-                                  else {
-
-                                    // --- Если уже в избранном ----
-                                    if (eventsList[index].inFav == 'true')
+                                    // TODO Сделать проверку на подтвержденный Email
+                                    // ---- Если не зарегистрирован или не вошел ----
+                                    if (UserCustom.currentUser?.uid == '' || UserCustom.currentUser?.uid == null)
                                     {
-                                      // --- Удаляем из избранных ---
-                                      String resDel = await EventCustom.deleteEventFromFav(eventsList[index].id);
-                                      // ---- Инициализируем счетчик -----
-                                      int favCounter = int.parse(eventsList[index].addedToFavouritesCount!);
-
-                                      if (resDel == 'success'){
-                                        // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
-                                        setState(() {
-                                          // Обновляем текущий список
-                                          eventsList[index].inFav = 'false';
-                                          favCounter --;
-                                          eventsList[index].addedToFavouritesCount = favCounter.toString();
-                                          // Обновляем общий список из БД
-                                          EventCustom.updateCurrentEventListFavInformation(eventsList[index].id, favCounter.toString(), 'false');
-
-                                        });
-                                        showSnackBar(context, 'Удалено из избранных', AppColors.attentionRed, 1);
-                                      } else {
-                                        // Если удаление из избранных не прошло, показываем сообщение
-                                        showSnackBar(context, resDel, AppColors.attentionRed, 1);
-                                      }
+                                      showSnackBar(context, 'Чтобы добавлять в избранное, нужно зарегистрироваться!', AppColors.attentionRed, 2);
                                     }
+
+                                    // --- Если пользователь залогинен -----
                                     else {
-                                      // --- Если заведение не в избранном ----
 
-                                      // -- Добавляем в избранное ----
-                                      String res = await EventCustom.addEventToFav(eventsList[index].id);
+                                      // --- Если уже в избранном ----
+                                      if (eventsList[indexWithAddCountCorrection].inFav == 'true')
+                                      {
+                                        // --- Удаляем из избранных ---
+                                        String resDel = await EventCustom.deleteEventFromFav(eventsList[indexWithAddCountCorrection].id);
+                                        // ---- Инициализируем счетчик -----
+                                        int favCounter = int.parse(eventsList[indexWithAddCountCorrection].addedToFavouritesCount!);
 
-                                      // ---- Инициализируем счетчик добавивших в избранное
-                                      int favCounter = int.parse(eventsList[index].addedToFavouritesCount!);
+                                        if (resDel == 'success'){
+                                          // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
+                                          setState(() {
+                                            // Обновляем текущий список
+                                            eventsList[indexWithAddCountCorrection].inFav = 'false';
+                                            favCounter --;
+                                            eventsList[indexWithAddCountCorrection].addedToFavouritesCount = favCounter.toString();
+                                            // Обновляем общий список из БД
+                                            EventCustom.updateCurrentEventListFavInformation(eventsList[indexWithAddCountCorrection].id, favCounter.toString(), 'false');
 
-                                      if (res == 'success') {
-                                        // --- Если добавилось успешно, так же обновляем текущий список и список из БД
-                                        setState(() {
-                                          // Обновляем текущий список
-                                          eventsList[index].inFav = 'true';
-                                          favCounter ++;
-                                          eventsList[index].addedToFavouritesCount = favCounter.toString();
-                                          // Обновляем список из БД
-                                          EventCustom.updateCurrentEventListFavInformation(eventsList[index].id, favCounter.toString(), 'true');
-                                        });
+                                          });
+                                          showSnackBar(context, 'Удалено из избранных', AppColors.attentionRed, 1);
+                                        } else {
+                                          // Если удаление из избранных не прошло, показываем сообщение
+                                          showSnackBar(context, resDel, AppColors.attentionRed, 1);
+                                        }
+                                      }
+                                      else {
+                                        // --- Если заведение не в избранном ----
 
-                                        showSnackBar(context, 'Добавлено в избранные', Colors.green, 1);
+                                        // -- Добавляем в избранное ----
+                                        String res = await EventCustom.addEventToFav(eventsList[indexWithAddCountCorrection].id);
 
-                                      } else {
-                                        // Если добавление прошло неудачно, отображаем всплывающее окно
-                                        showSnackBar(context , res, AppColors.attentionRed, 1);
+                                        // ---- Инициализируем счетчик добавивших в избранное
+                                        int favCounter = int.parse(eventsList[indexWithAddCountCorrection].addedToFavouritesCount!);
+
+                                        if (res == 'success') {
+                                          // --- Если добавилось успешно, так же обновляем текущий список и список из БД
+                                          setState(() {
+                                            // Обновляем текущий список
+                                            eventsList[indexWithAddCountCorrection].inFav = 'true';
+                                            favCounter ++;
+                                            eventsList[indexWithAddCountCorrection].addedToFavouritesCount = favCounter.toString();
+                                            // Обновляем список из БД
+                                            EventCustom.updateCurrentEventListFavInformation(eventsList[indexWithAddCountCorrection].id, favCounter.toString(), 'true');
+                                          });
+
+                                          showSnackBar(context, 'Добавлено в избранные', Colors.green, 1);
+
+                                        } else {
+                                          // Если добавление прошло неудачно, отображаем всплывающее окно
+                                          showSnackBar(context , res, AppColors.attentionRed, 1);
+                                        }
                                       }
                                     }
-                                  }
-                                },
-                              );
+                                  },
+                                );
+                              }
+
                             }
                         )
                     )
@@ -442,6 +477,8 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
       setState(() {
         eventsList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempList, selectedStartDatePeriod, selectedEndDatePeriod);
       });
+
+      allElementsList = AdCustom.generateIndexedList(adIndexesList, eventsList.length);
 
       setState(() {
         loading = false;

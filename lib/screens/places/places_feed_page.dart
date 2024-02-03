@@ -68,9 +68,6 @@ class _PlacesFeedPageState extends State<PlacesFeedPage> {
 
   List<Pair> pairList = [];
 
-  // -- Переменная для вычисления индекса элемента рекламы в списке самого экрана
-  int adIndex = -1;
-
   @override
   void initState(){
 
@@ -136,10 +133,6 @@ class _PlacesFeedPageState extends State<PlacesFeedPage> {
     setState(() {
       allElementsList = AdCustom.generateIndexedList(adIndexesList, placesList.length);
     });
-
-
-
-    print('Индексы рекламы $adIndexesList');
 
     setState(() {
       loading = false;
