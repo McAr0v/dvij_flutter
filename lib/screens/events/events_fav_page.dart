@@ -187,11 +187,14 @@ class _EventsFavPageState extends State<EventsFavPage> {
           child: Stack (
             children: [
               if (UserCustom.currentUser?.uid == null || UserCustom.currentUser?.uid == '') Center(
-                child: Text(
-                  'Чтобы добавлять мероприятия в избранные, нужно зарегистрироваться',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                  textAlign: TextAlign.center,
-                ),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: Text(
+                    'Чтобы добавлять мероприятия в избранные, нужно зарегистрироваться',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    textAlign: TextAlign.center,
+                  ),
+                )
               )
               else if (loading) const LoadingScreen(loadingText: 'Подожди, идет загрузка мероприятий')
               else if (refresh) Center(
@@ -474,7 +477,7 @@ class _EventsFavPageState extends State<EventsFavPage> {
 
       // --- Заново подгружаем список из БД ---
       List<EventCustom> tempList = [];
-      tempList = EventCustom.currentFeedEventsList;
+      tempList = EventCustom.currentFavEventsList;
 
       // --- Фильтруем список согласно новым выбранным данным из фильтра ----
       setState(() {

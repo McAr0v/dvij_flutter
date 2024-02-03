@@ -1,3 +1,4 @@
+import 'package:dvij_flutter/classes/event_class.dart';
 import 'package:dvij_flutter/classes/place_class.dart';
 import 'package:dvij_flutter/classes/place_role_class.dart';
 import 'package:dvij_flutter/classes/role_in_app.dart';
@@ -134,6 +135,10 @@ class UserCustom {
       Place.currentMyPlaceList = [];
       Place.currentFeedPlaceList = [];
       Place.currentFavPlaceList = [];
+      EventCustom.currentFavEventsList = [];
+      EventCustom.currentFeedEventsList = [];
+      EventCustom.currentMyEventsList = [];
+      // TODO - добавить акции сюда как создам их экраны
       updateAccessLevel('');
       return 'success';
     } catch (e) {
@@ -200,6 +205,10 @@ class UserCustom {
       Place.currentFeedPlaceList = [];
       Place.currentFavPlaceList = [];
       Place.currentMyPlaceList = [];
+      EventCustom.currentFavEventsList = [];
+      EventCustom.currentFeedEventsList = [];
+      EventCustom.currentMyEventsList = [];
+      // TODO - добавить акции сюда как создам их экраны
 
       // и возвращаем uid
       return credential.user?.uid;
