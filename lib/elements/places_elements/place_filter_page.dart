@@ -246,7 +246,7 @@ class _PlaceFilterPageState extends State<PlaceFilterPage> {
 
                   Expanded(
                     child: CustomButton(
-                      buttonText: 'Выйти из фильтра',
+                      buttonText: 'Отменить',
                       state: 'secondary',
                       onTapMethod: (){
                         setState(() {

@@ -142,6 +142,7 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: RefreshIndicator (
+
           // ---- Виджет обновления списка при протягивании экрана вниз ----
 
           onRefresh: () async {
@@ -247,7 +248,7 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
                         )
                     ),
 
-                    // ---- Если список заведений пустой -----
+                    // ---- Если список пустой -----
 
                     if (eventsList.isEmpty) Expanded(
                         child: ListView.builder(
@@ -265,7 +266,7 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
                         )
                     ),
 
-                    // ---- Если список заведений не пустой -----
+                    // ---- Если список не пустой -----
 
                     if (eventsList.isNotEmpty) Expanded(
                         child: ListView.builder(
