@@ -3,6 +3,9 @@ import 'package:dvij_flutter/classes/event_type_enum.dart';
 import 'package:dvij_flutter/classes/place_category_class.dart';
 import 'package:dvij_flutter/classes/place_sorting_options.dart';
 import 'package:dvij_flutter/classes/priceTypeOptions.dart';
+import 'package:dvij_flutter/classes/promo_category_class.dart';
+import 'package:dvij_flutter/classes/promo_sorting_options.dart';
+import 'package:dvij_flutter/classes/promo_type_enum.dart';
 import 'package:dvij_flutter/classes/user_class.dart';
 import 'package:dvij_flutter/methods/days_functions.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -11,9 +14,9 @@ import '../methods/date_functions.dart';
 import 'event_category_class.dart';
 import 'event_sorting_options.dart';
 
-class EventCustom {
+class PromoCustom {
   String id;
-  String eventType;
+  String promoType;
   String headline;
   String desc;
   String creatorId;
@@ -39,9 +42,9 @@ class EventCustom {
   String? inFav;
   String? today;
 
-  EventCustom({
+  PromoCustom({
     required this.id,
-    required this.eventType,
+    required this.promoType,
     required this.headline,
     required this.desc,
     required this.creatorId,
@@ -69,10 +72,10 @@ class EventCustom {
 
   });
 
-  factory EventCustom.fromSnapshot(DataSnapshot snapshot) {
+  factory PromoCustom.fromSnapshot(DataSnapshot snapshot) {
     // Указываем путь к нашим полям
     DataSnapshot idSnapshot = snapshot.child('id');
-    DataSnapshot eventTypeSnapshot = snapshot.child('eventType');
+    DataSnapshot promoTypeSnapshot = snapshot.child('promoType');
     DataSnapshot headlineSnapshot = snapshot.child('headline');
     DataSnapshot descSnapshot = snapshot.child('desc');
     DataSnapshot creatorIdSnapshot = snapshot.child('creatorId');
@@ -94,9 +97,9 @@ class EventCustom {
     DataSnapshot priceSnapshot = snapshot.child('price');
     DataSnapshot priceTypeSnapshot = snapshot.child('priceType');
 
-    return EventCustom(
+    return PromoCustom(
         id: idSnapshot.value.toString() ?? '',
-        eventType: eventTypeSnapshot.value.toString() ?? '',
+        promoType: promoTypeSnapshot.value.toString() ?? '',
         headline: headlineSnapshot.value.toString() ?? '',
         desc: descSnapshot.value.toString() ?? '',
         creatorId: creatorIdSnapshot.value.toString() ?? '',
@@ -121,13 +124,13 @@ class EventCustom {
     );
   }
 
-  static List<EventCustom> currentFeedEventsList = [];
-  static List<EventCustom> currentFavEventsList = [];
-  static List<EventCustom> currentMyEventsList = [];
+  static List<PromoCustom> currentFeedPromoList = [];
+  static List<PromoCustom> currentFavPromoList = [];
+  static List<PromoCustom> currentMyPromoList = [];
 
-  static EventCustom emptyEvent = EventCustom(
+  static PromoCustom emptyPromo = PromoCustom(
       id: '',
-      eventType: '',
+      promoType: '',
       headline: '',
       desc: '',
       creatorId: '',
@@ -142,19 +145,19 @@ class EventCustom {
       instagram: '',
       imageUrl: 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2Fdvij_unknow_user.jpg?alt=media&token=b63ea5ef-7bdf-49e9-a3ef-1d34d676b6a7',
       placeId: '',
-    price: '',
-    priceType: '',
-    onceDay: '',
-    longDays: '',
-    regularDays: '',
-    irregularDays: ''
+      price: '',
+      priceType: '',
+      onceDay: '',
+      longDays: '',
+      regularDays: '',
+      irregularDays: ''
 
   );
 
-  factory EventCustom.empty() {
-    return EventCustom(
+  factory PromoCustom.empty() {
+    return PromoCustom(
         id: '',
-        eventType: '',
+        promoType: '',
         headline: '',
         desc: '',
         creatorId: '',
@@ -184,52 +187,52 @@ class EventCustom {
   // Метод для добавления нового пола или редактирования пола в Firebase
 
   // --- ФУНКЦИЯ ЗАПИСИ ДАННЫХ Места -----
-  static Future<String?> createOrEditEvent(EventCustom event) async {
+  static Future<String?> createOrEditPromo(PromoCustom promo) async {
 
     try {
 
-      String eventPath = 'events/${event.id}/event_info';
-      String creatorPath = 'users/${event.creatorId}/myEvents/${event.id}';
-      String placePath = 'places/${event.placeId}/events/${event.id}';
+      String promoPath = 'promos/${promo.id}/promo_info';
+      String creatorPath = 'users/${promo.creatorId}/myPromos/${promo.id}';
+      String placePath = 'places/${promo.placeId}/promos/${promo.id}';
 
       // Записываем данные пользователя в базу данных
-      await FirebaseDatabase.instance.ref().child(eventPath).set({
-        'id': event.id,
-        'eventType': event.eventType,
-        'headline': event.headline,
-        'desc': event.desc,
-        'creatorId': event.creatorId,
-        'createDate': event.createDate,
-        'category': event.category,
-        'city': event.city,
-        'street': event.street,
-        'house': event.house,
-        'phone': event.phone,
-        'whatsapp': event.whatsapp,
-        'telegram': event.telegram,
-        'instagram': event.instagram,
-        'imageUrl': event.imageUrl,
-        'placeId': event.placeId ?? '',
-        'onceDay': event.onceDay,
-        'longDays': event.longDays,
-        'regularDays': event.regularDays,
-        'irregularDays': event.irregularDays,
-        'price': event.price ?? '',
-        'priceType': event.priceType ?? ''
+      await FirebaseDatabase.instance.ref().child(promoPath).set({
+        'id': promo.id,
+        'promoType': promo.promoType,
+        'headline': promo.headline,
+        'desc': promo.desc,
+        'creatorId': promo.creatorId,
+        'createDate': promo.createDate,
+        'category': promo.category,
+        'city': promo.city,
+        'street': promo.street,
+        'house': promo.house,
+        'phone': promo.phone,
+        'whatsapp': promo.whatsapp,
+        'telegram': promo.telegram,
+        'instagram': promo.instagram,
+        'imageUrl': promo.imageUrl,
+        'placeId': promo.placeId ?? '',
+        'onceDay': promo.onceDay,
+        'longDays': promo.longDays,
+        'regularDays': promo.regularDays,
+        'irregularDays': promo.irregularDays,
+        'price': promo.price ?? '',
+        'priceType': promo.priceType ?? ''
 
       });
 
       // Записываем данные пользователя в базу данных
       await FirebaseDatabase.instance.ref().child(creatorPath).set({
-        'eventId': event.id,
+        'promoId': promo.id,
         //'roleId': '-NngrYovmKAw_cp0pYfJ'
       });
 
-      if (event.placeId != '') {
+      if (promo.placeId != '') {
         await FirebaseDatabase.instance.ref().child(placePath).set(
-          {
-            'eventId': event.id,
-          }
+            {
+              'promoId': promo.id,
+            }
         );
       }
 
@@ -244,20 +247,20 @@ class EventCustom {
     }
   }
 
-  static Future<String> deleteEvent(
-      String eventId,
+  static Future<String> deletePromo(
+      String promoId,
       // List<UserCustom> users, Восстановить если надо добавлять других пользователей
       String creatorId,
       String placeId
       ) async {
     try {
 
-      DatabaseReference reference = FirebaseDatabase.instance.ref().child('events').child(eventId);
+      DatabaseReference reference = FirebaseDatabase.instance.ref().child('promos').child(promoId);
 
       // Проверяем, существует ли город с указанным ID
       DataSnapshot snapshot = await reference.get();
       if (!snapshot.exists) {
-        return 'Мероприятие не найдено';
+        return 'Акция не найдена';
       }
 
       // Удаляем место
@@ -276,38 +279,38 @@ class EventCustom {
       // Удаляем создателя
 
       if (creatorId != '') {
-        DatabaseReference userReference = FirebaseDatabase.instance.ref().child('users').child(creatorId).child('myEvents').child(eventId);
+        DatabaseReference userReference = FirebaseDatabase.instance.ref().child('users').child(creatorId).child('myPromos').child(promoId);
 
         await userReference.remove();
       }
 
       if (placeId != '') {
-        await EventCustom.deleteEventIdFromPlace(eventId, placeId);
+        await PromoCustom.deletePromoIdFromPlace(promoId, placeId);
       }
 
 
 
-      // TODO По хорошему надо удалять и мероприятия
+      // TODO По хорошему надо удалять и акции
 
       return 'success';
     } catch (error) {
-      return 'Ошибка при удалении города: $error';
+      return 'Ошибка при удалении акции: $error';
     }
   }
 
-  static Future<String> deleteEventIdFromPlace(
-      String eventId,
+  static Future<String> deletePromoIdFromPlace(
+      String promoId,
       // List<UserCustom> users, Восстановить если надо добавлять других пользователей
       String placeId
       ) async {
     try {
 
-      DatabaseReference reference = FirebaseDatabase.instance.ref().child('places/$placeId/events').child(eventId);
+      DatabaseReference reference = FirebaseDatabase.instance.ref().child('places/$placeId/promos').child(promoId);
 
       // Проверяем, существует ли город с указанным ID
       DataSnapshot snapshot = await reference.get();
       if (!snapshot.exists) {
-        return 'Мероприятие не найдено';
+        return 'Акция не найдена';
       }
 
       // Удаляем место
@@ -320,13 +323,13 @@ class EventCustom {
     }
   }
 
-  static Future<List<EventCustom>> getAllEvents() async {
+  static Future<List<PromoCustom>> getAllPromos() async {
 
-    List<EventCustom> events = [];
-    currentFeedEventsList = [];
+    List<PromoCustom> promos = [];
+    currentFeedPromoList = [];
 
     // Указываем путь
-    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('events');
+    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('promos');
 
     // Получаем снимок данных папки
     DataSnapshot snapshot = await reference.get();
@@ -339,38 +342,38 @@ class EventCustom {
       // заполняем город (City.fromSnapshot) из снимка данных
       // и обавляем в список городов
 
-      EventCustom event = EventCustom.fromSnapshot(childSnapshot.child('event_info'));
+      PromoCustom promo = PromoCustom.fromSnapshot(childSnapshot.child('promo_info'));
 
-      String favCount = await EventCustom.getFavCount(event.id);
-      String inFav = await EventCustom.addedInFavOrNot(event.id);
+      String favCount = await PromoCustom.getFavCount(promo.id);
+      String inFav = await PromoCustom.addedInFavOrNot(promo.id);
       //bool fromPlace = eventFromPlace(event.placeId);
 
-      event.inFav = inFav;
-      event.addedToFavouritesCount = favCount;
-      event.today = todayEventOrNot(event).toString();
+      promo.inFav = inFav;
+      promo.addedToFavouritesCount = favCount;
+      promo.today = todayPromoOrNot(promo).toString();
 
-      currentFeedEventsList.add(event);
+      currentFeedPromoList.add(promo);
 
-      events.add(event);
+      promos.add(promo);
 
     }
 
     // Возвращаем список
-    return events;
+    return promos;
   }
 
   /*static bool eventFromPlace (String placeId) {
     return placeId != '';
   }*/
 
-  static Future<List<EventCustom>> getFavEvents(String userId) async {
+  static Future<List<PromoCustom>> getFavPromos(String userId) async {
 
-    List<EventCustom> events = [];
-    currentFavEventsList = [];
-    List<String> eventsId = [];
+    List<PromoCustom> promos = [];
+    currentFavPromoList = [];
+    List<String> promosId = [];
 
     // Указываем путь
-    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('users/$userId/favEvents/');
+    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('users/$userId/favPromos/');
 
     // Получаем снимок данных папки
     DataSnapshot snapshot = await reference.get();
@@ -383,39 +386,39 @@ class EventCustom {
       // заполняем город (City.fromSnapshot) из снимка данных
       // и обавляем в список городов
 
-      DataSnapshot idSnapshot = childSnapshot.child('eventId');
+      DataSnapshot idSnapshot = childSnapshot.child('promoId');
 
       if (idSnapshot.exists){
-        eventsId.add(idSnapshot.value.toString());
+        promosId.add(idSnapshot.value.toString());
       }
     }
 
-    if (eventsId.isNotEmpty){
+    if (promosId.isNotEmpty){
 
-      for (var event in eventsId){
+      for (var promo in promosId){
 
-        EventCustom temp = await getEventById(event);
+        PromoCustom temp = await getPromoById(promo);
 
         if (temp.id != ''){
-          currentFavEventsList.add(temp);
-          events.add(temp);
+          currentFavPromoList.add(temp);
+          promos.add(temp);
         }
 
       }
 
     }
     // Возвращаем список
-    return events;
+    return promos;
   }
 
-  static Future<List<EventCustom>> getMyEvents(String userId) async {
+  static Future<List<PromoCustom>> getMyPromos(String userId) async {
 
-    List<EventCustom> events = [];
-    currentMyEventsList = [];
-    List<String> eventsId = [];
+    List<PromoCustom> promos = [];
+    currentMyPromoList = [];
+    List<String> promosId = [];
 
     // Указываем путь
-    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('users/$userId/myEvents/');
+    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('users/$userId/myPromos/');
 
     // Получаем снимок данных папки
     DataSnapshot snapshot = await reference.get();
@@ -428,86 +431,86 @@ class EventCustom {
       // заполняем город (City.fromSnapshot) из снимка данных
       // и обавляем в список городов
 
-      DataSnapshot idSnapshot = childSnapshot.child('eventId');
+      DataSnapshot idSnapshot = childSnapshot.child('promoId');
 
       if (idSnapshot.exists){
-        eventsId.add(idSnapshot.value.toString());
+        promosId.add(idSnapshot.value.toString());
       }
     }
 
-    if (eventsId.isNotEmpty){
+    if (promosId.isNotEmpty){
 
-      for (var event in eventsId){
+      for (var promo in promosId){
 
-        EventCustom temp = await getEventById(event);
+        PromoCustom temp = await getPromoById(promo);
 
         if (temp.id != ''){
-          currentMyEventsList.add(temp);
-          events.add(temp);
+          currentMyPromoList.add(temp);
+          promos.add(temp);
         }
 
       }
 
     }
     // Возвращаем список
-    return events;
+    return promos;
   }
 
 
-  static List<EventCustom> filterEvents(
-      EventCategory eventCategoryFromFilter,
+  static List<PromoCustom> filterPromos(
+      PromoCategory promoCategoryFromFilter,
       City cityFromFilter,
       bool freePrice,
       bool today,
-      bool onlyFromPlaceEvents,
-      List<EventCustom> eventsList,
+      bool onlyFromPlacePromos,
+      List<PromoCustom> promosList,
       DateTime selectedStartDatePeriod,
       DateTime selectedEndDatePeriod,
       ) {
 
-    List<EventCustom> events = [];
+    List<PromoCustom> promos = [];
 
-    for (int i = 0; i<eventsList.length; i++){
+    for (int i = 0; i<promosList.length; i++){
 
       bool result = checkFilter(
-        eventCategoryFromFilter,
-        cityFromFilter,
-        freePrice,
-        today,
-        onlyFromPlaceEvents,
-        eventsList[i],
-        selectedStartDatePeriod,
-        selectedEndDatePeriod
+          promoCategoryFromFilter,
+          cityFromFilter,
+          freePrice,
+          today,
+          onlyFromPlacePromos,
+          promosList[i],
+          selectedStartDatePeriod,
+          selectedEndDatePeriod
       );
 
       if (result) {
-        events.add(eventsList[i]);
+        promos.add(promosList[i]);
       }
     }
     // Возвращаем список
-    return events;
+    return promos;
   }
 
   static bool checkFilter (
-      EventCategory eventCategoryFromFilter,
+      PromoCategory promoCategoryFromFilter,
       City cityFromFilter,
       bool freePrice,
       bool today,
-      bool onlyFromPlaceEvents,
-      EventCustom event,
+      bool onlyFromPlacePromos,
+      PromoCustom promo,
       DateTime selectedStartDatePeriod,
       DateTime selectedEndDatePeriod,
       ) {
 
-    City cityFromEvent = City.getCityByIdFromList(event.city);
-    EventCategory categoryFromEvent = EventCategory.getEventCategoryFromCategoriesList(event.category);
+    City cityFromEvent = City.getCityByIdFromList(promo.city);
+    EventCategory categoryFromEvent = EventCategory.getEventCategoryFromCategoriesList(promo.category);
 
-    bool category = eventCategoryFromFilter.id == '' || eventCategoryFromFilter.id == categoryFromEvent.id;
+    bool category = promoCategoryFromFilter.id == '' || promoCategoryFromFilter.id == categoryFromEvent.id;
     bool city = cityFromFilter.id == '' || cityFromFilter.id == cityFromEvent.id;
-    bool checkFreePrice = freePrice == false || event.price == '';
-    bool checkToday = today == false || bool.parse(event.today!) == true;
-    bool checkFromPlaceEvent = onlyFromPlaceEvents == false || event.placeId != '';
-    bool checkDate = selectedStartDatePeriod == DateTime(2100) || checkEventsDatesForFilter(event, selectedStartDatePeriod, selectedEndDatePeriod);
+    bool checkFreePrice = freePrice == false || promo.price == '';
+    bool checkToday = today == false || bool.parse(promo.today!) == true;
+    bool checkFromPlaceEvent = onlyFromPlacePromos == false || promo.placeId != '';
+    bool checkDate = selectedStartDatePeriod == DateTime(2100) || checkPromosDatesForFilter(promo, selectedStartDatePeriod, selectedEndDatePeriod);
 
     return category && city && checkFreePrice && checkToday && checkFromPlaceEvent && checkDate;
 
@@ -515,17 +518,17 @@ class EventCustom {
   }
 
 
-  static void sortEvents(EventSortingOption sorting, List<EventCustom> events) {
+  static void sortPromos(PromoSortingOption sorting, List<PromoCustom> events) {
 
     switch (sorting){
 
-      case EventSortingOption.nameAsc: events.sort((a, b) => a.headline.compareTo(b.headline)); break;
+      case PromoSortingOption.nameAsc: events.sort((a, b) => a.headline.compareTo(b.headline)); break;
 
-      case EventSortingOption.nameDesc: events.sort((a, b) => b.headline.compareTo(a.headline)); break;
+      case PromoSortingOption.nameDesc: events.sort((a, b) => b.headline.compareTo(a.headline)); break;
 
-      case EventSortingOption.favCountAsc: events.sort((a, b) => int.parse(a.addedToFavouritesCount!).compareTo(int.parse(b.addedToFavouritesCount!))); break;
+      case PromoSortingOption.favCountAsc: events.sort((a, b) => int.parse(a.addedToFavouritesCount!).compareTo(int.parse(b.addedToFavouritesCount!))); break;
 
-      case EventSortingOption.favCountDesc: events.sort((a, b) => int.parse(b.addedToFavouritesCount!).compareTo(int.parse(a.addedToFavouritesCount!))); break;
+      case PromoSortingOption.favCountDesc: events.sort((a, b) => int.parse(b.addedToFavouritesCount!).compareTo(int.parse(a.addedToFavouritesCount!))); break;
 
     }
 
@@ -533,12 +536,12 @@ class EventCustom {
 
 
 
-  static Future<EventCustom> getEventById(String eventId) async {
+  static Future<PromoCustom> getPromoById(String promoId) async {
 
-    EventCustom returnedEvent = EventCustom.empty();
+    PromoCustom returnedPromo = PromoCustom.empty();
 
     // Указываем путь
-    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('events');
+    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('promos');
 
     // Получаем снимок данных папки
     DataSnapshot snapshot = await reference.get();
@@ -551,30 +554,30 @@ class EventCustom {
       // заполняем город (City.fromSnapshot) из снимка данных
       // и обавляем в список городов
 
-      EventCustom event = EventCustom.fromSnapshot(childSnapshot.child('event_info'));
+      PromoCustom promo = PromoCustom.fromSnapshot(childSnapshot.child('promo_info'));
 
-      if (event.id == eventId) {
+      if (promo.id == promoId) {
 
-        returnedEvent = event;
-        String favCount = await EventCustom.getFavCount(event.id);
-        String inFav = await EventCustom.addedInFavOrNot(event.id);
-        String canEdit = await EventCustom.canEditOrNot(event.id);
-        event.canEdit = canEdit;
-        event.inFav = inFav;
-        event.addedToFavouritesCount = favCount;
-        event.today = todayEventOrNot(event).toString();
+        returnedPromo = promo;
+        String favCount = await PromoCustom.getFavCount(promo.id);
+        String inFav = await PromoCustom.addedInFavOrNot(promo.id);
+        String canEdit = await PromoCustom.canEditOrNot(promo.id);
+        promo.canEdit = canEdit;
+        promo.inFav = inFav;
+        promo.addedToFavouritesCount = favCount;
+        promo.today = todayPromoOrNot(promo).toString();
       }
     }
 
     // Возвращаем список
-    return returnedEvent;
+    return returnedPromo;
   }
 
 
 
-  static Future<String> getFavCount(String eventId) async {
+  static Future<String> getFavCount(String promoId) async {
 
-    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('events/$eventId/addedToFavourites');
+    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('promos/$promoId/addedToFavourites');
 
     // Получаем снимок данных папки
     DataSnapshot snapshot = await reference.get();
@@ -583,14 +586,14 @@ class EventCustom {
 
   }
 
-  static Future<String> addedInFavOrNot(String eventId) async {
+  static Future<String> addedInFavOrNot(String promoId) async {
 
     String addedToFavourites = 'false';
 
     if (UserCustom.currentUser?.uid != null)
     {
 
-      final DatabaseReference reference = FirebaseDatabase.instance.ref().child('events/$eventId/addedToFavourites/${UserCustom.currentUser?.uid}');
+      final DatabaseReference reference = FirebaseDatabase.instance.ref().child('promos/$promoId/addedToFavourites/${UserCustom.currentUser?.uid}');
 
       // Получаем снимок данных папки
       DataSnapshot snapshot = await reference.get();
@@ -609,11 +612,11 @@ class EventCustom {
 
   }
 
-  static Future<String> canEditOrNot(String eventId) async {
+  static Future<String> canEditOrNot(String promoId) async {
 
     String canEdit = 'false';
 
-    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('events/$eventId/canEdit');
+    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('promos/$promoId/canEdit');
 
     // Получаем снимок данных папки
     DataSnapshot snapshot = await reference.get();
@@ -630,26 +633,26 @@ class EventCustom {
 
   }
 
-  static Future<String> addEventToFav(String eventId) async {
+  static Future<String> addPromoToFav(String promoId) async {
 
     try {
 
       if (UserCustom.currentUser?.uid != null){
-        String eventPath = 'events/$eventId/addedToFavourites/${UserCustom.currentUser?.uid}';
-        String userPath = 'users/${UserCustom.currentUser?.uid}/favEvents/$eventId';
+        String promoPath = 'promos/$promoId/addedToFavourites/${UserCustom.currentUser?.uid}';
+        String userPath = 'users/${UserCustom.currentUser?.uid}/favPromos/$promoId';
 
         // Записываем данные пользователя в базу данных
-        await FirebaseDatabase.instance.ref().child(eventPath).set({
+        await FirebaseDatabase.instance.ref().child(promoPath).set({
           'userId': UserCustom.currentUser?.uid,
         });
 
         await FirebaseDatabase.instance.ref(userPath).set(
             {
-              'eventId': eventId,
+              'promoId': promoId,
             }
         );
 
-        addEventToCurrentFavList(eventId);
+        addPromoToCurrentFavList(promoId);
 
         // Если успешно
         return 'success';
@@ -668,70 +671,70 @@ class EventCustom {
     }
   }
 
-  static void deleteEventFromCurrentFavList(String eventId){
+  static void deletePromoFromCurrentFavList(String promoId){
 
-    currentFavEventsList.removeWhere((event) => event.id == eventId);
+    currentFavPromoList.removeWhere((promo) => promo.id == promoId);
 
   }
 
-  static void addEventToCurrentFavList(String eventId){
+  static void addPromoToCurrentFavList(String promoId){
 
-    for (var event in currentFeedEventsList){
-      if (event.id == eventId){
-        currentFavEventsList.add(event);
+    for (var promo in currentFeedPromoList){
+      if (promo.id == promoId){
+        currentFavPromoList.add(promo);
         break;
       }
     }
   }
 
 
-  static void updateCurrentEventListFavInformation(String eventId, String favCounter, String inFav){
+  static void updateCurrentPromoListFavInformation(String promoId, String favCounter, String inFav){
     // ---- Функция обновления списка из БД при добавлении или удалении из избранного
 
-    for (int i = 0; i<currentFeedEventsList.length; i++){
+    for (int i = 0; i<currentFeedPromoList.length; i++){
       // Если ID совпадает
-      if (currentFeedEventsList[i].id == eventId){
+      if (currentFeedPromoList[i].id == promoId){
         // Обновляем данные об состоянии этого заведения как избранного
-        currentFeedEventsList[i].addedToFavouritesCount = favCounter;
-        currentFeedEventsList[i].inFav = inFav;
+        currentFeedPromoList[i].addedToFavouritesCount = favCounter;
+        currentFeedPromoList[i].inFav = inFav;
         break;
       }
     }
 
-    for (int i = 0; i<currentFavEventsList.length; i++){
+    for (int i = 0; i<currentFavPromoList.length; i++){
       // Если ID совпадает
-      if (currentFavEventsList[i].id == eventId){
+      if (currentFavPromoList[i].id == promoId){
         // Обновляем данные об состоянии этого заведения как избранного
-        currentFavEventsList[i].addedToFavouritesCount = favCounter;
-        currentFavEventsList[i].inFav = inFav;
+        currentFavPromoList[i].addedToFavouritesCount = favCounter;
+        currentFavPromoList[i].inFav = inFav;
         break;
       }
     }
 
-    for (int i = 0; i<currentMyEventsList.length; i++){
+    for (int i = 0; i<currentMyPromoList.length; i++){
       // Если ID совпадает
-      if (currentMyEventsList[i].id == eventId){
+      if (currentMyPromoList[i].id == promoId){
         // Обновляем данные об состоянии этого заведения как избранного
-        currentMyEventsList[i].addedToFavouritesCount = favCounter;
-        currentMyEventsList[i].inFav = inFav;
+        currentMyPromoList[i].addedToFavouritesCount = favCounter;
+        currentMyPromoList[i].inFav = inFav;
         break;
       }
     }
 
   }
 
-  static void deleteEventFromCurrentEventLists(String eventId){
+  static void deletePromoFromCurrentPromoLists(String promoId){
     // ---- Функция обновления списка из БД при добавлении или удалении из избранного
 
-    currentFeedEventsList.removeWhere((event) => event.id == eventId);
-    currentFavEventsList.removeWhere((event) => event.id == eventId);
-    currentMyEventsList.removeWhere((event) => event.id == eventId);
+    currentFeedPromoList.removeWhere((promo) => promo.id == promoId);
+    currentFavPromoList.removeWhere((promo) => promo.id == promoId);
+    currentMyPromoList.removeWhere((promo) => promo.id == promoId);
   }
 
-  static Future<String> deleteEventFromFav(String eventId) async {
+  static Future<String> deletePromoFromFav(String promoId) async {
     try {
       if (UserCustom.currentUser?.uid != null){
-        DatabaseReference reference = FirebaseDatabase.instance.ref().child('events/$eventId/addedToFavourites').child(UserCustom.currentUser!.uid);
+        DatabaseReference reference = FirebaseDatabase.instance.ref().child('promos/$promoId/addedToFavourites').child(UserCustom.currentUser!.uid);
 
         // Проверяем, существует ли город с указанным ID
         DataSnapshot snapshot = await reference.get();
@@ -742,11 +745,11 @@ class EventCustom {
         // Удаляем город
         await reference.remove();
 
-        DatabaseReference referenceUser = FirebaseDatabase.instance.ref().child('users/${UserCustom.currentUser?.uid}/favEvents').child(eventId);
+        DatabaseReference referenceUser = FirebaseDatabase.instance.ref().child('users/${UserCustom.currentUser?.uid}/favPromos').child(promoId);
 
         DataSnapshot snapshotUser = await referenceUser.get();
         if (!snapshotUser.exists) {
-          return 'Мероприятие у пользователя не найдено';
+          return 'Акция у пользователя не найдена';
         }
 
         // Удаляем город
@@ -754,7 +757,7 @@ class EventCustom {
 
       }
 
-      deleteEventFromCurrentFavList(eventId);
+      deletePromoFromCurrentFavList(promoId);
 
       return 'success';
     } catch (error) {
@@ -763,12 +766,12 @@ class EventCustom {
   }
 
   // --- ФУНКЦИЯ ЗАПИСИ ДАННЫХ Места -----
-  static Future<String?> writeUserRoleInEvent(String eventId, String userId, String roleId) async {
+  static Future<String?> writeUserRoleInPromo(String promoId, String userId, String roleId) async {
 
     try {
 
-      String placePath = 'events/$eventId/managers/$userId';
-      String userPath = 'users/$userId/myEvents/$eventId';
+      String placePath = 'promos/$promoId/managers/$userId';
+      String userPath = 'users/$userId/myPromos/$promoId';
 
       // Записываем данные пользователя в базу данных
       await FirebaseDatabase.instance.ref().child(placePath).set({
@@ -778,7 +781,7 @@ class EventCustom {
 
       // Записываем данные пользователя в базу данных
       await FirebaseDatabase.instance.ref().child(userPath).set({
-        'eventId': eventId,
+        'eventId': promoId,
         'roleId': roleId,
       });
 
@@ -793,12 +796,12 @@ class EventCustom {
     }
   }
 
-  static Future<String?> deleteUserRoleInEvent(String eventId, String userId) async {
+  static Future<String?> deleteUserRoleInPromo(String promoId, String userId) async {
 
     try {
 
-      String placePath = 'events/$eventId/managers/$userId';
-      String userPath = 'users/$userId/myPlaces/$eventId';
+      String placePath = 'promos/$promoId/managers/$userId';
+      String userPath = 'users/$userId/myPromos/$promoId';
 
       // Записываем данные пользователя в базу данных
       await FirebaseDatabase.instance.ref().child(placePath).remove();
@@ -815,14 +818,14 @@ class EventCustom {
     }
   }
 
-  static EventTypeEnum getEventTypeEnum (String eventType) {
-    switch (eventType){
+  static PromoTypeEnum getPromoTypeEnum (String promoType) {
+    switch (promoType){
 
-      case 'once': return EventTypeEnum.once;
-      case 'long': return EventTypeEnum.long;
-      case 'regular': return EventTypeEnum.regular;
-      case 'irregular': return EventTypeEnum.irregular;
-      default: return EventTypeEnum.once;
+      case 'once': return PromoTypeEnum.once;
+      case 'long': return PromoTypeEnum.long;
+      case 'regular': return PromoTypeEnum.regular;
+      case 'irregular': return PromoTypeEnum.irregular;
+      default: return PromoTypeEnum.once;
 
     }
   }
@@ -841,9 +844,9 @@ class EventCustom {
   static String getNamePriceTypeEnum (PriceTypeOption priceType, {bool translate = false}) {
     switch (priceType){
 
-    case PriceTypeOption.free: return !translate? 'free' : 'Бесплатный вход';
-    case PriceTypeOption.fixed: return !translate? 'fixed' : 'Фиксированная';
-    case PriceTypeOption.range: return !translate? 'range' : 'От - До';
+      case PriceTypeOption.free: return !translate? 'free' : 'Бесплатный вход';
+      case PriceTypeOption.fixed: return !translate? 'fixed' : 'Фиксированная';
+      case PriceTypeOption.range: return !translate? 'range' : 'От - До';
 
     }
   }
@@ -856,14 +859,14 @@ class EventCustom {
     }
   }
 
-  static String getNameEventTypeEnum (EventTypeEnum enumItem, {bool translate = false}) {
+  static String getNamePromoTypeEnum (PromoTypeEnum enumItem, {bool translate = false}) {
 
     switch (enumItem){
 
-      case EventTypeEnum.once: return !translate? 'once' : 'Разовое';
-      case EventTypeEnum.long: return !translate? 'long' : 'Длительное';
-      case EventTypeEnum.regular: return !translate? 'regular' : 'Регулярное';
-      case EventTypeEnum.irregular: return !translate? 'irregular' : 'По расписанию';
+      case PromoTypeEnum.once: return !translate? 'once' : 'Разовое';
+      case PromoTypeEnum.long: return !translate? 'long' : 'Длительное';
+      case PromoTypeEnum.regular: return !translate? 'regular' : 'Регулярное';
+      case PromoTypeEnum.irregular: return !translate? 'irregular' : 'По расписанию';
 
     }
   }

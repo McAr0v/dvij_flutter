@@ -1,6 +1,9 @@
 
 import 'dart:convert';
 
+import 'package:dvij_flutter/classes/promo_class.dart';
+import 'package:dvij_flutter/classes/promo_type_enum.dart';
+
 import '../classes/event_category_class.dart';
 import '../classes/event_class.dart';
 import '../classes/event_type_enum.dart';
@@ -414,6 +417,172 @@ bool todayEventOrNot(EventCustom event) {
   return false;
 }
 
+bool todayPromoOrNot(PromoCustom promo) {
+
+  if (promo.promoType == PromoCustom.getNamePromoTypeEnum(PromoTypeEnum.once)){
+
+    String onceDay = extractDateOrTimeFromJson(promo.onceDay, 'date');
+    String startTime = extractDateOrTimeFromJson(promo.onceDay, 'startTime');
+    String endTime = extractDateOrTimeFromJson(promo.onceDay, 'endTime');
+
+    if (startTime != 'Не выбрано' && endTime != 'Не выбрано'){
+      // Разделяем часы и минуты для парсинга
+      List<String> startHourAndMinutes = startTime.split(':');
+      List<String> endHourAndMinutes = endTime.split(':');
+
+      DateTime startDateOnlyDate = DateTime.parse(onceDay);
+      DateTime startDateWithHours = DateTime.parse('$onceDay ${startHourAndMinutes[0]}:${startHourAndMinutes[1]}');
+      DateTime endDateWithHours = DateTime.parse('$onceDay ${endHourAndMinutes[0]}:${endHourAndMinutes[1]}');
+
+      return checkDateOnToday(startDateOnlyDate, startDateWithHours, endDateWithHours);
+    } else {
+      return false;
+    }
+
+
+
+  } else if (promo.promoType == PromoCustom.getNamePromoTypeEnum(PromoTypeEnum.long)){
+
+    String longStartDay = extractDateOrTimeFromJson(promo.longDays, 'startDate');
+    String longEndDay = extractDateOrTimeFromJson(promo.longDays, 'endDate');
+
+    String startTime = extractDateOrTimeFromJson(promo.longDays, 'startTime');
+    String endTime = extractDateOrTimeFromJson(promo.longDays, 'endTime');
+
+    // Разделяем часы и минуты для парсинга
+    List<String> startHourAndMinutes = startTime.split(':');
+    List<String> endHourAndMinutes = endTime.split(':');
+
+    DateTime startDayInLongTypeOnlyDate = DateTime.parse(longStartDay);
+    DateTime endDayInLongTypeWithHoursStartTime = DateTime.parse('$longEndDay ${startHourAndMinutes[0]}:${startHourAndMinutes[1]}');
+    DateTime endDayInLongTypeWithHoursEndTime = DateTime.parse('$longEndDay ${endHourAndMinutes[0]}:${endHourAndMinutes[1]}');
+
+    return checkLongDatesOnToday(
+        startDayInLongTypeOnlyDate,
+        endDayInLongTypeWithHoursStartTime,
+        endDayInLongTypeWithHoursEndTime
+    );
+
+  } else if (promo.promoType == PromoCustom.getNamePromoTypeEnum(PromoTypeEnum.regular)){
+
+    return checkRegularDatesOnToday(promo.regularDays);
+
+  } else if (promo.promoType == PromoCustom.getNamePromoTypeEnum(PromoTypeEnum.irregular)){
+
+    // Это списки для временного хранения дат и времени из стринга из БД при парсинге
+    List<String> tempIrregularDaysString = [];
+    List<String> tempStartTimeString = [];
+    List<String> tempEndTimeString = [];
+
+    // Парсим даты и время
+    parseIrregularDatesString(promo.irregularDays, tempIrregularDaysString, tempStartTimeString, tempEndTimeString);
+
+    // Проходим по списку
+    for (int i = 0; i<tempIrregularDaysString.length; i++){
+
+      // Парсим в списки часы и минуты
+      List<String> startHourAndMinutes = tempStartTimeString[i].split(':');
+      List<String> endHourAndMinutes = tempEndTimeString[i].split(':');
+
+      // По принципу работы с одиночной датой - парсим начальную дату без часов, а так же начальные и конечные даты с часами
+      DateTime tempStartDateOnlyDate = DateTime.parse(tempIrregularDaysString[i]);
+      DateTime tempStartDateWithHours = DateTime.parse(('${tempIrregularDaysString[i]} ${startHourAndMinutes[0]}:${startHourAndMinutes[1]}'));
+      DateTime tempEndDateWithHours = DateTime.parse(('${tempIrregularDaysString[i]} ${endHourAndMinutes[0]}:${endHourAndMinutes[1]}'));
+
+      // Как и в одиночной дате, сравниваем с текущим временем
+      bool result = checkDateOnToday(tempStartDateOnlyDate, tempStartDateWithHours, tempEndDateWithHours);
+      // Первый попавшийся элемент в списке вернет тру, значит сегодня
+      if (result) return true;
+    }
+    // Если не попался ни один из списка нерегулярных дат, вернет фалс
+    return false;
+  }
+  return false;
+}
+
+/*bool todayEventOrNot(EventCustom event) {
+
+  if (event.eventType == EventCustom.getNameEventTypeEnum(EventTypeEnum.once)){
+
+    String onceDay = extractDateOrTimeFromJson(event.onceDay, 'date');
+    String startTime = extractDateOrTimeFromJson(event.onceDay, 'startTime');
+    String endTime = extractDateOrTimeFromJson(event.onceDay, 'endTime');
+
+    if (startTime != 'Не выбрано' && endTime != 'Не выбрано'){
+      // Разделяем часы и минуты для парсинга
+      List<String> startHourAndMinutes = startTime.split(':');
+      List<String> endHourAndMinutes = endTime.split(':');
+
+      DateTime startDateOnlyDate = DateTime.parse(onceDay);
+      DateTime startDateWithHours = DateTime.parse('$onceDay ${startHourAndMinutes[0]}:${startHourAndMinutes[1]}');
+      DateTime endDateWithHours = DateTime.parse('$onceDay ${endHourAndMinutes[0]}:${endHourAndMinutes[1]}');
+
+      return checkDateOnToday(startDateOnlyDate, startDateWithHours, endDateWithHours);
+    } else {
+      return false;
+    }
+
+
+
+  } else if (event.eventType == EventCustom.getNameEventTypeEnum(EventTypeEnum.long)){
+
+    String longStartDay = extractDateOrTimeFromJson(event.longDays, 'startDate');
+    String longEndDay = extractDateOrTimeFromJson(event.longDays, 'endDate');
+
+    String startTime = extractDateOrTimeFromJson(event.longDays, 'startTime');
+    String endTime = extractDateOrTimeFromJson(event.longDays, 'endTime');
+
+    // Разделяем часы и минуты для парсинга
+    List<String> startHourAndMinutes = startTime.split(':');
+    List<String> endHourAndMinutes = endTime.split(':');
+
+    DateTime startDayInLongTypeOnlyDate = DateTime.parse(longStartDay);
+    DateTime endDayInLongTypeWithHoursStartTime = DateTime.parse('$longEndDay ${startHourAndMinutes[0]}:${startHourAndMinutes[1]}');
+    DateTime endDayInLongTypeWithHoursEndTime = DateTime.parse('$longEndDay ${endHourAndMinutes[0]}:${endHourAndMinutes[1]}');
+
+    return checkLongDatesOnToday(
+        startDayInLongTypeOnlyDate,
+        endDayInLongTypeWithHoursStartTime,
+        endDayInLongTypeWithHoursEndTime
+    );
+
+  } else if (event.eventType == EventCustom.getNameEventTypeEnum(EventTypeEnum.regular)){
+
+    return checkRegularDatesOnToday(event.regularDays);
+
+  } else if (event.eventType == EventCustom.getNameEventTypeEnum(EventTypeEnum.irregular)){
+
+    // Это списки для временного хранения дат и времени из стринга из БД при парсинге
+    List<String> tempIrregularDaysString = [];
+    List<String> tempStartTimeString = [];
+    List<String> tempEndTimeString = [];
+
+    // Парсим даты и время
+    parseIrregularDatesString(event.irregularDays, tempIrregularDaysString, tempStartTimeString, tempEndTimeString);
+
+    // Проходим по списку
+    for (int i = 0; i<tempIrregularDaysString.length; i++){
+
+      // Парсим в списки часы и минуты
+      List<String> startHourAndMinutes = tempStartTimeString[i].split(':');
+      List<String> endHourAndMinutes = tempEndTimeString[i].split(':');
+
+      // По принципу работы с одиночной датой - парсим начальную дату без часов, а так же начальные и конечные даты с часами
+      DateTime tempStartDateOnlyDate = DateTime.parse(tempIrregularDaysString[i]);
+      DateTime tempStartDateWithHours = DateTime.parse(('${tempIrregularDaysString[i]} ${startHourAndMinutes[0]}:${startHourAndMinutes[1]}'));
+      DateTime tempEndDateWithHours = DateTime.parse(('${tempIrregularDaysString[i]} ${endHourAndMinutes[0]}:${endHourAndMinutes[1]}'));
+
+      // Как и в одиночной дате, сравниваем с текущим временем
+      bool result = checkDateOnToday(tempStartDateOnlyDate, tempStartDateWithHours, tempEndDateWithHours);
+      // Первый попавшийся элемент в списке вернет тру, значит сегодня
+      if (result) return true;
+    }
+    // Если не попался ни один из списка нерегулярных дат, вернет фалс
+    return false;
+  }
+  return false;
+}*/
+
 void parseIrregularDatesString(String inputString, List<String> datesList, List<String> startTimesList, List<String> endTimesList) {
   RegExp dateRegExp = RegExp(r'"date": "([^"]+)", "startTime": "([^"]+)", "endTime": "([^"]+)"');
 
@@ -545,7 +714,7 @@ bool checkDateOnToday(DateTime startEventDateOnlyDate, DateTime startEventDateWi
   return today.isAfter(startEventDateOnlyDate) && today.isBefore(currentEndEventDate);
 }
 
-bool checkDatesForFilter (
+bool checkEventsDatesForFilter (
     EventCustom event,
     DateTime selectedStartDatePeriod,
     DateTime selectedEndDatePeriod,
@@ -554,15 +723,32 @@ bool checkDatesForFilter (
   EventTypeEnum eventTypeEnum = EventCustom.getEventTypeEnum(event.eventType);
 
   switch (eventTypeEnum) {
-    case EventTypeEnum.once: return checkOnceDayForFilter(event, selectedStartDatePeriod, selectedEndDatePeriod);
-    case EventTypeEnum.long: return checkLongDayForFilter(event, selectedStartDatePeriod, selectedEndDatePeriod);
-    case EventTypeEnum.regular: return checkRegularDayForFilter(event, selectedStartDatePeriod, selectedEndDatePeriod);
-    case EventTypeEnum.irregular: return checkIrregularDayForFilter(event, selectedStartDatePeriod, selectedEndDatePeriod);
+    case EventTypeEnum.once: return checkEventOnceDayForFilter(event, selectedStartDatePeriod, selectedEndDatePeriod);
+    case EventTypeEnum.long: return checkEventLongDayForFilter(event, selectedStartDatePeriod, selectedEndDatePeriod);
+    case EventTypeEnum.regular: return checkEventRegularDayForFilter(event, selectedStartDatePeriod, selectedEndDatePeriod);
+    case EventTypeEnum.irregular: return checkEventIrregularDayForFilter(event, selectedStartDatePeriod, selectedEndDatePeriod);
   }
 
 }
 
-bool checkOnceDayForFilter (
+bool checkPromosDatesForFilter (
+    PromoCustom promo,
+    DateTime selectedStartDatePeriod,
+    DateTime selectedEndDatePeriod,
+    ) {
+
+  PromoTypeEnum promoTypeEnum = PromoCustom.getPromoTypeEnum(promo.promoType);
+
+  switch (promoTypeEnum) {
+    case PromoTypeEnum.once: return checkPromoOnceDayForFilter(promo, selectedStartDatePeriod, selectedEndDatePeriod);
+    case PromoTypeEnum.long: return checkPromoLongDayForFilter(promo, selectedStartDatePeriod, selectedEndDatePeriod);
+    case PromoTypeEnum.regular: return checkPromoRegularDayForFilter(promo, selectedStartDatePeriod, selectedEndDatePeriod);
+    case PromoTypeEnum.irregular: return checkPromoIrregularDayForFilter(promo, selectedStartDatePeriod, selectedEndDatePeriod);
+  }
+
+}
+
+bool checkEventOnceDayForFilter (
     EventCustom event,
     DateTime selectedStartDatePeriod,
     DateTime selectedEndDatePeriod,
@@ -577,7 +763,22 @@ bool checkOnceDayForFilter (
 
 }
 
-bool checkLongDayForFilter (
+bool checkPromoOnceDayForFilter (
+    PromoCustom promo,
+    DateTime selectedStartDatePeriod,
+    DateTime selectedEndDatePeriod,
+    ) {
+
+  // ФУНКЦИЯ ПРОВЕРКИ ОДИНОЧНОЙ ДАТЫ НА ПОПАДАНИЕ В ЗАДАННЫЙ ПЕРИОД
+
+  DateTime eventDate = DateTime.parse(extractDateOrTimeFromJson(promo.onceDay, 'date'));
+
+  return (eventDate.isAtSameMomentAs(selectedStartDatePeriod) || eventDate.isAfter(selectedStartDatePeriod)) &&
+      (eventDate.isBefore(selectedEndDatePeriod) || eventDate.isAtSameMomentAs(selectedEndDatePeriod));
+
+}
+
+bool checkEventLongDayForFilter (
     EventCustom event,
     DateTime selectedStartDatePeriod,
     DateTime selectedEndDatePeriod,
@@ -593,7 +794,66 @@ bool checkLongDayForFilter (
 
 }
 
-bool checkRegularDayForFilter (
+bool checkPromoLongDayForFilter (
+    PromoCustom promo,
+    DateTime selectedStartDatePeriod,
+    DateTime selectedEndDatePeriod,
+    ) {
+
+  // ФУНКЦИЯ ПРОВЕРКИ ДАТЫ В ВИДЕ ПЕРИОДА НА ПОПАДАНИЕ В ЗАДАННЫЙ ПЕРИОД
+
+  DateTime eventStartDate = DateTime.parse(extractDateOrTimeFromJson(promo.longDays, 'startDate'));
+  DateTime eventEndDate = DateTime.parse(extractDateOrTimeFromJson(promo.longDays, 'endDate'));
+
+  return (eventStartDate.isAtSameMomentAs(selectedEndDatePeriod) || eventStartDate.isBefore(selectedEndDatePeriod) &&
+      eventEndDate.isAtSameMomentAs(selectedStartDatePeriod) || eventEndDate.isAfter(selectedStartDatePeriod));
+
+}
+
+bool checkPromoRegularDayForFilter (
+    PromoCustom promo,
+    DateTime selectedStartDatePeriod,
+    DateTime selectedEndDatePeriod,
+    ) {
+
+  // ФУНКЦИЯ ПРОВЕРКИ РЕГУЛЯРНОЙ ДАТЫ НА ПОПАДАНИЕ В ЗАДАННЫЙ ПЕРИОД
+
+  bool result = false;
+
+  List<int> promoWeekDays = [];
+  List<int> filterWeekDays = [];
+
+  // Считываем дни недели, в которые проводится мероприятие
+  for (int i = 0; i<7; i++){
+
+    String tempStartTime = extractDateOrTimeFromJson(promo.regularDays, 'startTime${i+1}');
+
+    if (tempStartTime != 'Не выбрано') promoWeekDays.add(i+1);
+
+  }
+
+  // Считываем дни недели периода из фильтра
+
+  for (int i = 0; i<7; i++){
+
+    DateTime tempDate = selectedStartDatePeriod.add(Duration(days: i));
+
+    if (tempDate.isBefore(selectedEndDatePeriod) || tempDate.isAtSameMomentAs(selectedEndDatePeriod)){
+      filterWeekDays.add(tempDate.weekday);
+    }
+  }
+
+  for (int eventWeekDay in promoWeekDays){
+    if (promoWeekDays.isNotEmpty && filterWeekDays.isNotEmpty && filterWeekDays.contains(eventWeekDay)) {
+      result = true;
+    }
+  }
+
+  return result;
+
+}
+
+bool checkEventRegularDayForFilter (
     EventCustom event,
     DateTime selectedStartDatePeriod,
     DateTime selectedEndDatePeriod,
@@ -636,7 +896,7 @@ bool checkRegularDayForFilter (
 
 }
 
-bool checkIrregularDayForFilter(
+bool checkEventIrregularDayForFilter(
     EventCustom event,
     DateTime selectedStartDatePeriod,
     DateTime selectedEndDatePeriod,
@@ -648,6 +908,40 @@ bool checkIrregularDayForFilter(
 
   // Парсим даты и время
   parseIrregularDatesString(event.irregularDays, tempIrregularDaysString, tempStartTimeString, tempEndTimeString);
+
+  // Проходим по списку
+  for (int i = 0; i<tempIrregularDaysString.length; i++){
+
+    // По принципу работы с одиночной датой - парсим начальную дату без часов, а так же начальные и конечные даты с часами
+    DateTime tempOnlyDate = DateTime.parse(tempIrregularDaysString[i]);
+
+    // Как и в одиночной дате, сравниваем с текущим временем
+
+    if (
+    (tempOnlyDate.isAfter(selectedStartDatePeriod) || tempOnlyDate.isAtSameMomentAs(selectedStartDatePeriod))
+        && (tempOnlyDate.isBefore(selectedEndDatePeriod) || tempOnlyDate.isAtSameMomentAs(selectedEndDatePeriod))
+    ){
+      return true;
+    }
+
+  }
+
+  return false;
+
+}
+
+bool checkPromoIrregularDayForFilter(
+    PromoCustom promo,
+    DateTime selectedStartDatePeriod,
+    DateTime selectedEndDatePeriod,
+    ){
+
+  List<String> tempIrregularDaysString = [];
+  List<String> tempStartTimeString = [];
+  List<String> tempEndTimeString = [];
+
+  // Парсим даты и время
+  parseIrregularDatesString(promo.irregularDays, tempIrregularDaysString, tempStartTimeString, tempEndTimeString);
 
   // Проходим по списку
   for (int i = 0; i<tempIrregularDaysString.length; i++){
