@@ -1,6 +1,7 @@
 import 'package:dvij_flutter/classes/event_category_class.dart';
 import 'package:dvij_flutter/classes/place_category_class.dart';
 import 'package:dvij_flutter/classes/place_role_class.dart';
+import 'package:dvij_flutter/classes/promo_category_class.dart';
 import 'package:dvij_flutter/classes/role_in_app.dart';
 import 'package:dvij_flutter/screens/cities_screens/cities_list_screen.dart';
 import 'package:dvij_flutter/screens/otherPages/privacy_policy_page.dart';
@@ -36,6 +37,7 @@ void main() async {
   await PlaceCategory.getPlaceCategoryAndSave();
   await EventCategory.getEventCategoryAndSave();
   await PlaceRole.getPlaceRolesAndSave();
+  await PromoCategory.getPromoCategoryAndSave();
 
   final FirebaseAuth auth = FirebaseAuth.instance;
   if (auth.currentUser != null)

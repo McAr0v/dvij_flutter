@@ -3,6 +3,7 @@ import 'package:dvij_flutter/navigation/profile_box_in_drawer.dart';
 import 'package:dvij_flutter/screens/event_categories_screens/event_categories_list_screen.dart';
 import 'package:dvij_flutter/screens/place_categories_screens/place_categories_list_screen.dart';
 import 'package:dvij_flutter/screens/place_roles_screens/place_roles_list_screen.dart';
+import 'package:dvij_flutter/screens/promo_categories_screen/promo_categories_list_screen.dart';
 import 'package:dvij_flutter/screens/role_in_app_screens/roles_in_app_list_screen.dart';
 import 'package:dvij_flutter/screens/users_list_screens/users_list_screen.dart';
 import 'package:flutter/material.dart';
@@ -184,6 +185,19 @@ class CustomDrawer extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                       builder: (context) => const EventCategoriesListScreen()),
+                );
+              },
+            ),
+
+            if (local_user.UserCustom.accessLevel >= 80) ListTile(
+              leading: const Icon(Icons.category),
+              title: const Text('Список категорий акций'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const PromoCategoriesListScreen()),
                 );
               },
             ),
