@@ -680,7 +680,7 @@ class _CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
 
 
                           // Выгружаем изображение в БД и получаем URL картинки
-                          avatarURL = await imageUploader.uploadImageInPlace(placeId, compressedImage);
+                          avatarURL = await ImageUploader.uploadImageInPlace(placeId, compressedImage);
 
                           // Если URL аватарки есть
                           if (avatarURL != null) {

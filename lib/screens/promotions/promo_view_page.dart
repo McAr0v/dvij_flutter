@@ -1,4 +1,6 @@
 import 'package:dvij_flutter/classes/event_class.dart';
+import 'package:dvij_flutter/classes/promo_category_class.dart';
+import 'package:dvij_flutter/classes/promo_class.dart';
 import 'package:dvij_flutter/elements/events_elements/today_widget.dart';
 import 'package:dvij_flutter/elements/text_and_icons_widgets/headline_and_desc.dart';
 import 'package:dvij_flutter/elements/places_elements/now_is_work_widget.dart';
@@ -14,6 +16,7 @@ import 'package:dvij_flutter/screens/events/create_or_edit_event_screen.dart';
 import 'package:dvij_flutter/screens/places/create_or_edit_place_screen.dart';
 import 'package:dvij_flutter/screens/places/place_view_screen.dart';
 import 'package:dvij_flutter/screens/profile/edit_profile_screen.dart';
+import 'package:dvij_flutter/screens/promotions/create_or_edit_promo_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
@@ -44,40 +47,30 @@ import '../place_admins_screens/place_manager_add_screen.dart';
 
 // --- ЭКРАН ЗАЛОГИНЕВШЕГОСЯ ПОЛЬЗОВАТЕЛЯ -----
 
-class EventViewScreen extends StatefulWidget {
-  final String eventId;
-  const EventViewScreen({Key? key, required this.eventId}) : super(key: key);
+class PromoViewScreen extends StatefulWidget {
+  final String promoId;
+  const PromoViewScreen({Key? key, required this.promoId}) : super(key: key);
 
   @override
-  _EventViewScreenState createState() => _EventViewScreenState();
+  _PromoViewScreenState createState() => _PromoViewScreenState();
 }
 
-class _EventViewScreenState extends State<EventViewScreen> {
-
-  // ---- Инициализируем пустые переменные ----
-
-  //UserCustom userInfo = UserCustom.empty('', '');
-
-  // -- Список админов заведения
-  //List<UserCustom> placeAdminsList = [];
+class _PromoViewScreenState extends State<PromoViewScreen> {
 
   bool today = false;
 
   UserCustom creator = UserCustom.empty('', '');
   PlaceRole currentUserPlaceRole = PlaceRole(name: '', id: '', desc: '', controlLevel: '');
 
-  EventCustom event = EventCustom.empty();
+  PromoCustom promo = PromoCustom.empty();
   String city = '';
   String category = '';
 
-  DateTypeEnum eventTypeEnum = DateTypeEnum.once;
-  PriceTypeOption priceType = PriceTypeOption.free;
+  DateTypeEnum promoTypeEnum = DateTypeEnum.once;
 
   DateTime currentDate = DateTime.now();
 
   Place place = Place.emptyPlace;
-
-  String price = '';
 
   // --- Переключатель показа экрана загрузки -----
 
@@ -118,45 +111,41 @@ class _EventViewScreenState extends State<EventViewScreen> {
   Future<void> fetchAndSetData() async {
     try {
 
-      event = await EventCustom.getEventById(widget.eventId);
+      promo = await PromoCustom.getPromoById(widget.promoId);
 
-      eventTypeEnum = EventCustom.getEventTypeEnum(event.eventType);
+      promoTypeEnum = EventCustom.getEventTypeEnum(promo.promoType);
 
-      if (eventTypeEnum == DateTypeEnum.once && event.onceDay != ''){
-        onceDay = extractDateOrTimeFromJson(event.onceDay, 'date');
-        onceDayStartTime = extractDateOrTimeFromJson(event.onceDay, 'startTime');
-        onceDayFinishTime = extractDateOrTimeFromJson(event.onceDay, 'endTime');
+      if (promoTypeEnum == DateTypeEnum.once && promo.onceDay != ''){
+        onceDay = extractDateOrTimeFromJson(promo.onceDay, 'date');
+        onceDayStartTime = extractDateOrTimeFromJson(promo.onceDay, 'startTime');
+        onceDayFinishTime = extractDateOrTimeFromJson(promo.onceDay, 'endTime');
       }
 
-      if (eventTypeEnum == DateTypeEnum.long && event.longDays != '') {
-        longStartDay = extractDateOrTimeFromJson(event.longDays, 'startDate');
-        longEndDay = extractDateOrTimeFromJson(event.longDays, 'endDate');
-        longDayStartTime = extractDateOrTimeFromJson(event.longDays, 'startTime');
-        longDayFinishTime = extractDateOrTimeFromJson(event.longDays, 'endTime');
+      if (promoTypeEnum == DateTypeEnum.long && promo.longDays != '') {
+        longStartDay = extractDateOrTimeFromJson(promo.longDays, 'startDate');
+        longEndDay = extractDateOrTimeFromJson(promo.longDays, 'endDate');
+        longDayStartTime = extractDateOrTimeFromJson(promo.longDays, 'startTime');
+        longDayFinishTime = extractDateOrTimeFromJson(promo.longDays, 'endTime');
       }
 
-      if (eventTypeEnum == DateTypeEnum.regular && event.regularDays != ''){
+      if (promoTypeEnum == DateTypeEnum.regular && promo.regularDays != ''){
 
         _fillRegularList();
       }
 
-      if (eventTypeEnum == DateTypeEnum.irregular && event.irregularDays != ''){
+      if (promoTypeEnum == DateTypeEnum.irregular && promo.irregularDays != ''){
 
         // TODO Вынести эту функцию в отдельный класс. Она скопирована из CreateOrEditEventScreen
         // Парсим даты и время в списки
-        parseInputString(event.irregularDays, tempIrregularDaysString, chosenIrregularStartTime, chosenIrregularEndTime);
+        parseInputString(promo.irregularDays, tempIrregularDaysString, chosenIrregularStartTime, chosenIrregularEndTime);
 
       }
 
-      priceType = EventCustom.getPriceTypeEnum(event.priceType);
-
-      price = PriceMethods.getFormattedPriceString(event.priceType, event.price);
-
-      if (event.placeId != '') {
+      if (promo.placeId != '') {
         // placeAdminsList = await UserCustom.getPlaceAdminsUsers(event.placeId);
 
         // Считываем информацию о заведении
-        place = await Place.getPlaceById(event.placeId);
+        place = await Place.getPlaceById(promo.placeId);
 
 
       }
@@ -165,25 +154,25 @@ class _EventViewScreenState extends State<EventViewScreen> {
 
       // Выдаем права на редактирование мероприятия
       // Если наш пользователь создатель
-    if (UserCustom.currentUser != null && UserCustom.currentUser!.uid == event.creatorId){
+      if (UserCustom.currentUser != null && UserCustom.currentUser!.uid == promo.creatorId){
 
-      // Отдаем права создателя
-      currentUserPlaceRole = PlaceRole.getPlaceRoleFromListById('-NngrYovmKAw_cp0pYfJ');
+        // Отдаем права создателя
+        currentUserPlaceRole = PlaceRole.getPlaceRoleFromListById('-NngrYovmKAw_cp0pYfJ');
 
-    } else if (UserCustom.currentUser != null && UserCustom.currentUser!.uid != event.creatorId){
-      if (event.placeId != '') {
-        // Если не создатель, то пытаемся понять, может он админ заведения
-        currentUserPlaceRole = await UserCustom.getPlaceRoleInUserById(place.id, UserCustom.currentUser!.uid);
+      } else if (UserCustom.currentUser != null && UserCustom.currentUser!.uid != promo.creatorId){
+        if (promo.placeId != '') {
+          // Если не создатель, то пытаемся понять, может он админ заведения
+          currentUserPlaceRole = await UserCustom.getPlaceRoleInUserById(place.id, UserCustom.currentUser!.uid);
+        }
+
       }
 
-    }
+      creator = await UserCustom.getUserById(promo.creatorId);
 
-    creator = await UserCustom.getUserById(event.creatorId);
-
-      city = City.getCityName(event.city);
-      category = EventCategory.getEventCategoryName(event.category);
-      inFav = event.inFav!;
-      favCounter = int.parse(event.addedToFavouritesCount!);
+      city = City.getCityName(promo.city);
+      category = PromoCategory.getPromoCategoryName(promo.category);
+      inFav = promo.inFav!;
+      favCounter = int.parse(promo.addedToFavouritesCount!);
 
       // ---- Убираем экран загрузки -----
       setState(() {
@@ -195,10 +184,10 @@ class _EventViewScreenState extends State<EventViewScreen> {
   }
 
   // ---- Функция перехода в профиль ----
-  void navigateToEvents() {
+  void navigateToPromos() {
     Navigator.pushNamedAndRemoveUntil(
       context,
-      '/Events',
+      '/Promotions',
           (route) => false,
     );
   }
@@ -208,8 +197,8 @@ class _EventViewScreenState extends State<EventViewScreen> {
 
     for (int i = 0; i<regularStartTimes.length; i++){
 
-      regularStartTimes[i] = extractDateOrTimeFromJson(event.regularDays, 'startTime${i+1}');
-      regularFinishTimes[i] = extractDateOrTimeFromJson(event.regularDays, 'endTime${i+1}');
+      regularStartTimes[i] = extractDateOrTimeFromJson(promo.regularDays, 'startTime${i+1}');
+      regularFinishTimes[i] = extractDateOrTimeFromJson(promo.regularDays, 'endTime${i+1}');
 
     }
   }
@@ -219,7 +208,7 @@ class _EventViewScreenState extends State<EventViewScreen> {
 
     return Scaffold(
         appBar: AppBar(
-          title: Text(event.headline != '' ? event.headline : 'Загрузка...'),
+          title: Text(promo.headline != '' ? promo.headline : 'Загрузка...'),
           leading: IconButton(
             icon: const Icon(Icons.chevron_left),
             onPressed: () {
@@ -232,11 +221,11 @@ class _EventViewScreenState extends State<EventViewScreen> {
           children: [
             // ---- Экран загрузки ----
             if (loading) const LoadingScreen(loadingText: 'Подожди, идет загрузка данных',)
-            else if (deleting) const LoadingScreen(loadingText: 'Подожди, удаляем мероприятие',)
+            else if (deleting) const LoadingScreen(loadingText: 'Подожди, удаляем акцию',)
             else ListView(
 
                 children: [
-                  if (event.imageUrl != '') // Проверяем, есть ли ссылка на аватар
+                  if (promo.imageUrl != '') // Проверяем, есть ли ссылка на аватар
                   // TODO - Сделать более проработанную проверку аватарки
 
                     Stack(
@@ -247,7 +236,7 @@ class _EventViewScreenState extends State<EventViewScreen> {
                           height: MediaQuery.of(context).size.width * 0.7, // Ширина экрана
                           decoration: BoxDecoration(
                             image: DecorationImage(
-                              image: NetworkImage(event.imageUrl), // Используйте ссылку на изображение из вашего Place
+                              image: NetworkImage(promo.imageUrl), // Используйте ссылку на изображение из вашего Place
                               fit: BoxFit.cover,
                             ),
                             borderRadius: const BorderRadius.only(
@@ -281,13 +270,13 @@ class _EventViewScreenState extends State<EventViewScreen> {
                                 if (inFav == 'true')
                                 {
 
-                                  String resDel = await EventCustom.deleteEventFromFav(event.id);
+                                  String resDel = await PromoCustom.deletePromoFromFav(promo.id);
 
                                   if (resDel == 'success'){
                                     setState(() {
                                       inFav = 'false';
                                       favCounter --;
-                                      EventCustom.updateCurrentEventListFavInformation(event.id, favCounter.toString(), inFav);
+                                      PromoCustom.updateCurrentPromoListFavInformation(promo.id, favCounter.toString(), inFav);
                                     });
 
                                     showSnackBar(context, 'Удалено из избранных', AppColors.attentionRed, 1);
@@ -301,13 +290,16 @@ class _EventViewScreenState extends State<EventViewScreen> {
 
                                 }
                                 else {
-                                  String res = await EventCustom.addEventToFav(event.id);
+
+                                  String res = await PromoCustom.addPromoToFav(promo.id);
+
                                   if (res == 'success') {
 
                                     setState(() {
                                       inFav = 'true';
                                       favCounter ++;
-                                      EventCustom.updateCurrentEventListFavInformation(event.id, favCounter.toString(), inFav);
+                                      PromoCustom.updateCurrentPromoListFavInformation(promo.id, favCounter.toString(), inFav);
+
                                     });
 
                                     showSnackBar(context, 'Добавлено в избранные', Colors.green, 1);
@@ -351,14 +343,14 @@ class _EventViewScreenState extends State<EventViewScreen> {
 
                         // TODO - Такая проверка не пойдет. Иначе пользователь никак не сможет перейти на экран редактирования
 
-                        if (event.headline != '') Row(
+                        if (promo.headline != '') Row(
                           children: [
                             Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      event.headline,
+                                      promo.headline,
                                       style: Theme.of(context).textTheme.titleMedium,
                                     ),
                                     if (place.id != '') Text(
@@ -366,7 +358,7 @@ class _EventViewScreenState extends State<EventViewScreen> {
                                       style: Theme.of(context).textTheme.bodySmall,
                                     ),
                                     if (place.id == '') Text(
-                                      '$city, ${event.street}, ${event.house}',
+                                      '$city, ${promo.street}, ${promo.house}',
                                       style: Theme.of(context).textTheme.bodySmall,
                                     )
                                   ],
@@ -388,7 +380,7 @@ class _EventViewScreenState extends State<EventViewScreen> {
                               onPressed: () async {
                                 Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => CreateOrEditEventScreen(eventInfo: event))
+                                    MaterialPageRoute(builder: (context) => CreateOrEditPromoScreen(promoInfo: promo))
                                 );
                               },
                               // Действие при нажатии на кнопку редактирования
@@ -399,24 +391,10 @@ class _EventViewScreenState extends State<EventViewScreen> {
                         // ---- Остальные данные пользователя ----
 
                         // TODO Проверить вывод времени в функции определения сегодня
-                        if (event.today != 'false') const SizedBox(height: 5.0),
+                        if (promo.today != 'false') const SizedBox(height: 5.0),
 
                         // ПЕРЕДЕЛАТЬ ПОД СЕГОДНЯ
-                        if (event.today != 'false') TodayWidget(isTrue: bool.parse(event.today!)),
-
-                        const SizedBox(height: 16.0),
-
-                        Container(
-                          margin: EdgeInsets.zero,
-                          decoration: BoxDecoration(
-                            color: AppColors.greyOnBackground,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Padding (
-                            child: HeadlineAndDesc(headline: price, description: 'Стоимость билетов'),
-                            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                          ),
-                        ),
+                        if (promo.today != 'false') TodayWidget(isTrue: bool.parse(promo.today!)),
 
                         const SizedBox(height: 16.0),
 
@@ -436,7 +414,7 @@ class _EventViewScreenState extends State<EventViewScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     //const SizedBox(height: 20,),
-                                    Text(priceType == PriceTypeOption.free ? 'Подтвердить участие' : 'Заказать билеты', style: Theme.of(context).textTheme.titleMedium,),
+                                    Text('Контакты для связи', style: Theme.of(context).textTheme.titleMedium,),
                                     Text('По контактам ниже вы можете связаться с организатором', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.greyText),),
 
 
@@ -446,7 +424,7 @@ class _EventViewScreenState extends State<EventViewScreen> {
 
                               //const SizedBox(height: 16.0),
 
-                              SocialButtonsWidget(telegramUsername: event.telegram, instagramUsername: event.instagram, whatsappUsername: event.whatsapp, phoneNumber: event.phone,),
+                              SocialButtonsWidget(telegramUsername: promo.telegram, instagramUsername: promo.instagram, whatsappUsername: promo.whatsapp, phoneNumber: promo.phone,),
                               const SizedBox(height: 20.0),
                             ],
                           ),
@@ -454,23 +432,23 @@ class _EventViewScreenState extends State<EventViewScreen> {
 
                         const SizedBox(height: 16.0),
 
-                        if (event.desc != '') HeadlineAndDesc(headline: event.desc, description: 'Описание мероприятия'),
+                        if (promo.desc != '') HeadlineAndDesc(headline: promo.desc, description: 'Описание акции'),
 
                         const SizedBox(height: 16.0),
 
-                        if (eventTypeEnum == DateTypeEnum.once) ScheduleOnceAndLongWidget(
+                        if (promoTypeEnum == DateTypeEnum.once) ScheduleOnceAndLongWidget(
                           dateHeadline: 'Дата проведения',
-                          dateDesc: 'Мероприятие проводится один раз',
-                          eventTypeEnum: eventTypeEnum,
+                          dateDesc: 'Акция проводится один раз',
+                          eventTypeEnum: promoTypeEnum,
                           startTime: onceDayStartTime,
                           endTime: onceDayFinishTime,
                           onceDate: onceDay,
                         ),
 
-                        if (eventTypeEnum == DateTypeEnum.long) ScheduleOnceAndLongWidget(
+                        if (promoTypeEnum == DateTypeEnum.long) ScheduleOnceAndLongWidget(
                           dateHeadline: 'Расписание',
-                          dateDesc: 'Мероприятие проводится каждый день в течении указанного периода',
-                          eventTypeEnum: eventTypeEnum,
+                          dateDesc: 'Акция проводится каждый день в течении указанного периода',
+                          eventTypeEnum: promoTypeEnum,
                           startTime: longDayStartTime,
                           endTime: longDayFinishTime,
                           longStartDate: longStartDay,
@@ -479,21 +457,21 @@ class _EventViewScreenState extends State<EventViewScreen> {
 
 
 
-                        if (eventTypeEnum == DateTypeEnum.regular) ScheduleRegularAndIrregularWidget(
-                            eventTypeEnum: eventTypeEnum,
-                            regularStartTimes: regularStartTimes,
-                            regularFinishTimes: regularFinishTimes,
+                        if (promoTypeEnum == DateTypeEnum.regular) ScheduleRegularAndIrregularWidget(
+                          eventTypeEnum: promoTypeEnum,
+                          regularStartTimes: regularStartTimes,
+                          regularFinishTimes: regularFinishTimes,
                           headline: 'Расписание',
-                          desc: 'Мероприятие проводится каждую неделю в определенные дни',
+                          desc: 'Акция проводится каждую неделю в определенные дни',
                         ),
 
-                        if (eventTypeEnum == DateTypeEnum.irregular) ScheduleRegularAndIrregularWidget(
-                          eventTypeEnum: eventTypeEnum,
+                        if (promoTypeEnum == DateTypeEnum.irregular) ScheduleRegularAndIrregularWidget(
+                          eventTypeEnum: promoTypeEnum,
                           irregularDays: tempIrregularDaysString,
                           irregularStartTime: chosenIrregularStartTime,
                           irregularEndTime: chosenIrregularEndTime,
                           headline: 'Расписание',
-                          desc: 'Мероприятие проводится в определенные дни',
+                          desc: 'Акция проводится в определенные дни',
                         ),
 
                         const SizedBox(height: 16.0),
@@ -536,8 +514,8 @@ class _EventViewScreenState extends State<EventViewScreen> {
 
                                     SizedBox(height: 20,),
 
-                                    if (event.street != '' && place.id == '') HeadlineAndDesc(
-                                        headline: '${City.getCityNameInCitiesList(event.city).name}, ${event.street} ${event.house} ',
+                                    if (promo.street != '' && place.id == '') HeadlineAndDesc(
+                                        headline: '${City.getCityNameInCitiesList(promo.city).name}, ${promo.street} ${promo.house} ',
                                         description: 'Место проведения'
                                     ),
 
@@ -576,7 +554,7 @@ class _EventViewScreenState extends State<EventViewScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Создатель мероприятия',
+                                  'Создатель акции',
                                   style: Theme.of(context).textTheme.titleMedium,
                                 ),
 
@@ -595,9 +573,9 @@ class _EventViewScreenState extends State<EventViewScreen> {
                         ),
 
 
-                        if (event.createDate != '' && int.parse(currentUserPlaceRole.controlLevel) >= 90) const SizedBox(height: 30.0),
+                        if (promo.createDate != '' && int.parse(currentUserPlaceRole.controlLevel) >= 90) const SizedBox(height: 30.0),
 
-                        if (event.createDate != '' && int.parse(currentUserPlaceRole.controlLevel) >= 90) HeadlineAndDesc(headline: event.createDate, description: 'Создано в движе', ),
+                        if (promo.createDate != '' && int.parse(currentUserPlaceRole.controlLevel) >= 90) HeadlineAndDesc(headline: promo.createDate, description: 'Создано в движе', ),
 
                         const SizedBox(height: 30.0),
 
@@ -605,9 +583,9 @@ class _EventViewScreenState extends State<EventViewScreen> {
                         currentUserPlaceRole.controlLevel != ''
                             && int.parse(currentUserPlaceRole.controlLevel) >= 90
                         ) CustomButton(
-                          buttonText: 'Удалить мероприятие',
+                          buttonText: 'Удалить акцию',
                           onTapMethod: () async {
-                            bool? confirmed = await exitDialog(context, "Ты правда хочешь удалить мероприятие? Ты не сможешь восстановить данные" , 'Да', 'Нет', 'Удаление мероприятия');
+                            bool? confirmed = await exitDialog(context, "Ты правда хочешь удалить акцию? Ты не сможешь восстановить данные" , 'Да', 'Нет', 'Удаление акции');
 
                             if (confirmed != null && confirmed){
 
@@ -615,21 +593,20 @@ class _EventViewScreenState extends State<EventViewScreen> {
                                 deleting = true;
                               });
 
-                              String delete = await EventCustom.deleteEvent(widget.eventId, event.creatorId, event.placeId);
+                              String delete = await PromoCustom.deletePromo(widget.promoId, promo.creatorId, promo.placeId);
 
                               if (delete == 'success'){
 
-                                EventCustom.deleteEventFromCurrentEventLists(widget.eventId);
-                                //Place.deletePlaceFormCurrentPlaceLists(widget.eventId);
+                                PromoCustom.deletePromoFromCurrentPromoLists(widget.promoId);
 
-                                showSnackBar(context, 'Мероприятие успешно удалено', Colors.green, 2);
-                                navigateToEvents();
+                                showSnackBar(context, 'Акция успешно удалена', Colors.green, 2);
+                                navigateToPromos();
 
                                 setState(() {
                                   deleting = false;
                                 });
                               } else {
-                                showSnackBar(context, 'Мероприятие не было удалено по ошибке: $delete', AppColors.attentionRed, 2);
+                                showSnackBar(context, 'Акция не была удалена по ошибке: $delete', AppColors.attentionRed, 2);
                                 setState(() {
                                   deleting = false;
                                 });

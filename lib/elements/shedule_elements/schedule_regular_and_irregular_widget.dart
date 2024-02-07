@@ -1,7 +1,7 @@
 import 'package:dvij_flutter/methods/date_functions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../../classes/event_type_enum.dart';
+import '../../classes/date_type_enum.dart';
 import '../../themes/app_colors.dart';
 import '../text_and_icons_widgets/headline_and_desc.dart';
 
@@ -14,7 +14,7 @@ class ScheduleRegularAndIrregularWidget extends StatelessWidget {
   final String desc;
   final double verticalPadding;
   final Color backgroundColor;
-  final EventTypeEnum eventTypeEnum;
+  final DateTypeEnum eventTypeEnum;
   final List<String> regularStartTimes; // Передаваемая переменная
   final List<String> regularFinishTimes;
 
@@ -59,7 +59,7 @@ class ScheduleRegularAndIrregularWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
 
-                        if (eventTypeEnum == EventTypeEnum.regular && regularStartTimes.isNotEmpty && regularFinishTimes.isNotEmpty) Column(
+                        if (eventTypeEnum == DateTypeEnum.regular && regularStartTimes.isNotEmpty && regularFinishTimes.isNotEmpty) Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: List.generate(regularStartTimes.length, (index) {
@@ -72,7 +72,7 @@ class ScheduleRegularAndIrregularWidget extends StatelessWidget {
                           }),
                         ),
 
-                        if (eventTypeEnum == EventTypeEnum.irregular && irregularStartTime.isNotEmpty && irregularEndTime.isNotEmpty && irregularDays.isNotEmpty) Column(
+                        if (eventTypeEnum == DateTypeEnum.irregular && irregularStartTime.isNotEmpty && irregularEndTime.isNotEmpty && irregularDays.isNotEmpty) Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: List.generate(irregularDays.length, (index) {
@@ -89,7 +89,7 @@ class ScheduleRegularAndIrregularWidget extends StatelessWidget {
 
                         SizedBox(width: 30,),
 
-                        if (eventTypeEnum == EventTypeEnum.regular && regularStartTimes.isNotEmpty && regularFinishTimes.isNotEmpty) Column(
+                        if (eventTypeEnum == DateTypeEnum.regular && regularStartTimes.isNotEmpty && regularFinishTimes.isNotEmpty) Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: List.generate(regularStartTimes.length, (index) {
@@ -105,7 +105,7 @@ class ScheduleRegularAndIrregularWidget extends StatelessWidget {
                           }),
                         ),
 
-                        if (eventTypeEnum == EventTypeEnum.irregular && irregularStartTime.isNotEmpty && irregularEndTime.isNotEmpty && irregularDays.isNotEmpty) Column(
+                        if (eventTypeEnum == DateTypeEnum.irregular && irregularStartTime.isNotEmpty && irregularEndTime.isNotEmpty && irregularDays.isNotEmpty) Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: List.generate(irregularDays.length, (index) {

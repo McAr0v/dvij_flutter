@@ -1,7 +1,7 @@
 import 'package:dvij_flutter/methods/date_functions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../../classes/event_type_enum.dart';
+import '../../classes/date_type_enum.dart';
 import '../../themes/app_colors.dart';
 import '../text_and_icons_widgets/headline_and_desc.dart';
 
@@ -16,7 +16,7 @@ class ScheduleOnceAndLongWidget extends StatelessWidget {
   final String dateDesc;
   final double verticalPadding;
   final Color backgroundColor;
-  final EventTypeEnum eventTypeEnum;
+  final DateTypeEnum eventTypeEnum;
 
 
   ScheduleOnceAndLongWidget({
@@ -63,10 +63,10 @@ class ScheduleOnceAndLongWidget extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            if (eventTypeEnum == EventTypeEnum.once && onceDate != '') HeadlineAndDesc(headline: getHumanDate(onceDate, '-'), description: 'Дата проведения'),
-                            if (eventTypeEnum == EventTypeEnum.long && longStartDate != '') HeadlineAndDesc(headline: getHumanDate(longStartDate, '-'), description: 'Первый день'),
-                            if (eventTypeEnum == EventTypeEnum.long && longStartDate != '') const SizedBox(height: 20,),
-                            if (startTime != '' && endTime != '' && startTime != endTime && eventTypeEnum == EventTypeEnum.long) HeadlineAndDesc(
+                            if (eventTypeEnum == DateTypeEnum.once && onceDate != '') HeadlineAndDesc(headline: getHumanDate(onceDate, '-'), description: 'Дата проведения'),
+                            if (eventTypeEnum == DateTypeEnum.long && longStartDate != '') HeadlineAndDesc(headline: getHumanDate(longStartDate, '-'), description: 'Первый день'),
+                            if (eventTypeEnum == DateTypeEnum.long && longStartDate != '') const SizedBox(height: 20,),
+                            if (startTime != '' && endTime != '' && startTime != endTime && eventTypeEnum == DateTypeEnum.long) HeadlineAndDesc(
                                 headline: 'с $startTime до $endTime',
                                 description: 'Время проведения'
                             ),
@@ -79,11 +79,11 @@ class ScheduleOnceAndLongWidget extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            if (startTime != '' && endTime != '' && startTime != endTime && eventTypeEnum == EventTypeEnum.once) HeadlineAndDesc(
+                            if (startTime != '' && endTime != '' && startTime != endTime && eventTypeEnum == DateTypeEnum.once) HeadlineAndDesc(
                                 headline: 'с $startTime до $endTime',
                                 description: 'Время проведения'
                             ),
-                            if (eventTypeEnum == EventTypeEnum.long && longEndDate != '') HeadlineAndDesc(headline: getHumanDate(longEndDate, '-'), description: 'Последний день')
+                            if (eventTypeEnum == DateTypeEnum.long && longEndDate != '') HeadlineAndDesc(headline: getHumanDate(longEndDate, '-'), description: 'Последний день')
                           ],
                         ),
                       ],

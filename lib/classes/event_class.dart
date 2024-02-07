@@ -1,5 +1,6 @@
+
 import 'package:dvij_flutter/classes/city_class.dart';
-import 'package:dvij_flutter/classes/event_type_enum.dart';
+import 'package:dvij_flutter/classes/date_type_enum.dart';
 import 'package:dvij_flutter/classes/place_category_class.dart';
 import 'package:dvij_flutter/classes/place_sorting_options.dart';
 import 'package:dvij_flutter/classes/priceTypeOptions.dart';
@@ -531,8 +532,6 @@ class EventCustom {
 
   }
 
-
-
   static Future<EventCustom> getEventById(String eventId) async {
 
     EventCustom returnedEvent = EventCustom.empty();
@@ -815,14 +814,14 @@ class EventCustom {
     }
   }
 
-  static EventTypeEnum getEventTypeEnum (String eventType) {
+  static DateTypeEnum getEventTypeEnum (String eventType) {
     switch (eventType){
 
-      case 'once': return EventTypeEnum.once;
-      case 'long': return EventTypeEnum.long;
-      case 'regular': return EventTypeEnum.regular;
-      case 'irregular': return EventTypeEnum.irregular;
-      default: return EventTypeEnum.once;
+      case 'once': return DateTypeEnum.once;
+      case 'long': return DateTypeEnum.long;
+      case 'regular': return DateTypeEnum.regular;
+      case 'irregular': return DateTypeEnum.irregular;
+      default: return DateTypeEnum.once;
 
     }
   }
@@ -856,16 +855,56 @@ class EventCustom {
     }
   }
 
-  static String getNameEventTypeEnum (EventTypeEnum enumItem, {bool translate = false}) {
+  static String getNameEventTypeEnum (DateTypeEnum enumItem, {bool translate = false}) {
 
     switch (enumItem){
 
-      case EventTypeEnum.once: return !translate? 'once' : 'Разовое';
-      case EventTypeEnum.long: return !translate? 'long' : 'Длительное';
-      case EventTypeEnum.regular: return !translate? 'regular' : 'Регулярное';
-      case EventTypeEnum.irregular: return !translate? 'irregular' : 'По расписанию';
+      case DateTypeEnum.once: return !translate? 'once' : 'Разовое';
+      case DateTypeEnum.long: return !translate? 'long' : 'Длительное';
+      case DateTypeEnum.regular: return !translate? 'regular' : 'Регулярное';
+      case DateTypeEnum.irregular: return !translate? 'irregular' : 'По расписанию';
 
     }
+  }
+
+  static Future<List<EventCustom>> getEventsList(String eventsListInString, {String decimal = ','}) async {
+    List<EventCustom> tempList = [];
+
+    List<String> splittedString = eventsListInString.split(decimal);
+    print('111 --${splittedString[0]}-');
+
+    for (int i = 0; i < splittedString.length; i++){
+      EventCustom tempEvent = getEventFromFeedList(splittedString[i]);
+
+      if (tempEvent.id != ''){
+        tempList.add(tempEvent);
+      } else {
+        tempEvent = await getEventById(splittedString[i]);
+        if (tempEvent.id != ''){
+          tempList.add(tempEvent);
+        }
+      }
+    }
+
+    return tempList;
+
+  }
+
+  static EventCustom getEventFromFeedList (String eventId){
+
+    EventCustom result = EventCustom.emptyEvent;
+
+    if (currentFeedEventsList.isNotEmpty){
+      for (int i = 0; i < currentFeedEventsList.length; i++ )
+      {
+        if (currentFeedEventsList[i].id == eventId) {
+          return currentFeedEventsList[i];
+        }
+      }
+    }
+
+    return result;
+
   }
 
 }

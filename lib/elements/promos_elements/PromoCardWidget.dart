@@ -3,6 +3,8 @@ import 'package:dvij_flutter/classes/event_category_class.dart';
 import 'package:dvij_flutter/classes/event_class.dart';
 import 'package:dvij_flutter/classes/date_type_enum.dart';
 import 'package:dvij_flutter/classes/place_category_class.dart';
+import 'package:dvij_flutter/classes/promo_category_class.dart';
+import 'package:dvij_flutter/classes/promo_class.dart';
 import 'package:dvij_flutter/elements/buttons/custom_only_text_button.dart';
 import 'package:dvij_flutter/elements/events_elements/today_widget.dart';
 import 'package:dvij_flutter/elements/text_and_icons_widgets/for_cards_small_widget_with_icon_and_text.dart';
@@ -19,20 +21,20 @@ import '../../methods/price_methods.dart';
 import '../../screens/places/place_view_screen.dart';
 import '../places_elements/now_is_work_widget.dart';
 
-class EventCardWidget extends StatelessWidget {
-  final EventCustom event;
+class PromoCardWidget extends StatelessWidget {
+  final PromoCustom promo;
   final Function()? onFavoriteIconPressed; // Добавьте функцию обратного вызова
   final Function()? onTap; // Добавьте функцию обратного вызова
 
-  const EventCardWidget({super.key, required this.event, this.onFavoriteIconPressed, required this.onTap});
+  const PromoCardWidget({super.key, required this.promo, this.onFavoriteIconPressed, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
 
-    String eventCategory = EventCategory.getEventCategoryFromCategoriesList(event.category).name;
-    String eventCity = City.getCityByIdFromList(event.city).name;
+    String promoCategory = PromoCategory.getPromoCategoryFromCategoriesList(promo.category).name;
+    String promoCity = City.getCityByIdFromList(promo.city).name;
 
-    DateTypeEnum eventType = EventCustom.getEventTypeEnum(event.eventType);
+    DateTypeEnum promoType = PromoCustom.getPromoTypeEnum(promo.promoType);
 
     String startDate = '';
     String endDate = '';
@@ -41,27 +43,27 @@ class EventCardWidget extends StatelessWidget {
 
     List<String> regularStartTimes = fillTimeListWithDefaultValues('Не выбрано', 7);
     List<String> regularFinishTimes = fillTimeListWithDefaultValues('Не выбрано', 7);
-    
+
     DateTime timeNow = DateTime.now();
     int currentWeekDayNumber = timeNow.weekday;
 
-    if (eventType == DateTypeEnum.once && event.onceDay != ''){
-      startDate = extractDateOrTimeFromJson(event.onceDay, 'date');
-      startTime = extractDateOrTimeFromJson(event.onceDay, 'startTime');
-      endTime = extractDateOrTimeFromJson(event.onceDay, 'endTime');
+    if (promoType == DateTypeEnum.once && promo.onceDay != ''){
+      startDate = extractDateOrTimeFromJson(promo.onceDay, 'date');
+      startTime = extractDateOrTimeFromJson(promo.onceDay, 'startTime');
+      endTime = extractDateOrTimeFromJson(promo.onceDay, 'endTime');
     }
-    if (eventType == DateTypeEnum.long && event.longDays != ''){
-      startDate = extractDateOrTimeFromJson(event.longDays, 'startDate');
-      endDate = extractDateOrTimeFromJson(event.longDays, 'endDate');
-      startTime = extractDateOrTimeFromJson(event.longDays, 'startTime');
-      endTime = extractDateOrTimeFromJson(event.longDays, 'endTime');
+    if (promoType == DateTypeEnum.long && promo.longDays != ''){
+      startDate = extractDateOrTimeFromJson(promo.longDays, 'startDate');
+      endDate = extractDateOrTimeFromJson(promo.longDays, 'endDate');
+      startTime = extractDateOrTimeFromJson(promo.longDays, 'startTime');
+      endTime = extractDateOrTimeFromJson(promo.longDays, 'endTime');
     }
 
-    if (eventType == DateTypeEnum.regular && event.regularDays != ''){
+    if (promoType == DateTypeEnum.regular && promo.regularDays != ''){
       for (int i = 0; i<regularStartTimes.length; i++){
 
-        regularStartTimes[i] = extractDateOrTimeFromJson(event.regularDays, 'startTime${i+1}');
-        regularFinishTimes[i] = extractDateOrTimeFromJson(event.regularDays, 'endTime${i+1}');
+        regularStartTimes[i] = extractDateOrTimeFromJson(promo.regularDays, 'startTime${i+1}');
+        regularFinishTimes[i] = extractDateOrTimeFromJson(promo.regularDays, 'endTime${i+1}');
 
       }
     }
@@ -77,8 +79,8 @@ class EventCardWidget extends StatelessWidget {
 
     List<int> irregularTodayIndexes = [];
 
-    if (event.irregularDays != ''){
-      parseInputString(event.irregularDays, tempIrregularDaysString, chosenIrregularStartTime, chosenIrregularEndTime);
+    if (promo.irregularDays != ''){
+      parseInputString(promo.irregularDays, tempIrregularDaysString, chosenIrregularStartTime, chosenIrregularEndTime);
 
       for (String date in tempIrregularDaysString){
         // Преобразуем даты из String в DateTime и кидаем в нужный список
@@ -117,7 +119,7 @@ class EventCardWidget extends StatelessWidget {
                   height: MediaQuery.of(context).size.width * 0.7, // Ширина экрана
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: NetworkImage(event.imageUrl), // Используйте ссылку на изображение из вашего Place
+                      image: NetworkImage(promo.imageUrl), // Используйте ссылку на изображение из вашего Place
                       fit: BoxFit.cover,
                     ),
                     borderRadius: const BorderRadius.only(
@@ -132,8 +134,8 @@ class EventCardWidget extends StatelessWidget {
                   right: 10.0,
                   child: SmallWidgetForCardsWithIconAndText(
                     icon: Icons.bookmark,
-                    text: '${event.addedToFavouritesCount}',
-                    iconColor: event.inFav == 'true' ? AppColors.brandColor : AppColors.white,
+                    text: '${promo.addedToFavouritesCount}',
+                    iconColor: promo.inFav == 'true' ? AppColors.brandColor : AppColors.white,
                     side: false,
                     backgroundColor: AppColors.greyBackground.withOpacity(0.8),
                     onPressed: onFavoriteIconPressed,
@@ -145,7 +147,7 @@ class EventCardWidget extends StatelessWidget {
                   left: 10.0,
                   child: SmallWidgetForCardsWithIconAndText(
                     //icon: Icons.visibility,
-                      text: eventCategory,
+                      text: promoCategory,
                       iconColor: AppColors.white,
                       side: true,
                       backgroundColor: AppColors.greyBackground.withOpacity(0.8)
@@ -163,7 +165,7 @@ class EventCardWidget extends StatelessWidget {
                 children: [
 
                   Text(
-                    event.headline,
+                    promo.headline,
                     style: Theme.of(context).textTheme.titleMedium,
                     softWrap: true,
                   ),
@@ -172,7 +174,7 @@ class EventCardWidget extends StatelessWidget {
                   // TODO Сделать отображение заведения если проходит в нем
 
                   Text(
-                    '$eventCity, ${event.street}, ${event.house}',
+                    '$promoCity, ${promo.street}, ${promo.house}',
                     style: Theme.of(context).textTheme.labelMedium,
                     softWrap: true,
                   ),
@@ -181,14 +183,14 @@ class EventCardWidget extends StatelessWidget {
 
                   Row(
                     children: [
-                      if (event.today == 'true') Text(
+                      if (promo.today == 'true') Text(
                         'Сегодня',
                         style: Theme.of(context).textTheme.labelMedium!.copyWith(color: Colors.green),
                       ),
 
-                      if (event.today == 'true') const SizedBox(width: 15,),
+                      if (promo.today == 'true') const SizedBox(width: 15,),
 
-                      if (event.placeId != '') Text(
+                      if (promo.placeId != '') Text(
                         'В заведении',
                         style: Theme.of(context).textTheme.labelMedium!.copyWith(color: Colors.green),
                       ),
@@ -200,7 +202,7 @@ class EventCardWidget extends StatelessWidget {
 
                   Text.rich(
                     TextSpan(
-                      text: event.desc,
+                      text: promo.desc,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     maxLines: 4, // Установите желаемое количество строк
@@ -214,7 +216,7 @@ class EventCardWidget extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
 
-                      if (eventType == DateTypeEnum.once)  Row(
+                      if (promoType == DateTypeEnum.once)  Row(
                         children: [
                           IconAndTextWidget(
                             icon: FontAwesomeIcons.calendar,
@@ -234,13 +236,13 @@ class EventCardWidget extends StatelessWidget {
                         ],
                       ),
 
-                      if (eventType == DateTypeEnum.long) Row(
+                      if (promoType == DateTypeEnum.long) Row(
                         children: [
                           IconAndTextWidget(
-                              icon: FontAwesomeIcons.calendar,
-                              text: '${getHumanDate(startDate, '-', needYear: false)} - ${getHumanDate(endDate, '-', needYear: false)}',
-                              textSize: 'label',
-                              padding: 10,
+                            icon: FontAwesomeIcons.calendar,
+                            text: '${getHumanDate(startDate, '-', needYear: false)} - ${getHumanDate(endDate, '-', needYear: false)}',
+                            textSize: 'label',
+                            padding: 10,
                           ),
 
                           const SizedBox(width: 20,),
@@ -253,8 +255,8 @@ class EventCardWidget extends StatelessWidget {
                           ),
                         ],
                       ),
-                      
-                      if (eventType == DateTypeEnum.regular) Row(
+
+                      if (promoType == DateTypeEnum.regular) Row(
                         children: [
                           const Icon(
                             FontAwesomeIcons.clock,
@@ -274,7 +276,7 @@ class EventCardWidget extends StatelessWidget {
 
                                   if(
                                   regularStartTimes[currentWeekDayNumber-1] != 'Не выбрано'
-                                  && regularFinishTimes[currentWeekDayNumber-1] != 'Не выбрано'
+                                      && regularFinishTimes[currentWeekDayNumber-1] != 'Не выбрано'
                                   ) Text(
                                     '${getHumanWeekday(currentWeekDayNumber-1, false)}: c ${regularStartTimes[currentWeekDayNumber-1]} до ${regularFinishTimes[currentWeekDayNumber-1]}',
                                     style: Theme.of(context).textTheme.bodySmall,
@@ -282,7 +284,7 @@ class EventCardWidget extends StatelessWidget {
                                   ),
 
                                   if(
-                                      regularStartTimes[currentWeekDayNumber-1] == 'Не выбрано'
+                                  regularStartTimes[currentWeekDayNumber-1] == 'Не выбрано'
                                       || regularFinishTimes[currentWeekDayNumber-1] == 'Не выбрано'
                                   ) Text(
                                     'Сегодня не проводится. Смотри расписание на другие дни',
@@ -296,7 +298,7 @@ class EventCardWidget extends StatelessWidget {
                         ],
                       ),
 
-                      if (eventType == DateTypeEnum.irregular) Row(
+                      if (promoType == DateTypeEnum.irregular) Row(
                         children: [
                           const Icon(
                             FontAwesomeIcons.clock,
@@ -317,7 +319,7 @@ class EventCardWidget extends StatelessWidget {
                                   if (irregularTodayIndexes.isNotEmpty) SizedBox(height: 5,),
 
                                   if (irregularTodayIndexes.isEmpty) Text(
-                                    'Сегодня мероприятие не проводится. Смотри другие даты в полном расписании в карточке',
+                                    'Сегодня акция не проводится. Смотри другие даты в полном расписании в карточке',
                                     style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.attentionRed),
                                     softWrap: true,
                                   ),
@@ -351,18 +353,6 @@ class EventCardWidget extends StatelessWidget {
                           )
                         ],
                       ),
-
-
-
-                      SizedBox(height: 20,),
-
-                      IconAndTextWidget(
-                        icon: FontAwesomeIcons.dollarSign,
-                        text: PriceMethods.getFormattedPriceString(event.priceType, event.price),
-                        textSize: 'bodySmall',
-                        padding: 10,
-                      ),
-
                     ],
                   ),
 

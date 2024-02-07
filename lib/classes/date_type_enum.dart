@@ -1,4 +1,4 @@
-enum EventTypeEnum {
+enum DateTypeEnum {
   once,
   long,
   regular,

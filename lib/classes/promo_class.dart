@@ -1,11 +1,10 @@
 import 'package:dvij_flutter/classes/city_class.dart';
-import 'package:dvij_flutter/classes/event_type_enum.dart';
+import 'package:dvij_flutter/classes/date_type_enum.dart';
 import 'package:dvij_flutter/classes/place_category_class.dart';
 import 'package:dvij_flutter/classes/place_sorting_options.dart';
 import 'package:dvij_flutter/classes/priceTypeOptions.dart';
 import 'package:dvij_flutter/classes/promo_category_class.dart';
 import 'package:dvij_flutter/classes/promo_sorting_options.dart';
-import 'package:dvij_flutter/classes/promo_type_enum.dart';
 import 'package:dvij_flutter/classes/user_class.dart';
 import 'package:dvij_flutter/methods/days_functions.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -31,8 +30,6 @@ class PromoCustom {
   String instagram;
   String imageUrl;
   String placeId;
-  String priceType;
-  String price;
   String onceDay;
   String longDays;
   String regularDays;
@@ -63,8 +60,6 @@ class PromoCustom {
     required this.longDays,
     required this.regularDays,
     required this.irregularDays,
-    required this.priceType,
-    required this.price,
     this.addedToFavouritesCount,
     this.canEdit,
     this.inFav,
@@ -94,8 +89,6 @@ class PromoCustom {
     DataSnapshot longDaysSnapshot = snapshot.child('longDays');
     DataSnapshot regularDaysSnapshot = snapshot.child('regularDays');
     DataSnapshot irregularDaysSnapshot = snapshot.child('irregularDays');
-    DataSnapshot priceSnapshot = snapshot.child('price');
-    DataSnapshot priceTypeSnapshot = snapshot.child('priceType');
 
     return PromoCustom(
         id: idSnapshot.value.toString() ?? '',
@@ -114,8 +107,6 @@ class PromoCustom {
         instagram: instagramSnapshot.value.toString() ?? '',
         imageUrl: imageUrlSnapshot.value.toString() ?? '',
         placeId: placeIdSnapshot.value.toString() ?? '',
-        price: priceSnapshot.value.toString() ?? '',
-        priceType: priceTypeSnapshot.value.toString() ?? '',
         onceDay: onceDayDateSnapshot.value.toString() ?? '',
         longDays: longDaysSnapshot.value.toString() ?? '',
         regularDays: regularDaysSnapshot.value.toString() ?? '',
@@ -145,8 +136,6 @@ class PromoCustom {
       instagram: '',
       imageUrl: 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2Fdvij_unknow_user.jpg?alt=media&token=b63ea5ef-7bdf-49e9-a3ef-1d34d676b6a7',
       placeId: '',
-      price: '',
-      priceType: '',
       onceDay: '',
       longDays: '',
       regularDays: '',
@@ -172,8 +161,6 @@ class PromoCustom {
         instagram: '',
         imageUrl: 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2Fdvij_unknow_user.jpg?alt=media&token=b63ea5ef-7bdf-49e9-a3ef-1d34d676b6a7',
         placeId: '',
-        price: '',
-        priceType: '',
         onceDay: '',
         longDays: '',
         regularDays: '',
@@ -217,8 +204,6 @@ class PromoCustom {
         'longDays': promo.longDays,
         'regularDays': promo.regularDays,
         'irregularDays': promo.irregularDays,
-        'price': promo.price ?? '',
-        'priceType': promo.priceType ?? ''
 
       });
 
@@ -460,7 +445,6 @@ class PromoCustom {
   static List<PromoCustom> filterPromos(
       PromoCategory promoCategoryFromFilter,
       City cityFromFilter,
-      bool freePrice,
       bool today,
       bool onlyFromPlacePromos,
       List<PromoCustom> promosList,
@@ -475,7 +459,6 @@ class PromoCustom {
       bool result = checkFilter(
           promoCategoryFromFilter,
           cityFromFilter,
-          freePrice,
           today,
           onlyFromPlacePromos,
           promosList[i],
@@ -494,7 +477,6 @@ class PromoCustom {
   static bool checkFilter (
       PromoCategory promoCategoryFromFilter,
       City cityFromFilter,
-      bool freePrice,
       bool today,
       bool onlyFromPlacePromos,
       PromoCustom promo,
@@ -507,12 +489,11 @@ class PromoCustom {
 
     bool category = promoCategoryFromFilter.id == '' || promoCategoryFromFilter.id == categoryFromEvent.id;
     bool city = cityFromFilter.id == '' || cityFromFilter.id == cityFromEvent.id;
-    bool checkFreePrice = freePrice == false || promo.price == '';
     bool checkToday = today == false || bool.parse(promo.today!) == true;
     bool checkFromPlaceEvent = onlyFromPlacePromos == false || promo.placeId != '';
     bool checkDate = selectedStartDatePeriod == DateTime(2100) || checkPromosDatesForFilter(promo, selectedStartDatePeriod, selectedEndDatePeriod);
 
-    return category && city && checkFreePrice && checkToday && checkFromPlaceEvent && checkDate;
+    return category && city && checkToday && checkFromPlaceEvent && checkDate;
 
 
   }
@@ -818,57 +799,15 @@ class PromoCustom {
     }
   }
 
-  static PromoTypeEnum getPromoTypeEnum (String promoType) {
+  static DateTypeEnum getPromoTypeEnum (String promoType) {
     switch (promoType){
 
-      case 'once': return PromoTypeEnum.once;
-      case 'long': return PromoTypeEnum.long;
-      case 'regular': return PromoTypeEnum.regular;
-      case 'irregular': return PromoTypeEnum.irregular;
-      default: return PromoTypeEnum.once;
+      case 'once': return DateTypeEnum.once;
+      case 'long': return DateTypeEnum.long;
+      case 'regular': return DateTypeEnum.regular;
+      case 'irregular': return DateTypeEnum.irregular;
+      default: return DateTypeEnum.once;
 
     }
   }
-
-  static PriceTypeOption getPriceTypeEnum (String priceType) {
-    switch (priceType){
-
-      case 'free': return PriceTypeOption.free;
-      case 'fixed': return PriceTypeOption.fixed;
-      case 'range': return PriceTypeOption.range;
-      default: return PriceTypeOption.free;
-
-    }
-  }
-
-  static String getNamePriceTypeEnum (PriceTypeOption priceType, {bool translate = false}) {
-    switch (priceType){
-
-      case PriceTypeOption.free: return !translate? 'free' : 'Бесплатный вход';
-      case PriceTypeOption.fixed: return !translate? 'fixed' : 'Фиксированная';
-      case PriceTypeOption.range: return !translate? 'range' : 'От - До';
-
-    }
-  }
-
-  static String getPriceString (PriceTypeOption priceType, String fixedPrice, String startPrice, String endPrice){
-    switch (priceType){
-      case PriceTypeOption.free: return '';
-      case PriceTypeOption.fixed: return fixedPrice;
-      case PriceTypeOption.range: return '$startPrice-$endPrice';
-    }
-  }
-
-  static String getNamePromoTypeEnum (PromoTypeEnum enumItem, {bool translate = false}) {
-
-    switch (enumItem){
-
-      case PromoTypeEnum.once: return !translate? 'once' : 'Разовое';
-      case PromoTypeEnum.long: return !translate? 'long' : 'Длительное';
-      case PromoTypeEnum.regular: return !translate? 'regular' : 'Регулярное';
-      case PromoTypeEnum.irregular: return !translate? 'irregular' : 'По расписанию';
-
-    }
-  }
-
 }

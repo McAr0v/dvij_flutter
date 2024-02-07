@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:dvij_flutter/classes/event_category_class.dart';
-import 'package:dvij_flutter/classes/event_type_enum.dart';
+import 'package:dvij_flutter/classes/date_type_enum.dart';
 import 'package:dvij_flutter/classes/place_class.dart';
 import 'package:dvij_flutter/classes/priceTypeOptions.dart';
 import 'package:dvij_flutter/elements/category_element_in_edit_screen.dart';
@@ -80,7 +80,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
   late RoleInApp chosenRoleInApp;
   late int accessLevel;
 
-  EventTypeEnum eventTypeEnum = EventTypeEnum.once;
+  DateTypeEnum eventTypeEnum = DateTypeEnum.once;
 
   PriceTypeOption priceType = PriceTypeOption.free;
 
@@ -174,7 +174,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
     eventTypeEnum = EventCustom.getEventTypeEnum(widget.eventInfo.eventType);
 
-    if (eventTypeEnum == EventTypeEnum.once && widget.eventInfo.onceDay != ''){
+    if (eventTypeEnum == DateTypeEnum.once && widget.eventInfo.onceDay != ''){
       onceDay = extractDateOrTimeFromJson(widget.eventInfo.onceDay, 'date');
       selectedDayInOnceType = DateTime.parse(onceDay);
 
@@ -189,7 +189,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
       selectedDayInOnceType = DateTime(2100);
     }
 
-    if (eventTypeEnum == EventTypeEnum.long && widget.eventInfo.longDays != '') {
+    if (eventTypeEnum == DateTypeEnum.long && widget.eventInfo.longDays != '') {
 
      longStartDay = extractDateOrTimeFromJson(widget.eventInfo.longDays, 'startDate');
      longEndDay = extractDateOrTimeFromJson(widget.eventInfo.longDays, 'endDate');
@@ -203,12 +203,12 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
       selectedEndDayInLongType = DateTime(2100);
     }
 
-    if (eventTypeEnum == EventTypeEnum.regular && widget.eventInfo.regularDays != ''){
+    if (eventTypeEnum == DateTypeEnum.regular && widget.eventInfo.regularDays != ''){
 
       _fillRegularList();
     }
 
-    if (eventTypeEnum == EventTypeEnum.irregular && widget.eventInfo.irregularDays != ''){
+    if (eventTypeEnum == DateTypeEnum.irregular && widget.eventInfo.irregularDays != ''){
 
       // Парсим даты и время в списки
       parseInputString(widget.eventInfo.irregularDays, tempIrregularDaysString, chosenIrregularStartTime, chosenIrregularEndTime);
@@ -434,7 +434,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
                             TypeOfDateWidget(
                               type: eventTypeEnum,
-                              onChooseType: (EventTypeEnum? newValue) {
+                              onChooseType: (DateTypeEnum? newValue) {
                                 setState(() {
                                   eventTypeEnum = newValue!;
                                 });
@@ -443,7 +443,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
                             const SizedBox(height: 20.0),
 
-                            if (eventTypeEnum == EventTypeEnum.once) OnceTypeDateTimePickerWidget(
+                            if (eventTypeEnum == DateTypeEnum.once) OnceTypeDateTimePickerWidget(
                               //title: 'Выбери дату и время проведения мероприятия',
                                 dateLabelText: 'Дата проведения мероприятия',
                                 startTimeLabelText: "Начало",
@@ -477,7 +477,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
 
 
-                            if (eventTypeEnum == EventTypeEnum.long) LongTypeDateTimePickerWidget(
+                            if (eventTypeEnum == DateTypeEnum.long) LongTypeDateTimePickerWidget(
                                 startDateLabelText: 'Дата начала мероприятия',
                                 endDateLabelText: 'Дата завершения мероприятия',
                                 startTimeLabelText: "Начало",
@@ -524,7 +524,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                                 }
                             ),
 
-                            if (eventTypeEnum == EventTypeEnum.regular) Column(
+                            if (eventTypeEnum == DateTypeEnum.regular) Column(
                               children: List.generate(regularStartTimes.length, (index) {
                                 return RegularTwoTypeDateTimePickerWidget(
                                   startTimeLabelText: "Начало",
@@ -546,7 +546,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                               }).toList(),
                             ),
 
-                            if (eventTypeEnum == EventTypeEnum.irregular && chosenIrregularDays.isNotEmpty) Column(
+                            if (eventTypeEnum == DateTypeEnum.irregular && chosenIrregularDays.isNotEmpty) Column(
                               children: List.generate(chosenIrregularDays.length, (index) {
                                 return IrregularTypeDateTimePickerWidget(
                                     dateLabelText: "Дата проведения мероприятия",
@@ -588,8 +588,8 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                               }).toList(),
                             ),
 
-                            if (eventTypeEnum == EventTypeEnum.irregular) SizedBox(height: 20,),
-                            if (eventTypeEnum == EventTypeEnum.irregular) CustomButton(
+                            if (eventTypeEnum == DateTypeEnum.irregular) SizedBox(height: 20,),
+                            if (eventTypeEnum == DateTypeEnum.irregular) CustomButton(
                                 buttonText: "Добавить дату",
                                 onTapMethod: (){
                                   setState(() {
@@ -758,7 +758,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
 
                             // Выгружаем изображение в БД и получаем URL картинки
-                            avatarURL = await imageUploader.uploadImageInPlace(eventId, compressedImage);
+                            avatarURL = await ImageUploader.uploadImageInEvent(eventId, compressedImage);
 
                             // Если URL аватарки есть
                             if (avatarURL != null) {

@@ -1,10 +1,10 @@
 
 import 'package:flutter/material.dart';
-import '../../classes/event_type_enum.dart';
+import '../../classes/date_type_enum.dart';
 
 class TypeOfDateWidget extends StatelessWidget {
-  final EventTypeEnum type; // Передаваемая переменная
-  final Function(EventTypeEnum?) onChooseType;
+  final DateTypeEnum type; // Передаваемая переменная
+  final Function(DateTypeEnum?) onChooseType;
 
   const TypeOfDateWidget({super.key,
     required this.type,
@@ -31,14 +31,14 @@ class TypeOfDateWidget extends StatelessWidget {
 
         const SizedBox(height: 16.0),
 
-        DropdownButton<EventTypeEnum>(
+        DropdownButton<DateTypeEnum>(
           style: Theme.of(context).textTheme.bodySmall,
           isExpanded: true,
           value: type,
           onChanged: onChooseType,
           items: [
             DropdownMenuItem(
-                value: EventTypeEnum.once,
+                value: DateTypeEnum.once,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -56,7 +56,7 @@ class TypeOfDateWidget extends StatelessWidget {
                 )
             ),
             DropdownMenuItem(
-                value: EventTypeEnum.long,
+                value: DateTypeEnum.long,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -74,7 +74,7 @@ class TypeOfDateWidget extends StatelessWidget {
                 )
             ),
             DropdownMenuItem(
-                value: EventTypeEnum.regular,
+                value: DateTypeEnum.regular,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -92,7 +92,7 @@ class TypeOfDateWidget extends StatelessWidget {
                 )
             ),
             DropdownMenuItem(
-                value: EventTypeEnum.irregular,
+                value: DateTypeEnum.irregular,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

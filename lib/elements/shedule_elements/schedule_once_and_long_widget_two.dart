@@ -1,7 +1,7 @@
 import 'package:dvij_flutter/methods/date_functions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../../classes/event_type_enum.dart';
+import '../../classes/date_type_enum.dart';
 import '../../themes/app_colors.dart';
 import '../text_and_icons_widgets/headline_and_desc.dart';
 
@@ -16,7 +16,7 @@ class ScheduleOnceAndLongWidgetTwo extends StatelessWidget {
   final String dateDesc;
   final double verticalPadding;
   final Color backgroundColor;
-  final EventTypeEnum eventTypeEnum;
+  final DateTypeEnum eventTypeEnum;
 
 
   ScheduleOnceAndLongWidgetTwo({
@@ -46,7 +46,7 @@ class ScheduleOnceAndLongWidgetTwo extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
 
-            if (eventTypeEnum == EventTypeEnum.once && onceDate != '') Container(
+            if (eventTypeEnum == DateTypeEnum.once && onceDate != '') Container(
               margin: EdgeInsets.zero,
               decoration: BoxDecoration(
                 color: backgroundColor,
@@ -60,7 +60,7 @@ class ScheduleOnceAndLongWidgetTwo extends StatelessWidget {
 
 
 
-            if (eventTypeEnum == EventTypeEnum.long && longStartDate != '') Container(
+            if (eventTypeEnum == DateTypeEnum.long && longStartDate != '') Container(
               margin: EdgeInsets.zero,
               decoration: BoxDecoration(
                 color: backgroundColor,

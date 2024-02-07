@@ -40,6 +40,8 @@ class Place {
   String? canEdit;
   String? inFav;
   String? nowIsOpen;
+  String? eventsList;
+  String? promosList;
 
   Place({
     required this.id,
@@ -75,7 +77,9 @@ class Place {
     this.eventsCount,
     this.inFav,
     this.promoCount,
-    this.nowIsOpen
+    this.nowIsOpen,
+    this.eventsList,
+    this.promosList
 
   });
 
@@ -349,6 +353,7 @@ class Place {
       place.eventsCount = eventsCount;
       place.promoCount = promosCount;
       place.nowIsOpen = nowIsOpenInPlace.toString();
+      place.eventsList = await getEventsList(place.id);
 
       currentFeedPlaceList.add(place);
 
@@ -572,6 +577,7 @@ class Place {
         place.addedToFavouritesCount = favCount;
         place.eventsCount = eventsCount;
         place.promoCount = promosCount;
+        place.eventsList = await getEventsList(place.id);
 
       }
 
@@ -600,6 +606,41 @@ class Place {
     DataSnapshot snapshot = await reference.get();
 
     return snapshot.children.length.toString();
+
+  }
+
+  static Future<String> getEventsList(String placeId) async {
+
+    List<String> eventsList = [];
+
+    String result = '';
+
+    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('places/$placeId/events');
+
+    // Получаем снимок данных папки
+    DataSnapshot snapshot = await reference.get();
+
+    for (var childSnapshot in snapshot.children) {
+      // заполняем роль (RoleInApp.fromSnapshot) из снимка данных
+      // и добавляем в список ролей
+
+      DataSnapshot eventIdSnapshot = childSnapshot.child('eventId');
+
+      if (eventIdSnapshot.exists) {
+        eventsList.add(eventIdSnapshot.value.toString());
+      }
+
+    }
+
+    for (int i = 0; i<eventsList.length; i++){
+      if (i != eventsList.length - 1){
+        result = '$result${eventsList[i]},';
+      } else {
+        result = '$result${eventsList[i]}';
+      }
+    }
+
+    return result;
 
   }
 

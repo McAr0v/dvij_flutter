@@ -1,3 +1,4 @@
+import 'package:dvij_flutter/classes/event_class.dart';
 import 'package:dvij_flutter/elements/text_and_icons_widgets/headline_and_desc.dart';
 import 'package:dvij_flutter/elements/places_elements/now_is_work_widget.dart';
 import 'package:dvij_flutter/elements/places_elements/place_work_time_element.dart';
@@ -53,6 +54,8 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
   Place place = Place.empty();
   String city = '';
   String category = '';
+
+  List<EventCustom> eventsInThatPlace = [];
 
   DateTime currentDate = DateTime.now();
   bool isOpen = false;
@@ -117,7 +120,11 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
       favCounter = int.parse(place.addedToFavouritesCount!);
       isOpen = nowIsOpenPlace(place);
 
+      if (place.eventsList != null && place.eventsList != ''){
 
+        eventsInThatPlace = await EventCustom.getEventsList(place.eventsList!);
+
+      }
       // ---- Убираем экран загрузки -----
       setState(() {
         loading = false;
@@ -391,6 +398,11 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
 
                       Text(
                           'Мероприятия ${place.name}:',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+
+                      Text(
+                        '${eventsInThatPlace[0].headline}',
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
 
