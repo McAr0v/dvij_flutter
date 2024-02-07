@@ -1,4 +1,7 @@
 import 'package:dvij_flutter/classes/event_class.dart';
+import 'package:dvij_flutter/classes/promo_class.dart';
+import 'package:dvij_flutter/elements/events_elements/event_card_widget.dart';
+import 'package:dvij_flutter/elements/promos_elements/PromoCardWidget.dart';
 import 'package:dvij_flutter/elements/text_and_icons_widgets/headline_and_desc.dart';
 import 'package:dvij_flutter/elements/places_elements/now_is_work_widget.dart';
 import 'package:dvij_flutter/elements/places_elements/place_work_time_element.dart';
@@ -21,11 +24,14 @@ import '../../classes/place_role_class.dart';
 import '../../classes/role_in_app.dart';
 import '../../classes/user_class.dart';
 import '../../elements/exit_dialog/exit_dialog.dart';
+import '../../elements/snack_bar.dart';
 import '../../elements/text_and_icons_widgets/for_cards_small_widget_with_icon_and_text.dart';
 import '../../elements/loading_screen.dart';
 import '../../elements/places_elements/place_managers_element_list_item.dart';
 import '../../methods/days_functions.dart';
+import '../events/event_view_screen.dart';
 import '../place_admins_screens/place_manager_add_screen.dart';
+import '../promotions/promo_view_page.dart';
 
 
 // --- ЭКРАН ЗАЛОГИНЕВШЕГОСЯ ПОЛЬЗОВАТЕЛЯ -----
@@ -56,6 +62,7 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
   String category = '';
 
   List<EventCustom> eventsInThatPlace = [];
+  List<PromoCustom> promosInThatPlace = [];
 
   DateTime currentDate = DateTime.now();
   bool isOpen = false;
@@ -66,6 +73,8 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
   bool deleting = false;
   String inFav = 'false';
   int favCounter = 0;
+
+  bool events = true;
 
   // ---- Инициализация экрана -----
   @override
@@ -125,6 +134,14 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
         eventsInThatPlace = await EventCustom.getEventsList(place.eventsList!);
 
       }
+
+      if (place.promosList != null && place.promosList != ''){
+
+        promosInThatPlace = await PromoCustom.getPromosList(place.promosList!);
+
+      }
+
+
       // ---- Убираем экран загрузки -----
       setState(() {
         loading = false;
@@ -180,10 +197,10 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
 
 
   // ---- Функция отображения всплывающих сообщений -----
-  void showSnackBar(String message, Color color, int showTime) {
+  /*void showSnackBar(String message, Color color, int showTime) {
     final snackBar = customSnackBar(message: message, backgroundColor: color, showTime: showTime);
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -243,7 +260,7 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
                             if (UserCustom.currentUser?.uid == '' || UserCustom.currentUser?.uid == null)
                               {
 
-                                showSnackBar('Чтобы добавлять в избранное, нужно зарегистрироваться!', AppColors.attentionRed, 2);
+                                showSnackBar(context, 'Чтобы добавлять в избранное, нужно зарегистрироваться!', AppColors.attentionRed, 2);
 
                               }
 
@@ -261,10 +278,10 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
                                     Place.updateCurrentPlaceListFavInformation(place.id, favCounter.toString(), inFav);
                                   });
 
-                                  showSnackBar('Удалено из избранных', AppColors.attentionRed, 1);
+                                  showSnackBar(context, 'Удалено из избранных', AppColors.attentionRed, 1);
                                 } else {
 
-                                  showSnackBar(resDel, AppColors.attentionRed, 1);
+                                  showSnackBar(context, resDel, AppColors.attentionRed, 1);
                                 }
 
 
@@ -280,11 +297,11 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
                                     Place.updateCurrentPlaceListFavInformation(place.id, favCounter.toString(), inFav);
                                   });
 
-                                  showSnackBar('Добавлено в избранные', Colors.green, 1);
+                                  showSnackBar(context, 'Добавлено в избранные', Colors.green, 1);
 
                                 } else {
 
-                                  showSnackBar(res, AppColors.attentionRed, 1);
+                                  showSnackBar(context, res, AppColors.attentionRed, 1);
 
                                 }
 
@@ -394,23 +411,282 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
                       if (place.createDate != '') HeadlineAndDesc(headline: place.createDate, description: 'Создано в движе', ),
 
                       // TODO - Сделать ограничение на редактирование
-                      const SizedBox(height: 16.0),
+                      const SizedBox(height: 30.0),
 
-                      Text(
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CustomButton(
+                              buttonText: 'Мероприятия',
+                              onTapMethod: (){
+                                setState(() {
+                                  events = true;
+                                });
+                              },
+                              state: events ? 'normal' : 'secondary',
+                            ),
+                          ),
+                          SizedBox(width: 20),
+                          Expanded(
+                            child: CustomButton(
+                              buttonText: 'Акции',
+                              onTapMethod: (){
+                                setState(() {
+                                  events = false;
+                                });
+                              },
+                              state: !events ? 'normal' : 'secondary',
+                            ),
+                          ),
+                        ],
+                      ),
+
+
+                      if (events) const SizedBox(height: 30.0),
+
+                      if (events) Text(
                           'Мероприятия ${place.name}:',
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
 
-                      Text(
-                        '${eventsInThatPlace[0].headline}',
+                      if (events) const SizedBox(height: 16.0),
+
+                      if (events && eventsInThatPlace.isEmpty) Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.greyOnBackground
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.all(20),
+                          child: Center(
+                            child: Text(
+                              'Это заведение пока не проводит никаких мероприятий'
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      if (events && eventsInThatPlace.isNotEmpty) Column(
+                        children: List.generate(eventsInThatPlace.length, (index) {
+                          return Column( // сюда можно вставить шаблон элемента
+                              children: [
+
+                                EventCardWidget(
+                                    event: eventsInThatPlace[index],
+                                  onTap: () async {
+
+                                    // TODO - переделать на мероприятия
+                                    final results = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => EventViewScreen(eventId: eventsInThatPlace[index].id),
+                                      ),
+                                    );
+
+                                    if (results != null) {
+                                      setState(() {
+                                        eventsInThatPlace[index].inFav = results[0].toString();
+                                        eventsInThatPlace[index].addedToFavouritesCount = results[1].toString();
+                                      });
+                                    }
+                                  },
+
+                                  // --- Функция на нажатие на карточке кнопки ИЗБРАННОЕ ---
+                                  onFavoriteIconPressed: () async {
+
+                                    // TODO Сделать проверку на подтвержденный Email
+                                    // ---- Если не зарегистрирован или не вошел ----
+                                    if (UserCustom.currentUser?.uid == '' || UserCustom.currentUser?.uid == null)
+                                    {
+                                      showSnackBar(context, 'Чтобы добавлять в избранное, нужно зарегистрироваться!', AppColors.attentionRed, 2);
+                                    }
+
+                                    // --- Если пользователь залогинен -----
+                                    else {
+
+                                      // --- Если уже в избранном ----
+                                      if (eventsInThatPlace[index].inFav == 'true')
+                                      {
+                                        // --- Удаляем из избранных ---
+                                        String resDel = await EventCustom.deleteEventFromFav(eventsInThatPlace[index].id);
+                                        // ---- Инициализируем счетчик -----
+                                        int favCounter = int.parse(eventsInThatPlace[index].addedToFavouritesCount!);
+
+                                        if (resDel == 'success'){
+                                          // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
+                                          setState(() {
+                                            // Обновляем текущий список
+                                            eventsInThatPlace[index].inFav = 'false';
+                                            favCounter --;
+                                            eventsInThatPlace[index].addedToFavouritesCount = favCounter.toString();
+                                            // Обновляем общий список из БД
+                                            EventCustom.updateCurrentEventListFavInformation(eventsInThatPlace[index].id, favCounter.toString(), 'false');
+
+                                          });
+                                          showSnackBar(context, 'Удалено из избранных', AppColors.attentionRed, 1);
+                                        } else {
+                                          // Если удаление из избранных не прошло, показываем сообщение
+                                          showSnackBar(context, resDel, AppColors.attentionRed, 1);
+                                        }
+                                      }
+                                      else {
+                                        // --- Если заведение не в избранном ----
+
+                                        // -- Добавляем в избранное ----
+                                        String res = await EventCustom.addEventToFav(eventsInThatPlace[index].id);
+
+                                        // ---- Инициализируем счетчик добавивших в избранное
+                                        int favCounter = int.parse(eventsInThatPlace[index].addedToFavouritesCount!);
+
+                                        if (res == 'success') {
+                                          // --- Если добавилось успешно, так же обновляем текущий список и список из БД
+                                          setState(() {
+                                            // Обновляем текущий список
+                                            eventsInThatPlace[index].inFav = 'true';
+                                            favCounter ++;
+                                            eventsInThatPlace[index].addedToFavouritesCount = favCounter.toString();
+                                            // Обновляем список из БД
+                                            EventCustom.updateCurrentEventListFavInformation(eventsInThatPlace[index].id, favCounter.toString(), 'true');
+                                          });
+
+                                          showSnackBar(context, 'Добавлено в избранные', Colors.green, 1);
+
+                                        } else {
+                                          // Если добавление прошло неудачно, отображаем всплывающее окно
+                                          showSnackBar(context , res, AppColors.attentionRed, 1);
+                                        }
+                                      }
+                                    }
+                                  },
+                                ),
+                              ]
+                          );
+                        }
+                        ),
+                      ),
+
+
+
+                      if (!events) const SizedBox(height: 30.0),
+
+                      if (!events) Text(
+                        'Акции ${place.name}:',
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
 
-                      const SizedBox(height: 30.0),
+                      if (!events) const SizedBox(height: 16.0),
 
-                      Text(
-                        'Акции ${place.name}:',
-                        style: Theme.of(context).textTheme.titleMedium,
+                      if (!events && promosInThatPlace.isEmpty) Container(
+                        decoration: BoxDecoration(
+                            color: AppColors.greyOnBackground
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.all(20),
+                          child: Center(
+                            child: Text(
+                                'Это заведение пока не проводит никаких акций'
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      if (!events && promosInThatPlace.isNotEmpty) Column(
+                        children: List.generate(promosInThatPlace.length, (index) {
+                          return Column( // сюда можно вставить шаблон элемента
+                              children: [
+
+                                PromoCardWidget(
+                                    promo: promosInThatPlace[index],
+                                  onTap:  () async {
+
+                                    final results = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => PromoViewScreen(promoId: promosInThatPlace[index].id),
+                                      ),
+                                    );
+
+                                    if (results != null) {
+                                      setState(() {
+                                        promosInThatPlace[index].inFav = results[0].toString();
+                                        promosInThatPlace[index].addedToFavouritesCount = results[1].toString();
+                                      });
+                                    }
+                                  },
+
+                                  // --- Функция на нажатие на карточке кнопки ИЗБРАННОЕ ---
+                                  onFavoriteIconPressed: () async {
+
+                                    // TODO Сделать проверку на подтвержденный Email
+                                    // ---- Если не зарегистрирован или не вошел ----
+                                    if (UserCustom.currentUser?.uid == '' || UserCustom.currentUser?.uid == null)
+                                    {
+                                      showSnackBar(context, 'Чтобы добавлять в избранное, нужно зарегистрироваться!', AppColors.attentionRed, 2);
+                                    }
+
+                                    // --- Если пользователь залогинен -----
+                                    else {
+
+                                      // --- Если уже в избранном ----
+                                      if (promosInThatPlace[index].inFav == 'true')
+                                      {
+                                        // --- Удаляем из избранных ---
+                                        String resDel = await PromoCustom.deletePromoFromFav(promosInThatPlace[index].id);
+                                        // ---- Инициализируем счетчик -----
+                                        int favCounter = int.parse(promosInThatPlace[index].addedToFavouritesCount!);
+
+                                        if (resDel == 'success'){
+                                          // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
+                                          setState(() {
+                                            // Обновляем текущий список
+                                            promosInThatPlace[index].inFav = 'false';
+                                            favCounter --;
+                                            promosInThatPlace[index].addedToFavouritesCount = favCounter.toString();
+                                            // Обновляем общий список из БД
+                                            PromoCustom.updateCurrentPromoListFavInformation(promosInThatPlace[index].id, favCounter.toString(), 'false');
+
+                                          });
+                                          showSnackBar(context, 'Удалено из избранных', AppColors.attentionRed, 1);
+                                        } else {
+                                          // Если удаление из избранных не прошло, показываем сообщение
+                                          showSnackBar(context, resDel, AppColors.attentionRed, 1);
+                                        }
+                                      }
+                                      else {
+                                        // --- Если заведение не в избранном ----
+
+                                        // -- Добавляем в избранное ----
+                                        String res = await PromoCustom.addPromoToFav(promosInThatPlace[index].id);
+
+                                        // ---- Инициализируем счетчик добавивших в избранное
+                                        int favCounter = int.parse(promosInThatPlace[index].addedToFavouritesCount!);
+
+                                        if (res == 'success') {
+                                          // --- Если добавилось успешно, так же обновляем текущий список и список из БД
+                                          setState(() {
+                                            // Обновляем текущий список
+                                            promosInThatPlace[index].inFav = 'true';
+                                            favCounter ++;
+                                            promosInThatPlace[index].addedToFavouritesCount = favCounter.toString();
+                                            // Обновляем список из БД
+                                            PromoCustom.updateCurrentPromoListFavInformation(promosInThatPlace[index].id, favCounter.toString(), 'true');
+
+                                          });
+
+                                          showSnackBar(context, 'Добавлено в избранные', Colors.green, 1);
+
+                                        } else {
+                                          // Если добавление прошло неудачно, отображаем всплывающее окно
+                                          showSnackBar(context , res, AppColors.attentionRed, 1);
+                                        }
+                                      }
+                                    }
+                                  },
+                                )
+
+                              ]
+                          );
+                        }
+                        ),
                       ),
 
                       const SizedBox(height: 30.0),
@@ -510,14 +786,14 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
 
                                 Place.deletePlaceFormCurrentPlaceLists(widget.placeId);
 
-                                showSnackBar('Место успешно удалено', Colors.green, 2);
+                                showSnackBar(context, 'Место успешно удалено', Colors.green, 2);
                                 navigateToPlaces();
 
                                 setState(() {
                                   deleting = false;
                                 });
                               } else {
-                                showSnackBar('Место не было удалено по ошибке: $delete', AppColors.attentionRed, 2);
+                                showSnackBar(context, 'Место не было удалено по ошибке: $delete', AppColors.attentionRed, 2);
                                 setState(() {
                                   deleting = false;
                                 });

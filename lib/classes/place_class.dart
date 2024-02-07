@@ -345,15 +345,17 @@ class Place {
       String eventsCount = await Place.getEventsCount(place.id);
       String promosCount = await Place.getPromoCount(place.id);
       String inFav = await Place.addedInFavOrNot(place.id);
-
       bool nowIsOpenInPlace = nowIsOpenPlace(place);
+
+      place.eventsList = await getEventsList(place.id);
+      place.promosList = await getPromosList(place.id);
 
       place.inFav = inFav;
       place.addedToFavouritesCount = favCount;
       place.eventsCount = eventsCount;
       place.promoCount = promosCount;
       place.nowIsOpen = nowIsOpenInPlace.toString();
-      place.eventsList = await getEventsList(place.id);
+
 
       currentFeedPlaceList.add(place);
 
@@ -567,17 +569,16 @@ class Place {
         String inFav = await Place.addedInFavOrNot(place.id);
         String canEdit = await Place.canEditOrNot(place.id);
         bool nowIsOpenInPlace = nowIsOpenPlace(place);
+
+        place.eventsList = await getEventsList(place.id);
+        place.promosList = await getPromosList(place.id);
         place.nowIsOpen = nowIsOpenInPlace.toString();
-        //String cityName = City.getCityName(place.city);
-        //String categoryName = PlaceCategory.getPlaceCategoryName(place.category);
-        //place.category = categoryName;
-        //place.city = cityName;
         place.canEdit = canEdit;
         place.inFav = inFav;
         place.addedToFavouritesCount = favCount;
         place.eventsCount = eventsCount;
         place.promoCount = promosCount;
-        place.eventsList = await getEventsList(place.id);
+
 
       }
 
@@ -637,6 +638,41 @@ class Place {
         result = '$result${eventsList[i]},';
       } else {
         result = '$result${eventsList[i]}';
+      }
+    }
+
+    return result;
+
+  }
+
+  static Future<String> getPromosList(String placeId) async {
+
+    List<String> promosList = [];
+
+    String result = '';
+
+    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('places/$placeId/promos');
+
+    // Получаем снимок данных папки
+    DataSnapshot snapshot = await reference.get();
+
+    for (var childSnapshot in snapshot.children) {
+      // заполняем роль (RoleInApp.fromSnapshot) из снимка данных
+      // и добавляем в список ролей
+
+      DataSnapshot eventIdSnapshot = childSnapshot.child('promoId');
+
+      if (eventIdSnapshot.exists) {
+        promosList.add(eventIdSnapshot.value.toString());
+      }
+
+    }
+
+    for (int i = 0; i<promosList.length; i++){
+      if (i != promosList.length - 1){
+        result = '$result${promosList[i]},';
+      } else {
+        result = '$result${promosList[i]}';
       }
     }
 

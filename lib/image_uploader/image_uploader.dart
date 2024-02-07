@@ -5,7 +5,7 @@ import 'dart:io';
 
 class ImageUploader {
   // Инициализируем Storage
-  final FirebaseStorage _storage = FirebaseStorage.instance;
+  //final FirebaseStorage _storage = FirebaseStorage.instance;
 
   // --- ФУНКЦИЯ ЗАГРУЗКИ АВАТАРКИ ПОЛЬЗОВАТЕЛЯ ----
 
@@ -14,7 +14,9 @@ class ImageUploader {
     // Ссылка на ваш объект в Firebase Storage
     // PS - чтобы не забивать память, я решил, что я буду перезаписывать старую аватарку
 
-    final storageRef = _storage.ref().child('avatars').child(uid).child('avatar_$uid.jpeg');
+    FirebaseStorage storage = FirebaseStorage.instance;
+
+    final storageRef = storage.ref().child('avatars').child(uid).child('avatar_$uid.jpeg');
 
     // Выгружаем аватар
     final uploadTask = storageRef.putFile(File(pickedFile.path));

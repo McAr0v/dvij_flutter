@@ -64,20 +64,24 @@ class OnceTypeDateTimePickerWidget extends StatelessWidget {
         Row(
           //mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _buildTimeDropdown(
-                startTimeLabelText,
-                startTime,
-                onStartTimeChanged,
-                context
+            Expanded(
+                child: _buildTimeDropdown(
+                    startTimeLabelText,
+                    startTime,
+                    onStartTimeChanged,
+                    context
+                ),
             ),
 
             const SizedBox(width: 30,),
 
-            _buildTimeDropdown(
-                endTimeLabelText,
-                endTime,
-                onEndTimeChanged,
-                context
+            Expanded(
+              child: _buildTimeDropdown(
+                  endTimeLabelText,
+                  endTime,
+                  onEndTimeChanged,
+                  context
+              ),
             ),
           ],
         ),

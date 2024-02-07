@@ -810,4 +810,44 @@ class PromoCustom {
 
     }
   }
+
+  static Future<List<PromoCustom>> getPromosList(String promosListInString, {String decimal = ','}) async {
+    List<PromoCustom> tempList = [];
+
+    List<String> splittedString = promosListInString.split(decimal);
+
+    for (int i = 0; i < splittedString.length; i++){
+      PromoCustom tempPromo = getPromoFromFeedList(splittedString[i]);
+
+      if (tempPromo.id != ''){
+        tempList.add(tempPromo);
+      } else {
+        tempPromo = await getPromoById(splittedString[i]);
+        if (tempPromo.id != ''){
+          tempList.add(tempPromo);
+        }
+      }
+    }
+
+    return tempList;
+
+  }
+
+  static PromoCustom getPromoFromFeedList (String promoId){
+
+    PromoCustom result = PromoCustom.emptyPromo;
+
+    if (currentFeedPromoList.isNotEmpty){
+      for (int i = 0; i < currentFeedPromoList.length; i++ )
+      {
+        if (currentFeedPromoList[i].id == promoId) {
+          return currentFeedPromoList[i];
+        }
+      }
+    }
+
+    return result;
+
+  }
+
 }
