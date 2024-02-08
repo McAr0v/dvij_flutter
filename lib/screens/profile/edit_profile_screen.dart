@@ -21,6 +21,7 @@ import '../../elements/image_in_edit_screen.dart';
 import '../../elements/loading_screen.dart';
 import '../../image_Uploader/image_uploader.dart';
 import '../../image_uploader/image_picker.dart';
+import '../../methods/date_class.dart';
 import '../../themes/app_colors.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -284,7 +285,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       onActionPressed: () {
                         _selectDate(context);
                       },
-                    date: getHumanDate('${selectedDate.year}-${selectedDate.month}-${selectedDate.day}', '-'),
+                    date: DateClass.getHumanDate('${selectedDate.year}-${selectedDate.month}-${selectedDate.day}', '-'),
                       labelText: 'Дата рождения'
                   ),
 

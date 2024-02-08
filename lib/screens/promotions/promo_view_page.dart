@@ -111,7 +111,9 @@ class _PromoViewScreenState extends State<PromoViewScreen> {
   Future<void> fetchAndSetData() async {
     try {
 
-      promo = await PromoCustom.getPromoById(widget.promoId);
+      //promo = await PromoCustom.getPromoById(widget.promoId);
+
+      promo = PromoCustom.getPromoFromFeedList(widget.promoId);
 
       promoTypeEnum = EventCustom.getEventTypeEnum(promo.promoType);
 
@@ -145,7 +147,8 @@ class _PromoViewScreenState extends State<PromoViewScreen> {
         // placeAdminsList = await UserCustom.getPlaceAdminsUsers(event.placeId);
 
         // Считываем информацию о заведении
-        place = await Place.getPlaceById(promo.placeId);
+        place = await Place.getPlaceFromList(promo.placeId);
+        //place = await Place.getPlaceById(promo.placeId);
 
 
       }

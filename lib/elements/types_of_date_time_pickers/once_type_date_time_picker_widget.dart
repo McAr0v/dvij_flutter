@@ -2,6 +2,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../../methods/date_class.dart';
 import '../../methods/date_functions.dart';
 import '../../themes/app_colors.dart';
 import '../date_elements/data_picker.dart';
@@ -55,7 +56,7 @@ class OnceTypeDateTimePickerWidget extends StatelessWidget {
 
         else DataPickerCustom(
             onActionPressed: onDateActionPressedWithChosenDate,
-            date: getHumanDate('${selectedDate.year}-${selectedDate.month}-${selectedDate.day}', '-'),
+            date: DateClass.getHumanDate('${selectedDate.year}-${selectedDate.month}-${selectedDate.day}', '-'),
             labelText: dateLabelText
         ),
 

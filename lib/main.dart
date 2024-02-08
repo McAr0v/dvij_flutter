@@ -1,3 +1,4 @@
+import 'package:dvij_flutter/classes/ads/ad_class.dart';
 import 'package:dvij_flutter/classes/event_category_class.dart';
 import 'package:dvij_flutter/classes/place_category_class.dart';
 import 'package:dvij_flutter/classes/place_role_class.dart';
@@ -38,6 +39,7 @@ void main() async {
   await EventCategory.getEventCategoryAndSave();
   await PlaceRole.getPlaceRolesAndSave();
   await PromoCategory.getPromoCategoryAndSave();
+  await AdCustom.getAdsAndSave();
 
   final FirebaseAuth auth = FirebaseAuth.instance;
   if (auth.currentUser != null)

@@ -2,6 +2,7 @@ import 'package:dvij_flutter/methods/date_functions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../classes/date_type_enum.dart';
+import '../../methods/date_class.dart';
 import '../../themes/app_colors.dart';
 import '../text_and_icons_widgets/headline_and_desc.dart';
 
@@ -63,8 +64,8 @@ class ScheduleOnceAndLongWidget extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            if (eventTypeEnum == DateTypeEnum.once && onceDate != '') HeadlineAndDesc(headline: getHumanDate(onceDate, '-'), description: 'Дата проведения'),
-                            if (eventTypeEnum == DateTypeEnum.long && longStartDate != '') HeadlineAndDesc(headline: getHumanDate(longStartDate, '-'), description: 'Первый день'),
+                            if (eventTypeEnum == DateTypeEnum.once && onceDate != '') HeadlineAndDesc(headline: DateClass.getHumanDate(onceDate, '-'), description: 'Дата проведения'),
+                            if (eventTypeEnum == DateTypeEnum.long && longStartDate != '') HeadlineAndDesc(headline: DateClass.getHumanDate(longStartDate, '-'), description: 'Первый день'),
                             if (eventTypeEnum == DateTypeEnum.long && longStartDate != '') const SizedBox(height: 20,),
                             if (startTime != '' && endTime != '' && startTime != endTime && eventTypeEnum == DateTypeEnum.long) HeadlineAndDesc(
                                 headline: 'с $startTime до $endTime',
@@ -83,7 +84,7 @@ class ScheduleOnceAndLongWidget extends StatelessWidget {
                                 headline: 'с $startTime до $endTime',
                                 description: 'Время проведения'
                             ),
-                            if (eventTypeEnum == DateTypeEnum.long && longEndDate != '') HeadlineAndDesc(headline: getHumanDate(longEndDate, '-'), description: 'Последний день')
+                            if (eventTypeEnum == DateTypeEnum.long && longEndDate != '') HeadlineAndDesc(headline: DateClass.getHumanDate(longEndDate, '-'), description: 'Последний день')
                           ],
                         ),
                       ],

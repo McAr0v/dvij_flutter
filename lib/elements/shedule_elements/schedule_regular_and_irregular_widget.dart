@@ -2,6 +2,7 @@ import 'package:dvij_flutter/methods/date_functions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../classes/date_type_enum.dart';
+import '../../methods/date_class.dart';
 import '../../themes/app_colors.dart';
 import '../text_and_icons_widgets/headline_and_desc.dart';
 
@@ -78,7 +79,7 @@ class ScheduleRegularAndIrregularWidget extends StatelessWidget {
                           children: List.generate(irregularDays.length, (index) {
                             return Column(
                               children: [
-                                if (irregularStartTime[index] != '00:00' && irregularStartTime[index]!=irregularEndTime[index]) HeadlineAndDesc(headline: getHumanDate(irregularDays[index], '-'), description: 'Дата'),
+                                if (irregularStartTime[index] != '00:00' && irregularStartTime[index]!=irregularEndTime[index]) HeadlineAndDesc(headline: DateClass.getHumanDate(irregularDays[index], '-'), description: 'Дата'),
                                 if (irregularStartTime[index] != '00:00' && irregularStartTime[index]!=irregularEndTime[index]) const SizedBox(height: 10,),
                               ],
                             );

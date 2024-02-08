@@ -1,4 +1,4 @@
-import 'package:dvij_flutter/classes/ad_class.dart';
+import 'package:dvij_flutter/classes/ads/ad_class.dart';
 import 'package:dvij_flutter/classes/city_class.dart';
 import 'package:dvij_flutter/classes/pair.dart';
 import 'package:dvij_flutter/classes/place_category_class.dart';

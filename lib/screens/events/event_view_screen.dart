@@ -118,7 +118,10 @@ class _EventViewScreenState extends State<EventViewScreen> {
   Future<void> fetchAndSetData() async {
     try {
 
-      event = await EventCustom.getEventById(widget.eventId);
+
+      //event = await EventCustom.getEventById(widget.eventId);
+
+      event = EventCustom.getEventFromFeedList(widget.eventId);
 
       eventTypeEnum = EventCustom.getEventTypeEnum(event.eventType);
 
@@ -156,7 +159,8 @@ class _EventViewScreenState extends State<EventViewScreen> {
         // placeAdminsList = await UserCustom.getPlaceAdminsUsers(event.placeId);
 
         // Считываем информацию о заведении
-        place = await Place.getPlaceById(event.placeId);
+        place = await Place.getPlaceFromList(event.placeId);
+        //place = await Place.getPlaceById(event.placeId);
 
 
       }

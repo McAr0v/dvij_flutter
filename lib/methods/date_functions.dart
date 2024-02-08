@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:dvij_flutter/classes/promo_class.dart';
+import 'package:dvij_flutter/methods/date_class.dart';
 import '../classes/event_category_class.dart';
 import '../classes/event_class.dart';
 import '../classes/date_type_enum.dart';
@@ -17,33 +18,7 @@ List<int> splitDate(String date, String symbol)
   return intElements;
 }
 
-String switchMonth (String month)
-{
-  switch (month)
-  {
-    case '1': return 'января';
-    case '01': return 'января';
-    case '2': return 'февраля';
-    case '02': return 'февраля';
-    case '3': return 'марта';
-    case '03': return 'марта';
-    case '4': return 'апреля';
-    case '04': return 'апреля';
-    case '5': return 'мая';
-    case '05': return 'мая';
-    case '6': return 'июня';
-    case '06': return 'июня';
-    case '7': return 'июля';
-    case '07': return 'июля';
-    case '8': return 'августа';
-    case '08': return 'августа';
-    case '9': return 'сентября';
-    case '09': return 'сентября';
-    case '10': return 'октября';
-    case '11': return 'ноября';
-    default: return 'декабря';
-  }
-}
+
 
 String getHumanWeekday (int weekdayIndex, bool cut)
 {
@@ -61,24 +36,12 @@ String getHumanWeekday (int weekdayIndex, bool cut)
   }
 }
 
-String getHumanDate (String date, String symbol, {bool needYear = true})
-{
-  List<String> stringElements = date.split(symbol);
-  String month = switchMonth(stringElements[1]);
 
-  if (needYear) {
-    return '${stringElements[2]} $month ${stringElements[0]}';
-  } else {
-    return '${stringElements[2]} $month';
-  }
-
-
-}
 
 String getOurDateFormat (String date, String symbol)
 {
   List<String> stringElements = date.split(symbol);
-  String month = switchMonth(stringElements[1]);
+  String month = DateClass.getMonthName(stringElements[1]);
   return '${stringElements[2]}.${stringElements[1]}.${stringElements[0]}';
 }
 

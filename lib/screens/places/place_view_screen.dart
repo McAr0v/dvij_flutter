@@ -95,7 +95,9 @@ class _PlaceViewScreenState extends State<PlaceViewScreen> {
         _roles = PlaceRole.currentPlaceRoleList;
       }
 
-      place = await Place.getPlaceById(widget.placeId);
+      //place = await Place.getPlaceById(widget.placeId);
+
+      place = await Place.getPlaceFromList(widget.placeId);
 
       if (place.name != ''){
 

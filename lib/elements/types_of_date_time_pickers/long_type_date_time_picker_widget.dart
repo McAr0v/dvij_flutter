@@ -2,6 +2,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../../methods/date_class.dart';
 import '../../methods/date_functions.dart';
 import '../../themes/app_colors.dart';
 import '../date_elements/data_picker.dart';
@@ -63,7 +64,7 @@ class LongTypeDateTimePickerWidget extends StatelessWidget {
 
         else DataPickerCustom(
             onActionPressed: onStartDateActionPressedWithChosenDate,
-            date: getHumanDate('${selectedStartDate.year}-${selectedStartDate.month}-${selectedStartDate.day}', '-'),
+            date: DateClass.getHumanDate('${selectedStartDate.year}-${selectedStartDate.month}-${selectedStartDate.day}', '-'),
             labelText: startDateLabelText
         ),
 
@@ -78,7 +79,7 @@ class LongTypeDateTimePickerWidget extends StatelessWidget {
 
         else DataPickerCustom(
             onActionPressed: onEndDateActionPressedWithChosenDate,
-            date: getHumanDate('${selectedEndDate.year}-${selectedEndDate.month}-${selectedEndDate.day}', '-'),
+            date: DateClass.getHumanDate('${selectedEndDate.year}-${selectedEndDate.month}-${selectedEndDate.day}', '-'),
             labelText: endDateLabelText
         ),
 

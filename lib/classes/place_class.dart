@@ -215,6 +215,8 @@ class Place {
     );
   }
 
+  // TODO убрать время каждого дня в отдельности и сделать списками
+
   // --- ИНИЦИАЛИЗИРУЕМ БАЗУ ДАННЫХ -----
   final DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
 
@@ -925,6 +927,20 @@ class Place {
     }
   }
 
+  static Future<Place> getPlaceFromList(String placeId) async {
+    Place tempPlace = Place.emptyPlace;
 
+    if (currentFeedPlaceList.isNotEmpty){
+      for (Place place in currentFeedPlaceList){
+        if (place.id == placeId){
+          tempPlace = place;
+          break;
+        }
+      }
+    } else {
+      tempPlace = await getPlaceById(placeId);
+    }
+    return tempPlace;
+  }
 
 }

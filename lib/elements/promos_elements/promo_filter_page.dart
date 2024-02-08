@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import '../../classes/city_class.dart';
 import '../../classes/event_sorting_options.dart';
 import '../../classes/place_sorting_options.dart';
+import '../../methods/date_class.dart';
 import '../../methods/date_functions.dart';
 import '../../themes/app_colors.dart';
 import '../choose_dialogs/city_choose_dialog.dart';
@@ -222,7 +223,7 @@ class _PromoFilterPageState extends State<PromoFilterPage> {
 
                                 },
                                 date: selectedStartDatePeriod != DateTime(2100) ?
-                                getHumanDate('${selectedStartDatePeriod.year}-${selectedStartDatePeriod.month}-${selectedStartDatePeriod.day}', '-')
+                                DateClass.getHumanDate('${selectedStartDatePeriod.year}-${selectedStartDatePeriod.month}-${selectedStartDatePeriod.day}', '-')
                                     : 'Не выбрано',
                                 labelText: 'Период проведения: Начальная дата',
                               ),
@@ -254,7 +255,7 @@ class _PromoFilterPageState extends State<PromoFilterPage> {
                                   _selectDate(context, selectedEndDatePeriod, needClearInitialDate: false, isStart: false, firstDate: selectedStartDatePeriod);
                                 },
                                 date: selectedEndDatePeriod != DateTime(2100) ?
-                                getHumanDate('${selectedEndDatePeriod.year}-${selectedEndDatePeriod.month}-${selectedEndDatePeriod.day}', '-')
+                                DateClass.getHumanDate('${selectedEndDatePeriod.year}-${selectedEndDatePeriod.month}-${selectedEndDatePeriod.day}', '-')
                                     : 'Не выбрано',
                                 labelText: 'Период проведения: Конечная дата',
                               ),
