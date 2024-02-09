@@ -1,4 +1,3 @@
-import 'package:dvij_flutter/database_firebase/user_database.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/elements/loading_screen.dart';
 import 'package:dvij_flutter/elements/text_and_icons_widgets/text_with_link.dart';

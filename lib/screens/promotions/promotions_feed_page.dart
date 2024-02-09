@@ -16,7 +16,8 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../../classes/ads/ad_class.dart';
+import '../../classes/ads/ad_admin_class.dart';
+import '../../classes/ads/ad_user_class.dart';
 import '../../classes/event_class.dart';
 import '../../classes/pair.dart';
 import '../../classes/user_class.dart';
@@ -161,10 +162,10 @@ class _PromotionsFeedPageState extends State<PromotionsFeedPage> {
 
     // --- Считываем индексы, где будет стоять реклама ----
 
-    adIndexesList = AdCustom.getAdIndexesList(adList, adStep, firstIndexOfAd);
+    adIndexesList = AdUser.getAdIndexesList(adList, adStep, firstIndexOfAd);
 
     setState(() {
-      allElementsList = AdCustom.generateIndexedList(adIndexesList, promosList.length);
+      allElementsList = AdUser.generateIndexedList(adIndexesList, promosList.length);
     });
 
     setState(() {
@@ -485,7 +486,7 @@ class _PromotionsFeedPageState extends State<PromotionsFeedPage> {
         promosList = PromoCustom.filterPromos(promoCategoryFromFilter, cityFromFilter, today, onlyFromPlacePromos, tempList, selectedStartDatePeriod, selectedEndDatePeriod);
       });
 
-      allElementsList = AdCustom.generateIndexedList(adIndexesList, promosList.length);
+      allElementsList = AdUser.generateIndexedList(adIndexesList, promosList.length);
 
       setState(() {
         loading = false;

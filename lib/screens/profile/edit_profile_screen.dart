@@ -7,7 +7,6 @@ import 'package:dvij_flutter/elements/role_in_app_elements/role_in_app_element_i
 import 'package:dvij_flutter/elements/role_in_app_elements/role_in_app_picker_page.dart';
 import 'package:dvij_flutter/methods/date_functions.dart';
 import 'package:flutter/material.dart';
-import 'package:dvij_flutter/database_firebase/user_database.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import '../../classes/city_class.dart';
 import '../../classes/role_in_app.dart';

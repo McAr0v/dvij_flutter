@@ -1,3 +1,4 @@
+import 'package:dvij_flutter/classes/ads/ad_user_class.dart';
 import 'package:dvij_flutter/classes/city_class.dart';
 import 'package:dvij_flutter/classes/event_category_class.dart';
 import 'package:dvij_flutter/classes/event_sorting_options.dart';
@@ -6,7 +7,7 @@ import 'package:dvij_flutter/screens/events/event_view_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../../classes/ads/ad_class.dart';
+import '../../classes/ads/ad_admin_class.dart';
 import '../../classes/event_class.dart';
 import '../../classes/pair.dart';
 import '../../classes/user_class.dart';
@@ -141,10 +142,10 @@ class _EventsFavPageState extends State<EventsFavPage> {
 
     // --- Считываем индексы, где будет стоять реклама ----
 
-    adIndexesList = AdCustom.getAdIndexesList(adList, adStep, firstIndexOfAd);
+    adIndexesList = AdUser.getAdIndexesList(adList, adStep, firstIndexOfAd);
 
     setState(() {
-      allElementsList = AdCustom.generateIndexedList(adIndexesList, eventsList.length);
+      allElementsList = AdUser.generateIndexedList(adIndexesList, eventsList.length);
     });
 
     setState(() {
@@ -484,7 +485,7 @@ class _EventsFavPageState extends State<EventsFavPage> {
         eventsList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempList, selectedStartDatePeriod, selectedEndDatePeriod);
       });
 
-      allElementsList = AdCustom.generateIndexedList(adIndexesList, eventsList.length);
+      allElementsList = AdUser.generateIndexedList(adIndexesList, eventsList.length);
 
       setState(() {
         loading = false;

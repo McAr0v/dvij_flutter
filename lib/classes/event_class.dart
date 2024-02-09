@@ -5,6 +5,7 @@ import 'package:dvij_flutter/classes/place_category_class.dart';
 import 'package:dvij_flutter/classes/place_sorting_options.dart';
 import 'package:dvij_flutter/classes/priceTypeOptions.dart';
 import 'package:dvij_flutter/classes/user_class.dart';
+import 'package:dvij_flutter/database/database_mixin.dart';
 import 'package:dvij_flutter/methods/days_functions.dart';
 import 'package:firebase_database/firebase_database.dart';
 
@@ -12,7 +13,7 @@ import '../methods/date_functions.dart';
 import 'event_category_class.dart';
 import 'event_sorting_options.dart';
 
-class EventCustom {
+class EventCustom with MixinDatabase {
   String id;
   String eventType;
   String headline;

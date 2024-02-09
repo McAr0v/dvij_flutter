@@ -119,7 +119,8 @@ class _CitiesListScreenState extends State<CitiesListScreen> {
                           loading = true;
                         });
 
-                        String result = await City.deleteCity(_cities[index].id);
+                        //String result = await City.deleteCity(_cities[index].id);
+                        String result = await _cities[index].deleteCity();
 
                         if (result == 'success') {
                           setState(() {

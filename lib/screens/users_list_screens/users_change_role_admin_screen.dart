@@ -9,7 +9,6 @@ import 'package:dvij_flutter/elements/role_in_app_elements/role_in_app_picker_pa
 import 'package:dvij_flutter/methods/date_functions.dart';
 import 'package:dvij_flutter/screens/users_list_screens/users_list_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:dvij_flutter/database_firebase/user_database.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import '../../classes/city_class.dart';
 import '../../classes/role_in_app.dart';

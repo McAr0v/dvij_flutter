@@ -1,4 +1,5 @@
-import 'package:dvij_flutter/classes/ads/ad_class.dart';
+import 'package:dvij_flutter/classes/ads/ad_admin_class.dart';
+import 'package:dvij_flutter/classes/ads/ad_user_class.dart';
 import 'package:dvij_flutter/classes/event_category_class.dart';
 import 'package:dvij_flutter/classes/place_category_class.dart';
 import 'package:dvij_flutter/classes/place_role_class.dart';
@@ -18,7 +19,6 @@ import 'package:provider/provider.dart';
 import 'app_state/appstate.dart';
 import 'classes/city_class.dart';
 import 'classes/gender_class.dart';
-import 'database_firebase/user_database.dart';
 import 'elements/icons_elements/svg_icon.dart';
 import 'themes/dark_theme.dart';
 import 'navigation/custom_nav_containter.dart';
@@ -39,7 +39,7 @@ void main() async {
   await EventCategory.getEventCategoryAndSave();
   await PlaceRole.getPlaceRolesAndSave();
   await PromoCategory.getPromoCategoryAndSave();
-  await AdCustom.getAdsAndSave();
+  await AdUser.getAllAdsAndSave();
 
   final FirebaseAuth auth = FirebaseAuth.instance;
   if (auth.currentUser != null)

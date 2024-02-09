@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart' as firebase_user;
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import '../classes/user_class.dart';
-import '../database_firebase/user_database.dart';
 import 'custom_drawer.dart';
 import 'custom_bottom_navigation_bar.dart';
 import 'package:dvij_flutter/screens/profile/profile_page.dart';

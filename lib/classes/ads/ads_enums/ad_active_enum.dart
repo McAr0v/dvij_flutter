@@ -1,4 +1,4 @@
-import 'package:dvij_flutter/classes/ads/enums_interface.dart';
+import 'enums_interface.dart';
 
 enum AdActiveEnum {
   notActive,

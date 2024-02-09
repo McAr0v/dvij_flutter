@@ -1,6 +1,7 @@
+import 'package:dvij_flutter/database/database_mixin.dart';
 import 'package:firebase_database/firebase_database.dart';
 
-class City {
+class City with MixinDatabase {
   late String id; // Идентификатор города
   late String name; // Название города
 
@@ -51,7 +52,7 @@ class City {
 
   // Метод для добавления нового города или редактирования города в Firebase
 
-  static Future<String> addAndEditCity(String name, {String id = ''}) async {
+  /*static Future<String> addAndEditCity(String name, {String id = ''}) async {
     try {
       String? cityKey;
 
@@ -89,28 +90,48 @@ class City {
       // Видимо здесь проверка - если не удалось опубликовать город, то возвращаем ошибку
       return 'Error: $error';
     }
+  }*/
+
+  Map<String, dynamic> generateAdDataCode() {
+    return <String, dynamic> {
+      'id': id,
+      'name': name
+    };
   }
 
-  static Future<String> deleteCity(String cityId) async {
-    try {
-      DatabaseReference reference = FirebaseDatabase.instance.ref().child('cities').child(cityId);
+  Future<String> addAndEditCity() async {
 
-      // Проверяем, существует ли город с указанным ID
-      DataSnapshot snapshot = await reference.get();
-      if (!snapshot.exists) {
-        return 'Город не найден';
-      }
+    String? cityKey;
 
-      // Удаляем город
-      await reference.remove();
+    City city = City(name: name, id: id);
 
-      // Обновляем список наших городов в локальную переменную
-      await getCitiesAndSave();
-
-      return 'success';
-    } catch (error) {
-      return 'Ошибка при удалении города: $error';
+    if (id == ''){
+      cityKey = generateKey();
+      city.id = cityKey ?? '';
     }
+
+    String path = 'cities/${city.id}';
+
+    Map<String, dynamic> cityData = city.generateAdDataCode();
+
+    String result = await city.publishToDB(path, cityData);
+
+    await getCitiesAndSave();
+
+    return result;
+
+  }
+
+  Future<String> deleteCity() async {
+
+    String path = 'cities/$id';
+
+    String result = await deleteFromDb(path);
+
+    await getCitiesAndSave();
+
+    return result;
+
   }
 
   // Сортировка городов по имени

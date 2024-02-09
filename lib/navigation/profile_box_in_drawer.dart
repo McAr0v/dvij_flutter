@@ -5,7 +5,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../classes/user_class.dart';
 import '../classes/user_class.dart';
-import '../database_firebase/user_database.dart';
 import '../themes/app_colors.dart';
 
 class ProfileBoxInDrawer extends StatefulWidget {

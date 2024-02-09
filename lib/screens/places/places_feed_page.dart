@@ -1,4 +1,4 @@
-import 'package:dvij_flutter/classes/ads/ad_class.dart';
+import 'package:dvij_flutter/classes/ads/ad_admin_class.dart';
 import 'package:dvij_flutter/classes/city_class.dart';
 import 'package:dvij_flutter/classes/pair.dart';
 import 'package:dvij_flutter/classes/place_category_class.dart';
@@ -10,6 +10,7 @@ import 'package:dvij_flutter/screens/places/place_view_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../../classes/ads/ad_user_class.dart';
 import '../../classes/place_sorting_options.dart';
 import '../../classes/user_class.dart';
 import '../../elements/custom_snack_bar.dart';
@@ -128,10 +129,10 @@ class _PlacesFeedPageState extends State<PlacesFeedPage> {
 
     // --- Считываем индексы, где будет стоять реклама ----
 
-    adIndexesList = AdCustom.getAdIndexesList(adList, adStep, firstIndexOfAd);
+    adIndexesList = AdUser.getAdIndexesList(adList, adStep, firstIndexOfAd);
 
     setState(() {
-      allElementsList = AdCustom.generateIndexedList(adIndexesList, placesList.length);
+      allElementsList = AdUser.generateIndexedList(adIndexesList, placesList.length);
     });
 
     setState(() {
@@ -166,7 +167,7 @@ class _PlacesFeedPageState extends State<PlacesFeedPage> {
 
             setState(() {
               placesList = Place.filterPlaces(placeCategoryFromFilter, cityFromFilter, nowIsOpenFromFilter, haveEventsFromFilter, havePromosFromFilter, tempPlacesList);
-              allElementsList = AdCustom.generateIndexedList(adIndexesList, placesList.length);
+              allElementsList = AdUser.generateIndexedList(adIndexesList, placesList.length);
             });
 
             setState(() {
@@ -474,7 +475,7 @@ class _PlacesFeedPageState extends State<PlacesFeedPage> {
       // --- Фильтруем список согласно новым выбранным данным из фильтра ----
       setState(() {
         placesList = Place.filterPlaces(placeCategoryFromFilter, cityFromFilter, nowIsOpenFromFilter, haveEventsFromFilter, havePromosFromFilter, tempList);
-        allElementsList = AdCustom.generateIndexedList(adIndexesList, placesList.length);
+        allElementsList = AdUser.generateIndexedList(adIndexesList, placesList.length);
       });
 
       setState(() {

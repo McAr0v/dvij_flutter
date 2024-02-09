@@ -1,4 +1,3 @@
-import 'package:dvij_flutter/database_firebase/user_database.dart';
 import 'package:dvij_flutter/elements/exit_dialog/exit_dialog.dart';
 import 'package:dvij_flutter/elements/text_and_icons_widgets/headline_and_desc.dart';
 import 'package:dvij_flutter/methods/date_functions.dart';

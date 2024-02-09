@@ -153,13 +153,14 @@ class _CityEditScreenState extends State<CityEditScreen> {
 
     String result;
 
+    City publishedCity = City(name: cityName, id: '');
+
     if (widget.city != null) {
-      // Редактирование города
-      result = await City.addAndEditCity(cityName, id: widget.city?.id ?? '');
-    } else {
-      // Создание нового города
-      result = await City.addAndEditCity(cityName);
+      publishedCity.id = widget.city?.id ?? '';
+
     }
+
+    result = await publishedCity.addAndEditCity();
 
     if (result == 'success'){
       loading = false;
