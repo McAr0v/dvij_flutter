@@ -1,7 +1,8 @@
-import 'package:dvij_flutter/go_to_url/openUrlPage.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../../url_methods/open_url_class.dart';
+import '../../url_methods/url_path_enum.dart';
 
 class SocialButtonsMiniWidget extends StatelessWidget {
   final String? instagramUsername;
@@ -39,7 +40,7 @@ class SocialButtonsMiniWidget extends StatelessWidget {
                 FontAwesomeIcons.phone,
                 size: 20,
               ),
-              onPressed: () => openSocialProfile(phoneNumber!, 'phone'),
+              onPressed: () => OpenUrlClass.openUrl(phoneNumber!, UrlPathEnum.phone),
             ),
 
           if (instagramUsername != null && instagramUsername != '')
@@ -48,7 +49,7 @@ class SocialButtonsMiniWidget extends StatelessWidget {
                 FontAwesomeIcons.instagram,
                 size: 25,
               ),
-              onPressed: () => openSocialProfile(instagramUsername!, 'instagram'),
+              onPressed: () => OpenUrlClass.openUrl(instagramUsername!, UrlPathEnum.instagram),
             ),
 
           //if (instagramUsername != null && instagramUsername != '') const SizedBox(width: 15,),
@@ -59,7 +60,7 @@ class SocialButtonsMiniWidget extends StatelessWidget {
                 FontAwesomeIcons.telegram,
                 size: 25,
               ),
-              onPressed: () => openSocialProfile(telegramUsername!, 'telegram'),
+              onPressed: () => OpenUrlClass.openUrl(telegramUsername!, UrlPathEnum.telegram),
             ),
 
           //if (telegramUsername != null && telegramUsername != '') const SizedBox(width: 15,),
@@ -70,7 +71,7 @@ class SocialButtonsMiniWidget extends StatelessWidget {
                 FontAwesomeIcons.whatsapp,
                 size: 25,
               ),
-              onPressed: () => openSocialProfile(whatsappUsername!, 'whatsapp'),
+              onPressed: () => OpenUrlClass.openUrl(whatsappUsername!, UrlPathEnum.whatsapp),
             ),
         ],
       ),

@@ -2,7 +2,6 @@ import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/elements/loading_screen.dart';
 import 'package:dvij_flutter/elements/text_and_icons_widgets/text_with_link.dart';
 import 'package:flutter/material.dart';
-import 'package:dvij_flutter/authentication/auth_with_email.dart';
 import '../../classes/user_class.dart';
 import '../../elements/custom_snack_bar.dart';
 import '../../themes/app_colors.dart';

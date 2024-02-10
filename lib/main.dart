@@ -1,11 +1,8 @@
-import 'package:dvij_flutter/classes/ads/ad_admin_class.dart';
-import 'package:dvij_flutter/classes/ads/ad_user_class.dart';
-import 'package:dvij_flutter/classes/event_category_class.dart';
-import 'package:dvij_flutter/classes/place_category_class.dart';
-import 'package:dvij_flutter/classes/place_role_class.dart';
-import 'package:dvij_flutter/classes/promo_category_class.dart';
+import 'package:dvij_flutter/events/event_category_class.dart';
+import 'package:dvij_flutter/places/place_category_class.dart';
+import 'package:dvij_flutter/places/place_role_class.dart';
+import 'package:dvij_flutter/promos/promo_category_class.dart';
 import 'package:dvij_flutter/classes/role_in_app.dart';
-import 'package:dvij_flutter/screens/cities_screens/cities_list_screen.dart';
 import 'package:dvij_flutter/screens/otherPages/privacy_policy_page.dart';
 import 'package:dvij_flutter/screens/profile/reset_password_page.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
@@ -16,8 +13,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_file.dart';
 import 'package:provider/provider.dart';
+import 'ads/ad_user_class.dart';
 import 'app_state/appstate.dart';
-import 'classes/city_class.dart';
+import 'cities/cities_screens/cities_list_screen.dart';
+import 'cities/city_class.dart';
 import 'classes/gender_class.dart';
 import 'elements/icons_elements/svg_icon.dart';
 import 'themes/dark_theme.dart';
@@ -91,60 +90,3 @@ class MyApp extends StatelessWidget {
   }
 
 }
-
-/*class _MyAppState extends State<MyApp> {
-  final UserDatabase userDatabase = UserDatabase();
-  final DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
-  late firebase_user.User? _user; // Объявление пользователя
-  local_user.User userInfo = local_user.User(
-      uid: '',
-      role: '1113',
-      name: '',
-      lastname: '',
-      phone: '',
-      whatsapp: '',
-      telegram: '',
-      instagram: '',
-      city: '',
-      birthDate: '',
-      sex: '',
-      avatar: ''
-  );
-  // Колбэк, который будет вызываться при редактировании пользователя
-  void onUserProfileUpdated() {
-    // Обновите информацию пользователя в вашем состоянии
-    getUser();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    FirebaseAuth.instance.authStateChanges().listen((firebase_user.User? user) {
-      // Этот колбэк вызывается при каждом изменении статуса аутентификации
-      setState(() {
-        _user = user;
-      });
-
-      // Если пользователь вошел в систему, обновите userInfo
-      if (user != null) {
-        _updateUserInfo(user);
-      }
-    });
-  }
-
-  Future<void> _updateUserInfo(firebase_user.User user) async {
-    userInfo = (await userDatabase.readUserData(user.uid))!;
-    setState(() {
-      userInfo = userInfo;
-    });
-  }
-
-  Future<void> getUser() async {
-    firebase_user.User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      userInfo = (await userDatabase.readUserData(user.uid))!;
-    }
-  }
-
-
-}*/

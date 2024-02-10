@@ -1,4 +1,4 @@
-import 'package:dvij_flutter/classes/place_class.dart';
+import 'package:dvij_flutter/places/place_class.dart';
 
 bool currentDayOfWeek (int dayOfWeek)
 {

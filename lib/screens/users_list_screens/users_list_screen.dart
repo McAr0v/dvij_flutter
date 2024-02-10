@@ -4,7 +4,7 @@ import 'package:dvij_flutter/elements/role_in_app_elements/role_in_app_element_i
 import 'package:dvij_flutter/elements/users_list_elements/user_element_in_users_list.dart';
 import 'package:dvij_flutter/screens/role_in_app_screens/role_in_app_add_or_edit_screen.dart';
 import 'package:flutter/material.dart';
-import '../../classes/city_class.dart';
+import '../../cities/city_class.dart';
 import '../../elements/custom_snack_bar.dart';
 import '../../elements/loading_screen.dart';
 import '../../themes/app_colors.dart';

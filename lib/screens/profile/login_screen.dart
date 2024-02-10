@@ -3,7 +3,6 @@ import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/screens/profile/registration_screen.dart';
 import 'package:dvij_flutter/screens/profile/reset_password_page.dart';
 import 'package:flutter/material.dart';
-import 'package:dvij_flutter/authentication/auth_with_email.dart';
 import 'package:dvij_flutter/elements/custom_snack_bar.dart';
 import '../../elements/loading_screen.dart';
 import '../../themes/app_colors.dart';

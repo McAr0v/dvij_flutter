@@ -1,7 +1,8 @@
-import 'package:dvij_flutter/go_to_url/openUrlPage.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../../url_methods/open_url_class.dart';
+import '../../url_methods/url_path_enum.dart';
 
 class SocialButtonsWidget extends StatelessWidget {
   final String? instagramUsername;
@@ -32,7 +33,7 @@ class SocialButtonsWidget extends StatelessWidget {
         children: [
           if (phoneNumber != null && phoneNumber != '')
             GestureDetector(
-                onTap: () => openSocialProfile(phoneNumber!, 'phone'),
+                onTap: () => OpenUrlClass.openUrl(phoneNumber!, UrlPathEnum.phone),
                 child: Card(
                   color: AppColors.brandColor,
                   margin: EdgeInsets.all(0),
@@ -44,7 +45,7 @@ class SocialButtonsWidget extends StatelessWidget {
                           size: 20,
                           color: AppColors.greyOnBackground,
                         ),
-                        onPressed: () => openSocialProfile(phoneNumber!, 'phone'),
+                        onPressed: () => OpenUrlClass.openUrl(phoneNumber!, UrlPathEnum.phone),
                       ),
                       Text(
                         phoneNumber!,
@@ -64,7 +65,7 @@ class SocialButtonsWidget extends StatelessWidget {
                 FontAwesomeIcons.instagram,
                 size: 30,
               ),
-              onPressed: () => openSocialProfile(instagramUsername!, 'instagram'),
+              onPressed: () => OpenUrlClass.openUrl(instagramUsername!, UrlPathEnum.instagram),
             ),
 
           //if (instagramUsername != null && instagramUsername != '') const SizedBox(width: 15,),
@@ -75,7 +76,7 @@ class SocialButtonsWidget extends StatelessWidget {
                 FontAwesomeIcons.telegram,
                 size: 30,
               ),
-              onPressed: () => openSocialProfile(telegramUsername!, 'telegram'),
+              onPressed: () => OpenUrlClass.openUrl(telegramUsername!, UrlPathEnum.telegram),
             ),
 
           //if (telegramUsername != null && telegramUsername != '') const SizedBox(width: 15,),
@@ -86,7 +87,7 @@ class SocialButtonsWidget extends StatelessWidget {
                 FontAwesomeIcons.whatsapp,
                 size: 30,
               ),
-              onPressed: () => openSocialProfile(whatsappUsername!, 'whatsapp'),
+              onPressed: () => OpenUrlClass.openUrl(whatsappUsername!, UrlPathEnum.whatsapp),
             ),
         ],
       ),

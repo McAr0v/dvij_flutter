@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../classes/city_class.dart';
+import '../../cities/city_class.dart';
 import '../../classes/gender_class.dart';
 import '../../themes/app_colors.dart';
 

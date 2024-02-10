@@ -1,6 +1,6 @@
-import 'package:dvij_flutter/classes/event_class.dart';
-import 'package:dvij_flutter/classes/place_class.dart';
-import 'package:dvij_flutter/classes/place_role_class.dart';
+import 'package:dvij_flutter/events/event_class.dart';
+import 'package:dvij_flutter/places/place_class.dart';
+import 'package:dvij_flutter/places/place_role_class.dart';
 import 'package:dvij_flutter/classes/role_in_app.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';

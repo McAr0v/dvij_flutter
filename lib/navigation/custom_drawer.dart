@@ -1,9 +1,5 @@
 import 'package:dvij_flutter/elements/logo_view.dart';
 import 'package:dvij_flutter/navigation/profile_box_in_drawer.dart';
-import 'package:dvij_flutter/screens/event_categories_screens/event_categories_list_screen.dart';
-import 'package:dvij_flutter/screens/place_categories_screens/place_categories_list_screen.dart';
-import 'package:dvij_flutter/screens/place_roles_screens/place_roles_list_screen.dart';
-import 'package:dvij_flutter/screens/promo_categories_screen/promo_categories_list_screen.dart';
 import 'package:dvij_flutter/screens/role_in_app_screens/roles_in_app_list_screen.dart';
 import 'package:dvij_flutter/screens/users_list_screens/users_list_screen.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +9,11 @@ import 'package:dvij_flutter/screens/otherPages/about_ad_page.dart';
 import 'package:dvij_flutter/screens/otherPages/feedback_page.dart';
 import 'package:dvij_flutter/screens/otherPages/privacy_policy_page.dart';
 import 'package:dvij_flutter/classes/user_class.dart' as local_user;
-import '../screens/cities_screens/cities_list_screen.dart';
+import '../cities/cities_screens/cities_list_screen.dart';
+import '../events/event_categories_screens/event_categories_list_screen.dart';
+import '../places/place_categories_screens/place_categories_list_screen.dart';
+import '../places/place_roles_screens/place_roles_list_screen.dart';
+import '../promos/promo_categories_screen/promo_categories_list_screen.dart';
 import '../screens/genders_screens/genders_list_screen.dart';
 
 // --- КАСТОМНАЯ БОКОВАЯ ШТОРКА -----

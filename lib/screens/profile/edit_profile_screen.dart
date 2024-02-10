@@ -8,12 +8,12 @@ import 'package:dvij_flutter/elements/role_in_app_elements/role_in_app_picker_pa
 import 'package:dvij_flutter/methods/date_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
-import '../../classes/city_class.dart';
+import '../../cities/cities_elements/city_element_in_edit_screen.dart';
+import '../../cities/city_class.dart';
 import '../../classes/role_in_app.dart';
 import '../../classes/user_class.dart' as local_user;
 import '../../classes/user_class.dart';
 import '../../elements/choose_dialogs/city_choose_dialog.dart';
-import '../../elements/cities_elements/city_element_in_edit_screen.dart';
 import '../../elements/custom_snack_bar.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../elements/image_in_edit_screen.dart';
@@ -156,7 +156,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _genders = Gender.currentGenderList;
       _rolesInApp = RoleInApp.currentRoleInAppList;
 
-      chosenCity = await City.getCityById(widget.userInfo.city) as City;
+      chosenCity = City.getCityByIdFromList(widget.userInfo.city);
       chosenGender = await Gender.getGenderById(widget.userInfo.gender) as Gender;
       chosenRoleInApp = await RoleInApp.getRoleInAppById(widget.userInfo.role) as RoleInApp;
 

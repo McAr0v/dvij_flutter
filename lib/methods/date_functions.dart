@@ -1,11 +1,10 @@
 import 'dart:convert';
-import 'package:dvij_flutter/classes/promo_class.dart';
+import 'package:dvij_flutter/promos/promo_class.dart';
 import 'package:dvij_flutter/methods/date_class.dart';
-import '../classes/event_category_class.dart';
-import '../classes/event_class.dart';
+import '../events/event_category_class.dart';
+import '../events/event_class.dart';
 import '../classes/date_type_enum.dart';
 import '../classes/pair.dart';
-import '../screens/events/event_view_screen.dart';
 
 List<int> splitDate(String date, String symbol)
 {
