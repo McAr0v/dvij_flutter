@@ -97,6 +97,8 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
 
     DateMixin.getIrregularDateFromJson(snapshot.child('irregularDays').value.toString(), irregularDaysStart, irregularDaysEnd, irregularDaysOnlyDate);
 
+    bool today = DateMixin.todayOrNot(dateType, onceDay, longDays, regularDaysStart, regularDaysEnd, irregularDaysStart, irregularDaysEnd, irregularDaysOnlyDate);
+
     return EventCustom(
         id: snapshot.child('id').value.toString(),
         dateType: dateType,
@@ -123,7 +125,7 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
         irregularDaysStart: irregularDaysStart,
         irregularDaysEnd: irregularDaysEnd,
         irregularDaysOnlyDate: irregularDaysOnlyDate,
-
+        today: today,
     );
   }
 
@@ -133,13 +135,13 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
 
   static EventCustom emptyEvent = EventCustom(
       id: '',
-      dateType: '',
+      dateType: DateTypeEnum.once,
       headline: '',
       desc: '',
       creatorId: '',
-      createDate: '',
-      category: '',
-      city: '',
+      createDate: DateTime(2100),
+      category: EventCategory.emptyEventCategory,
+      city: City.emptyCity,
       street: '',
       house: '',
       phone: '',
@@ -148,25 +150,27 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
       instagram: '',
       imageUrl: 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2Fdvij_unknow_user.jpg?alt=media&token=b63ea5ef-7bdf-49e9-a3ef-1d34d676b6a7',
       placeId: '',
-    price: '',
-    priceType: '',
-    onceDay: '',
-    longDays: '',
-    regularDays: '',
-    irregularDays: ''
-
+      onceDay: [],
+      longDays: [],
+      regularDaysStart: [],
+      regularDaysEnd: [],
+      irregularDaysStart: [],
+      irregularDaysEnd: [],
+      irregularDaysOnlyDate: [],
+      priceType: PriceTypeOption.free,
+      price: ''
   );
 
   factory EventCustom.empty() {
     return EventCustom(
         id: '',
-        dateType: '',
+        dateType: DateTypeEnum.once,
         headline: '',
         desc: '',
         creatorId: '',
-        createDate: '',
-        category: '',
-        city: '',
+        createDate: DateTime(2100),
+        category: EventCategory.emptyEventCategory,
+        city: City.emptyCity,
         street: '',
         house: '',
         phone: '',
@@ -175,19 +179,17 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
         instagram: '',
         imageUrl: 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2Fdvij_unknow_user.jpg?alt=media&token=b63ea5ef-7bdf-49e9-a3ef-1d34d676b6a7',
         placeId: '',
-        price: '',
-        priceType: '',
-        onceDay: '',
-        longDays: '',
-        regularDays: '',
-        irregularDays: ''
+        onceDay: [],
+        longDays: [],
+        regularDaysStart: [],
+        regularDaysEnd: [],
+        irregularDaysStart: [],
+        irregularDaysEnd: [],
+        irregularDaysOnlyDate: [],
+        priceType: PriceTypeOption.free,
+        price: ''
     );
   }
-
-  // --- ИНИЦИАЛИЗИРУЕМ БАЗУ ДАННЫХ -----
-  final DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
-
-  // Метод для добавления нового пола или редактирования пола в Firebase
 
   // --- ФУНКЦИЯ ЗАПИСИ ДАННЫХ Места -----
   static Future<String?> createOrEditEvent(EventCustom event) async {

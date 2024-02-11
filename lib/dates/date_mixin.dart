@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:dvij_flutter/classes/date_type_enum.dart';
+
 mixin DateMixin {
 
   static DateTime getDateFromString(String date){
@@ -64,11 +66,11 @@ mixin DateMixin {
   }
 
   static bool nowIsAfterStart (DateTime checkedDate){
-    return DateTime.now().isAfter(checkedDate);
+    return DateTime.now().isAfter(checkedDate) || DateTime.now().isAtSameMomentAs(checkedDate);
   }
 
   static bool nowIsBeforeEnd (DateTime checkedDate){
-    return DateTime.now().isBefore(checkedDate);
+    return DateTime.now().isBefore(checkedDate) || DateTime.now().isAtSameMomentAs(checkedDate);
   }
 
   /// Отдельная функция для получения списка дат для нерегулярных дат
@@ -101,11 +103,17 @@ mixin DateMixin {
           List<String> startHourAndMinutes = startTimeList[i].split(':');
           List<String> endHourAndMinutes = endTimeList[i].split(':');
 
-          irregularDaysStart.add(DateTime.parse(
-              '${datesList[i]} ${startHourAndMinutes[0]}:${startHourAndMinutes[1]}'));
+          DateTime startDate = DateTime.parse(
+              '${datesList[i]} ${startHourAndMinutes[0]}:${startHourAndMinutes[1]}');
 
-          irregularDaysEnd.add(DateTime.parse(
-              '${datesList[i]} ${endHourAndMinutes[0]}:${endHourAndMinutes[1]}'));
+          DateTime endDate = DateTime.parse(
+              '${datesList[i]} ${endHourAndMinutes[0]}:${endHourAndMinutes[1]}');
+
+          if (endDate.isBefore(startDate)) endDate.add(const Duration(days: 1));
+
+          irregularDaysStart.add(startDate);
+
+          irregularDaysEnd.add(endDate);
 
           irregularDaysOnlyDate.add(DateTime.parse(datesList[i]));
 
@@ -197,11 +205,17 @@ mixin DateMixin {
       List<String> startHourAndMinutes = startTime.split(':');
       List<String> endHourAndMinutes = endTime.split(':');
 
-      daysList.add(DateTime.parse(
-          '$onceDay ${startHourAndMinutes[0]}:${startHourAndMinutes[1]}'));
+      DateTime startDate = DateTime.parse(
+          '$onceDay ${startHourAndMinutes[0]}:${startHourAndMinutes[1]}');
 
-      daysList.add(DateTime.parse(
-          '$onceDay ${endHourAndMinutes[0]}:${endHourAndMinutes[1]}'));
+      DateTime endDate = DateTime.parse(
+          '$onceDay ${endHourAndMinutes[0]}:${endHourAndMinutes[1]}');
+
+      if (endDate.isBefore(startDate)) endDate.add(const Duration(days: 1));
+
+      daysList.add(startDate);
+
+      daysList.add(endDate);
 
       daysList.add(DateTime.parse(onceDay));
 
@@ -263,6 +277,95 @@ mixin DateMixin {
     String dateStr = json[fieldId];
 
     return dateStr;
+  }
+
+  /// Функция определяет, сегодня состоится мероприятие или акция, или нет
+  ///
+  /// <br>
+  ///
+  /// Определяет данный параметр для любого из типов дат.
+  static bool todayOrNot(
+      DateTypeEnum dateType,
+      List<DateTime> onceDay,
+      List<DateTime> longDay,
+      List<String> regularDaysStart,
+      List<String> regularDaysEnd,
+      List<DateTime> irregularDaysStart,
+      List<DateTime> irregularDaysEnd,
+      List<DateTime> irregularDaysOnlyDate
+      ){
+
+    switch (dateType) {
+      case DateTypeEnum.once : {
+        return nowIsInPeriod(onceDay[2], onceDay[1]);
+      }
+
+      case DateTypeEnum.long : {
+        bool today = false;
+        // Проверяем - сегодня вообще находится в периоде проведения или нет
+        bool inPeriod = nowIsInPeriod(longDay[2], longDay[4]);
+        // Если сегодня в периоде, проверим на сегодня - не завершилось ли уже мероприятие или акция
+        if (inPeriod) {
+          DateTime todayDay = DateTime.now();
+          DateTime tempStartDay = DateTime(todayDay.year, todayDay.month, todayDay.day);
+          DateTime tempEndDay = DateTime(todayDay.year, todayDay.month, todayDay.day, longDay[4].hour, longDay[4].minute);
+
+          // Если дата завершения не равна дате начала, значит заканчивается после полуночи
+          // и нужно добавить к временной переменной день
+
+          if (longDay[4].day != longDay[0].day) tempEndDay.add(const Duration(days: 1));
+
+          today = nowIsInPeriod(tempStartDay, tempEndDay);
+
+        }
+        return today;
+      }
+
+      case DateTypeEnum.regular : {
+        DateTime currentDayDate = DateTime.now();
+        int currentDay = currentDayDate.weekday;
+
+        String startTimeToday = regularDaysStart[currentDay-1];
+        String endTimeToday = regularDaysEnd[currentDay-1];
+
+        if (startTimeToday != 'Не выбрано' && endTimeToday != 'Не выбрано'){
+          // Разделяем часы и минуты для парсинга
+          List<String> startHourAndMinutes = startTimeToday.split(':');
+          List<String> endHourAndMinutes = endTimeToday.split(':');
+
+          // Парсим начальную дату до минут для сравнения
+          DateTime parsedStartTimeToMinutes = DateTime.parse('${currentDayDate.year}-${_getCorrectMonthOrDate(currentDayDate.month)}-${_getCorrectMonthOrDate(currentDayDate.day)} ${startHourAndMinutes[0]}:${startHourAndMinutes[1]}');
+
+          // Парсим начальную дату уже без точности до минут
+          DateTime parsedStartTime = DateTime.parse('${currentDayDate.year}-${_getCorrectMonthOrDate(currentDayDate.month)}-${_getCorrectMonthOrDate(currentDayDate.day)}');
+          // Парсим конечную дату с точностью до минуты
+          DateTime parsedEndTime = DateTime.parse('${currentDayDate.year}-${_getCorrectMonthOrDate(currentDayDate.month)}-${_getCorrectMonthOrDate(currentDayDate.day)} ${endHourAndMinutes[0]}:${endHourAndMinutes[1]}');
+
+          // Проверка - если время завершения раньше чем время начала
+          // Именно для этого нужна переменная начального времени с точностью до минуты
+          // Если как бы завершение будет проходить в следущий день, то добавляем к финишной дате 1 день
+          if (parsedStartTimeToMinutes.isAfter(parsedEndTime)){
+            parsedEndTime = parsedEndTime.add(const Duration(days: 1));
+          }
+
+          return nowIsInPeriod(parsedStartTime, parsedEndTime);
+
+      } else {
+        return false;
+        }
+      }
+
+      case DateTypeEnum.irregular : {
+        for (int i = 0; i<irregularDaysStart.length; i++){
+          bool result = nowIsInPeriod(irregularDaysOnlyDate[i], irregularDaysEnd[i]);
+
+          // Первый попавшийся элемент в списке вернет тру, значит сегодня
+          if (result) return true;
+        }
+        return false;
+      }
+
+    }
   }
 
 }
