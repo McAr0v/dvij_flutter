@@ -25,7 +25,7 @@ class EventCardWidget extends StatelessWidget {
     String eventCategory = EventCategory.getEventCategoryFromCategoriesList(event.category).name;
     String eventCity = City.getCityByIdFromList(event.city).name;
 
-    DateTypeEnum eventType = EventCustom.getEventTypeEnum(event.eventType);
+    DateTypeEnum eventType = EventCustom.getEventTypeEnum(event.dateType);
 
     String startDate = '';
     String endDate = '';

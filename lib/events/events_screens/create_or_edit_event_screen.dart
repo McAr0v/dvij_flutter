@@ -170,7 +170,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
     _categories = EventCategory.currentEventCategoryList;
     //accessLevel = UserCustom.accessLevel;
 
-    eventTypeEnum = EventCustom.getEventTypeEnum(widget.eventInfo.eventType);
+    eventTypeEnum = EventCustom.getEventTypeEnum(widget.eventInfo.dateType);
 
     if (eventTypeEnum == DateTypeEnum.once && widget.eventInfo.onceDay != ''){
       onceDay = extractDateOrTimeFromJson(widget.eventInfo.onceDay, 'date');
@@ -776,7 +776,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
                           EventCustom event = EventCustom(
                               id: eventId,
-                              eventType: EventCustom.getNameEventTypeEnum(eventTypeEnum), // сделать функционал
+                              dateType: EventCustom.getNameEventTypeEnum(eventTypeEnum), // сделать функционал
                               headline: headlineController.text,
                               desc: descController.text,
                               creatorId: creatorId,

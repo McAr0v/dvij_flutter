@@ -294,7 +294,7 @@ String sortDateTimeListAndRelatedData(List<DateTime> dateTimeList, List<String> 
 
 bool todayEventOrNot(EventCustom event) {
 
-  if (event.eventType == EventCustom.getNameEventTypeEnum(DateTypeEnum.once)){
+  if (event.dateType == EventCustom.getNameEventTypeEnum(DateTypeEnum.once)){
 
     String onceDay = extractDateOrTimeFromJson(event.onceDay, 'date');
     String startTime = extractDateOrTimeFromJson(event.onceDay, 'startTime');
@@ -316,7 +316,7 @@ bool todayEventOrNot(EventCustom event) {
 
 
 
-  } else if (event.eventType == EventCustom.getNameEventTypeEnum(DateTypeEnum.long)){
+  } else if (event.dateType == EventCustom.getNameEventTypeEnum(DateTypeEnum.long)){
 
     String longStartDay = extractDateOrTimeFromJson(event.longDays, 'startDate');
     String longEndDay = extractDateOrTimeFromJson(event.longDays, 'endDate');
@@ -338,11 +338,11 @@ bool todayEventOrNot(EventCustom event) {
         endDayInLongTypeWithHoursEndTime
     );
 
-  } else if (event.eventType == EventCustom.getNameEventTypeEnum(DateTypeEnum.regular)){
+  } else if (event.dateType == EventCustom.getNameEventTypeEnum(DateTypeEnum.regular)){
 
     return checkRegularDatesOnToday(event.regularDays);
 
-  } else if (event.eventType == EventCustom.getNameEventTypeEnum(DateTypeEnum.irregular)){
+  } else if (event.dateType == EventCustom.getNameEventTypeEnum(DateTypeEnum.irregular)){
 
     // Это списки для временного хранения дат и времени из стринга из БД при парсинге
     List<String> tempIrregularDaysString = [];
@@ -595,7 +595,7 @@ bool checkEventsDatesForFilter (
     DateTime selectedEndDatePeriod,
     ) {
 
-  DateTypeEnum eventTypeEnum = EventCustom.getEventTypeEnum(event.eventType);
+  DateTypeEnum eventTypeEnum = EventCustom.getEventTypeEnum(event.dateType);
 
   switch (eventTypeEnum) {
     case DateTypeEnum.once: return checkEventOnceDayForFilter(event, selectedStartDatePeriod, selectedEndDatePeriod);

@@ -3,20 +3,23 @@ import 'package:dvij_flutter/classes/date_type_enum.dart';
 import 'package:dvij_flutter/classes/priceTypeOptions.dart';
 import 'package:dvij_flutter/classes/user_class.dart';
 import 'package:dvij_flutter/database/database_mixin.dart';
+import 'package:dvij_flutter/dates/date_mixin.dart';
+import 'package:dvij_flutter/dates/time_mixin.dart';
+import 'package:dvij_flutter/events/events_elements/event_type_tab_element.dart';
 import 'package:firebase_database/firebase_database.dart';
 import '../methods/date_functions.dart';
 import 'event_category_class.dart';
 import 'event_sorting_options.dart';
 
-class EventCustom with MixinDatabase {
+class EventCustom with MixinDatabase, DateMixin, TimeMixin {
   String id;
-  String eventType;
+  DateTypeEnum dateType;
   String headline;
   String desc;
   String creatorId;
-  String createDate;
-  String category;
-  String city;
+  DateTime createDate;
+  EventCategory category;
+  City city;
   String street;
   String house;
   String phone;
@@ -25,20 +28,23 @@ class EventCustom with MixinDatabase {
   String instagram;
   String imageUrl;
   String placeId;
-  String priceType;
+  PriceTypeOption priceType;
   String price;
-  String onceDay;
-  String longDays;
-  String regularDays;
-  String irregularDays;
-  String? addedToFavouritesCount;
-  String? canEdit;
-  String? inFav;
-  String? today;
+  List<DateTime> onceDay;
+  List<DateTime> longDays;
+  List<String> regularDaysStart;
+  List<String> regularDaysEnd;
+  List<DateTime> irregularDaysStart;
+  List<DateTime> irregularDaysEnd;
+  List<DateTime> irregularDaysOnlyDate;
+  int? addedToFavouritesCount;
+  bool? canEdit;
+  bool? inFav;
+  bool? today;
 
   EventCustom({
     required this.id,
-    required this.eventType,
+    required this.dateType,
     required this.headline,
     required this.desc,
     required this.creatorId,
@@ -55,8 +61,11 @@ class EventCustom with MixinDatabase {
     required this.placeId,
     required this.onceDay,
     required this.longDays,
-    required this.regularDays,
-    required this.irregularDays,
+    required this.regularDaysStart,
+    required this.regularDaysEnd,
+    required this.irregularDaysStart,
+    required this.irregularDaysEnd,
+    required this.irregularDaysOnlyDate,
     required this.priceType,
     required this.price,
     this.addedToFavouritesCount,
@@ -67,53 +76,53 @@ class EventCustom with MixinDatabase {
   });
 
   factory EventCustom.fromSnapshot(DataSnapshot snapshot) {
-    // Указываем путь к нашим полям
-    DataSnapshot idSnapshot = snapshot.child('id');
-    DataSnapshot eventTypeSnapshot = snapshot.child('eventType');
-    DataSnapshot headlineSnapshot = snapshot.child('headline');
-    DataSnapshot descSnapshot = snapshot.child('desc');
-    DataSnapshot creatorIdSnapshot = snapshot.child('creatorId');
-    DataSnapshot createDateSnapshot = snapshot.child('createDate');
-    DataSnapshot categorySnapshot = snapshot.child('category');
-    DataSnapshot citySnapshot = snapshot.child('city');
-    DataSnapshot streetSnapshot = snapshot.child('street');
-    DataSnapshot houseSnapshot = snapshot.child('house');
-    DataSnapshot phoneSnapshot = snapshot.child('phone');
-    DataSnapshot whatsappSnapshot = snapshot.child('whatsapp');
-    DataSnapshot telegramSnapshot = snapshot.child('telegram');
-    DataSnapshot instagramSnapshot = snapshot.child('instagram');
-    DataSnapshot imageUrlSnapshot = snapshot.child('imageUrl');
-    DataSnapshot placeIdSnapshot = snapshot.child('placeId');
-    DataSnapshot onceDayDateSnapshot = snapshot.child('onceDay');
-    DataSnapshot longDaysSnapshot = snapshot.child('longDays');
-    DataSnapshot regularDaysSnapshot = snapshot.child('regularDays');
-    DataSnapshot irregularDaysSnapshot = snapshot.child('irregularDays');
-    DataSnapshot priceSnapshot = snapshot.child('price');
-    DataSnapshot priceTypeSnapshot = snapshot.child('priceType');
+
+    DateTypeEnumClass dateTypeClass = DateTypeEnumClass();
+    EventCategory eventCategory = EventCategory(name: '', id: snapshot.child('category').value.toString());
+    City city = City(name: '', id: snapshot.child('city').value.toString());
+    PriceTypeEnumClass priceType = PriceTypeEnumClass();
+
+    // ---- РАБОТА С ДАТАМИ -----
+
+    DateTypeEnum dateType = dateTypeClass.getEnumFromString(snapshot.child('eventType').value.toString());
+    List<DateTime> onceDay = DateMixin.getDateFromJson(snapshot.child('onceDay').value.toString(), 'date', 'startTime', 'endTime');
+    List<DateTime> longDays = DateMixin.getPeriodDatesFromJson(snapshot.child('longDays').value.toString(), 'startDate', 'endDate', 'startTime', 'endTime');
+
+    List<String> regularDaysStart = TimeMixin.getTimeListFromJson(snapshot.child('regularDays').value.toString(), 'startTime', 'Не выбрано');
+    List<String> regularDaysEnd = TimeMixin.getTimeListFromJson(snapshot.child('regularDays').value.toString(), 'endTime', 'Не выбрано');
+
+    List<DateTime> irregularDaysStart = [];
+    List<DateTime> irregularDaysEnd = [];
+    List<DateTime> irregularDaysOnlyDate = [];
+
+    DateMixin.getIrregularDateFromJson(snapshot.child('irregularDays').value.toString(), irregularDaysStart, irregularDaysEnd, irregularDaysOnlyDate);
 
     return EventCustom(
-        id: idSnapshot.value.toString() ?? '',
-        eventType: eventTypeSnapshot.value.toString() ?? '',
-        headline: headlineSnapshot.value.toString() ?? '',
-        desc: descSnapshot.value.toString() ?? '',
-        creatorId: creatorIdSnapshot.value.toString() ?? '',
-        createDate: createDateSnapshot.value.toString() ?? '',
-        category: categorySnapshot.value.toString() ?? '',
-        city: citySnapshot.value.toString() ?? '',
-        street: streetSnapshot.value.toString() ?? '',
-        house: houseSnapshot.value.toString() ?? '',
-        phone: phoneSnapshot.value.toString() ?? '',
-        whatsapp: whatsappSnapshot.value.toString() ?? '',
-        telegram: telegramSnapshot.value.toString() ?? '',
-        instagram: instagramSnapshot.value.toString() ?? '',
-        imageUrl: imageUrlSnapshot.value.toString() ?? '',
-        placeId: placeIdSnapshot.value.toString() ?? '',
-        price: priceSnapshot.value.toString() ?? '',
-        priceType: priceTypeSnapshot.value.toString() ?? '',
-        onceDay: onceDayDateSnapshot.value.toString() ?? '',
-        longDays: longDaysSnapshot.value.toString() ?? '',
-        regularDays: regularDaysSnapshot.value.toString() ?? '',
-        irregularDays: irregularDaysSnapshot.value.toString() ?? ''
+        id: snapshot.child('id').value.toString(),
+        dateType: dateType,
+        headline: snapshot.child('headline').value.toString(),
+        desc: snapshot.child('desc').value.toString(),
+        creatorId: snapshot.child('creatorId').value.toString() ?? '',
+        createDate: getDateFromString(snapshot.child('createDate').value.toString()),
+        category: eventCategory.getEntityByIdFromList(snapshot.child('category').value.toString()),
+        city: city.getEntityByIdFromList(snapshot.child('city').value.toString()),
+        street: snapshot.child('street').value.toString(),
+        house: snapshot.child('house').value.toString(),
+        phone: snapshot.child('phone').value.toString(),
+        whatsapp: snapshot.child('whatsapp').value.toString(),
+        telegram: snapshot.child('telegram').value.toString(),
+        instagram: snapshot.child('instagram').value.toString(),
+        imageUrl: snapshot.child('imageUrl').value.toString(),
+        placeId: snapshot.child('placeId').value.toString(),
+        price: snapshot.child('price').value.toString(),
+        priceType: priceType.getEnumFromString(snapshot.child('priceType').value.toString()),
+        onceDay: onceDay,
+        longDays: longDays,
+        regularDaysStart: regularDaysStart,
+        regularDaysEnd: regularDaysEnd,
+        irregularDaysStart: irregularDaysStart,
+        irregularDaysEnd: irregularDaysEnd,
+        irregularDaysOnlyDate: irregularDaysOnlyDate,
 
     );
   }
@@ -124,7 +133,7 @@ class EventCustom with MixinDatabase {
 
   static EventCustom emptyEvent = EventCustom(
       id: '',
-      eventType: '',
+      dateType: '',
       headline: '',
       desc: '',
       creatorId: '',
@@ -151,7 +160,7 @@ class EventCustom with MixinDatabase {
   factory EventCustom.empty() {
     return EventCustom(
         id: '',
-        eventType: '',
+        dateType: '',
         headline: '',
         desc: '',
         creatorId: '',
@@ -192,7 +201,7 @@ class EventCustom with MixinDatabase {
       // Записываем данные пользователя в базу данных
       await FirebaseDatabase.instance.ref().child(eventPath).set({
         'id': event.id,
-        'eventType': event.eventType,
+        'eventType': event.dateType,
         'headline': event.headline,
         'desc': event.desc,
         'creatorId': event.creatorId,

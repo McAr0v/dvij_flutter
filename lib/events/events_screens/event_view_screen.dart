@@ -108,7 +108,7 @@ class _EventViewScreenState extends State<EventViewScreen> {
 
       event = EventCustom.getEventFromFeedList(widget.eventId);
 
-      eventTypeEnum = EventCustom.getEventTypeEnum(event.eventType);
+      eventTypeEnum = EventCustom.getEventTypeEnum(event.dateType);
 
       if (eventTypeEnum == DateTypeEnum.once && event.onceDay != ''){
         onceDay = extractDateOrTimeFromJson(event.onceDay, 'date');
