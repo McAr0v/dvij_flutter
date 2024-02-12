@@ -368,4 +368,62 @@ mixin DateMixin {
     }
   }
 
+  /// Функция генерации Json строки для типа дат Once
+  ///
+  /// Принимает список дат и возвращает нужную строку для записи в БД
+  ///
+  /// Получаемый формат строки Json - {"date": "2024-01-30", "startTime": "05:30", "endTime": "17:00"}
+  static String generateOnceTypeDate(List<DateTime> dates){
+    DateTime startDateAndTime = dates[0];
+    DateTime endDateAndTime = dates[1];
+
+    return '{'
+        '"date": "${startDateAndTime.year}-${_getCorrectMonthOrDate(startDateAndTime.month)}-${_getCorrectMonthOrDate(startDateAndTime.day)}", '
+        '"startTime": "${_getCorrectMonthOrDate(startDateAndTime.hour)}:${_getCorrectMonthOrDate(startDateAndTime.minute)}", '
+        '"endTime": "${_getCorrectMonthOrDate(endDateAndTime.hour)}:${_getCorrectMonthOrDate(endDateAndTime.minute)}"'
+        '}';
+  }
+
+  static String generateLongTypeDate(List<DateTime> dates){
+    // [0],[3] - Даты начала с временем
+    // [1],[4] - Даты завершения с временем
+
+    DateTime startDateAndTime = dates[0];
+    DateTime endDateAndTime = dates[4];
+
+    return '{'
+        '"startDate": "${startDateAndTime.year}-${_getCorrectMonthOrDate(startDateAndTime.month)}-${_getCorrectMonthOrDate(startDateAndTime.day)}", '
+        '"endDate": "${endDateAndTime.year}-${_getCorrectMonthOrDate(endDateAndTime.month)}-${_getCorrectMonthOrDate(endDateAndTime.month)}", '
+        '"startTime": "${_getCorrectMonthOrDate(startDateAndTime.hour)}:${_getCorrectMonthOrDate(startDateAndTime.minute)}", '
+        '"endTime": "${_getCorrectMonthOrDate(endDateAndTime.hour)}:${_getCorrectMonthOrDate(endDateAndTime.minute)}"'
+        '}';
+  }
+
+  static String generateRegularTypeDate(
+      List<String> startTimes,
+      List<String> endTimes
+      ){
+    String result = '';
+
+    if (startTimes.isNotEmpty){
+
+      result = '{';
+
+      for (int i = 0; i<startTimes.length; i++){
+
+        if (i != startTimes.length-1){
+          result = '$result"startTime${i+1}": "${startTimes[i]}", "endTime${i+1}": "${endTimes[i]}", ';
+        } else {
+
+          result = '$result"startTime${i+1}": "${startTimes[i]}", "endTime${i+1}": "${endTimes[i]}"';
+
+        }
+      }
+
+      result = '$result}';
+    }
+
+    return result;
+  }
+
 }

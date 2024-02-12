@@ -1,15 +1,14 @@
 import 'package:dvij_flutter/classes/pair.dart';
 import 'package:dvij_flutter/database/database_mixin.dart';
-import 'package:dvij_flutter/methods/date_class.dart';
+import 'package:dvij_flutter/dates/date_mixin.dart';
 import 'package:firebase_database/firebase_database.dart';
-
 import 'ads_enums/ad_active_enum.dart';
 import 'ads_enums/ad_index_enum.dart';
 import 'ads_enums/ad_location_enum.dart';
 import 'ads_enums/enums_interface.dart';
 import '../interfaces/ads_interface.dart';
 
-class AdUser with MixinDatabase implements IAds {
+class AdUser with MixinDatabase, DateMixin implements IAds {
 
   String id;
   String headline;
@@ -46,8 +45,8 @@ class AdUser with MixinDatabase implements IAds {
     String desc = snapshot.child('desc').value.toString();
     String url = snapshot.child('url').value.toString();
     String imageUrl = snapshot.child('imageUrl').value.toString();
-    DateTime startDate = DateClass.getDateFromString(snapshot.child('startDate').value.toString());
-    DateTime endDate = DateClass.getDateFromString(snapshot.child('endDate').value.toString());
+    DateTime startDate = DateMixin.getDateFromString(snapshot.child('startDate').value.toString());
+    DateTime endDate = DateMixin.getDateFromString(snapshot.child('endDate').value.toString());
     AdLocationEnum location = locationClass.getEnumFromString(snapshot.child('location').value.toString());
     AdIndexEnum index = indexClass.getEnumFromString(snapshot.child('adIndex').value.toString()) ;
     AdActiveEnum active = AdActiveEnumClass.getEnumFromDate(snapshot.child('startDate').value.toString(), snapshot.child('endDate').value.toString());

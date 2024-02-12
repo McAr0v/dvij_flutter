@@ -1,3 +1,4 @@
+import 'package:dvij_flutter/dates/date_mixin.dart';
 import 'package:dvij_flutter/methods/date_class.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'ad_user_class.dart';
@@ -42,13 +43,13 @@ class AdAdmin extends AdUser {
     String clientName = snapshot.child('clientName').value.toString();
     String clientPhone = snapshot.child('clientPhone').value.toString();
     String clientWhatsapp = snapshot.child('clientWhatsapp').value.toString();
-    DateTime ordersDate = DateClass.getDateFromString(snapshot.child('ordersDate').value.toString());
+    DateTime ordersDate = DateMixin.getDateFromString(snapshot.child('ordersDate').value.toString());
     String headline = snapshot.child('headline').value.toString();
     String desc = snapshot.child('desc').value.toString();
     String url = snapshot.child('url').value.toString();
     String imageUrl = snapshot.child('imageUrl').value.toString();
-    DateTime startDate = DateClass.getDateFromString(snapshot.child('startDate').value.toString());
-    DateTime endDate = DateClass.getDateFromString(snapshot.child('endDate').value.toString());
+    DateTime startDate = DateMixin.getDateFromString(snapshot.child('startDate').value.toString());
+    DateTime endDate = DateMixin.getDateFromString(snapshot.child('endDate').value.toString());
     AdLocationEnum location = adLocationEnumClass.getEnumFromString(snapshot.child('location').value.toString());
     AdIndexEnum index = adIndexEnumClass.getEnumFromString(snapshot.child('adIndex').value.toString()) ;
     AdActiveEnum active = AdActiveEnumClass.getEnumFromDate(snapshot.child('startDate').value.toString(), snapshot.child('endDate').value.toString());
@@ -88,8 +89,8 @@ class AdAdmin extends AdUser {
       'desc': ad.desc,
       'url': ad.url,
       'imageUrl': ad.imageUrl,
-      'startDate': DateClass.generateDateSting(ad.startDate),
-      'endDate': DateClass.generateDateSting(ad.endDate),
+      'startDate': DateMixin.generateDateSting(ad.startDate),
+      'endDate': DateMixin.generateDateSting(ad.endDate),
       'location': adLocationEnumClass.getNameEnum(ad.location),
       'adIndex': adIndexEnumClass.getNameEnum(ad.adIndex),
     };

@@ -191,6 +191,41 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
     );
   }
 
+  Map<String, dynamic> generateEventDataCode(EventCustom event) {
+    DateTypeEnumClass dateTypeEnumClass = DateTypeEnumClass();
+    PriceTypeEnumClass priceTypeEnumClass = PriceTypeEnumClass();
+    return <String, dynamic> {
+      'id': event.id,
+      'eventType': dateTypeEnumClass.getNameEnum(event.dateType),
+      'headline': event.headline,
+      'desc': event.desc,
+      'creatorId': event.creatorId,
+      'createDate': DateMixin.generateDateSting(createDate),
+      'category': event.category.id,
+      'city': event.city.id,
+      'street': event.street,
+      'house': event.house,
+      'phone': event.phone,
+      'whatsapp': event.whatsapp,
+      'telegram': event.telegram,
+      'instagram': event.instagram,
+      'imageUrl': event.imageUrl,
+      'placeId': event.placeId,
+      'priceType': priceTypeEnumClass.getNameEnum(event.priceType),
+      'price': event.price,
+      'onceDay': DateMixin.generateOnceTypeDate(event.onceDay),
+      'longDays': DateMixin.generateLongTypeDate(event.longDays),
+      'regularDays': DateMixin.generateRegularTypeDate(event.regularDaysStart, event.regularDaysEnd),
+      'irregularDays':
+
+
+
+
+
+
+    };
+  }
+
   // --- ФУНКЦИЯ ЗАПИСИ ДАННЫХ Места -----
   static Future<String?> createOrEditEvent(EventCustom event) async {
 
