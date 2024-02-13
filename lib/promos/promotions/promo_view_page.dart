@@ -90,13 +90,15 @@ class _PromoViewScreenState extends State<PromoViewScreen> {
   // --- Функция получения и ввода данных ---
 
   Future<void> fetchAndSetData() async {
+
+    DateTypeEnumClass dateTypeEnumClass = DateTypeEnumClass();
     try {
 
       //promo = await PromoCustom.getPromoById(widget.promoId);
 
       promo = PromoCustom.getPromoFromFeedList(widget.promoId);
 
-      promoTypeEnum = EventCustom.getEventTypeEnum(promo.promoType);
+      promoTypeEnum = dateTypeEnumClass.getEnumFromString(promo.promoType);
 
       if (promoTypeEnum == DateTypeEnum.once && promo.onceDay != ''){
         onceDay = extractDateOrTimeFromJson(promo.onceDay, 'date');
@@ -420,7 +422,7 @@ class _PromoViewScreenState extends State<PromoViewScreen> {
 
                         const SizedBox(height: 16.0),
 
-                        if (promoTypeEnum == DateTypeEnum.once) ScheduleOnceAndLongWidget(
+                        /*if (promoTypeEnum == DateTypeEnum.once) ScheduleOnceAndLongWidget(
                           dateHeadline: 'Дата проведения',
                           dateDesc: 'Акция проводится один раз',
                           dateTypeEnum: promoTypeEnum,
@@ -456,7 +458,7 @@ class _PromoViewScreenState extends State<PromoViewScreen> {
                           irregularEndTime: chosenIrregularEndTime,
                           headline: 'Расписание',
                           desc: 'Акция проводится в определенные дни',
-                        ),
+                        ),*/
 
                         const SizedBox(height: 16.0),
 

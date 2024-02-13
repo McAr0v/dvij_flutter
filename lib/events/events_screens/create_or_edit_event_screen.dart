@@ -118,7 +118,7 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
   List<City> _cities = [];
   List<EventCategory> _categories = [];
-  late EventCategory chosenCategory;
+  EventCategory chosenCategory = EventCategory.emptyEventCategory;
 
   // --- Функция перехода на страницу профиля ----
 
@@ -308,7 +308,7 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
     _cities = City.currentCityList;
     _categories = EventCategory.currentEventCategoryList;
 
-    chosenCategory = EventCategory.getEventCategoryFromCategoriesList(widget.eventInfo.category.name);
+    chosenCategory = widget.eventInfo.category;
 
     chosenCity = widget.eventInfo.city;
 
@@ -386,7 +386,7 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                       },
                     ),
 
-                    if (chosenCategory.id != "") CategoryElementInEditScreen(
+                    if (chosenCategory.id != '') CategoryElementInEditScreen(
                       categoryName: chosenCategory.name,
                       onActionPressed: () {
                         //_showCityPickerDialog();

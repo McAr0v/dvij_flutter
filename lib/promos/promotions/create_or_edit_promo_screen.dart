@@ -649,6 +649,8 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
                         buttonText: 'Сохранить изменения',
                         onTapMethod: () async {
 
+                          DateTypeEnumClass dateTypeEnumClass = DateTypeEnumClass();
+
                           String checkDates = checkTimeAndDate(
                               promoTypeEnum,
                               selectedDayInOnceType,
@@ -710,7 +712,7 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
 
                             PromoCustom promo = PromoCustom(
                                 id: promoId,
-                                promoType: EventCustom.getNameEventTypeEnum(promoTypeEnum), // сделать функционал
+                                promoType: dateTypeEnumClass.getNameEnum(promoTypeEnum), // сделать функционал
                                 headline: headlineController.text,
                                 desc: descController.text,
                                 creatorId: creatorId,

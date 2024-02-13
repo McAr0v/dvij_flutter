@@ -340,7 +340,7 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
                                     else {
 
                                       // --- Если уже в избранном ----
-                                      if (eventsList[indexWithAddCountCorrection].inFav == 'true')
+                                      if (eventsList[indexWithAddCountCorrection].inFav == true)
                                       {
                                         // --- Удаляем из избранных ---
                                         String resDel = await EventCustom.deleteEventFromFav(eventsList[indexWithAddCountCorrection].id);

@@ -7,6 +7,7 @@ import 'package:dvij_flutter/promos/promos_elements/promo_category_picker_page.d
 import 'package:flutter/material.dart';
 import '../../cities/cities_elements/city_element_in_edit_screen.dart';
 import '../../cities/city_class.dart';
+import '../../dates/date_mixin.dart';
 import '../../elements/choose_dialogs/city_choose_dialog.dart';
 import '../../elements/date_elements/data_picker.dart';
 import '../../methods/date_class.dart';
@@ -215,7 +216,7 @@ class _PromoFilterPageState extends State<PromoFilterPage> {
 
                                 },
                                 date: selectedStartDatePeriod != DateTime(2100) ?
-                                DateClass.getHumanDate('${selectedStartDatePeriod.year}-${selectedStartDatePeriod.month}-${selectedStartDatePeriod.day}', '-')
+                                DateMixin.getHumanDate('${selectedStartDatePeriod.year}-${selectedStartDatePeriod.month}-${selectedStartDatePeriod.day}', '-')
                                     : 'Не выбрано',
                                 labelText: 'Период проведения: Начальная дата',
                               ),
@@ -247,7 +248,7 @@ class _PromoFilterPageState extends State<PromoFilterPage> {
                                   _selectDate(context, selectedEndDatePeriod, needClearInitialDate: false, isStart: false, firstDate: selectedStartDatePeriod);
                                 },
                                 date: selectedEndDatePeriod != DateTime(2100) ?
-                                DateClass.getHumanDate('${selectedEndDatePeriod.year}-${selectedEndDatePeriod.month}-${selectedEndDatePeriod.day}', '-')
+                                DateMixin.getHumanDate('${selectedEndDatePeriod.year}-${selectedEndDatePeriod.month}-${selectedEndDatePeriod.day}', '-')
                                     : 'Не выбрано',
                                 labelText: 'Период проведения: Конечная дата',
                               ),

@@ -5,6 +5,7 @@ import 'package:dvij_flutter/classes/user_class.dart';
 import 'package:dvij_flutter/database/database_mixin.dart';
 import 'package:dvij_flutter/dates/date_mixin.dart';
 import 'package:dvij_flutter/dates/time_mixin.dart';
+import 'package:dvij_flutter/filters/filter_mixin.dart';
 import 'package:firebase_database/firebase_database.dart';
 import '../methods/date_functions.dart';
 import 'event_category_class.dart';
@@ -73,15 +74,37 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
     City city = City(name: '', id: snapshot.child('city').value.toString());
     PriceTypeEnumClass priceType = PriceTypeEnumClass();
 
+    String onceDayString = snapshot.child('onceDay').value.toString();
+    Map<String, DateTime> onceDay = {};
+
+    String longDaysString = snapshot.child('longDays').value.toString();
+    Map<String, DateTime> longDays = {};
+
+    List<Map<String, DateTime>> irregularDays = [];
+    String irregularDaysString = snapshot.child('irregularDays').value.toString();
+
     // ---- РАБОТА С ДАТАМИ -----
 
     DateTypeEnum dateType = dateTypeClass.getEnumFromString(snapshot.child('eventType').value.toString());
-    Map<String, DateTime> onceDay = DateMixin.getDateFromJson(snapshot.child('onceDay').value.toString(), 'date', 'startTime', 'endTime');
-    Map<String, DateTime> longDays = DateMixin.getPeriodDatesFromJson(snapshot.child('longDays').value.toString(), 'startDate', 'endDate', 'startTime', 'endTime');
+    if (onceDayString != ''){
+      onceDay = DateMixin.getDateFromJson(onceDayString, 'date', 'startTime', 'endTime');
+    }
+
+    if (longDaysString != ''){
+      longDays = DateMixin.getPeriodDatesFromJson(longDaysString, 'startDate', 'endDate', 'startTime', 'endTime');
+      if (longDays['endDate-endDate']!.isBefore(longDays['endDate-startDate']!)){
+        DateTime tempDate = longDays['endDate-endDate']!.add(const Duration(days: 1));
+        DateTime tempDateStart = longDays['startDate-endDate']!.add(const Duration(days: 1));
+        longDays['endDate-endDate'] = tempDate;
+        longDays['startDate-endDate'] = tempDateStart;
+      }
+    }
 
     Map<String, String> regularDays = TimeMixin.getTimeDictionaryFromJson(snapshot.child('regularDays').value.toString(), 'Не выбрано');
 
-    List<Map<String, DateTime>> irregularDays = DateMixin.getIrregularDatesFromJson(snapshot.child('irregularDays').value.toString());
+    if (irregularDaysString != ''){
+      irregularDays = DateMixin.getIrregularDatesFromJson(irregularDaysString);
+    }
 
     bool today = DateMixin.todayOrNot(dateType, onceDay, longDays, regularDays, irregularDays);
 
@@ -200,16 +223,22 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
   // --- ФУНКЦИЯ ЗАПИСИ ДАННЫХ -----
   Future<String> createOrEditEvent() async {
 
+    String placePublishResult = 'success';
     String entityPath = 'events/$id/event_info';
     String creatorPath = 'users/$creatorId/myEvents/$id';
-    String placePath = 'places/$placeId/events/$id';
+
 
     Map<String, dynamic> data = generateEventDataCode(this);
     Map<String, dynamic> dataToCreatorAndPlace = MixinDatabase.generateDataCode('eventId', id);
 
     String entityPublishResult = await MixinDatabase.publishToDB(entityPath, data);
     String creatorPublishResult = await MixinDatabase.publishToDB(creatorPath, dataToCreatorAndPlace);
-    String placePublishResult = await MixinDatabase.publishToDB(placePath, dataToCreatorAndPlace);
+
+    if (placeId != '') {
+      String placePath = 'places/$placeId/events/$id';
+      placePublishResult = await MixinDatabase.publishToDB(placePath, dataToCreatorAndPlace);
+    }
+
 
     return checkSuccessFromDb(entityPublishResult, creatorPublishResult, placePublishResult);
 
@@ -439,7 +468,7 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
     bool checkFreePrice = freePrice == false || event.price == '';
     bool checkToday = today == false || event.today! == true;
     bool checkFromPlaceEvent = onlyFromPlaceEvents == false || event.placeId != '';
-    bool checkDate = selectedStartDatePeriod == DateTime(2100) || checkEventsDatesForFilter(event, selectedStartDatePeriod, selectedEndDatePeriod);
+    bool checkDate = selectedStartDatePeriod == DateTime(2100) || FilterMixin.checkEventDatesForFilter(event, selectedStartDatePeriod, selectedEndDatePeriod);
 
     return category && city && checkFreePrice && checkToday && checkFromPlaceEvent && checkDate;
 

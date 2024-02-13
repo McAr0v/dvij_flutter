@@ -478,8 +478,8 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
                                     if (results != null) {
                                       setState(() {
-                                        eventsInThatPlace[index].inFav = results[0].toString();
-                                        eventsInThatPlace[index].addedToFavouritesCount = results[1].toString();
+                                        eventsInThatPlace[index].inFav = results[0];
+                                        eventsInThatPlace[index].addedToFavouritesCount = results[1];
                                       });
                                     }
                                   },
@@ -503,17 +503,17 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                                         // --- Удаляем из избранных ---
                                         String resDel = await EventCustom.deleteEventFromFav(eventsInThatPlace[index].id);
                                         // ---- Инициализируем счетчик -----
-                                        int favCounter = int.parse(eventsInThatPlace[index].addedToFavouritesCount!);
+                                        int favCounter = eventsInThatPlace[index].addedToFavouritesCount!;
 
                                         if (resDel == 'success'){
                                           // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
                                           setState(() {
                                             // Обновляем текущий список
-                                            eventsInThatPlace[index].inFav = 'false';
+                                            eventsInThatPlace[index].inFav = false;
                                             favCounter --;
-                                            eventsInThatPlace[index].addedToFavouritesCount = favCounter.toString();
+                                            eventsInThatPlace[index].addedToFavouritesCount = favCounter;
                                             // Обновляем общий список из БД
-                                            EventCustom.updateCurrentEventListFavInformation(eventsInThatPlace[index].id, favCounter.toString(), 'false');
+                                            EventCustom.updateCurrentEventListFavInformation(eventsInThatPlace[index].id, favCounter, false);
 
                                           });
                                           showSnackBar(context, 'Удалено из избранных', AppColors.attentionRed, 1);
@@ -529,17 +529,17 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                                         String res = await EventCustom.addEventToFav(eventsInThatPlace[index].id);
 
                                         // ---- Инициализируем счетчик добавивших в избранное
-                                        int favCounter = int.parse(eventsInThatPlace[index].addedToFavouritesCount!);
+                                        int favCounter = eventsInThatPlace[index].addedToFavouritesCount!;
 
                                         if (res == 'success') {
                                           // --- Если добавилось успешно, так же обновляем текущий список и список из БД
                                           setState(() {
                                             // Обновляем текущий список
-                                            eventsInThatPlace[index].inFav = 'true';
+                                            eventsInThatPlace[index].inFav = true;
                                             favCounter ++;
-                                            eventsInThatPlace[index].addedToFavouritesCount = favCounter.toString();
+                                            eventsInThatPlace[index].addedToFavouritesCount = favCounter;
                                             // Обновляем список из БД
-                                            EventCustom.updateCurrentEventListFavInformation(eventsInThatPlace[index].id, favCounter.toString(), 'true');
+                                            EventCustom.updateCurrentEventListFavInformation(eventsInThatPlace[index].id, favCounter, true);
                                           });
 
                                           showSnackBar(context, 'Добавлено в избранные', Colors.green, 1);

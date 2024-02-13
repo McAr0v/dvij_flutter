@@ -102,6 +102,18 @@ mixin DateMixin {
     return DateTime.now().isBefore(checkedDate) || DateTime.now().isAtSameMomentAs(checkedDate);
   }
 
+  static bool dateIsInPeriod (DateTime checkedDate, DateTime startDate, DateTime endDate){
+    return dateIsAfterStart(checkedDate, startDate) && dateIsBeforeEnd(checkedDate, endDate);
+  }
+
+  static bool dateIsAfterStart (DateTime checkedDate, DateTime startDate){
+    return checkedDate.isAfter(startDate) || checkedDate.isAtSameMomentAs(startDate);
+  }
+
+  static bool dateIsBeforeEnd (DateTime checkedDate, DateTime endDate){
+    return checkedDate.isBefore(endDate) || checkedDate.isAtSameMomentAs(endDate);
+  }
+
   /// Отдельная функция для получения списка дат для нерегулярных дат
   ///
   /// <br>
@@ -351,16 +363,22 @@ mixin DateMixin {
 
   static String generateLongTypeDate(Map<String, DateTime> dates){
 
-    DateTime startDateAndTime = dates['startDate-startDate']!;
-    DateTime endOnlyDate = dates['endDate-startDate']!;
-    DateTime endDateAndTime = dates['endDate-endDate']!;
+    if (dates.isNotEmpty) {
+      DateTime startDateAndTime = dates['startDate-startDate']!;
+      DateTime endOnlyDate = dates['endDate-startDate']!;
+      DateTime endDateAndTime = dates['endDate-endDate']!;
 
-    return '{'
-        '"startDate": "${startDateAndTime.year}-${_getCorrectMonthOrDate(startDateAndTime.month)}-${_getCorrectMonthOrDate(startDateAndTime.day)}", '
-        '"endDate": "${endOnlyDate.year}-${_getCorrectMonthOrDate(endOnlyDate.month)}-${_getCorrectMonthOrDate(endOnlyDate.day)}", '
-        '"startTime": "${_getCorrectMonthOrDate(startDateAndTime.hour)}:${_getCorrectMonthOrDate(startDateAndTime.minute)}", '
-        '"endTime": "${_getCorrectMonthOrDate(endDateAndTime.hour)}:${_getCorrectMonthOrDate(endDateAndTime.minute)}"'
-        '}';
+      return '{'
+          '"startDate": "${startDateAndTime.year}-${_getCorrectMonthOrDate(startDateAndTime.month)}-${_getCorrectMonthOrDate(startDateAndTime.day)}", '
+          '"endDate": "${endOnlyDate.year}-${_getCorrectMonthOrDate(endOnlyDate.month)}-${_getCorrectMonthOrDate(endOnlyDate.day)}", '
+          '"startTime": "${_getCorrectMonthOrDate(startDateAndTime.hour)}:${_getCorrectMonthOrDate(startDateAndTime.minute)}", '
+          '"endTime": "${_getCorrectMonthOrDate(endDateAndTime.hour)}:${_getCorrectMonthOrDate(endDateAndTime.minute)}"'
+          '}';
+    } else {
+      return '';
+    }
+
+
   }
 
 
@@ -397,7 +415,7 @@ mixin DateMixin {
 
     switch (dateType) {
       case DateTypeEnum.once : {
-        return nowIsInPeriod(onceDay['date-startOnlyDate']!, onceDay['date-endDay']!);
+        return nowIsInPeriod(onceDay['date-startOnlyDate']!, onceDay['date-endDate']!);
       }
 
       case DateTypeEnum.long : {
@@ -492,17 +510,21 @@ mixin DateMixin {
   static Map<String, DateTime> generateOnceDayDateForEvent(DateTime onceDay, String startTime, String endTime){
     Map<String, DateTime> tempMap = {};
 
-    DateTime startDate = DateTime.parse(
-        '${onceDay.year}-${_getCorrectMonthOrDate(onceDay.month)}-${_getCorrectMonthOrDate(onceDay.day)} $startTime');
+    if (startTime != 'Не выбрано' && endTime != 'Не выбрано'){
 
-    DateTime endDate = DateTime.parse(
-        '${onceDay.year}-${_getCorrectMonthOrDate(onceDay.month)}-${_getCorrectMonthOrDate(onceDay.day)} $endTime');
+      DateTime startDate = DateTime.parse(
+          '${onceDay.year}-${_getCorrectMonthOrDate(onceDay.month)}-${_getCorrectMonthOrDate(onceDay.day)} $startTime');
 
-    if (endDate.isBefore(startDate)) endDate.add(const Duration(days: 1));
+      DateTime endDate = DateTime.parse(
+          '${onceDay.year}-${_getCorrectMonthOrDate(onceDay.month)}-${_getCorrectMonthOrDate(onceDay.day)} $endTime');
 
-    tempMap.putIfAbsent('date-startDate', () => startDate);
-    tempMap.putIfAbsent('date-endDate', () => endDate);
-    tempMap.putIfAbsent('date-startOnlyDate', () => onceDay);
+      if (endDate.isBefore(startDate)) endDate.add(const Duration(days: 1));
+
+      tempMap.putIfAbsent('date-startDate', () => startDate);
+      tempMap.putIfAbsent('date-endDate', () => endDate);
+      tempMap.putIfAbsent('date-startOnlyDate', () => onceDay);
+
+    }
 
     return tempMap;
   }
@@ -510,26 +532,32 @@ mixin DateMixin {
   static Map<String, DateTime> generateLongDayDatesForEvent(DateTime startDay, DateTime endDay, String startTime, String endTime){
     Map<String, DateTime> tempMap = {};
 
-    DateTime startDateStartDate = DateTime.parse(
-        '${startDay.year}-${_getCorrectMonthOrDate(startDay.month)}-${_getCorrectMonthOrDate(startDay.day)} $startTime');
-    DateTime startDateEndDate = DateTime.parse(
-        '${startDay.year}-${_getCorrectMonthOrDate(startDay.month)}-${_getCorrectMonthOrDate(startDay.day)} $endTime');
-    DateTime endDateStartDate = DateTime.parse(
-        '${endDay.year}-${_getCorrectMonthOrDate(endDay.month)}-${_getCorrectMonthOrDate(endDay.day)} $startTime');
-    DateTime endDateEndDate = DateTime.parse(
-        '${endDay.year}-${_getCorrectMonthOrDate(endDay.month)}-${_getCorrectMonthOrDate(endDay.day)} $endTime');
+    if (startTime != 'Не выбрано' && endTime != 'Не выбрано'){
 
-    if (startDateStartDate.isAfter(startDateEndDate)){
-      startDateEndDate.add(const Duration(days: 1));
-      endDateEndDate.add(const Duration(days: 1));
+      DateTime startDateStartDate = DateTime.parse(
+          '${startDay.year}-${_getCorrectMonthOrDate(startDay.month)}-${_getCorrectMonthOrDate(startDay.day)} $startTime');
+      DateTime startDateEndDate = DateTime.parse(
+          '${startDay.year}-${_getCorrectMonthOrDate(startDay.month)}-${_getCorrectMonthOrDate(startDay.day)} $endTime');
+      DateTime endDateStartDate = DateTime.parse(
+          '${endDay.year}-${_getCorrectMonthOrDate(endDay.month)}-${_getCorrectMonthOrDate(endDay.day)} $startTime');
+      DateTime endDateEndDate = DateTime.parse(
+          '${endDay.year}-${_getCorrectMonthOrDate(endDay.month)}-${_getCorrectMonthOrDate(endDay.day)} $endTime');
+
+      if (startDateStartDate.isAfter(startDateEndDate)){
+        startDateEndDate.add(const Duration(days: 1));
+        endDateEndDate.add(const Duration(days: 1));
+      }
+
+      tempMap.putIfAbsent('startDate-startDate', () => startDateStartDate);
+      tempMap.putIfAbsent('startDate-endDate', () => startDateEndDate);
+      tempMap.putIfAbsent('endDate-startDate', () => endDateStartDate);
+      tempMap.putIfAbsent('endDate-endDate', () => endDateEndDate);
+      tempMap.putIfAbsent('startDate-startOnlyDate', () => startDay);
+      tempMap.putIfAbsent('endDate-startOnlyDate', () => endDay);
+
     }
 
-    tempMap.putIfAbsent('startDate-startDate', () => startDateStartDate);
-    tempMap.putIfAbsent('startDate-endDate', () => startDateEndDate);
-    tempMap.putIfAbsent('endDate-startDate', () => endDateStartDate);
-    tempMap.putIfAbsent('endDate-endDate', () => endDateEndDate);
-    tempMap.putIfAbsent('startDate-startOnlyDate', () => startDay);
-    tempMap.putIfAbsent('endDate-startOnlyDate', () => endDay);
+
 
     return tempMap;
 

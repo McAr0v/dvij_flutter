@@ -3,6 +3,8 @@ import 'package:dvij_flutter/interfaces/app_services_interface.dart';
 import 'package:dvij_flutter/places/place_extensions.dart';
 import 'package:firebase_database/firebase_database.dart';
 
+import '../dates/date_mixin.dart';
+
 class PlaceCategory with MixinDatabase implements IAppServices<PlaceCategory> {
   late String id; // Идентификатор города
   late String name; // Название города
@@ -43,7 +45,7 @@ class PlaceCategory with MixinDatabase implements IAppServices<PlaceCategory> {
     PlaceCategory category = PlaceCategory(name: name, id: id);
 
     if (id == ''){
-      key = generateKey();
+      key = MixinDatabase.generateKey();
       category.id = key ?? '';
     }
 
@@ -51,7 +53,7 @@ class PlaceCategory with MixinDatabase implements IAppServices<PlaceCategory> {
 
     Map<String, dynamic> info = category.generateInfoForDb();
 
-    String result = await category.publishToDB(path, info);
+    String result = await MixinDatabase.publishToDB(path, info);
 
     await getPlaceCategoryAndSave();
 
@@ -62,7 +64,7 @@ class PlaceCategory with MixinDatabase implements IAppServices<PlaceCategory> {
   Future<String> deleteEntityFromDb() async {
     String path = 'place_categories/$id';
 
-    String result = await deleteFromDb(path);
+    String result = await MixinDatabase.deleteFromDb(path);
 
     await getPlaceCategoryAndSave();
 
@@ -73,7 +75,7 @@ class PlaceCategory with MixinDatabase implements IAppServices<PlaceCategory> {
   Future<List<PlaceCategory>> getEntitiesListFromDb({bool order = true}) async {
     List<PlaceCategory> categories = [];
 
-    DataSnapshot? snapshot = await getInfoFromDB('place_categories');
+    DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB('place_categories');
 
     if (snapshot != null){
       for (var childSnapshot in snapshot.children) {

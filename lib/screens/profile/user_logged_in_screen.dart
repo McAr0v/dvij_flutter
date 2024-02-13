@@ -14,6 +14,7 @@ import '../../classes/gender_class.dart';
 import '../../classes/role_in_app.dart';
 import '../../classes/user_class.dart';
 import '../../classes/user_class.dart';
+import '../../dates/date_mixin.dart';
 import '../../elements/loading_screen.dart';
 import '../../methods/date_class.dart';
 
@@ -217,7 +218,7 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
                     if (userInfo.instagram != '') HeadlineAndDesc(headline: userInfo.instagram, description: 'Instagram'),
 
                     if (userInfo.birthDate != '') const SizedBox(height: 16.0),
-                    if (userInfo.birthDate != '') HeadlineAndDesc(headline: DateClass.getHumanDate(userInfo.birthDate, '-'), description: 'Дата рождения'),
+                    if (userInfo.birthDate != '') HeadlineAndDesc(headline: DateMixin.getHumanDate(userInfo.birthDate, '-'), description: 'Дата рождения'),
 
                     if (userInfo.gender != '') const SizedBox(height: 16.0),
                     if (userInfo.gender != '') HeadlineAndDesc(headline: chosenGender.name, description: 'Пол'),

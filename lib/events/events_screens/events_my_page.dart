@@ -343,7 +343,7 @@ class _EventsMyPageState extends State<EventsMyPage> {
                                       else {
 
                                         // --- Если уже в избранном ----
-                                        if (eventsList[indexWithAddCountCorrection].inFav == 'true')
+                                        if (eventsList[indexWithAddCountCorrection].inFav == true)
                                         {
                                           // --- Удаляем из избранных ---
                                           String resDel = await EventCustom.deleteEventFromFav(eventsList[indexWithAddCountCorrection].id);

@@ -36,7 +36,7 @@ class PromoCategory with MixinDatabase implements IAppServices<PromoCategory> {
     PromoCategory category = PromoCategory(name: name, id: id);
 
     if (id == ''){
-      key = generateKey();
+      key = MixinDatabase.generateKey();
       category.id = key ?? '';
     }
 
@@ -44,7 +44,7 @@ class PromoCategory with MixinDatabase implements IAppServices<PromoCategory> {
 
     Map<String, dynamic> info = category.generateInfoForDb();
 
-    String result = await category.publishToDB(path, info);
+    String result = await MixinDatabase.publishToDB(path, info);
 
     await getPromoCategoryAndSave();
 
@@ -57,7 +57,7 @@ class PromoCategory with MixinDatabase implements IAppServices<PromoCategory> {
 
     String path = 'promo_categories/$id';
 
-    String result = await deleteFromDb(path);
+    String result = await MixinDatabase.deleteFromDb(path);
 
     await getPromoCategoryAndSave();
 
@@ -69,7 +69,7 @@ class PromoCategory with MixinDatabase implements IAppServices<PromoCategory> {
 
     List<PromoCategory> categories = [];
 
-    DataSnapshot? snapshot = await getInfoFromDB('promo_categories');
+    DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB('promo_categories');
 
     if (snapshot != null){
       for (var childSnapshot in snapshot.children) {

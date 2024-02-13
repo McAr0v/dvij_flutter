@@ -8,6 +8,7 @@ import 'package:dvij_flutter/methods/date_functions.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../../dates/date_mixin.dart';
 import '../../methods/date_class.dart';
 import '../../methods/days_functions.dart';
 
@@ -210,7 +211,7 @@ class PromoCardWidget extends StatelessWidget {
                         children: [
                           IconAndTextWidget(
                             icon: FontAwesomeIcons.calendar,
-                            text: DateClass.getHumanDate(startDate, '-', needYear: false),
+                            text: DateMixin.getHumanDate(startDate, '-', needYear: false),
                             textSize: 'bodySmall',
                             padding: 10,
                           ),
@@ -230,7 +231,7 @@ class PromoCardWidget extends StatelessWidget {
                         children: [
                           IconAndTextWidget(
                             icon: FontAwesomeIcons.calendar,
-                            text: '${DateClass.getHumanDate(startDate, '-', needYear: false)} - ${DateClass.getHumanDate(endDate, '-', needYear: false)}',
+                            text: '${DateMixin.getHumanDate(startDate, '-', needYear: false)} - ${DateMixin.getHumanDate(endDate, '-', needYear: false)}',
                             textSize: 'label',
                             padding: 10,
                           ),

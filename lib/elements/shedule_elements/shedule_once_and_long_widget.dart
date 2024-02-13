@@ -91,8 +91,8 @@ class ScheduleOnceAndLongWidget extends StatelessWidget {
                           children: [
                             if (dateTypeEnum == DateTypeEnum.once && onceDate != null) HeadlineAndDesc(
                                 headline: TimeMixin.getTimeRange(
-                                    longDates!['date-startDate']!,
-                                    longDates!['date-endDate']!
+                                    onceDate!['date-startDate']!,
+                                    onceDate!['date-endDate']!
                                 ),
                                 description: 'Время проведения'
                             ),

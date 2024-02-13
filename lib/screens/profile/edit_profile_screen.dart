@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:dvij_flutter/classes/gender_class.dart';
+import 'package:dvij_flutter/dates/date_mixin.dart';
 import 'package:dvij_flutter/elements/date_elements/data_picker.dart';
 import 'package:dvij_flutter/elements/genders_elements/gender_element_in_edit_screen.dart';
 import 'package:dvij_flutter/elements/genders_elements/gender_picker_page.dart';
@@ -284,7 +285,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       onActionPressed: () {
                         _selectDate(context);
                       },
-                    date: DateClass.getHumanDate('${selectedDate.year}-${selectedDate.month}-${selectedDate.day}', '-'),
+                    date: DateMixin.getHumanDate('${selectedDate.year}-${selectedDate.month}-${selectedDate.day}', '-'),
                       labelText: 'Дата рождения'
                   ),
 

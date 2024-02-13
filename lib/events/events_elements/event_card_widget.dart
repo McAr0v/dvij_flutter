@@ -175,7 +175,7 @@ class EventCardWidget extends StatelessWidget {
 
                           IconAndTextWidget(
                             icon: FontAwesomeIcons.clock,
-                            text: TimeMixin.getTimeRange(event.onceDay['startDate-startDate']!, event.onceDay['endDate-endDate']!),
+                            text: TimeMixin.getTimeRange(event.longDays['startDate-startDate']!, event.longDays['endDate-endDate']!),
                             textSize: 'label',
                             padding: 10,
                           ),

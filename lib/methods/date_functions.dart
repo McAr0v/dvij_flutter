@@ -590,7 +590,7 @@ bool checkDateOnToday(DateTime startEventDateOnlyDate, DateTime startEventDateWi
   return today.isAfter(startEventDateOnlyDate) && today.isBefore(currentEndEventDate);
 }
 
-bool checkEventsDatesForFilter (
+/*bool checkEventsDatesForFilter (
     EventCustom event,
     DateTime selectedStartDatePeriod,
     DateTime selectedEndDatePeriod,
@@ -605,9 +605,9 @@ bool checkEventsDatesForFilter (
     case DateTypeEnum.irregular: return checkEventIrregularDayForFilter(event, selectedStartDatePeriod, selectedEndDatePeriod);
   }
 
-}
+}*/
 
-bool checkEventOnceDayForFilter (
+/*bool checkEventOnceDayForFilter (
     EventCustom event,
     DateTime selectedStartDatePeriod,
     DateTime selectedEndDatePeriod,
@@ -620,7 +620,7 @@ bool checkEventOnceDayForFilter (
   return (eventDate.isAtSameMomentAs(selectedStartDatePeriod) || eventDate.isAfter(selectedStartDatePeriod)) &&
       (eventDate.isBefore(selectedEndDatePeriod) || eventDate.isAtSameMomentAs(selectedEndDatePeriod));
 
-}
+}*/
 
 bool checkPromoOnceDayForFilter (
     PromoCustom promo,
@@ -637,7 +637,7 @@ bool checkPromoOnceDayForFilter (
 
 }
 
-bool checkEventLongDayForFilter (
+/*bool checkEventLongDayForFilter (
     EventCustom event,
     DateTime selectedStartDatePeriod,
     DateTime selectedEndDatePeriod,
@@ -651,7 +651,7 @@ bool checkEventLongDayForFilter (
   return (eventStartDate.isAtSameMomentAs(selectedEndDatePeriod) || eventStartDate.isBefore(selectedEndDatePeriod) &&
   eventEndDate.isAtSameMomentAs(selectedStartDatePeriod) || eventEndDate.isAfter(selectedStartDatePeriod));
 
-}
+}*/
 
 bool checkPromoLongDayForFilter (
     PromoCustom promo,
@@ -712,7 +712,7 @@ bool checkPromoRegularDayForFilter (
 
 }
 
-bool checkEventRegularDayForFilter (
+/*bool checkEventRegularDayForFilter (
     EventCustom event,
     DateTime selectedStartDatePeriod,
     DateTime selectedEndDatePeriod,
@@ -753,9 +753,9 @@ bool checkEventRegularDayForFilter (
 
   return result;
 
-}
+}*/
 
-bool checkEventIrregularDayForFilter(
+/*bool checkEventIrregularDayForFilter(
     EventCustom event,
     DateTime selectedStartDatePeriod,
     DateTime selectedEndDatePeriod,
@@ -787,7 +787,7 @@ bool checkEventIrregularDayForFilter(
 
   return false;
 
-}
+}*/
 
 bool checkPromoIrregularDayForFilter(
     PromoCustom promo,
@@ -825,7 +825,9 @@ bool checkPromoIrregularDayForFilter(
 
 bool todayPromoOrNot(PromoCustom promo) {
 
-  if (promo.promoType == EventCustom.getNameEventTypeEnum(DateTypeEnum.once)){
+  DateTypeEnumClass dateTypeEnumClass = DateTypeEnumClass();
+
+  if (promo.promoType == dateTypeEnumClass.getNameEnum(DateTypeEnum.once)){
 
     String onceDay = extractDateOrTimeFromJson(promo.onceDay, 'date');
     String startTime = extractDateOrTimeFromJson(promo.onceDay, 'startTime');
@@ -847,7 +849,7 @@ bool todayPromoOrNot(PromoCustom promo) {
 
 
 
-  } else if (promo.promoType == EventCustom.getNameEventTypeEnum(DateTypeEnum.long)){
+  } else if (promo.promoType == dateTypeEnumClass.getNameEnum(DateTypeEnum.long)){
 
     String longStartDay = extractDateOrTimeFromJson(promo.longDays, 'startDate');
     String longEndDay = extractDateOrTimeFromJson(promo.longDays, 'endDate');
@@ -869,11 +871,11 @@ bool todayPromoOrNot(PromoCustom promo) {
         endDayInLongTypeWithHoursEndTime
     );
 
-  } else if (promo.promoType == EventCustom.getNameEventTypeEnum(DateTypeEnum.regular)){
+  } else if (promo.promoType == dateTypeEnumClass.getNameEnum(DateTypeEnum.regular)){
 
     return checkRegularDatesOnToday(promo.regularDays);
 
-  } else if (promo.promoType == EventCustom.getNameEventTypeEnum(DateTypeEnum.irregular)){
+  } else if (promo.promoType == dateTypeEnumClass.getNameEnum(DateTypeEnum.irregular)){
 
     // Это списки для временного хранения дат и времени из стринга из БД при парсинге
     List<String> tempIrregularDaysString = [];
