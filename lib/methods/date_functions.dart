@@ -596,9 +596,9 @@ bool checkEventsDatesForFilter (
     DateTime selectedEndDatePeriod,
     ) {
 
-  DateTypeEnum eventTypeEnum = event.dateType;
+  DateTypeEnum dateTypeEnum = event.dateType;
 
-  switch (eventTypeEnum) {
+  switch (dateTypeEnum) {
     case DateTypeEnum.once: return checkEventOnceDayForFilter(event, selectedStartDatePeriod, selectedEndDatePeriod);
     case DateTypeEnum.long: return checkEventLongDayForFilter(event, selectedStartDatePeriod, selectedEndDatePeriod);
     case DateTypeEnum.regular: return checkEventRegularDayForFilter(event, selectedStartDatePeriod, selectedEndDatePeriod);
