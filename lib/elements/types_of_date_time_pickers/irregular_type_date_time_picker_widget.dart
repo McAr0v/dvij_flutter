@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../../dates/date_mixin.dart';
 import '../../methods/date_class.dart';
 import '../../methods/date_functions.dart';
 import '../../themes/app_colors.dart';
@@ -61,7 +62,7 @@ class IrregularTypeDateTimePickerWidget extends StatelessWidget {
 
           else DataPickerCustom(
             onActionPressed: onDateActionPressedWithChosenDate,
-            date: DateClass.getHumanDate('${selectedDate.year}-${selectedDate.month}-${selectedDate.day}', '-'),
+            date: DateMixin.getHumanDate('${selectedDate.year}-${selectedDate.month}-${selectedDate.day}', '-'),
             labelText: dateLabelText,
           ),
 

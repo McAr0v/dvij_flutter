@@ -31,4 +31,28 @@ class PriceTypeEnumClass implements CustomEnums<PriceTypeOption>{
         return !translate ? 'range' : 'Диапазон цен';
     }
   }
+
+  static String getFormattedPriceString (PriceTypeOption priceType, String price){
+
+    // Функция преобразования цены из БД в человеческий вид
+
+    switch (priceType) {
+
+      case PriceTypeOption.free: return 'Вход бесплатный';
+      case PriceTypeOption.fixed: return '$price тенге';
+      case PriceTypeOption.range: {
+        List<String> temp = price.split('-');
+        return 'от ${temp[0]} тенге - до ${temp[1]} тенге';
+      }
+    }
+  }
+
+  static String getPriceString(PriceTypeOption priceType, String fixedPrice, String startPrice, String endPrice){
+    switch (priceType){
+      case PriceTypeOption.free: return '';
+      case PriceTypeOption.fixed: return fixedPrice;
+      case PriceTypeOption.range: return '$startPrice-$endPrice';
+    }
+  }
+
 }

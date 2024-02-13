@@ -1,3 +1,4 @@
+import 'package:dvij_flutter/dates/date_mixin.dart';
 import 'package:dvij_flutter/events/event_category_class.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/elements/category_element_in_edit_screen.dart';
@@ -219,7 +220,7 @@ class _EventFilterPageState extends State<EventFilterPage> {
 
                                 },
                                 date: selectedStartDatePeriod != DateTime(2100) ?
-                                DateClass.getHumanDate('${selectedStartDatePeriod.year}-${selectedStartDatePeriod.month}-${selectedStartDatePeriod.day}', '-')
+                                DateMixin.getHumanDate('${selectedStartDatePeriod.year}-${selectedStartDatePeriod.month}-${selectedStartDatePeriod.day}', '-')
                                     : 'Не выбрано',
                                 labelText: 'Период проведения: Начальная дата',
                               ),
@@ -251,7 +252,7 @@ class _EventFilterPageState extends State<EventFilterPage> {
                                   _selectDate(context, selectedEndDatePeriod, needClearInitialDate: false, isStart: false, firstDate: selectedStartDatePeriod);
                                 },
                                 date: selectedEndDatePeriod != DateTime(2100) ?
-                                DateClass.getHumanDate('${selectedEndDatePeriod.year}-${selectedEndDatePeriod.month}-${selectedEndDatePeriod.day}', '-')
+                                DateMixin.getHumanDate('${selectedEndDatePeriod.year}-${selectedEndDatePeriod.month}-${selectedEndDatePeriod.day}', '-')
                                     : 'Не выбрано',
                                 labelText: 'Период проведения: Конечная дата',
                               ),

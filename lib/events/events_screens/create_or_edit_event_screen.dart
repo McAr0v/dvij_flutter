@@ -1,4 +1,7 @@
 import 'dart:io';
+import 'package:dvij_flutter/database/database_mixin.dart';
+import 'package:dvij_flutter/dates/date_mixin.dart';
+import 'package:dvij_flutter/dates/time_mixin.dart';
 import 'package:dvij_flutter/events/event_category_class.dart';
 import 'package:dvij_flutter/classes/date_type_enum.dart';
 import 'package:dvij_flutter/places/place_class.dart';
@@ -11,16 +14,15 @@ import 'package:dvij_flutter/elements/types_of_date_time_pickers/once_type_date_
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/regular_two_type_date_time_picker_widget.dart';
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/type_of_date_widget.dart';
 import 'package:dvij_flutter/methods/days_functions.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import '../../cities/city_class.dart';
+import '../../elements/snack_bar.dart';
 import '../../places/places_elements/place_picker_page.dart';
 import '../event_class.dart';
 import '../../classes/role_in_app.dart';
 import '../../classes/user_class.dart';
 import '../../elements/choose_dialogs/city_choose_dialog.dart';
-import '../../elements/custom_snack_bar.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../elements/image_in_edit_screen.dart';
 import '../../elements/loading_screen.dart';
@@ -39,18 +41,20 @@ class CreateOrEditEventScreen extends StatefulWidget {
   const CreateOrEditEventScreen({Key? key, required this.eventInfo}) : super(key: key);
 
   @override
-  _CreateOrEditEventScreenState createState() => _CreateOrEditEventScreenState();
+  CreateOrEditEventScreenState createState() => CreateOrEditEventScreenState();
 
 }
 
 // ----- ЭКРАН РЕДАКТИРОВАНИЯ ПРОФИЛЯ -------
 
-class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
+class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
   // Инициализируем классы
   // TODO - эти классы так надо инициализировать? помоему можно будет просто обращаться к ним и все
   final ImagePickerService imagePickerService = ImagePickerService();
   final ImageUploader imageUploader = ImageUploader();
+
+  final DateTypeEnumClass dateTypeEnumClass = DateTypeEnumClass();
 
   late TextEditingController headlineController;
   late TextEditingController descController;
@@ -64,16 +68,11 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
   late TextEditingController cityController;
   late TextEditingController imageController;
 
-
   late String eventId;
   late String creatorId;
-  late String createdTime;
-
+  late DateTime createdTime;
 
   File? _imageFile;
-
-  //late DateTime selectedDate;
-
 
   late RoleInApp chosenRoleInApp;
   late int accessLevel;
@@ -88,7 +87,6 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
   // ПЕРЕМЕННЫЕ ВРЕМЕНИ РАБОТЫ?
   late DateTime selectedDayInOnceType;
-  late String onceDay;
   String onceDayStartTime = 'Не выбрано';
   String onceDayFinishTime = 'Не выбрано';
 
@@ -104,8 +102,6 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
   // Здесь хранятся выбранные даты нерегулярных дней
   List<DateTime> chosenIrregularDays = [];
-  // Это список для временного хранения дат в стринге из БД при парсинге
-  List<String> tempIrregularDaysString = [];
   // Выбранные даты начала
   List<String> chosenIrregularStartTime = [];
   // Выбранные даты завершения
@@ -134,17 +130,6 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
     );
   }
 
-  // ----- Отображение всплывающего сообщения ----
-
-  void showSnackBar(String message, Color color, int showTime) {
-    final snackBar = customSnackBar(
-      message: message,
-      backgroundColor: color,
-      showTime: showTime,
-    );
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  }
-
   // ------ Функция выбора изображения -------
 
   Future<void> _pickImage() async {
@@ -168,68 +153,59 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
     loading = true;
 
     _categories = EventCategory.currentEventCategoryList;
-    //accessLevel = UserCustom.accessLevel;
 
-    eventTypeEnum = EventCustom.getEventTypeEnum(widget.eventInfo.dateType);
+    eventTypeEnum = widget.eventInfo.dateType;
 
-    if (eventTypeEnum == DateTypeEnum.once && widget.eventInfo.onceDay != ''){
-      onceDay = extractDateOrTimeFromJson(widget.eventInfo.onceDay, 'date');
-      selectedDayInOnceType = DateTime.parse(onceDay);
+    if (eventTypeEnum == DateTypeEnum.once && widget.eventInfo.onceDay.isNotEmpty){
+      selectedDayInOnceType = widget.eventInfo.onceDay['date-startDate']!;
 
       // Если в выбранной дате из БД день раньше, чем сегодня, то меняем выбранный день на сегодня
-      if (selectedDayInOnceType.isBefore(DateTime.now().add(const Duration(hours: 6)))){
-        selectedDayInOnceType = DateTime.now().add(const Duration(hours: 6));
+      if (selectedDayInOnceType.isBefore(DateTime.now())){
+        selectedDayInOnceType = DateTime.now();
       }
 
-      onceDayStartTime = extractDateOrTimeFromJson(widget.eventInfo.onceDay, 'startTime');
-      onceDayFinishTime = extractDateOrTimeFromJson(widget.eventInfo.onceDay, 'endTime');
+      onceDayStartTime = TimeMixin.getTimeFromDateTime(widget.eventInfo.onceDay['date-startDate']!);
+      onceDayFinishTime = TimeMixin.getTimeFromDateTime(widget.eventInfo.onceDay['date-endDate']!);
+
     } else {
       selectedDayInOnceType = DateTime(2100);
     }
 
-    if (eventTypeEnum == DateTypeEnum.long && widget.eventInfo.longDays != '') {
+    if (eventTypeEnum == DateTypeEnum.long && widget.eventInfo.longDays.isNotEmpty) {
 
-     longStartDay = extractDateOrTimeFromJson(widget.eventInfo.longDays, 'startDate');
-     longEndDay = extractDateOrTimeFromJson(widget.eventInfo.longDays, 'endDate');
-     selectedStartDayInLongType = DateTime.parse(longStartDay);
-     selectedEndDayInLongType = DateTime.parse(longEndDay);
-     longDayStartTime = extractDateOrTimeFromJson(widget.eventInfo.longDays, 'startTime');
-     longDayFinishTime = extractDateOrTimeFromJson(widget.eventInfo.longDays, 'endTime');
+     selectedStartDayInLongType = widget.eventInfo.longDays['startDate-startDate']!;
+     selectedEndDayInLongType = widget.eventInfo.longDays['endDate-startDate']!;
+     longDayStartTime = TimeMixin.getTimeFromDateTime(widget.eventInfo.longDays['startDate-startDate']!);
+     longDayFinishTime = TimeMixin.getTimeFromDateTime(widget.eventInfo.longDays['endDate-endDate']!);
 
     } else {
       selectedStartDayInLongType = DateTime(2100);
       selectedEndDayInLongType = DateTime(2100);
     }
 
-    if (eventTypeEnum == DateTypeEnum.regular && widget.eventInfo.regularDays != ''){
+    if (eventTypeEnum == DateTypeEnum.regular && widget.eventInfo.regularDays.isNotEmpty){
 
       _fillRegularList();
     }
 
-    if (eventTypeEnum == DateTypeEnum.irregular && widget.eventInfo.irregularDays != ''){
+    if (eventTypeEnum == DateTypeEnum.irregular && widget.eventInfo.irregularDays.isNotEmpty){
 
-      // Парсим даты и время в списки
-      parseInputString(widget.eventInfo.irregularDays, tempIrregularDaysString, chosenIrregularStartTime, chosenIrregularEndTime);
+      for (int i = 0; i<widget.eventInfo.irregularDays.length; i++){
+        Map<String, DateTime> date = widget.eventInfo.irregularDays[i];
 
-      for (String date in tempIrregularDaysString){
-        // Преобразуем даты из String в DateTime и кидаем в нужный список
-        chosenIrregularDays.add(getDateFromString(date));
+        chosenIrregularDays.add(date['date-startDate']!);
+        chosenIrregularStartTime.add(TimeMixin.getTimeFromDateTime(date['date-startDate']!));
+        chosenIrregularEndTime.add(TimeMixin.getTimeFromDateTime(date['date-endDate']!));
+
       }
     }
 
     if (widget.eventInfo.id == '') {
-
-      DatabaseReference eventReference = FirebaseDatabase.instance.ref().child('events');
-
-      // --- Генерируем уникальный ключ ---
-      DatabaseReference newEventReference = eventReference.push();
       // ---- Получаем уникальный ключ ----
-      eventId = newEventReference.key!; // Получаем уникальный ключ
+      eventId = MixinDatabase.generateKey()!;
 
     } else {
-
       eventId = widget.eventInfo.id;
-
     }
 
     if (widget.eventInfo.placeId != '') {
@@ -249,9 +225,8 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
     }
 
-    if (widget.eventInfo.createDate == ''){
-      DateTime now = DateTime.now();
-      createdTime = '${now.day}.${now.month}.${now.year}';
+    if (widget.eventInfo.createDate == DateTime(2100)){
+      createdTime = DateTime.now();
     }
     else {
       createdTime = widget.eventInfo.createDate;
@@ -267,7 +242,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
     }
 
-    priceType = EventCustom.getPriceTypeEnum(widget.eventInfo.priceType);
+    priceType = widget.eventInfo.priceType;
 
     if (priceType == PriceTypeOption.free) {
       fixedPriceController = TextEditingController(text: '');
@@ -324,7 +299,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
       instagramController = TextEditingController(text: '');
     }
 
-    cityController = TextEditingController(text: widget.eventInfo.city);
+    cityController = TextEditingController(text: widget.eventInfo.city.name);
     streetController = TextEditingController(text: widget.eventInfo.street);
     houseController = TextEditingController(text: widget.eventInfo.house);
 
@@ -333,9 +308,9 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
     _cities = City.currentCityList;
     _categories = EventCategory.currentEventCategoryList;
 
-    chosenCategory = EventCategory.getEventCategoryFromCategoriesList(widget.eventInfo.category);
+    chosenCategory = EventCategory.getEventCategoryFromCategoriesList(widget.eventInfo.category.name);
 
-    chosenCity = City.getCityByIdFromList(widget.eventInfo.city);
+    chosenCity = widget.eventInfo.city;
 
     setState(() {
       loading = false;
@@ -586,7 +561,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                               }).toList(),
                             ),
 
-                            if (eventTypeEnum == DateTypeEnum.irregular) SizedBox(height: 20,),
+                            if (eventTypeEnum == DateTypeEnum.irregular) const SizedBox(height: 20,),
                             if (eventTypeEnum == DateTypeEnum.irregular) CustomButton(
                                 buttonText: "Добавить дату",
                                 onTapMethod: (){
@@ -735,7 +710,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                           setState(() {
                             saving = false;
                           });
-                          showSnackBar(checkDates, AppColors.attentionRed, 2);
+                          showSnackBar(context, checkDates, AppColors.attentionRed, 2);
                         } else {
                           // Выгружаем пользователя в БД
 
@@ -776,13 +751,13 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
                           EventCustom event = EventCustom(
                               id: eventId,
-                              dateType: EventCustom.getNameEventTypeEnum(eventTypeEnum), // сделать функционал
+                              dateType: eventTypeEnum, // сделать функционал
                               headline: headlineController.text,
                               desc: descController.text,
                               creatorId: creatorId,
                               createDate: createdTime,
-                              category: chosenCategory.id,
-                              city: chosenCity.id,
+                              category: chosenCategory,
+                              city: chosenCity,
                               street: streetController.text,
                               house: houseController.text,
                               phone: phoneController.text,
@@ -791,37 +766,39 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                               instagram: instagramController.text,
                               imageUrl: avatarURL ?? widget.eventInfo.imageUrl,
                               placeId: chosenPlace.id, // сделать функционал
-                              onceDay: generateOnceTypeDate(
+                              onceDay: DateMixin.generateOnceDayDateForEvent(
                                   selectedDayInOnceType,
                                   onceDayStartTime,
                                   onceDayFinishTime
                               ), // сделать функционал
-                              longDays: generateLongTypeDate(
+                              longDays: DateMixin.generateLongDayDatesForEvent(
                                   selectedStartDayInLongType,
                                   selectedEndDayInLongType,
                                   longDayStartTime,
                                   longDayFinishTime
                               ), // сделать функционал
-                              regularDays: generateRegularTypeDateTwo(regularStartTimes, regularFinishTimes), // сделать функционал
+                              regularDays: TimeMixin.generateRegularTimesForEvent(regularStartTimes, regularFinishTimes),
 
-                              irregularDays: sortDateTimeListAndRelatedData(
+                              irregularDays: DateMixin.generateIrregularDatesForEvent(
                                   chosenIrregularDays,
                                   chosenIrregularStartTime,
                                   chosenIrregularEndTime
                               ),
 
                               // сделать функционал
-                              price: EventCustom.getPriceString(priceType, fixedPriceController.text, startPriceController.text, endPriceController.text), // сделать функционал
-                              priceType: EventCustom.getNamePriceTypeEnum(priceType)
+                              price: PriceTypeEnumClass.getPriceString(priceType, fixedPriceController.text, startPriceController.text, endPriceController.text), // сделать функционал
+                              priceType: priceType
                           );
 
-                          String? editInDatabase = await EventCustom.createOrEditEvent(event);
+                          String? editInDatabase = await event.createOrEditEvent();
 
                           // Если выгрузка успешна
                           if (editInDatabase == 'success') {
 
-                            EventCustom newEvent = await EventCustom.getEventById(eventId);
-                            // TODO Проверить удаление, если было заведение, а потом сменили адрес вручную
+                            EventCustom newEvent = EventCustom.emptyEvent;
+
+                            newEvent = await newEvent.getEventById(eventId);
+
                             if (widget.eventInfo.placeId != '' && widget.eventInfo.placeId != chosenPlace.id) {
 
                               await EventCustom.deleteEventIdFromPlace(eventId, widget.eventInfo.placeId);
@@ -843,7 +820,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                               // Добавляем обновленное
                               EventCustom.currentFeedEventsList.add(newEvent);
                               EventCustom.currentMyEventsList.add(newEvent);
-                              if (bool.parse(newEvent.inFav!)) EventCustom.currentFavEventsList.add(newEvent);
+                              if (newEvent.inFav!) EventCustom.currentFavEventsList.add(newEvent);
 
                             }
 
@@ -856,6 +833,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                             });
                             // Показываем всплывающее сообщение
                             showSnackBar(
+                              context,
                               "Прекрасно! Данные опубликованы!",
                               Colors.green,
                               1,
@@ -894,7 +872,6 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
       setState(() {
         chosenCity = selectedCity;
       });
-      print("Selected city: ${selectedCity.name}, ID: ${selectedCity.id}");
     }
   }
 
@@ -913,7 +890,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
         var offsetAnimation = animation.drive(tween);
         return SlideTransition(position: offsetAnimation, child: child);
       },
-      transitionDuration: Duration(milliseconds: 100),
+      transitionDuration: const Duration(milliseconds: 100),
 
     );
   }
@@ -925,17 +902,15 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
       setState(() {
         chosenCategory = selectedCategory;
       });
-      print("Selected category: ${selectedCategory.name}, ID: ${selectedCategory.id}");
     }
   }
 
   void _fillRegularList (){
-    //int counter = 1;
 
     for (int i = 0; i<regularStartTimes.length; i++){
 
-      regularStartTimes[i] = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'startTime${i+1}');
-      regularFinishTimes[i] = extractDateOrTimeFromJson(widget.eventInfo.regularDays, 'endTime${i+1}');
+      regularStartTimes[i] = widget.eventInfo.regularDays['startTime${i+1}']!;
+      regularFinishTimes[i] = widget.eventInfo.regularDays['endTime${i+1}']!;
 
     }
   }
@@ -955,7 +930,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
         var offsetAnimation = animation.drive(tween);
         return SlideTransition(position: offsetAnimation, child: child);
       },
-      transitionDuration: Duration(milliseconds: 100),
+      transitionDuration: const Duration(milliseconds: 100),
 
     );
   }
@@ -986,7 +961,7 @@ class _CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
         var offsetAnimation = animation.drive(tween);
         return SlideTransition(position: offsetAnimation, child: child);
       },
-      transitionDuration: Duration(milliseconds: 100),
+      transitionDuration: const Duration(milliseconds: 100),
 
     );
   }

@@ -423,7 +423,7 @@ class _PromoViewScreenState extends State<PromoViewScreen> {
                         if (promoTypeEnum == DateTypeEnum.once) ScheduleOnceAndLongWidget(
                           dateHeadline: 'Дата проведения',
                           dateDesc: 'Акция проводится один раз',
-                          eventTypeEnum: promoTypeEnum,
+                          dateTypeEnum: promoTypeEnum,
                           startTime: onceDayStartTime,
                           endTime: onceDayFinishTime,
                           onceDate: onceDay,
@@ -432,7 +432,7 @@ class _PromoViewScreenState extends State<PromoViewScreen> {
                         if (promoTypeEnum == DateTypeEnum.long) ScheduleOnceAndLongWidget(
                           dateHeadline: 'Расписание',
                           dateDesc: 'Акция проводится каждый день в течении указанного периода',
-                          eventTypeEnum: promoTypeEnum,
+                          dateTypeEnum: promoTypeEnum,
                           startTime: longDayStartTime,
                           endTime: longDayFinishTime,
                           longStartDate: longStartDay,
@@ -442,7 +442,7 @@ class _PromoViewScreenState extends State<PromoViewScreen> {
 
 
                         if (promoTypeEnum == DateTypeEnum.regular) ScheduleRegularAndIrregularWidget(
-                          eventTypeEnum: promoTypeEnum,
+                          dateTypeEnum: promoTypeEnum,
                           regularStartTimes: regularStartTimes,
                           regularFinishTimes: regularFinishTimes,
                           headline: 'Расписание',
@@ -450,7 +450,7 @@ class _PromoViewScreenState extends State<PromoViewScreen> {
                         ),
 
                         if (promoTypeEnum == DateTypeEnum.irregular) ScheduleRegularAndIrregularWidget(
-                          eventTypeEnum: promoTypeEnum,
+                          dateTypeEnum: promoTypeEnum,
                           irregularDays: tempIrregularDaysString,
                           irregularStartTime: chosenIrregularStartTime,
                           irregularEndTime: chosenIrregularEndTime,

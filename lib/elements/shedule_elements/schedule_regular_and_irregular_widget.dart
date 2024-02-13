@@ -1,23 +1,22 @@
+import 'package:dvij_flutter/dates/time_mixin.dart';
 import 'package:dvij_flutter/methods/date_functions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../classes/date_type_enum.dart';
+import '../../dates/date_mixin.dart';
 import '../../methods/date_class.dart';
 import '../../themes/app_colors.dart';
 import '../text_and_icons_widgets/headline_and_desc.dart';
 
 class ScheduleRegularAndIrregularWidget extends StatelessWidget {
   final double horizontalPadding;
-  final List<String> irregularDays;
-  final List<String> irregularStartTime;
-  final List<String> irregularEndTime;
+  final List<Map<String, DateTime>>? irregularDays;
   final String headline;
   final String desc;
   final double verticalPadding;
   final Color backgroundColor;
-  final DateTypeEnum eventTypeEnum;
-  final List<String> regularStartTimes; // Передаваемая переменная
-  final List<String> regularFinishTimes;
+  final DateTypeEnum dateTypeEnum;
+  final Map<String, String>? regularTimes; // Передаваемая переменная
 
 
   ScheduleRegularAndIrregularWidget({
@@ -26,13 +25,9 @@ class ScheduleRegularAndIrregularWidget extends StatelessWidget {
     required this.headline,
     required this.desc,
     this.backgroundColor = AppColors.greyOnBackground,
-    required this.eventTypeEnum,
-    this.regularStartTimes = const [],
-    this.regularFinishTimes = const [],
-    this.irregularDays = const [],
-    this.irregularStartTime = const [],
-    this.irregularEndTime = const []
-
+    required this.dateTypeEnum,
+    this.regularTimes,
+    this.irregularDays,
   });
 
 
@@ -60,27 +55,28 @@ class ScheduleRegularAndIrregularWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
 
-                        if (eventTypeEnum == DateTypeEnum.regular && regularStartTimes.isNotEmpty && regularFinishTimes.isNotEmpty) Column(
+                        if (dateTypeEnum == DateTypeEnum.regular && regularTimes!.isNotEmpty && regularTimes != null) Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.start,
-                          children: List.generate(regularStartTimes.length, (index) {
+                          children: List.generate(regularTimes!.length, (index) {
                             return Column(
                               children: [
-                                if (regularStartTimes[index] != '00:00' && regularStartTimes[index]!=regularFinishTimes[index]) HeadlineAndDesc(headline: getHumanWeekday(index, false), description: 'День недели'),
-                                if (regularStartTimes[index] != '00:00' && regularStartTimes[index]!=regularFinishTimes[index]) const SizedBox(height: 10,),
+                                if (regularTimes!['startTime${index+1}'] != 'Не выбрано' && regularTimes!['startTime${index+1}']!=regularTimes!['endTime${index+1}']) HeadlineAndDesc(headline: DateMixin.getHumanWeekday(index, false), description: 'День недели'),
+                                if (regularTimes!['startTime${index+1}'] != 'Не выбрано' && regularTimes!['startTime${index+1}']!=regularTimes!['endTime${index+1}']) const SizedBox(height: 10,),
                               ],
                             );
                           }),
                         ),
 
-                        if (eventTypeEnum == DateTypeEnum.irregular && irregularStartTime.isNotEmpty && irregularEndTime.isNotEmpty && irregularDays.isNotEmpty) Column(
+                        if (dateTypeEnum == DateTypeEnum.irregular && irregularDays!.isNotEmpty && irregularDays != null) Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.start,
-                          children: List.generate(irregularDays.length, (index) {
+                          children: List.generate(irregularDays!.length, (index) {
+                            Map<String, DateTime> tempDay = irregularDays![index];
                             return Column(
                               children: [
-                                if (irregularStartTime[index] != '00:00' && irregularStartTime[index]!=irregularEndTime[index]) HeadlineAndDesc(headline: DateClass.getHumanDate(irregularDays[index], '-'), description: 'Дата'),
-                                if (irregularStartTime[index] != '00:00' && irregularStartTime[index]!=irregularEndTime[index]) const SizedBox(height: 10,),
+                                HeadlineAndDesc(headline: DateMixin.getHumanDateFromDateTime(tempDay['date-startOnlyDate']!,), description: 'Дата'),
+                                const SizedBox(height: 10,),
                               ],
                             );
                           }),
@@ -90,33 +86,34 @@ class ScheduleRegularAndIrregularWidget extends StatelessWidget {
 
                         SizedBox(width: 30,),
 
-                        if (eventTypeEnum == DateTypeEnum.regular && regularStartTimes.isNotEmpty && regularFinishTimes.isNotEmpty) Column(
+                        if (dateTypeEnum == DateTypeEnum.regular && regularTimes!.isNotEmpty && regularTimes != null) Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.start,
-                          children: List.generate(regularStartTimes.length, (index) {
+                          children: List.generate(regularTimes!.length, (index) {
                             return Column(
                               children: [
-                                if (regularStartTimes[index] != '00:00' && regularStartTimes[index]!=regularFinishTimes[index]) HeadlineAndDesc(
-                                    headline: 'с ${regularStartTimes[index]} до ${regularFinishTimes[index]}',
+                                if (regularTimes!['startTime${index+1}'] != 'Не выбрано' && regularTimes!['startTime${index+1}']!=regularTimes!['endTime${index+1}']) HeadlineAndDesc(
+                                    headline: 'с ${regularTimes!['startTime${index+1}']} до ${regularTimes!['endTime${index+1}']}',
                                     description: 'Время проведения'
                                 ),
-                                if (regularStartTimes[index] != '00:00' && regularStartTimes[index]!=regularFinishTimes[index]) const SizedBox(height: 10,),
+                                if (regularTimes!['startTime${index+1}'] != 'Не выбрано' && regularTimes!['startTime${index+1}']!=regularTimes!['endTime${index+1}']) const SizedBox(height: 10,),
                               ],
                             );
                           }),
                         ),
 
-                        if (eventTypeEnum == DateTypeEnum.irregular && irregularStartTime.isNotEmpty && irregularEndTime.isNotEmpty && irregularDays.isNotEmpty) Column(
+                        if (dateTypeEnum == DateTypeEnum.irregular && irregularDays!.isNotEmpty && irregularDays != null) Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.start,
-                          children: List.generate(irregularDays.length, (index) {
+                          children: List.generate(irregularDays!.length, (index) {
+                            Map<String, DateTime> tempDay = irregularDays![index];
                             return Column(
                               children: [
-                                if (irregularStartTime[index] != '00:00' && irregularStartTime[index]!=irregularEndTime[index]) HeadlineAndDesc(
-                                    headline: 'с ${irregularStartTime[index]} до ${irregularEndTime[index]}',
+                                HeadlineAndDesc(
+                                    headline: TimeMixin.getTimeRange(tempDay['date-startDate']!, tempDay['date-endDate']!),
                                     description: 'Время проведения'
                                 ),
-                                if (irregularStartTime[index] != '00:00' && irregularStartTime[index]!=irregularEndTime[index]) const SizedBox(height: 10,),
+                                const SizedBox(height: 10,),
                               ],
                             );
                           }),

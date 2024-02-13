@@ -172,7 +172,7 @@ class AdUser with MixinDatabase, DateMixin implements IAds {
     currentAllAdsList = [];
 
     // Получаем данные из БД
-    DataSnapshot? snapshot = await getInfoFromDB('ads');
+    DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB('ads');
 
     // Если они пришли
     if (snapshot != null){

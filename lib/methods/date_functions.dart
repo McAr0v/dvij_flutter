@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:dvij_flutter/promos/promo_class.dart';
 import 'package:dvij_flutter/methods/date_class.dart';
+import '../dates/date_mixin.dart';
 import '../events/event_category_class.dart';
 import '../events/event_class.dart';
 import '../classes/date_type_enum.dart';
@@ -40,7 +41,7 @@ String getHumanWeekday (int weekdayIndex, bool cut)
 String getOurDateFormat (String date, String symbol)
 {
   List<String> stringElements = date.split(symbol);
-  String month = DateClass.getMonthName(stringElements[1]);
+  String month = DateMixin.getMonthName(stringElements[1]);
   return '${stringElements[2]}.${stringElements[1]}.${stringElements[0]}';
 }
 
@@ -292,7 +293,7 @@ String sortDateTimeListAndRelatedData(List<DateTime> dateTimeList, List<String> 
 
 }
 
-bool todayEventOrNot(EventCustom event) {
+/*bool todayEventOrNot(EventCustom event) {
 
   if (event.dateType == EventCustom.getNameEventTypeEnum(DateTypeEnum.once)){
 
@@ -373,7 +374,7 @@ bool todayEventOrNot(EventCustom event) {
     return false;
   }
   return false;
-}
+}*/
 
 /*bool todayEventOrNot(EventCustom event) {
 
@@ -595,7 +596,7 @@ bool checkEventsDatesForFilter (
     DateTime selectedEndDatePeriod,
     ) {
 
-  DateTypeEnum eventTypeEnum = EventCustom.getEventTypeEnum(event.dateType);
+  DateTypeEnum eventTypeEnum = event.dateType;
 
   switch (eventTypeEnum) {
     case DateTypeEnum.once: return checkEventOnceDayForFilter(event, selectedStartDatePeriod, selectedEndDatePeriod);

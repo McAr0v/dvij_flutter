@@ -37,7 +37,7 @@ class City with MixinDatabase implements IAppServices<City> {
     City city = City(name: name, id: id);
 
     if (id == ''){
-      cityKey = generateKey();
+      cityKey = MixinDatabase.generateKey();
       city.id = cityKey ?? '';
     }
 
@@ -45,7 +45,7 @@ class City with MixinDatabase implements IAppServices<City> {
 
     Map<String, dynamic> cityData = city.generateCityDataCode();
 
-    String result = await city.publishToDB(path, cityData);
+    String result = await MixinDatabase.publishToDB(path, cityData);
 
     await getCitiesAndSave();
 
@@ -57,7 +57,7 @@ class City with MixinDatabase implements IAppServices<City> {
 
     String path = 'cities/$id';
 
-    String result = await deleteFromDb(path);
+    String result = await MixinDatabase.deleteFromDb(path);
 
     await getCitiesAndSave();
 
@@ -68,7 +68,7 @@ class City with MixinDatabase implements IAppServices<City> {
   Future<List<City>> getEntitiesListFromDb({bool order = true}) async {
     List<City> cities = [];
 
-    DataSnapshot? snapshot = await getInfoFromDB('cities');
+    DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB('cities');
 
     if (snapshot != null){
       for (var childSnapshot in snapshot.children) {

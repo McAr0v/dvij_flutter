@@ -5,7 +5,6 @@ import 'package:dvij_flutter/classes/user_class.dart';
 import 'package:dvij_flutter/database/database_mixin.dart';
 import 'package:dvij_flutter/dates/date_mixin.dart';
 import 'package:dvij_flutter/dates/time_mixin.dart';
-import 'package:dvij_flutter/events/events_elements/event_type_tab_element.dart';
 import 'package:firebase_database/firebase_database.dart';
 import '../methods/date_functions.dart';
 import 'event_category_class.dart';
@@ -30,15 +29,11 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
   String placeId;
   PriceTypeOption priceType;
   String price;
-  List<DateTime> onceDay;
-  List<DateTime> longDays;
-  List<String> regularDaysStart;
-  List<String> regularDaysEnd;
-  List<DateTime> irregularDaysStart;
-  List<DateTime> irregularDaysEnd;
-  List<DateTime> irregularDaysOnlyDate;
+  Map<String, DateTime> onceDay;
+  Map<String, DateTime> longDays;
+  Map<String, String> regularDays;
+  List<Map<String, DateTime>> irregularDays;
   int? addedToFavouritesCount;
-  bool? canEdit;
   bool? inFav;
   bool? today;
 
@@ -61,15 +56,11 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
     required this.placeId,
     required this.onceDay,
     required this.longDays,
-    required this.regularDaysStart,
-    required this.regularDaysEnd,
-    required this.irregularDaysStart,
-    required this.irregularDaysEnd,
-    required this.irregularDaysOnlyDate,
+    required this.regularDays,
+    required this.irregularDays,
     required this.priceType,
     required this.price,
     this.addedToFavouritesCount,
-    this.canEdit,
     this.inFav,
     this.today,
 
@@ -85,26 +76,21 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
     // ---- РАБОТА С ДАТАМИ -----
 
     DateTypeEnum dateType = dateTypeClass.getEnumFromString(snapshot.child('eventType').value.toString());
-    List<DateTime> onceDay = DateMixin.getDateFromJson(snapshot.child('onceDay').value.toString(), 'date', 'startTime', 'endTime');
-    List<DateTime> longDays = DateMixin.getPeriodDatesFromJson(snapshot.child('longDays').value.toString(), 'startDate', 'endDate', 'startTime', 'endTime');
+    Map<String, DateTime> onceDay = DateMixin.getDateFromJson(snapshot.child('onceDay').value.toString(), 'date', 'startTime', 'endTime');
+    Map<String, DateTime> longDays = DateMixin.getPeriodDatesFromJson(snapshot.child('longDays').value.toString(), 'startDate', 'endDate', 'startTime', 'endTime');
 
-    List<String> regularDaysStart = TimeMixin.getTimeListFromJson(snapshot.child('regularDays').value.toString(), 'startTime', 'Не выбрано');
-    List<String> regularDaysEnd = TimeMixin.getTimeListFromJson(snapshot.child('regularDays').value.toString(), 'endTime', 'Не выбрано');
+    Map<String, String> regularDays = TimeMixin.getTimeDictionaryFromJson(snapshot.child('regularDays').value.toString(), 'Не выбрано');
 
-    List<DateTime> irregularDaysStart = [];
-    List<DateTime> irregularDaysEnd = [];
-    List<DateTime> irregularDaysOnlyDate = [];
+    List<Map<String, DateTime>> irregularDays = DateMixin.getIrregularDatesFromJson(snapshot.child('irregularDays').value.toString());
 
-    DateMixin.getIrregularDateFromJson(snapshot.child('irregularDays').value.toString(), irregularDaysStart, irregularDaysEnd, irregularDaysOnlyDate);
-
-    bool today = DateMixin.todayOrNot(dateType, onceDay, longDays, regularDaysStart, regularDaysEnd, irregularDaysStart, irregularDaysEnd, irregularDaysOnlyDate);
+    bool today = DateMixin.todayOrNot(dateType, onceDay, longDays, regularDays, irregularDays);
 
     return EventCustom(
         id: snapshot.child('id').value.toString(),
         dateType: dateType,
         headline: snapshot.child('headline').value.toString(),
         desc: snapshot.child('desc').value.toString(),
-        creatorId: snapshot.child('creatorId').value.toString() ?? '',
+        creatorId: snapshot.child('creatorId').value.toString(),
         createDate: getDateFromString(snapshot.child('createDate').value.toString()),
         category: eventCategory.getEntityByIdFromList(snapshot.child('category').value.toString()),
         city: city.getEntityByIdFromList(snapshot.child('city').value.toString()),
@@ -120,11 +106,8 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
         priceType: priceType.getEnumFromString(snapshot.child('priceType').value.toString()),
         onceDay: onceDay,
         longDays: longDays,
-        regularDaysStart: regularDaysStart,
-        regularDaysEnd: regularDaysEnd,
-        irregularDaysStart: irregularDaysStart,
-        irregularDaysEnd: irregularDaysEnd,
-        irregularDaysOnlyDate: irregularDaysOnlyDate,
+        regularDays: regularDays,
+        irregularDays: irregularDays,
         today: today,
     );
   }
@@ -150,13 +133,10 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
       instagram: '',
       imageUrl: 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2Fdvij_unknow_user.jpg?alt=media&token=b63ea5ef-7bdf-49e9-a3ef-1d34d676b6a7',
       placeId: '',
-      onceDay: [],
-      longDays: [],
-      regularDaysStart: [],
-      regularDaysEnd: [],
-      irregularDaysStart: [],
-      irregularDaysEnd: [],
-      irregularDaysOnlyDate: [],
+      onceDay: {},
+      longDays: {},
+      regularDays: {},
+      irregularDays: [],
       priceType: PriceTypeOption.free,
       price: ''
   );
@@ -179,13 +159,10 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
         instagram: '',
         imageUrl: 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2Fdvij_unknow_user.jpg?alt=media&token=b63ea5ef-7bdf-49e9-a3ef-1d34d676b6a7',
         placeId: '',
-        onceDay: [],
-        longDays: [],
-        regularDaysStart: [],
-        regularDaysEnd: [],
-        irregularDaysStart: [],
-        irregularDaysEnd: [],
-        irregularDaysOnlyDate: [],
+        onceDay: {},
+        longDays: {},
+        regularDays: {},
+        irregularDays: [],
         priceType: PriceTypeOption.free,
         price: ''
     );
@@ -200,7 +177,7 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
       'headline': event.headline,
       'desc': event.desc,
       'creatorId': event.creatorId,
-      'createDate': DateMixin.generateDateSting(createDate),
+      'createDate': DateMixin.generateDateString(createDate),
       'category': event.category.id,
       'city': event.city.id,
       'street': event.street,
@@ -215,152 +192,65 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
       'price': event.price,
       'onceDay': DateMixin.generateOnceTypeDate(event.onceDay),
       'longDays': DateMixin.generateLongTypeDate(event.longDays),
-      'regularDays': DateMixin.generateRegularTypeDate(event.regularDaysStart, event.regularDaysEnd),
-      'irregularDays':
-
-
-
-
-
-
+      'regularDays': TimeMixin.generateRegularTypeTimes(regularDays),
+      'irregularDays': DateMixin.generateIrregularString(irregularDays),
     };
   }
 
-  // --- ФУНКЦИЯ ЗАПИСИ ДАННЫХ Места -----
-  static Future<String?> createOrEditEvent(EventCustom event) async {
+  // --- ФУНКЦИЯ ЗАПИСИ ДАННЫХ -----
+  Future<String> createOrEditEvent() async {
 
-    try {
+    String entityPath = 'events/$id/event_info';
+    String creatorPath = 'users/$creatorId/myEvents/$id';
+    String placePath = 'places/$placeId/events/$id';
 
-      String eventPath = 'events/${event.id}/event_info';
-      String creatorPath = 'users/${event.creatorId}/myEvents/${event.id}';
-      String placePath = 'places/${event.placeId}/events/${event.id}';
+    Map<String, dynamic> data = generateEventDataCode(this);
+    Map<String, dynamic> dataToCreatorAndPlace = MixinDatabase.generateDataCode('eventId', id);
 
-      // Записываем данные пользователя в базу данных
-      await FirebaseDatabase.instance.ref().child(eventPath).set({
-        'id': event.id,
-        'eventType': event.dateType,
-        'headline': event.headline,
-        'desc': event.desc,
-        'creatorId': event.creatorId,
-        'createDate': event.createDate,
-        'category': event.category,
-        'city': event.city,
-        'street': event.street,
-        'house': event.house,
-        'phone': event.phone,
-        'whatsapp': event.whatsapp,
-        'telegram': event.telegram,
-        'instagram': event.instagram,
-        'imageUrl': event.imageUrl,
-        'placeId': event.placeId ?? '',
-        'onceDay': event.onceDay,
-        'longDays': event.longDays,
-        'regularDays': event.regularDays,
-        'irregularDays': event.irregularDays,
-        'price': event.price ?? '',
-        'priceType': event.priceType ?? ''
+    String entityPublishResult = await MixinDatabase.publishToDB(entityPath, data);
+    String creatorPublishResult = await MixinDatabase.publishToDB(creatorPath, dataToCreatorAndPlace);
+    String placePublishResult = await MixinDatabase.publishToDB(placePath, dataToCreatorAndPlace);
 
-      });
+    return checkSuccessFromDb(entityPublishResult, creatorPublishResult, placePublishResult);
 
-      // Записываем данные пользователя в базу данных
-      await FirebaseDatabase.instance.ref().child(creatorPath).set({
-        'eventId': event.id,
-        //'roleId': '-NngrYovmKAw_cp0pYfJ'
-      });
-
-      if (event.placeId != '') {
-        await FirebaseDatabase.instance.ref().child(placePath).set(
-          {
-            'eventId': event.id,
-          }
-        );
-      }
-
-      // Если успешно
-      return 'success';
-
-    } catch (e) {
-      // Если ошибки
-      // TODO Сделать обработку ошибок. Наверняка есть какие то, которые можно различать и писать что случилось
-      print('Error writing user data: $e');
-      return 'Failed to write user data. Error: $e';
-    }
   }
 
-  static Future<String> deleteEvent(
-      String eventId,
-      // List<UserCustom> users, Восстановить если надо добавлять других пользователей
-      String creatorId,
-      String placeId
-      ) async {
-    try {
+  Future<String> deleteEvent() async {
 
-      DatabaseReference reference = FirebaseDatabase.instance.ref().child('events').child(eventId);
+    String entityPath = 'events/$id';
+    String creatorPath = 'users/$creatorId/myEvents/$id';
+    String placePath = 'places/$placeId/events/$id';
 
-      // Проверяем, существует ли город с указанным ID
-      DataSnapshot snapshot = await reference.get();
-      if (!snapshot.exists) {
-        return 'Мероприятие не найдено';
-      }
+    String entityDeleteResult = await MixinDatabase.deleteFromDb(entityPath);
+    String creatorDeleteResult = await MixinDatabase.deleteFromDb(creatorPath);
+    String placeDeleteResult = await MixinDatabase.deleteFromDb(placePath);
 
-      // Удаляем место
-      await reference.remove();
+    return checkSuccessFromDb(entityDeleteResult, creatorDeleteResult, placeDeleteResult);
 
-      // Удалить админские записи у пользователей
+  }
 
-      /*for (var user in users) {
-
-        DatabaseReference userReference = FirebaseDatabase.instance.ref().child('users').child(user.uid).child('myPlaces').child(eventId);
-
-        await userReference.remove();
-
-      }*/
-
-      // Удаляем создателя
-
-      if (creatorId != '') {
-        DatabaseReference userReference = FirebaseDatabase.instance.ref().child('users').child(creatorId).child('myEvents').child(eventId);
-
-        await userReference.remove();
-      }
-
-      if (placeId != '') {
-        await EventCustom.deleteEventIdFromPlace(eventId, placeId);
-      }
-
-
-
-      // TODO По хорошему надо удалять и мероприятия
-
+  static String checkSuccessFromDb(
+      String result1,
+      String result2,
+      String result3,
+      ){
+    if (result1 != 'success'){
+      return result1;
+    } else if (result2 != 'success'){
+      return result2;
+    } else if (result3 != 'success'){
+      return result3;
+    } else {
       return 'success';
-    } catch (error) {
-      return 'Ошибка при удалении города: $error';
     }
   }
 
   static Future<String> deleteEventIdFromPlace(
       String eventId,
-      // List<UserCustom> users, Восстановить если надо добавлять других пользователей
       String placeId
       ) async {
-    try {
-
-      DatabaseReference reference = FirebaseDatabase.instance.ref().child('places/$placeId/events').child(eventId);
-
-      // Проверяем, существует ли город с указанным ID
-      DataSnapshot snapshot = await reference.get();
-      if (!snapshot.exists) {
-        return 'Мероприятие не найдено';
-      }
-
-      // Удаляем место
-      await reference.remove();
-
-      return 'success';
-
-    } catch (error) {
-      return '$error';
-    }
+      String placePath = 'places/$placeId/events/$eventId';
+      return await MixinDatabase.deleteFromDb(placePath);
   }
 
   static Future<List<EventCustom>> getAllEvents() async {
@@ -368,131 +258,130 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
     List<EventCustom> events = [];
     currentFeedEventsList = [];
 
-    // Указываем путь
-    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('events');
+    DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB('events');
 
-    // Получаем снимок данных папки
-    DataSnapshot snapshot = await reference.get();
+    if (snapshot != null) {
+      for (var childSnapshot in snapshot.children) {
 
-    // Итерируем по каждому дочернему элементу
-    // Здесь сделано так потому что мы не знаем ключа города
-    // и нам нужен каждый город, независимо от ключа
+        EventCustom event = EventCustom.fromSnapshot(childSnapshot.child('event_info'));
 
-    for (var childSnapshot in snapshot.children) {
-      // заполняем город (City.fromSnapshot) из снимка данных
-      // и обавляем в список городов
+        event.inFav = await EventCustom.addedInFavOrNot(event.id);
+        event.addedToFavouritesCount = await EventCustom.getFavCount(event.id);
 
-      EventCustom event = EventCustom.fromSnapshot(childSnapshot.child('event_info'));
+        currentFeedEventsList.add(event);
+        events.add(event);
 
-      String favCount = await EventCustom.getFavCount(event.id);
-      String inFav = await EventCustom.addedInFavOrNot(event.id);
-      //bool fromPlace = eventFromPlace(event.placeId);
-
-      event.inFav = inFav;
-      event.addedToFavouritesCount = favCount;
-      event.today = todayEventOrNot(event).toString();
-
-      currentFeedEventsList.add(event);
-
-      events.add(event);
-
+      }
     }
-
-    // Возвращаем список
     return events;
   }
 
-  /*static bool eventFromPlace (String placeId) {
-    return placeId != '';
-  }*/
-
-  static Future<List<EventCustom>> getFavEvents(String userId) async {
+  static Future<List<EventCustom>> getFavEvents(String userId, {bool refresh = false}) async {
 
     List<EventCustom> events = [];
     currentFavEventsList = [];
     List<String> eventsId = [];
 
-    // Указываем путь
-    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('users/$userId/favEvents/');
+    // TODO !!! Сделать загрузку списка избранного при загрузке информации пользователя. Здесь обращаться к уже готовому списку
+    // TODO !!! Не забыть реализовать обновление списка избранных при добавлении и удалении из избранных
+    String favPath = 'users/$userId/favEvents/';
+    DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB(favPath);
 
-    // Получаем снимок данных папки
-    DataSnapshot snapshot = await reference.get();
+    if (snapshot != null) {
+      for (var childSnapshot in snapshot.children) {
 
-    // Итерируем по каждому дочернему элементу
-    // Здесь сделано так потому что мы не знаем ключа города
-    // и нам нужен каждый город, независимо от ключа
+        DataSnapshot idSnapshot = childSnapshot.child('eventId');
 
-    for (var childSnapshot in snapshot.children) {
-      // заполняем город (City.fromSnapshot) из снимка данных
-      // и обавляем в список городов
-
-      DataSnapshot idSnapshot = childSnapshot.child('eventId');
-
-      if (idSnapshot.exists){
-        eventsId.add(idSnapshot.value.toString());
+        if (idSnapshot.exists){
+          eventsId.add(idSnapshot.value.toString());
+        }
       }
     }
+
+    // Если список избранных ID не пустой
 
     if (eventsId.isNotEmpty){
 
-      for (var event in eventsId){
+      // Если список всей ленты не пустой и не была вызвана функция обновления, то будем забирать данные из него
+      if (currentFeedEventsList.isNotEmpty && !refresh){
 
-        EventCustom temp = await getEventById(event);
-
-        if (temp.id != ''){
-          currentFavEventsList.add(temp);
-          events.add(temp);
+        for (String id in eventsId) {
+          EventCustom favEvent = getEventFromFeedListById(id);
+          if (favEvent.id == id){
+            currentFavEventsList.add(favEvent);
+            events.add(favEvent);
+          }
         }
 
-      }
+      } else {
 
+        // Если список ленты не прогружен, то считываем каждую сущность из БД
+        for (String event in eventsId){
+
+          EventCustom temp = EventCustom.emptyEvent;
+          temp = await temp.getEventById(event);
+
+          if (temp.id != ''){
+            currentFavEventsList.add(temp);
+            events.add(temp);
+          }
+        }
+      }
     }
-    // Возвращаем список
     return events;
   }
 
-  static Future<List<EventCustom>> getMyEvents(String userId) async {
+  static EventCustom getEventFromFeedListById(String id){
+    return currentFeedEventsList.firstWhere((
+        element) => element.id == id, orElse: () => EventCustom.empty());
+  }
+
+  static Future<List<EventCustom>> getMyEvents(String userId, {bool refresh = false}) async {
 
     List<EventCustom> events = [];
     currentMyEventsList = [];
     List<String> eventsId = [];
 
-    // Указываем путь
-    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('users/$userId/myEvents/');
+    // TODO !!! Сделать загрузку списка моих сущностей при загрузке информации пользователя. Здесь обращаться к уже готовому списку
+    // TODO !!! Не забыть реализовать обновление списка моих сущностей при добавлении и удалении из раздела мои
+    String favPath = 'users/$userId/myEvents/';
+    DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB(favPath);
 
-    // Получаем снимок данных папки
-    DataSnapshot snapshot = await reference.get();
+    if (snapshot != null) {
+      for (var childSnapshot in snapshot.children) {
 
-    // Итерируем по каждому дочернему элементу
-    // Здесь сделано так потому что мы не знаем ключа города
-    // и нам нужен каждый город, независимо от ключа
+        DataSnapshot idSnapshot = childSnapshot.child('eventId');
 
-    for (var childSnapshot in snapshot.children) {
-      // заполняем город (City.fromSnapshot) из снимка данных
-      // и обавляем в список городов
-
-      DataSnapshot idSnapshot = childSnapshot.child('eventId');
-
-      if (idSnapshot.exists){
-        eventsId.add(idSnapshot.value.toString());
+        if (idSnapshot.exists){
+          eventsId.add(idSnapshot.value.toString());
+        }
       }
     }
 
+    // Если список избранных ID не пустой, и не была вызвана функция обновления
     if (eventsId.isNotEmpty){
 
-      for (var event in eventsId){
-
-        EventCustom temp = await getEventById(event);
-
-        if (temp.id != ''){
-          currentMyEventsList.add(temp);
-          events.add(temp);
+      // Если список всей ленты не пустой, то будем забирать данные из него
+      if (currentFeedEventsList.isNotEmpty && !refresh) {
+        for (String id in eventsId) {
+          EventCustom favEvent = getEventFromFeedListById(id);
+          if (favEvent.id == id) {
+            currentFavEventsList.add(favEvent);
+            events.add(favEvent);
+          }
         }
-
+      } else {
+        // Если список ленты не прогружен, то считываем каждую сущность из БД
+        for (var event in eventsId){
+          EventCustom temp = EventCustom.emptyEvent;
+          temp = await temp.getEventById(event);
+          if (temp.id != ''){
+            currentMyEventsList.add(temp);
+            events.add(temp);
+          }
+        }
       }
-
     }
-    // Возвращаем список
     return events;
   }
 
@@ -542,13 +431,13 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
       DateTime selectedEndDatePeriod,
       ) {
 
-    City cityFromEvent = City.getCityByIdFromList(event.city);
-    EventCategory categoryFromEvent = EventCategory.getEventCategoryFromCategoriesList(event.category);
+    City cityFromEvent = event.city;
+    EventCategory categoryFromEvent = event.category;
 
     bool category = eventCategoryFromFilter.id == '' || eventCategoryFromFilter.id == categoryFromEvent.id;
     bool city = cityFromFilter.id == '' || cityFromFilter.id == cityFromEvent.id;
     bool checkFreePrice = freePrice == false || event.price == '';
-    bool checkToday = today == false || bool.parse(event.today!) == true;
+    bool checkToday = today == false || event.today! == true;
     bool checkFromPlaceEvent = onlyFromPlaceEvents == false || event.placeId != '';
     bool checkDate = selectedStartDatePeriod == DateTime(2100) || checkEventsDatesForFilter(event, selectedStartDatePeriod, selectedEndDatePeriod);
 
@@ -566,148 +455,117 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
 
       case EventSortingOption.nameDesc: events.sort((a, b) => b.headline.compareTo(a.headline)); break;
 
-      case EventSortingOption.favCountAsc: events.sort((a, b) => int.parse(a.addedToFavouritesCount!).compareTo(int.parse(b.addedToFavouritesCount!))); break;
+      case EventSortingOption.favCountAsc: events.sort((a, b) => a.addedToFavouritesCount!.compareTo(b.addedToFavouritesCount!)); break;
 
-      case EventSortingOption.favCountDesc: events.sort((a, b) => int.parse(b.addedToFavouritesCount!).compareTo(int.parse(a.addedToFavouritesCount!))); break;
+      case EventSortingOption.favCountDesc: events.sort((a, b) => b.addedToFavouritesCount!.compareTo(a.addedToFavouritesCount!)); break;
 
     }
 
   }
 
-  static Future<EventCustom> getEventById(String eventId) async {
+  Future<EventCustom> getEventById(String eventId) async {
 
     EventCustom returnedEvent = EventCustom.empty();
 
-    // Указываем путь
-    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('events');
+    String path = 'events/$eventId/event_info';
 
-    // Получаем снимок данных папки
-    DataSnapshot snapshot = await reference.get();
+    DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB(path);
 
-    // Итерируем по каждому дочернему элементу
-    // Здесь сделано так потому что мы не знаем ключа города
-    // и нам нужен каждый город, независимо от ключа
+    if (snapshot != null){
+      EventCustom event = EventCustom.fromSnapshot(snapshot);
 
-    for (var childSnapshot in snapshot.children) {
-      // заполняем город (City.fromSnapshot) из снимка данных
-      // и обавляем в список городов
+      event.inFav = await EventCustom.addedInFavOrNot(event.id);
+      event.addedToFavouritesCount = await EventCustom.getFavCount(event.id);
 
-      EventCustom event = EventCustom.fromSnapshot(childSnapshot.child('event_info'));
-
-      if (event.id == eventId) {
-
-        returnedEvent = event;
-        String favCount = await EventCustom.getFavCount(event.id);
-        String inFav = await EventCustom.addedInFavOrNot(event.id);
-        String canEdit = await EventCustom.canEditOrNot(event.id);
-        event.canEdit = canEdit;
-        event.inFav = inFav;
-        event.addedToFavouritesCount = favCount;
-        event.today = todayEventOrNot(event).toString();
-      }
+      returnedEvent = event;
     }
-
     // Возвращаем список
     return returnedEvent;
   }
 
 
 
-  static Future<String> getFavCount(String eventId) async {
+  static Future<int> getFavCount(String eventId) async {
 
-    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('events/$eventId/addedToFavourites');
+    DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB('events/$eventId/addedToFavourites');
 
-    // Получаем снимок данных папки
-    DataSnapshot snapshot = await reference.get();
-
-    return snapshot.children.length.toString();
+    if (snapshot != null) {
+      return snapshot.children.length;
+    } else {
+      return 0;
+    }
 
   }
 
-  static Future<String> addedInFavOrNot(String eventId) async {
-
-    String addedToFavourites = 'false';
+  static Future<bool> addedInFavOrNot(String eventId) async {
 
     if (UserCustom.currentUser?.uid != null)
     {
+      DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB('events/$eventId/addedToFavourites/${UserCustom.currentUser?.uid}');
 
-      final DatabaseReference reference = FirebaseDatabase.instance.ref().child('events/$eventId/addedToFavourites/${UserCustom.currentUser?.uid}');
-
-      // Получаем снимок данных папки
-      DataSnapshot snapshot = await reference.get();
-
-      for (var childSnapshot in snapshot.children) {
-        // заполняем город (City.fromSnapshot) из снимка данных
-        // и обавляем в список городов
-
-        if (childSnapshot.value == UserCustom.currentUser?.uid) addedToFavourites = 'true';
-
+      if (snapshot != null){
+        for (var childSnapshot in snapshot.children) {
+          if (childSnapshot.value == UserCustom.currentUser?.uid) return true;
+        }
       }
-
     }
 
-    return addedToFavourites;
-
-  }
-
-  static Future<String> canEditOrNot(String eventId) async {
-
-    String canEdit = 'false';
-
-    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('events/$eventId/canEdit');
-
-    // Получаем снимок данных папки
-    DataSnapshot snapshot = await reference.get();
-
-    for (var childSnapshot in snapshot.children) {
-      // заполняем город (City.fromSnapshot) из снимка данных
-      // и обавляем в список городов
-
-      if (childSnapshot.value == UserCustom.currentUser?.uid) canEdit = 'true';
-
-    }
-
-    return canEdit;
+    return false;
 
   }
 
   static Future<String> addEventToFav(String eventId) async {
 
-    try {
+    if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
 
-      if (UserCustom.currentUser?.uid != null){
-        String eventPath = 'events/$eventId/addedToFavourites/${UserCustom.currentUser?.uid}';
-        String userPath = 'users/${UserCustom.currentUser?.uid}/favEvents/$eventId';
+      String eventPath = 'events/$eventId/addedToFavourites/${UserCustom.currentUser?.uid}';
+      String userPath = 'users/${UserCustom.currentUser?.uid}/favEvents/$eventId';
 
-        // Записываем данные пользователя в базу данных
-        await FirebaseDatabase.instance.ref().child(eventPath).set({
-          'userId': UserCustom.currentUser?.uid,
-        });
+      Map<String, dynamic> eventData = MixinDatabase.generateDataCode('userId', UserCustom.currentUser?.uid);
+      Map<String, dynamic> userData = MixinDatabase.generateDataCode('eventId', eventId);
 
-        await FirebaseDatabase.instance.ref(userPath).set(
-            {
-              'eventId': eventId,
-            }
-        );
+      String eventPublish = await MixinDatabase.publishToDB(eventPath, eventData);
+      String userPublish = await MixinDatabase.publishToDB(userPath, userData);
 
-        addEventToCurrentFavList(eventId);
+      addEventToCurrentFavList(eventId);
 
-        // Если успешно
-        return 'success';
+      String result = 'success';
 
-      } else {
+      if (eventPublish != 'success') result = eventPublish;
+      if (userPublish != 'success') result = userPublish;
 
-        return 'Пользователь не зарегистрирован';
+      return result;
 
-      }
+    } else {
+      return 'Пользователь не зарегистрирован';
+    }
 
-    } catch (e) {
-      // Если ошибки
-      // TODO Сделать обработку ошибок. Наверняка есть какие то, которые можно различать и писать что случилось
-      print('Ошибка записи в избранное: $e');
-      return 'Ошибка записи в избранное: $e';
+  }
+
+  static Future<String> deleteEventFromFav(String eventId) async {
+
+    if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
+
+      String eventPath = 'events/$eventId/addedToFavourites/${UserCustom.currentUser?.uid}';
+      String userPath = 'users/${UserCustom.currentUser?.uid}/favEvents/$eventId';
+
+      String eventDelete = await MixinDatabase.deleteFromDb(eventPath);
+      String userDelete = await MixinDatabase.deleteFromDb(userPath);
+
+      deleteEventFromCurrentFavList(eventId);
+
+      String result = 'success';
+
+      if (eventDelete != 'success') result = eventDelete;
+      if (userDelete != 'success') result = userDelete;
+
+      return result;
+
+    } else {
+      return 'Пользователь не зарегистрирован';
     }
   }
+
 
   static void deleteEventFromCurrentFavList(String eventId){
 
@@ -726,7 +584,7 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
   }
 
 
-  static void updateCurrentEventListFavInformation(String eventId, String favCounter, String inFav){
+  static void updateCurrentEventListFavInformation(String eventId, int favCounter, bool inFav){
     // ---- Функция обновления списка из БД при добавлении или удалении из избранного
 
     for (int i = 0; i<currentFeedEventsList.length; i++){
@@ -769,159 +627,18 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
     currentMyEventsList.removeWhere((event) => event.id == eventId);
   }
 
-  static Future<String> deleteEventFromFav(String eventId) async {
-    try {
-      if (UserCustom.currentUser?.uid != null){
-        DatabaseReference reference = FirebaseDatabase.instance.ref().child('events/$eventId/addedToFavourites').child(UserCustom.currentUser!.uid);
-
-        // Проверяем, существует ли город с указанным ID
-        DataSnapshot snapshot = await reference.get();
-        if (!snapshot.exists) {
-          return 'Пользователь не найден';
-        }
-
-        // Удаляем город
-        await reference.remove();
-
-        DatabaseReference referenceUser = FirebaseDatabase.instance.ref().child('users/${UserCustom.currentUser?.uid}/favEvents').child(eventId);
-
-        DataSnapshot snapshotUser = await referenceUser.get();
-        if (!snapshotUser.exists) {
-          return 'Мероприятие у пользователя не найдено';
-        }
-
-        // Удаляем город
-        await referenceUser.remove();
-
-      }
-
-      deleteEventFromCurrentFavList(eventId);
-
-      return 'success';
-    } catch (error) {
-      return 'Ошибка при удалении города: $error';
-    }
-  }
-
-  // --- ФУНКЦИЯ ЗАПИСИ ДАННЫХ Места -----
-  static Future<String?> writeUserRoleInEvent(String eventId, String userId, String roleId) async {
-
-    try {
-
-      String placePath = 'events/$eventId/managers/$userId';
-      String userPath = 'users/$userId/myEvents/$eventId';
-
-      // Записываем данные пользователя в базу данных
-      await FirebaseDatabase.instance.ref().child(placePath).set({
-        'userId': userId,
-        'roleId': roleId,
-      });
-
-      // Записываем данные пользователя в базу данных
-      await FirebaseDatabase.instance.ref().child(userPath).set({
-        'eventId': eventId,
-        'roleId': roleId,
-      });
-
-      // Если успешно
-      return 'success';
-
-    } catch (e) {
-      // Если ошибки
-      // TODO Сделать обработку ошибок. Наверняка есть какие то, которые можно различать и писать что случилось
-      print('Error writing user data: $e');
-      return 'Failed to write user data. Error: $e';
-    }
-  }
-
-  static Future<String?> deleteUserRoleInEvent(String eventId, String userId) async {
-
-    try {
-
-      String placePath = 'events/$eventId/managers/$userId';
-      String userPath = 'users/$userId/myPlaces/$eventId';
-
-      // Записываем данные пользователя в базу данных
-      await FirebaseDatabase.instance.ref().child(placePath).remove();
-      await FirebaseDatabase.instance.ref().child(userPath).remove();
-
-      // Если успешно
-      return 'success';
-
-    } catch (e) {
-      // Если ошибки
-      // TODO Сделать обработку ошибок. Наверняка есть какие то, которые можно различать и писать что случилось
-      print('Error writing user data: $e');
-      return 'Failed to write user data. Error: $e';
-    }
-  }
-
-  static DateTypeEnum getEventTypeEnum (String eventType) {
-    switch (eventType){
-
-      case 'once': return DateTypeEnum.once;
-      case 'long': return DateTypeEnum.long;
-      case 'regular': return DateTypeEnum.regular;
-      case 'irregular': return DateTypeEnum.irregular;
-      default: return DateTypeEnum.once;
-
-    }
-  }
-
-  static PriceTypeOption getPriceTypeEnum (String priceType) {
-    switch (priceType){
-
-      case 'free': return PriceTypeOption.free;
-      case 'fixed': return PriceTypeOption.fixed;
-      case 'range': return PriceTypeOption.range;
-      default: return PriceTypeOption.free;
-
-    }
-  }
-
-  static String getNamePriceTypeEnum (PriceTypeOption priceType, {bool translate = false}) {
-    switch (priceType){
-
-    case PriceTypeOption.free: return !translate? 'free' : 'Бесплатный вход';
-    case PriceTypeOption.fixed: return !translate? 'fixed' : 'Фиксированная';
-    case PriceTypeOption.range: return !translate? 'range' : 'От - До';
-
-    }
-  }
-
-  static String getPriceString (PriceTypeOption priceType, String fixedPrice, String startPrice, String endPrice){
-    switch (priceType){
-      case PriceTypeOption.free: return '';
-      case PriceTypeOption.fixed: return fixedPrice;
-      case PriceTypeOption.range: return '$startPrice-$endPrice';
-    }
-  }
-
-  static String getNameEventTypeEnum (DateTypeEnum enumItem, {bool translate = false}) {
-
-    switch (enumItem){
-
-      case DateTypeEnum.once: return !translate? 'once' : 'Разовое';
-      case DateTypeEnum.long: return !translate? 'long' : 'Длительное';
-      case DateTypeEnum.regular: return !translate? 'regular' : 'Регулярное';
-      case DateTypeEnum.irregular: return !translate? 'irregular' : 'По расписанию';
-
-    }
-  }
-
   static Future<List<EventCustom>> getEventsList(String eventsListInString, {String decimal = ','}) async {
     List<EventCustom> tempList = [];
 
     List<String> splittedString = eventsListInString.split(decimal);
-    print('111 --${splittedString[0]}-');
 
     for (int i = 0; i < splittedString.length; i++){
-      EventCustom tempEvent = getEventFromFeedList(splittedString[i]);
+      EventCustom tempEvent = getEventFromFeedListById(splittedString[i]);
 
       if (tempEvent.id != ''){
         tempList.add(tempEvent);
       } else {
-        tempEvent = await getEventById(splittedString[i]);
+        tempEvent = await tempEvent.getEventById(splittedString[i]);
         if (tempEvent.id != ''){
           tempList.add(tempEvent);
         }
@@ -929,24 +646,5 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
     }
 
     return tempList;
-
   }
-
-  static EventCustom getEventFromFeedList (String eventId){
-
-    EventCustom result = EventCustom.emptyEvent;
-
-    if (currentFeedEventsList.isNotEmpty){
-      for (int i = 0; i < currentFeedEventsList.length; i++ )
-      {
-        if (currentFeedEventsList[i].id == eventId) {
-          return currentFeedEventsList[i];
-        }
-      }
-    }
-
-    return result;
-
-  }
-
 }

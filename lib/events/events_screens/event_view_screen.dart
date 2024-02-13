@@ -1,3 +1,5 @@
+import 'package:dvij_flutter/dates/date_mixin.dart';
+import 'package:dvij_flutter/dates/time_mixin.dart';
 import 'package:dvij_flutter/events/event_class.dart';
 import 'package:dvij_flutter/elements/text_and_icons_widgets/headline_and_desc.dart';
 import 'package:dvij_flutter/elements/shedule_elements/shedule_once_and_long_widget.dart';
@@ -41,53 +43,25 @@ class _EventViewScreenState extends State<EventViewScreen> {
 
   // ---- Инициализируем пустые переменные ----
 
-  //UserCustom userInfo = UserCustom.empty('', '');
-
-  // -- Список админов заведения
-  //List<UserCustom> placeAdminsList = [];
-
   bool today = false;
 
   UserCustom creator = UserCustom.empty('', '');
   PlaceRole currentUserPlaceRole = PlaceRole(name: '', id: '', desc: '', controlLevel: '');
 
   EventCustom event = EventCustom.empty();
-  String city = '';
-  EventCategory category = EventCategory.emptyEventCategory;
-
-  DateTypeEnum eventTypeEnum = DateTypeEnum.once;
-  PriceTypeOption priceType = PriceTypeOption.free;
 
   DateTime currentDate = DateTime.now();
 
   Place place = Place.emptyPlace;
 
   String price = '';
+  int favCounter = 0;
+  bool inFav = false;
 
   // --- Переключатель показа экрана загрузки -----
 
   bool loading = true;
   bool deleting = false;
-  String inFav = 'false';
-  int favCounter = 0;
-
-  String onceDay = '';
-  String onceDayStartTime = '';
-  String onceDayFinishTime = '';
-
-  String longStartDay = '';
-  String longEndDay = '';
-  String longDayStartTime = '';
-  String longDayFinishTime = '';
-
-  List<String> regularStartTimes = fillTimeListWithDefaultValues('Не выбрано', 7);
-  List<String> regularFinishTimes = fillTimeListWithDefaultValues('Не выбрано', 7);
-
-  List<String> tempIrregularDaysString = [];
-  // Выбранные даты начала
-  List<String> chosenIrregularStartTime = [];
-  // Выбранные даты завершения
-  List<String> chosenIrregularEndTime = [];
 
   // ---- Инициализация экрана -----
   @override
@@ -103,54 +77,17 @@ class _EventViewScreenState extends State<EventViewScreen> {
   Future<void> fetchAndSetData() async {
     try {
 
+      event = EventCustom.getEventFromFeedListById(widget.eventId);
 
-      //event = await EventCustom.getEventById(widget.eventId);
-
-      event = EventCustom.getEventFromFeedList(widget.eventId);
-
-      eventTypeEnum = EventCustom.getEventTypeEnum(event.dateType);
-
-      if (eventTypeEnum == DateTypeEnum.once && event.onceDay != ''){
-        onceDay = extractDateOrTimeFromJson(event.onceDay, 'date');
-        onceDayStartTime = extractDateOrTimeFromJson(event.onceDay, 'startTime');
-        onceDayFinishTime = extractDateOrTimeFromJson(event.onceDay, 'endTime');
-      }
-
-      if (eventTypeEnum == DateTypeEnum.long && event.longDays != '') {
-        longStartDay = extractDateOrTimeFromJson(event.longDays, 'startDate');
-        longEndDay = extractDateOrTimeFromJson(event.longDays, 'endDate');
-        longDayStartTime = extractDateOrTimeFromJson(event.longDays, 'startTime');
-        longDayFinishTime = extractDateOrTimeFromJson(event.longDays, 'endTime');
-      }
-
-      if (eventTypeEnum == DateTypeEnum.regular && event.regularDays != ''){
-
-        _fillRegularList();
-      }
-
-      if (eventTypeEnum == DateTypeEnum.irregular && event.irregularDays != ''){
-
-        // TODO Вынести эту функцию в отдельный класс. Она скопирована из CreateOrEditEventScreen
-        // Парсим даты и время в списки
-        parseInputString(event.irregularDays, tempIrregularDaysString, chosenIrregularStartTime, chosenIrregularEndTime);
-
-      }
-
-      priceType = EventCustom.getPriceTypeEnum(event.priceType);
-
-      price = PriceMethods.getFormattedPriceString(event.priceType, event.price);
+      price = PriceTypeEnumClass.getFormattedPriceString(event.priceType, event.price);
 
       if (event.placeId != '') {
-        // placeAdminsList = await UserCustom.getPlaceAdminsUsers(event.placeId);
 
+        // TODO Считать заведение со списка, если список заведений прогружен
         // Считываем информацию о заведении
         place = await Place.getPlaceFromList(event.placeId);
-        //place = await Place.getPlaceById(event.placeId);
-
 
       }
-
-
 
       // Выдаем права на редактирование мероприятия
       // Если наш пользователь создатель
@@ -167,12 +104,10 @@ class _EventViewScreenState extends State<EventViewScreen> {
 
     }
 
+    // TODO - Сделать проверку - если создатель это текущий пользователь, то подгрузить его данные
     creator = await UserCustom.getUserById(event.creatorId);
-
-      city = City.getCityByIdFromList(event.city).name;
-      category = EventCategory(name: '', id: event.category).getEntityByIdFromList(event.category);
       inFav = event.inFav!;
-      favCounter = int.parse(event.addedToFavouritesCount!);
+      favCounter = event.addedToFavouritesCount!;
 
       // ---- Убираем экран загрузки -----
       setState(() {
@@ -190,17 +125,6 @@ class _EventViewScreenState extends State<EventViewScreen> {
       '/Events',
           (route) => false,
     );
-  }
-
-  void _fillRegularList (){
-
-
-    for (int i = 0; i<regularStartTimes.length; i++){
-
-      regularStartTimes[i] = extractDateOrTimeFromJson(event.regularDays, 'startTime${i+1}');
-      regularFinishTimes[i] = extractDateOrTimeFromJson(event.regularDays, 'endTime${i+1}');
-
-    }
   }
 
   @override
@@ -252,7 +176,7 @@ class _EventViewScreenState extends State<EventViewScreen> {
                           child: SmallWidgetForCardsWithIconAndText(
                             icon: Icons.bookmark,
                             text: '$favCounter',
-                            iconColor: inFav == 'true' ? AppColors.brandColor : AppColors.white,
+                            iconColor: inFav ? AppColors.brandColor : AppColors.white,
                             side: false,
                             backgroundColor: AppColors.greyBackground.withOpacity(0.8),
                             onPressed: () async {
@@ -267,16 +191,16 @@ class _EventViewScreenState extends State<EventViewScreen> {
 
                               else {
 
-                                if (inFav == 'true')
+                                if (inFav)
                                 {
 
                                   String resDel = await EventCustom.deleteEventFromFav(event.id);
 
                                   if (resDel == 'success'){
                                     setState(() {
-                                      inFav = 'false';
+                                      inFav = false;
                                       favCounter --;
-                                      EventCustom.updateCurrentEventListFavInformation(event.id, favCounter.toString(), inFav);
+                                      EventCustom.updateCurrentEventListFavInformation(event.id, favCounter, inFav);
                                     });
 
                                     showSnackBar(context, 'Удалено из избранных', AppColors.attentionRed, 1);
@@ -294,9 +218,9 @@ class _EventViewScreenState extends State<EventViewScreen> {
                                   if (res == 'success') {
 
                                     setState(() {
-                                      inFav = 'true';
+                                      inFav = true;
                                       favCounter ++;
-                                      EventCustom.updateCurrentEventListFavInformation(event.id, favCounter.toString(), inFav);
+                                      EventCustom.updateCurrentEventListFavInformation(event.id, favCounter, inFav);
                                     });
 
                                     showSnackBar(context, 'Добавлено в избранные', Colors.green, 1);
@@ -320,7 +244,7 @@ class _EventViewScreenState extends State<EventViewScreen> {
                           left: 10.0,
                           child: SmallWidgetForCardsWithIconAndText(
                             //icon: Icons.visibility,
-                              text: category.name,
+                              text: event.category.name,
                               iconColor: AppColors.white,
                               side: true,
                               backgroundColor: AppColors.greyBackground.withOpacity(0.8)
@@ -355,7 +279,7 @@ class _EventViewScreenState extends State<EventViewScreen> {
                                       style: Theme.of(context).textTheme.bodySmall,
                                     ),
                                     if (place.id == '') Text(
-                                      '$city, ${event.street}, ${event.house}',
+                                      '${event.city.name}, ${event.street}, ${event.house}',
                                       style: Theme.of(context).textTheme.bodySmall,
                                     )
                                   ],
@@ -388,10 +312,10 @@ class _EventViewScreenState extends State<EventViewScreen> {
                         // ---- Остальные данные пользователя ----
 
                         // TODO Проверить вывод времени в функции определения сегодня
-                        if (event.today != 'false') const SizedBox(height: 5.0),
+                        if (event.today!) const SizedBox(height: 5.0),
 
                         // ПЕРЕДЕЛАТЬ ПОД СЕГОДНЯ
-                        if (event.today != 'false') TodayWidget(isTrue: bool.parse(event.today!)),
+                        if (event.today!) TodayWidget(isTrue: event.today!),
 
                         const SizedBox(height: 16.0),
 
@@ -402,8 +326,8 @@ class _EventViewScreenState extends State<EventViewScreen> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Padding (
+                            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                             child: HeadlineAndDesc(headline: price, description: 'Стоимость билетов'),
-                            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                           ),
                         ),
 
@@ -425,7 +349,7 @@ class _EventViewScreenState extends State<EventViewScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     //const SizedBox(height: 20,),
-                                    Text(priceType == PriceTypeOption.free ? 'Подтвердить участие' : 'Заказать билеты', style: Theme.of(context).textTheme.titleMedium,),
+                                    Text(event.priceType == PriceTypeOption.free ? 'Подтвердить участие' : 'Заказать билеты', style: Theme.of(context).textTheme.titleMedium,),
                                     Text('По контактам ниже вы можете связаться с организатором', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.greyText),),
 
 
@@ -447,40 +371,32 @@ class _EventViewScreenState extends State<EventViewScreen> {
 
                         const SizedBox(height: 16.0),
 
-                        if (eventTypeEnum == DateTypeEnum.once) ScheduleOnceAndLongWidget(
+                        if (event.dateType == DateTypeEnum.once) ScheduleOnceAndLongWidget(
                           dateHeadline: 'Дата проведения',
                           dateDesc: 'Мероприятие проводится один раз',
-                          eventTypeEnum: eventTypeEnum,
-                          startTime: onceDayStartTime,
-                          endTime: onceDayFinishTime,
-                          onceDate: onceDay,
+                          dateTypeEnum: event.dateType,
+                          onceDate: event.onceDay
                         ),
 
-                        if (eventTypeEnum == DateTypeEnum.long) ScheduleOnceAndLongWidget(
+                        if (event.dateType == DateTypeEnum.long) ScheduleOnceAndLongWidget(
                           dateHeadline: 'Расписание',
                           dateDesc: 'Мероприятие проводится каждый день в течении указанного периода',
-                          eventTypeEnum: eventTypeEnum,
-                          startTime: longDayStartTime,
-                          endTime: longDayFinishTime,
-                          longStartDate: longStartDay,
-                          longEndDate: longEndDay,
+                          dateTypeEnum: event.dateType,
+                          longDates: event.longDays,
                         ),
 
 
 
-                        if (eventTypeEnum == DateTypeEnum.regular) ScheduleRegularAndIrregularWidget(
-                            eventTypeEnum: eventTypeEnum,
-                            regularStartTimes: regularStartTimes,
-                            regularFinishTimes: regularFinishTimes,
+                        if (event.dateType == DateTypeEnum.regular) ScheduleRegularAndIrregularWidget(
+                            dateTypeEnum: event.dateType,
+                            regularTimes: event.regularDays,
                           headline: 'Расписание',
                           desc: 'Мероприятие проводится каждую неделю в определенные дни',
                         ),
 
-                        if (eventTypeEnum == DateTypeEnum.irregular) ScheduleRegularAndIrregularWidget(
-                          eventTypeEnum: eventTypeEnum,
-                          irregularDays: tempIrregularDaysString,
-                          irregularStartTime: chosenIrregularStartTime,
-                          irregularEndTime: chosenIrregularEndTime,
+                        if (event.dateType == DateTypeEnum.irregular) ScheduleRegularAndIrregularWidget(
+                          dateTypeEnum: event.dateType,
+                          irregularDays: event.irregularDays,
                           headline: 'Расписание',
                           desc: 'Мероприятие проводится в определенные дни',
                         ),
@@ -526,7 +442,7 @@ class _EventViewScreenState extends State<EventViewScreen> {
                                     SizedBox(height: 20,),
 
                                     if (event.street != '' && place.id == '') HeadlineAndDesc(
-                                        headline: '${City.getCityByIdFromList(event.city)}, ${event.street} ${event.house} ',
+                                        headline: '${event.city.name}, ${event.street} ${event.house} ',
                                         description: 'Место проведения'
                                     ),
 
@@ -584,9 +500,9 @@ class _EventViewScreenState extends State<EventViewScreen> {
                         ),
 
 
-                        if (event.createDate != '' && int.parse(currentUserPlaceRole.controlLevel) >= 90) const SizedBox(height: 30.0),
+                        if (event.createDate != DateTime(2100) && int.parse(currentUserPlaceRole.controlLevel) >= 90) const SizedBox(height: 30.0),
 
-                        if (event.createDate != '' && int.parse(currentUserPlaceRole.controlLevel) >= 90) HeadlineAndDesc(headline: event.createDate, description: 'Создано в движе', ),
+                        if (event.createDate != DateTime(2100) && int.parse(currentUserPlaceRole.controlLevel) >= 90) HeadlineAndDesc(headline: DateMixin.getHumanDateFromDateTime(event.createDate), description: 'Создано в движе', ),
 
                         const SizedBox(height: 30.0),
 
@@ -604,7 +520,7 @@ class _EventViewScreenState extends State<EventViewScreen> {
                                 deleting = true;
                               });
 
-                              String delete = await EventCustom.deleteEvent(widget.eventId, event.creatorId, event.placeId);
+                              String delete = await event.deleteEvent();
 
                               if (delete == 'success'){
 
@@ -637,27 +553,5 @@ class _EventViewScreenState extends State<EventViewScreen> {
           ],
         )
     );
-  }
-}
-
-void parseInputString(
-    String inputString, List<String> datesList, List<String> startTimeList, List<String> endTimeList) {
-  RegExp dateRegExp = RegExp(r'"date": "([^"]+)"');
-  RegExp startTimeRegExp = RegExp(r'"startTime": "([^"]+)"');
-  RegExp endTimeRegExp = RegExp(r'"endTime": "([^"]+)"');
-
-  List<Match> matches = dateRegExp.allMatches(inputString).toList();
-  for (Match match in matches) {
-    datesList.add(match.group(1)!);
-  }
-
-  matches = startTimeRegExp.allMatches(inputString).toList();
-  for (Match match in matches) {
-    startTimeList.add(match.group(1)!);
-  }
-
-  matches = endTimeRegExp.allMatches(inputString).toList();
-  for (Match match in matches) {
-    endTimeList.add(match.group(1)!);
   }
 }

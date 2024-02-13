@@ -43,7 +43,7 @@ class EventCategory with MixinDatabase implements IAppServices<EventCategory>{
     EventCategory eventCategory = EventCategory(name: name, id: id);
 
     if (id == ''){
-      key = generateKey();
+      key = MixinDatabase.generateKey();
       eventCategory.id = key ?? '';
     }
 
@@ -51,7 +51,7 @@ class EventCategory with MixinDatabase implements IAppServices<EventCategory>{
 
     Map<String, dynamic> info = eventCategory.generateInfoForDb();
 
-    String result = await eventCategory.publishToDB(path, info);
+    String result = await MixinDatabase.publishToDB(path, info);
 
     await getEventCategoryAndSave();
 
@@ -64,7 +64,7 @@ class EventCategory with MixinDatabase implements IAppServices<EventCategory>{
     
     String path = 'event_categories/$id';
 
-    String result = await deleteFromDb(path);
+    String result = await MixinDatabase.deleteFromDb(path);
 
     await getEventCategoryAndSave();
 
@@ -76,7 +76,7 @@ class EventCategory with MixinDatabase implements IAppServices<EventCategory>{
     
     List<EventCategory> eventCategories = [];
 
-    DataSnapshot? snapshot = await getInfoFromDB('event_categories');
+    DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB('event_categories');
 
     if (snapshot != null){
       for (var childSnapshot in snapshot.children) {

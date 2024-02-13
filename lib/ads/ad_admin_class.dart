@@ -1,3 +1,4 @@
+import 'package:dvij_flutter/database/database_mixin.dart';
 import 'package:dvij_flutter/dates/date_mixin.dart';
 import 'package:dvij_flutter/methods/date_class.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -89,8 +90,8 @@ class AdAdmin extends AdUser {
       'desc': ad.desc,
       'url': ad.url,
       'imageUrl': ad.imageUrl,
-      'startDate': DateMixin.generateDateSting(ad.startDate),
-      'endDate': DateMixin.generateDateSting(ad.endDate),
+      'startDate': DateMixin.generateDateString(ad.startDate),
+      'endDate': DateMixin.generateDateString(ad.endDate),
       'location': adLocationEnumClass.getNameEnum(ad.location),
       'adIndex': adIndexEnumClass.getNameEnum(ad.adIndex),
     };
@@ -101,7 +102,7 @@ class AdAdmin extends AdUser {
     String adPath = 'ads/${adLocationEnumClass.getNameEnum(ad.location)}/${adIndexEnumClass.getNameEnum(ad.adIndex)}/${ad.id}';
     Map<String, dynamic> adData = generateAdDataCode(ad);
 
-    String result = await publishToDB(adPath, adData);
+    String result = await MixinDatabase.publishToDB(adPath, adData);
 
     return result;
 
@@ -123,7 +124,7 @@ class AdAdmin extends AdUser {
     currentAllAdsList = [];
 
     // Получаем данные из БД
-    DataSnapshot? snapshot = await getInfoFromDB('ads');
+    DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB('ads');
 
     // Если они пришли
 
