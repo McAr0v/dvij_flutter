@@ -240,7 +240,7 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
     }
 
 
-    return checkSuccessFromDb(entityPublishResult, creatorPublishResult, placePublishResult);
+    return checkSuccessFromDb(entityPublishResult, creatorPublishResult, placePublishResult, 'success');
 
   }
 
@@ -249,12 +249,23 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
     String entityPath = 'events/$id';
     String creatorPath = 'users/$creatorId/myEvents/$id';
     String placePath = 'places/$placeId/events/$id';
+    String inFavPath = 'users/${UserCustom.currentUser?.uid ?? ''}/favEvents/$id';
 
+    String placeDeleteResult = 'success';
+    String inFavListDeleteResult = 'success';
     String entityDeleteResult = await MixinDatabase.deleteFromDb(entityPath);
     String creatorDeleteResult = await MixinDatabase.deleteFromDb(creatorPath);
-    String placeDeleteResult = await MixinDatabase.deleteFromDb(placePath);
+    if (placeId != ''){
+      placeDeleteResult = await MixinDatabase.deleteFromDb(placePath);
+    }
 
-    return checkSuccessFromDb(entityDeleteResult, creatorDeleteResult, placeDeleteResult);
+    if (inFav != null){
+      if (inFav!){
+          inFavListDeleteResult = await MixinDatabase.deleteFromDb(inFavPath);
+      }
+    }
+
+    return checkSuccessFromDb(entityDeleteResult, creatorDeleteResult, placeDeleteResult, inFavListDeleteResult);
 
   }
 
@@ -262,6 +273,7 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
       String result1,
       String result2,
       String result3,
+      String result4,
       ){
     if (result1 != 'success'){
       return result1;
@@ -269,6 +281,8 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
       return result2;
     } else if (result3 != 'success'){
       return result3;
+    } else if (result4 != 'success'){
+      return result4;
     } else {
       return 'success';
     }
@@ -336,9 +350,11 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
 
         for (String id in eventsId) {
           EventCustom favEvent = getEventFromFeedListById(id);
-          if (favEvent.id == id){
-            currentFavEventsList.add(favEvent);
-            events.add(favEvent);
+          if (favEvent.id != ''){
+            if (favEvent.id == id){
+              currentFavEventsList.add(favEvent);
+              events.add(favEvent);
+            }
           }
         }
 
@@ -362,8 +378,12 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
 
   static EventCustom getEventFromFeedListById(String id){
     return currentFeedEventsList.firstWhere((
-        element) => element.id == id, orElse: () => EventCustom.empty());
+        element) => element.id == id, orElse: () => EventCustom.emptyEvent);
   }
+
+  /*static EventCustom getEventFromFeedListById(String id){
+    EventCustom tempEvent = EventCustom.emptyEvent;
+  }*/
 
   static Future<List<EventCustom>> getMyEvents(String userId, {bool refresh = false}) async {
 
@@ -395,7 +415,7 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
         for (String id in eventsId) {
           EventCustom favEvent = getEventFromFeedListById(id);
           if (favEvent.id == id) {
-            currentFavEventsList.add(favEvent);
+            currentMyEventsList.add(favEvent);
             events.add(favEvent);
           }
         }
@@ -654,6 +674,7 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
     currentFeedEventsList.removeWhere((event) => event.id == eventId);
     currentFavEventsList.removeWhere((event) => event.id == eventId);
     currentMyEventsList.removeWhere((event) => event.id == eventId);
+
   }
 
   static Future<List<EventCustom>> getEventsList(String eventsListInString, {String decimal = ','}) async {

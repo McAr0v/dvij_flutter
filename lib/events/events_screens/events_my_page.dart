@@ -172,7 +172,7 @@ class _EventsMyPageState extends State<EventsMyPage> {
 
             if (UserCustom.currentUser?.uid != null || UserCustom.currentUser?.uid != ''){
 
-              List<EventCustom> tempEventsList = await EventCustom.getMyEvents(UserCustom.currentUser!.uid);
+              List<EventCustom> tempEventsList = await EventCustom.getMyEvents(UserCustom.currentUser!.uid, refresh: true);
 
               setState(() {
                 eventsList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempEventsList, selectedStartDatePeriod, selectedEndDatePeriod);

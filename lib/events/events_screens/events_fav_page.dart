@@ -171,7 +171,7 @@ class _EventsFavPageState extends State<EventsFavPage> {
 
             if (UserCustom.currentUser?.uid != null || UserCustom.currentUser?.uid != ''){
 
-              List<EventCustom> tempEventsList = await EventCustom.getFavEvents(UserCustom.currentUser!.uid);
+              List<EventCustom> tempEventsList = await EventCustom.getFavEvents(UserCustom.currentUser!.uid, refresh: true);
 
               setState(() {
                 eventsList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempEventsList, selectedStartDatePeriod, selectedEndDatePeriod);

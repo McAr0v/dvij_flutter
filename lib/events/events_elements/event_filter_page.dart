@@ -213,7 +213,7 @@ class _EventFilterPageState extends State<EventFilterPage> {
                                   _selectDate(
                                       context,
                                       selectedStartDatePeriod,
-                                      needClearInitialDate: selectedStartDatePeriod != DateTime(2100) ? true : false,
+                                      needClearInitialDate: selectedStartDatePeriod != DateTime(2100) ? false : true,
                                       isStart: true,
                                       endDate: selectedEndDatePeriod
                                   );

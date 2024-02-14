@@ -42,7 +42,7 @@ mixin FilterMixin {
     // ФУНКЦИЯ ПРОВЕРКИ ДАТЫ В ВИДЕ ПЕРИОДА НА ПОПАДАНИЕ В ЗАДАННЫЙ ПЕРИОД
 
     DateTime eventStartDate = event.longDays['startDate-startOnlyDate']!;
-    DateTime eventEndDate = event.longDays['endDate-endDate']!;
+    DateTime eventEndDate = event.longDays['endDate-startDate']!;
 
     print(event.longDays['startDate-startOnlyDate']!);
     print(event.longDays['startDate-startDate']!);
