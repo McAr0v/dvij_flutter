@@ -61,7 +61,7 @@ class ScheduleRegularAndIrregularWidget extends StatelessWidget {
                           children: List.generate(regularTimes!.length, (index) {
                             return Column(
                               children: [
-                                if (regularTimes!['startTime${index+1}'] != 'Не выбрано' && regularTimes!['startTime${index+1}']!=regularTimes!['endTime${index+1}']) HeadlineAndDesc(headline: DateMixin.getHumanWeekday(index, false), description: 'День недели'),
+                                if (regularTimes!['startTime${index+1}'] != 'Не выбрано' && regularTimes!['startTime${index+1}']!=regularTimes!['endTime${index+1}']) HeadlineAndDesc(headline: DateMixin.getHumanWeekday(index+1, false), description: 'День недели'),
                                 if (regularTimes!['startTime${index+1}'] != 'Не выбрано' && regularTimes!['startTime${index+1}']!=regularTimes!['endTime${index+1}']) const SizedBox(height: 10,),
                               ],
                             );

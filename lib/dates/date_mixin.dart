@@ -131,7 +131,9 @@ mixin DateMixin {
     if (json != ''){
       List<String> datesList = splitJsonWithManyDates(json);
 
+
       for (int i = 0; i < datesList.length; i++){
+        print('Передаю по индексу $i Элмент ${datesList[i]}');
         list.add(getDateFromJson(datesList[i], 'date', 'startTime', 'endTime'));
       }
     }
@@ -149,6 +151,7 @@ mixin DateMixin {
   static List<String> splitJsonWithManyDates(String json){
     // Удаляем квадратные скобки в начале и в конце строки
     String trimmedJsonString = json.substring(1, json.length - 1);
+    print(trimmedJsonString);
 
     // Разделяем элементы списка по символу нижнего подчеркивания '_'
 
@@ -181,7 +184,12 @@ mixin DateMixin {
             '"${correctMonthOrDate(tempTime['date-startDate']!.hour)}:${correctMonthOrDate(tempTime['date-startDate']!.minute)}", '
             '"endTime": '
             '"${correctMonthOrDate(tempTime['date-endDate']!.hour)}:${correctMonthOrDate(tempTime['date-endDate']!.minute)}"'
-            '}_';
+            '}';
+
+
+        if (dateTimeList.length -1 != i){
+          result = '${result}_';
+        }
       }
 
       result = '$result]';
@@ -415,7 +423,14 @@ mixin DateMixin {
 
     switch (dateType) {
       case DateTypeEnum.once : {
-        return nowIsInPeriod(onceDay['date-startOnlyDate']!, onceDay['date-endDate']!);
+
+        DateTime startDate = onceDay['date-startDate']!;
+        DateTime startOnlyDate = onceDay['date-startDate']!;
+        DateTime endDate = onceDay['date-endDate']!;
+
+        if (startDate.isAfter(endDate)) endDate = endDate.add(const Duration(days: 1));
+
+        return nowIsInPeriod(startOnlyDate, endDate);
       }
 
       case DateTypeEnum.long : {
@@ -431,7 +446,7 @@ mixin DateMixin {
           // Если дата завершения не равна дате начала, значит заканчивается после полуночи
           // и нужно добавить к временной переменной день
 
-          if (longDays['endDate-endDate']!.day != longDays['endDate-startDate']!.day) tempEndDay.add(const Duration(days: 1));
+          if (longDays['endDate-endDate']!.day != longDays['endDate-startDate']!.day) tempEndDay = tempEndDay.add(const Duration(days: 1));
 
           today = nowIsInPeriod(tempStartDay, tempEndDay);
 
@@ -476,7 +491,14 @@ mixin DateMixin {
       case DateTypeEnum.irregular : {
         for (int i = 0; i<irregularDays.length; i++){
           Map<String, DateTime> tempDict = irregularDays[i];
-          bool result = nowIsInPeriod(tempDict['date-startOnlyDate']!, tempDict['date-endDay']!);
+
+          DateTime startDate = tempDict['date-startDate']!;
+          DateTime startOnlyDate = tempDict['date-startOnlyDate']!;
+          DateTime endDate = tempDict['date-endDate']!;
+
+          if (startDate.isAfter(endDate)) endDate = endDate.add(const Duration(days: 1));
+
+          bool result = nowIsInPeriod(startOnlyDate, endDate);
 
           // Первый попавшийся элемент в списке вернет тру, значит сегодня
           if (result) return true;
