@@ -1,3 +1,5 @@
+import 'package:dvij_flutter/dates/long_date_class.dart';
+import 'package:dvij_flutter/dates/once_date_class.dart';
 import 'package:dvij_flutter/dates/time_mixin.dart';
 import 'package:dvij_flutter/methods/date_functions.dart';
 import 'package:flutter/cupertino.dart';
@@ -10,8 +12,8 @@ import '../text_and_icons_widgets/headline_and_desc.dart';
 
 class ScheduleOnceAndLongWidget extends StatelessWidget {
   final double horizontalPadding;
-  final Map<String, DateTime>? onceDate;
-  final Map<String, DateTime>? longDates;
+  final OnceDate? onceDate;
+  final LongDate? longDates;
   final String dateHeadline;
   final String dateDesc;
   final double verticalPadding;
@@ -62,12 +64,12 @@ class ScheduleOnceAndLongWidget extends StatelessWidget {
                           children: [
                             if (dateTypeEnum == DateTypeEnum.once && onceDate != null)
                               HeadlineAndDesc(
-                                  headline: DateMixin.getHumanDateFromDateTime(onceDate!['date-startOnlyDate']!, needYear: true),
+                                  headline: DateMixin.getHumanDateFromDateTime(onceDate!.startOnlyDate, needYear: true),
                                   description: 'Дата проведения'
                               ),
                             if (dateTypeEnum == DateTypeEnum.long && longDates != null)
                               HeadlineAndDesc(
-                                  headline: DateMixin.getHumanDateFromDateTime(longDates!['startDate-startOnlyDate']!, needYear: true),
+                                  headline: DateMixin.getHumanDateFromDateTime(longDates!.startOnlyDate, needYear: true),
                                   description: 'Первый день'
                               ),
                             if (dateTypeEnum == DateTypeEnum.long && longDates != null)
@@ -75,8 +77,8 @@ class ScheduleOnceAndLongWidget extends StatelessWidget {
                             if (dateTypeEnum == DateTypeEnum.long && longDates != null)
                               HeadlineAndDesc(
                                 headline: TimeMixin.getTimeRange(
-                                    longDates!['startDate-startDate']!,
-                                    longDates!['endDate-endDate']!
+                                    longDates!.startStartDate,
+                                    longDates!.endEndDate
                                 ),
                                 description: 'Время проведения'
                             ),
@@ -91,14 +93,14 @@ class ScheduleOnceAndLongWidget extends StatelessWidget {
                           children: [
                             if (dateTypeEnum == DateTypeEnum.once && onceDate != null) HeadlineAndDesc(
                                 headline: TimeMixin.getTimeRange(
-                                    onceDate!['date-startDate']!,
-                                    onceDate!['date-endDate']!
+                                    onceDate!.startDate,
+                                    onceDate!.endDate
                                 ),
                                 description: 'Время проведения'
                             ),
                             if (dateTypeEnum == DateTypeEnum.long && longDates != null)
                               HeadlineAndDesc(
-                                  headline: DateMixin.getHumanDateFromDateTime(longDates!['endDate-startOnlyDate']!, needYear: true),
+                                  headline: DateMixin.getHumanDateFromDateTime(longDates!.endOnlyDate, needYear: true),
                                   description: 'Последний день'
                               )
                           ],

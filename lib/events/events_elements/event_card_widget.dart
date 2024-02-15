@@ -22,7 +22,7 @@ class EventCardWidget extends StatelessWidget {
     DateTime timeNow = DateTime.now();
     int currentWeekDayNumber = timeNow.weekday;
 
-    List<int> irregularTodayIndexes = DateMixin.getIrregularTodayIndexes(event.irregularDays);
+    List<int> irregularTodayIndexes = event.irregularDays.getIrregularTodayIndexes();
 
     return GestureDetector(
       onTap: onTap,
@@ -146,7 +146,7 @@ class EventCardWidget extends StatelessWidget {
                         children: [
                           IconAndTextWidget(
                             icon: FontAwesomeIcons.calendar,
-                            text: DateMixin.getHumanDateFromDateTime(event.onceDay['date-startDate']!, needYear: false),
+                            text: DateMixin.getHumanDateFromDateTime(event.onceDay.startDate, needYear: false),
                             textSize: 'bodySmall',
                             padding: 10,
                           ),
@@ -155,7 +155,7 @@ class EventCardWidget extends StatelessWidget {
 
                           IconAndTextWidget(
                             icon: FontAwesomeIcons.clock,
-                            text: TimeMixin.getTimeRange(event.onceDay['date-startDate']!, event.onceDay['date-endDate']!),
+                            text: TimeMixin.getTimeRange(event.onceDay.startDate, event.onceDay.endDate),
                             textSize: 'bodySmall',
                             padding: 10,
                           ),
@@ -166,7 +166,7 @@ class EventCardWidget extends StatelessWidget {
                         children: [
                           IconAndTextWidget(
                               icon: FontAwesomeIcons.calendar,
-                              text: '${DateMixin.getHumanDateFromDateTime(event.longDays['startDate-startDate']!, needYear: false)} - ${DateMixin.getHumanDateFromDateTime(event.longDays['endDate-startDate']!, needYear: false)}',
+                              text: '${DateMixin.getHumanDateFromDateTime(event.longDays.startStartDate, needYear: false)} - ${DateMixin.getHumanDateFromDateTime(event.longDays.endStartDate, needYear: false)}',
                               textSize: 'label',
                               padding: 10,
                           ),
@@ -175,7 +175,7 @@ class EventCardWidget extends StatelessWidget {
 
                           IconAndTextWidget(
                             icon: FontAwesomeIcons.clock,
-                            text: TimeMixin.getTimeRange(event.longDays['startDate-startDate']!, event.longDays['endDate-endDate']!),
+                            text: TimeMixin.getTimeRange(event.longDays.startStartDate, event.longDays.endEndDate),
                             textSize: 'label',
                             padding: 10,
                           ),
@@ -263,8 +263,8 @@ class EventCardWidget extends StatelessWidget {
 
                                             Text(
                                               TimeMixin.getTimeRange(
-                                                  event.irregularDays[irregularTodayIndexes[indexInIndexesList]]['date-startDate']!,
-                                                  event.irregularDays[irregularTodayIndexes[indexInIndexesList]]['date-endDate']!
+                                                  event.irregularDays.dates[indexInIndexesList].startDate,
+                                                  event.irregularDays.dates[indexInIndexesList].endDate
                                               ),
                                               style: Theme.of(context).textTheme.bodySmall,
                                               softWrap: true,

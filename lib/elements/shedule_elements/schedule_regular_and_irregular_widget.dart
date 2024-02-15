@@ -1,16 +1,16 @@
+import 'package:dvij_flutter/dates/irregular_date_class.dart';
+import 'package:dvij_flutter/dates/once_date_class.dart';
 import 'package:dvij_flutter/dates/time_mixin.dart';
-import 'package:dvij_flutter/methods/date_functions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../classes/date_type_enum.dart';
 import '../../dates/date_mixin.dart';
-import '../../methods/date_class.dart';
 import '../../themes/app_colors.dart';
 import '../text_and_icons_widgets/headline_and_desc.dart';
 
 class ScheduleRegularAndIrregularWidget extends StatelessWidget {
   final double horizontalPadding;
-  final List<Map<String, DateTime>>? irregularDays;
+  final IrregularDate? irregularDays;
   final String headline;
   final String desc;
   final double verticalPadding;
@@ -68,14 +68,14 @@ class ScheduleRegularAndIrregularWidget extends StatelessWidget {
                           }),
                         ),
 
-                        if (dateTypeEnum == DateTypeEnum.irregular && irregularDays!.isNotEmpty && irregularDays != null) Column(
+                        if (dateTypeEnum == DateTypeEnum.irregular && irregularDays!.dates.isNotEmpty && irregularDays != null) Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.start,
-                          children: List.generate(irregularDays!.length, (index) {
-                            Map<String, DateTime> tempDay = irregularDays![index];
+                          children: List.generate(irregularDays!.dates.length, (index) {
+                            OnceDate tempDay = irregularDays!.dates[index];
                             return Column(
                               children: [
-                                HeadlineAndDesc(headline: DateMixin.getHumanDateFromDateTime(tempDay['date-startOnlyDate']!,), description: 'Дата'),
+                                HeadlineAndDesc(headline: DateMixin.getHumanDateFromDateTime(tempDay.startOnlyDate,), description: 'Дата'),
                                 const SizedBox(height: 10,),
                               ],
                             );
@@ -102,15 +102,15 @@ class ScheduleRegularAndIrregularWidget extends StatelessWidget {
                           }),
                         ),
 
-                        if (dateTypeEnum == DateTypeEnum.irregular && irregularDays!.isNotEmpty && irregularDays != null) Column(
+                        if (dateTypeEnum == DateTypeEnum.irregular && irregularDays!.dateIsNotEmpty() && irregularDays != null) Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.start,
-                          children: List.generate(irregularDays!.length, (index) {
-                            Map<String, DateTime> tempDay = irregularDays![index];
+                          children: List.generate(irregularDays!.dates.length, (index) {
+                            OnceDate tempDay = irregularDays!.dates[index];
                             return Column(
                               children: [
                                 HeadlineAndDesc(
-                                    headline: TimeMixin.getTimeRange(tempDay['date-startDate']!, tempDay['date-endDate']!),
+                                    headline: TimeMixin.getTimeRange(tempDay.startDate, tempDay.endDate),
                                     description: 'Время проведения'
                                 ),
                                 const SizedBox(height: 10,),

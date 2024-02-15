@@ -1,7 +1,8 @@
 import 'dart:convert';
-
 import 'package:dvij_flutter/classes/date_type_enum.dart';
-import 'package:dvij_flutter/methods/date_functions.dart';
+import 'package:dvij_flutter/dates/irregular_date_class.dart';
+import 'package:dvij_flutter/dates/long_date_class.dart';
+import 'package:dvij_flutter/dates/once_date_class.dart';
 
 mixin DateMixin {
 
@@ -10,10 +11,10 @@ mixin DateMixin {
   }
 
   static String generateDateString(DateTime date){
-    return '${date.year}-${_getCorrectMonthOrDate(date.month)}-${_getCorrectMonthOrDate(date.day)}';
+    return '${date.year}-${getCorrectMonthOrDate(date.month)}-${getCorrectMonthOrDate(date.day)}';
   }
 
-  static String _getCorrectMonthOrDate(int number){
+  static String getCorrectMonthOrDate(int number){
     if (number < 10) {
       return '0$number';
     } else {
@@ -83,9 +84,9 @@ mixin DateMixin {
     String month = getMonthName('${date.month}');
 
     if (needYear) {
-      return '${_getCorrectMonthOrDate(date.day)} $month ${date.year}';
+      return '${getCorrectMonthOrDate(date.day)} $month ${date.year}';
     } else {
-      return '${_getCorrectMonthOrDate(date.day)} $month';
+      return '${getCorrectMonthOrDate(date.day)} $month';
     }
 
   }
@@ -114,7 +115,7 @@ mixin DateMixin {
     return checkedDate.isBefore(endDate) || checkedDate.isAtSameMomentAs(endDate);
   }
 
-  /// Отдельная функция для получения списка дат для нерегулярных дат
+  /*/// Отдельная функция для получения списка дат для нерегулярных дат
   ///
   /// <br>
   ///
@@ -138,9 +139,9 @@ mixin DateMixin {
       }
     }
     return list;
-  }
+  }*/
 
-  /// Функция разделения одной большой Json строки со списком дат
+  /*/// Функция разделения одной большой Json строки со списком дат
   /// на список отдельных дат в формате OnceDay
   ///
   /// <br>
@@ -157,9 +158,9 @@ mixin DateMixin {
 
     return trimmedJsonString.split('_');
 
-  }
+  }*/
 
-  static String generateIrregularString(List<Map<String, DateTime>> dateTimeList) {
+  /*static String generateIrregularString(List<Map<String, DateTime>> dateTimeList) {
 
     String result = '';
 
@@ -198,7 +199,7 @@ mixin DateMixin {
 
     return result;
 
-  }
+  }*/
 
   /*/// Функция парсинга дат и времени из Json-строки со множеством встроенных дат
   ///
@@ -242,7 +243,7 @@ mixin DateMixin {
     }
   }*/
 
-  /// Функция получения списка дат из json
+  /*/// Функция получения списка дат из json
   ///
   /// <br>
   ///
@@ -304,9 +305,9 @@ mixin DateMixin {
     }
     return daysList;
 
-  }
+  }*/
 
-  /// Функция генерации Json строки для типа дат Once
+  /*/// Функция генерации Json строки для типа дат Once
   ///
   /// Принимает список дат и возвращает нужную строку для записи в БД
   ///
@@ -317,18 +318,18 @@ mixin DateMixin {
       DateTime endDateAndTime = dates['date-endDate']!;
 
       return '{'
-          '"date": "${startDateAndTime.year}-${_getCorrectMonthOrDate(startDateAndTime.month)}-${_getCorrectMonthOrDate(startDateAndTime.day)}", '
-          '"startTime": "${_getCorrectMonthOrDate(startDateAndTime.hour)}:${_getCorrectMonthOrDate(startDateAndTime.minute)}", '
-          '"endTime": "${_getCorrectMonthOrDate(endDateAndTime.hour)}:${_getCorrectMonthOrDate(endDateAndTime.minute)}"'
+          '"date": "${startDateAndTime.year}-${getCorrectMonthOrDate(startDateAndTime.month)}-${getCorrectMonthOrDate(startDateAndTime.day)}", '
+          '"startTime": "${getCorrectMonthOrDate(startDateAndTime.hour)}:${getCorrectMonthOrDate(startDateAndTime.minute)}", '
+          '"endTime": "${getCorrectMonthOrDate(endDateAndTime.hour)}:${getCorrectMonthOrDate(endDateAndTime.minute)}"'
           '}';
     } else {
       return '';
     }
 
-  }
+  }*/
 
 
-  /// Функция получения списка периода дат из json
+  /*/// Функция получения списка периода дат из json
   ///
   /// <br>
   ///
@@ -363,13 +364,13 @@ mixin DateMixin {
   /// $endDateKey-startOnlyDate - Вторая дата - Только дата на начало дня (время будет указано 00:00)
 
   static Map<String, DateTime> getPeriodDatesFromJson (String json, String startDateKey, String endDateKey,  String startTimeKey, String endTimeKey){
-    Map<String, DateTime> startDates = getDateFromJson(json, startDateKey, startTimeKey, endTimeKey);
+    Map<String, DateTime> startDates = DateMixin.getDateFromJson(json, startDateKey, startTimeKey, endTimeKey);
     Map<String, DateTime> endDates = getDateFromJson(json, endDateKey, startTimeKey, endTimeKey);
 
     return {...startDates, ...endDates};
-  }
+  }*/
 
-  static String generateLongTypeDate(Map<String, DateTime> dates){
+  /*static String generateLongTypeDate(Map<String, DateTime> dates){
 
     if (dates.isNotEmpty) {
       DateTime startDateAndTime = dates['startDate-startDate']!;
@@ -377,17 +378,17 @@ mixin DateMixin {
       DateTime endDateAndTime = dates['endDate-endDate']!;
 
       return '{'
-          '"startDate": "${startDateAndTime.year}-${_getCorrectMonthOrDate(startDateAndTime.month)}-${_getCorrectMonthOrDate(startDateAndTime.day)}", '
-          '"endDate": "${endOnlyDate.year}-${_getCorrectMonthOrDate(endOnlyDate.month)}-${_getCorrectMonthOrDate(endOnlyDate.day)}", '
-          '"startTime": "${_getCorrectMonthOrDate(startDateAndTime.hour)}:${_getCorrectMonthOrDate(startDateAndTime.minute)}", '
-          '"endTime": "${_getCorrectMonthOrDate(endDateAndTime.hour)}:${_getCorrectMonthOrDate(endDateAndTime.minute)}"'
+          '"startDate": "${startDateAndTime.year}-${getCorrectMonthOrDate(startDateAndTime.month)}-${getCorrectMonthOrDate(startDateAndTime.day)}", '
+          '"endDate": "${endOnlyDate.year}-${getCorrectMonthOrDate(endOnlyDate.month)}-${getCorrectMonthOrDate(endOnlyDate.day)}", '
+          '"startTime": "${getCorrectMonthOrDate(startDateAndTime.hour)}:${getCorrectMonthOrDate(startDateAndTime.minute)}", '
+          '"endTime": "${getCorrectMonthOrDate(endDateAndTime.hour)}:${getCorrectMonthOrDate(endDateAndTime.minute)}"'
           '}';
     } else {
       return '';
     }
 
 
-  }
+  }*/
 
 
   /// Функция получения даты или времени из Json-строки из Firebase RealTimeDatabase
@@ -397,7 +398,7 @@ mixin DateMixin {
   ///
   /// <br>
   /// [String] fieldId - это ключевое плово, по которому парсится значение
-  static String extractDateOrTimeFromJson(String jsonString, String fieldId) {
+  String extractDateOrTimeFromJson(String jsonString, String fieldId) {
 
     // Декодируем JSON строку
     Map<String, dynamic> json = jsonDecode(jsonString);
@@ -415,43 +416,19 @@ mixin DateMixin {
   /// Определяет данный параметр для любого из типов дат.
   static bool todayOrNot(
           DateTypeEnum dateType,
-          Map<String, DateTime> onceDay,
-          Map<String, DateTime> longDays,
+          OnceDate onceDay,
+          LongDate longDays,
           Map<String, String> regularDays,
-          List<Map<String, DateTime>> irregularDays,
+          IrregularDate irregularDays,
       ){
 
     switch (dateType) {
       case DateTypeEnum.once : {
-
-        DateTime startDate = onceDay['date-startDate']!;
-        DateTime startOnlyDate = onceDay['date-startDate']!;
-        DateTime endDate = onceDay['date-endDate']!;
-
-        if (startDate.isAfter(endDate)) endDate = endDate.add(const Duration(days: 1));
-
-        return nowIsInPeriod(startOnlyDate, endDate);
+        return onceDay.todayOrNot();
       }
 
       case DateTypeEnum.long : {
-        bool today = false;
-        // Проверяем - сегодня вообще находится в периоде проведения или нет
-        bool inPeriod = nowIsInPeriod(longDays['startDate-startOnlyDate']!, longDays['endDate-endDate']!);
-        // Если сегодня в периоде, проверим на сегодня - не завершилось ли уже мероприятие или акция
-        if (inPeriod) {
-          DateTime todayDay = DateTime.now();
-          DateTime tempStartDay = DateTime(todayDay.year, todayDay.month, todayDay.day);
-          DateTime tempEndDay = DateTime(todayDay.year, todayDay.month, todayDay.day, longDays['endDate-endDate']!.hour, longDays['endDate-endDate']!.minute);
-
-          // Если дата завершения не равна дате начала, значит заканчивается после полуночи
-          // и нужно добавить к временной переменной день
-
-          if (longDays['endDate-endDate']!.day != longDays['endDate-startDate']!.day) tempEndDay = tempEndDay.add(const Duration(days: 1));
-
-          today = nowIsInPeriod(tempStartDay, tempEndDay);
-
-        }
-        return today;
+        return longDays.todayOrNot();
       }
 
       case DateTypeEnum.regular : {
@@ -467,12 +444,12 @@ mixin DateMixin {
           //List<String> endHourAndMinutes = endTimeToday.split(':');
 
           // Парсим начальную дату до минут для сравнения
-          DateTime parsedStartTimeToMinutes = DateTime.parse('${currentDayDate.year}-${_getCorrectMonthOrDate(currentDayDate.month)}-${_getCorrectMonthOrDate(currentDayDate.day)} $startTimeToday');
+          DateTime parsedStartTimeToMinutes = DateTime.parse('${currentDayDate.year}-${getCorrectMonthOrDate(currentDayDate.month)}-${getCorrectMonthOrDate(currentDayDate.day)} $startTimeToday');
 
           // Парсим начальную дату уже без точности до минут
-          DateTime parsedStartTime = DateTime.parse('${currentDayDate.year}-${_getCorrectMonthOrDate(currentDayDate.month)}-${_getCorrectMonthOrDate(currentDayDate.day)}');
+          DateTime parsedStartTime = DateTime.parse('${currentDayDate.year}-${getCorrectMonthOrDate(currentDayDate.month)}-${getCorrectMonthOrDate(currentDayDate.day)}');
           // Парсим конечную дату с точностью до минуты
-          DateTime parsedEndTime = DateTime.parse('${currentDayDate.year}-${_getCorrectMonthOrDate(currentDayDate.month)}-${_getCorrectMonthOrDate(currentDayDate.day)} $endTimeToday');
+          DateTime parsedEndTime = DateTime.parse('${currentDayDate.year}-${getCorrectMonthOrDate(currentDayDate.month)}-${getCorrectMonthOrDate(currentDayDate.day)} $endTimeToday');
 
           // Проверка - если время завершения раньше чем время начала
           // Именно для этого нужна переменная начального времени с точностью до минуты
@@ -489,56 +466,34 @@ mixin DateMixin {
       }
 
       case DateTypeEnum.irregular : {
-        for (int i = 0; i<irregularDays.length; i++){
-          Map<String, DateTime> tempDict = irregularDays[i];
-
-          DateTime startDate = tempDict['date-startDate']!;
-          DateTime startOnlyDate = tempDict['date-startOnlyDate']!;
-          DateTime endDate = tempDict['date-endDate']!;
-
-          if (startDate.isAfter(endDate)) endDate = endDate.add(const Duration(days: 1));
-
-          bool result = nowIsInPeriod(startOnlyDate, endDate);
-
-          // Первый попавшийся элемент в списке вернет тру, значит сегодня
-          if (result) return true;
-        }
-        return false;
+        return irregularDays.todayOrNot();
       }
 
     }
   }
 
-  static List<int> getIrregularTodayIndexes(List<Map<String, DateTime>> irregularDays){
-    DateTime timeNow = DateTime.now();
-    List<int> tempList = [];
+  /*static List<Map<String, DateTime>> generateIrregularDatesForEvent(List<DateTime> days, List<String> startTimes, List<String> endTimes){
 
-    if (irregularDays.isNotEmpty){
+    List<Map<String, DateTime>> tempList = [];
 
-      for (int i = 0; i<irregularDays.length; i++){
-
-        Map <String, DateTime> tempDay = irregularDays[i];
-
-        if (tempDay['date-startDate']!.day == timeNow.day && tempDay['date-startDate']!.month == timeNow.month){
-          tempList.add(i);
-        }
-      }
+    for (int i = 0; i<days.length; i++){
+      tempList.add(generateOnceDayDateForEvent(days[i], startTimes[i], endTimes[i]));
     }
+
     return tempList;
-  }
 
+  }*/
 
-
-  static Map<String, DateTime> generateOnceDayDateForEvent(DateTime onceDay, String startTime, String endTime){
+  /*static Map<String, DateTime> generateOnceDayDateForEvent(DateTime onceDay, String startTime, String endTime){
     Map<String, DateTime> tempMap = {};
 
     if (startTime != 'Не выбрано' && endTime != 'Не выбрано'){
 
       DateTime startDate = DateTime.parse(
-          '${onceDay.year}-${_getCorrectMonthOrDate(onceDay.month)}-${_getCorrectMonthOrDate(onceDay.day)} $startTime');
+          '${onceDay.year}-${getCorrectMonthOrDate(onceDay.month)}-${getCorrectMonthOrDate(onceDay.day)} $startTime');
 
       DateTime endDate = DateTime.parse(
-          '${onceDay.year}-${_getCorrectMonthOrDate(onceDay.month)}-${_getCorrectMonthOrDate(onceDay.day)} $endTime');
+          '${onceDay.year}-${getCorrectMonthOrDate(onceDay.month)}-${getCorrectMonthOrDate(onceDay.day)} $endTime');
 
       if (endDate.isBefore(startDate)) endDate.add(const Duration(days: 1));
 
@@ -549,21 +504,21 @@ mixin DateMixin {
     }
 
     return tempMap;
-  }
+  }*/
 
-  static Map<String, DateTime> generateLongDayDatesForEvent(DateTime startDay, DateTime endDay, String startTime, String endTime){
+  /*static Map<String, DateTime> generateLongDayDatesForEvent(DateTime startDay, DateTime endDay, String startTime, String endTime){
     Map<String, DateTime> tempMap = {};
 
     if (startTime != 'Не выбрано' && endTime != 'Не выбрано'){
 
       DateTime startDateStartDate = DateTime.parse(
-          '${startDay.year}-${_getCorrectMonthOrDate(startDay.month)}-${_getCorrectMonthOrDate(startDay.day)} $startTime');
+          '${startDay.year}-${getCorrectMonthOrDate(startDay.month)}-${getCorrectMonthOrDate(startDay.day)} $startTime');
       DateTime startDateEndDate = DateTime.parse(
-          '${startDay.year}-${_getCorrectMonthOrDate(startDay.month)}-${_getCorrectMonthOrDate(startDay.day)} $endTime');
+          '${startDay.year}-${getCorrectMonthOrDate(startDay.month)}-${getCorrectMonthOrDate(startDay.day)} $endTime');
       DateTime endDateStartDate = DateTime.parse(
-          '${endDay.year}-${_getCorrectMonthOrDate(endDay.month)}-${_getCorrectMonthOrDate(endDay.day)} $startTime');
+          '${endDay.year}-${getCorrectMonthOrDate(endDay.month)}-${getCorrectMonthOrDate(endDay.day)} $startTime');
       DateTime endDateEndDate = DateTime.parse(
-          '${endDay.year}-${_getCorrectMonthOrDate(endDay.month)}-${_getCorrectMonthOrDate(endDay.day)} $endTime');
+          '${endDay.year}-${getCorrectMonthOrDate(endDay.month)}-${getCorrectMonthOrDate(endDay.day)} $endTime');
 
       if (startDateStartDate.isAfter(startDateEndDate)){
         startDateEndDate.add(const Duration(days: 1));
@@ -583,18 +538,8 @@ mixin DateMixin {
 
     return tempMap;
 
-  }
+  }*/
 
-  static List<Map<String, DateTime>> generateIrregularDatesForEvent(List<DateTime> days, List<String> startTimes, List<String> endTimes){
 
-    List<Map<String, DateTime>> tempList = [];
-
-    for (int i = 0; i<days.length; i++){
-      tempList.add(generateOnceDayDateForEvent(days[i], startTimes[i], endTimes[i]));
-    }
-
-    return tempList;
-
-  }
 
 }

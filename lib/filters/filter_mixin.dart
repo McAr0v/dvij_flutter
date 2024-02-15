@@ -13,46 +13,11 @@ mixin FilterMixin {
     DateTypeEnum dateTypeEnum = event.dateType;
 
     switch (dateTypeEnum) {
-      case DateTypeEnum.once: return checkEventOnceDayForFilter(event, selectedStartDatePeriod, selectedEndDatePeriod);
-      case DateTypeEnum.long: return checkEventLongDayForFilter(event, selectedStartDatePeriod, selectedEndDatePeriod);
+      case DateTypeEnum.once: return event.onceDay.checkDateForFilter(selectedStartDatePeriod, selectedEndDatePeriod);
+      case DateTypeEnum.long: return event.longDays.checkDateForFilter(selectedStartDatePeriod, selectedEndDatePeriod);
       case DateTypeEnum.regular: return checkEventRegularDayForFilter(event, selectedStartDatePeriod, selectedEndDatePeriod);
-      case DateTypeEnum.irregular: return checkEventIrregularDayForFilter(event, selectedStartDatePeriod, selectedEndDatePeriod);
+      case DateTypeEnum.irregular: return event.irregularDays.checkDateForFilter(selectedStartDatePeriod, selectedEndDatePeriod);
     }
-
-  }
-
-  static bool checkEventOnceDayForFilter (
-      EventCustom event,
-      DateTime selectedStartDatePeriod,
-      DateTime selectedEndDatePeriod,
-      ) {
-
-    // ФУНКЦИЯ ПРОВЕРКИ ОДИНОЧНОЙ ДАТЫ НА ПОПАДАНИЕ В ЗАДАННЫЙ ПЕРИОД
-
-    return DateMixin.dateIsInPeriod(event.onceDay['date-startOnlyDate']!, selectedStartDatePeriod, selectedEndDatePeriod);
-
-  }
-
-  static bool checkEventLongDayForFilter (
-      EventCustom event,
-      DateTime selectedStartDatePeriod,
-      DateTime selectedEndDatePeriod,
-      ) {
-
-    // ФУНКЦИЯ ПРОВЕРКИ ДАТЫ В ВИДЕ ПЕРИОДА НА ПОПАДАНИЕ В ЗАДАННЫЙ ПЕРИОД
-
-    DateTime eventStartDate = event.longDays['startDate-startOnlyDate']!;
-    DateTime eventEndDate = event.longDays['endDate-startDate']!;
-
-    print(event.longDays['startDate-startOnlyDate']!);
-    print(event.longDays['startDate-startDate']!);
-    print(event.longDays['startDate-endDate']!);
-    print(event.longDays['endDate-startOnlyDate']!);
-    print(event.longDays['endDate-startDate']!);
-    print(event.longDays['endDate-endDate']!);
-
-    return (eventStartDate.isBefore(selectedEndDatePeriod) || eventStartDate.isAtSameMomentAs(selectedEndDatePeriod)) &&
-        (eventEndDate.isAfter(selectedStartDatePeriod) || eventEndDate.isAtSameMomentAs(selectedStartDatePeriod));
 
   }
 
@@ -98,26 +63,4 @@ mixin FilterMixin {
     return result;
 
   }
-
-  static bool checkEventIrregularDayForFilter(
-      EventCustom event,
-      DateTime selectedStartDatePeriod,
-      DateTime selectedEndDatePeriod,
-      ){
-
-    // Проходим по списку
-    for (int i = 0; i<event.irregularDays.length; i++){
-
-      Map<String, DateTime> tempDay = event.irregularDays[i];
-
-      if (DateMixin.dateIsInPeriod(tempDay['date-startOnlyDate']!, selectedStartDatePeriod, selectedEndDatePeriod)){
-        return true;
-      }
-
-    }
-
-    return false;
-
-  }
-
 }

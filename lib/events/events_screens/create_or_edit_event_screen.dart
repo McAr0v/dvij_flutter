@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:dvij_flutter/database/database_mixin.dart';
-import 'package:dvij_flutter/dates/date_mixin.dart';
+import 'package:dvij_flutter/dates/irregular_date_class.dart';
+import 'package:dvij_flutter/dates/long_date_class.dart';
+import 'package:dvij_flutter/dates/once_date_class.dart';
 import 'package:dvij_flutter/dates/time_mixin.dart';
 import 'package:dvij_flutter/events/event_category_class.dart';
 import 'package:dvij_flutter/classes/date_type_enum.dart';
@@ -156,27 +158,27 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
     eventTypeEnum = widget.eventInfo.dateType;
 
-    if (eventTypeEnum == DateTypeEnum.once && widget.eventInfo.onceDay.isNotEmpty){
-      selectedDayInOnceType = widget.eventInfo.onceDay['date-startDate']!;
+    if (eventTypeEnum == DateTypeEnum.once && widget.eventInfo.onceDay.dateIsNotEmpty()){
+      selectedDayInOnceType = widget.eventInfo.onceDay.startDate;
 
       // Если в выбранной дате из БД день раньше, чем сегодня, то меняем выбранный день на сегодня
       if (selectedDayInOnceType.isBefore(DateTime.now())){
         selectedDayInOnceType = DateTime.now();
       }
 
-      onceDayStartTime = TimeMixin.getTimeFromDateTime(widget.eventInfo.onceDay['date-startDate']!);
-      onceDayFinishTime = TimeMixin.getTimeFromDateTime(widget.eventInfo.onceDay['date-endDate']!);
+      onceDayStartTime = TimeMixin.getTimeFromDateTime(widget.eventInfo.onceDay.startDate);
+      onceDayFinishTime = TimeMixin.getTimeFromDateTime(widget.eventInfo.onceDay.endDate);
 
     } else {
       selectedDayInOnceType = DateTime(2100);
     }
 
-    if (eventTypeEnum == DateTypeEnum.long && widget.eventInfo.longDays.isNotEmpty) {
+    if (eventTypeEnum == DateTypeEnum.long && widget.eventInfo.longDays.dateIsNotEmpty()) {
 
-     selectedStartDayInLongType = widget.eventInfo.longDays['startDate-startDate']!;
-     selectedEndDayInLongType = widget.eventInfo.longDays['endDate-startDate']!;
-     longDayStartTime = TimeMixin.getTimeFromDateTime(widget.eventInfo.longDays['startDate-startDate']!);
-     longDayFinishTime = TimeMixin.getTimeFromDateTime(widget.eventInfo.longDays['endDate-endDate']!);
+     selectedStartDayInLongType = widget.eventInfo.longDays.startStartDate;
+     selectedEndDayInLongType = widget.eventInfo.longDays.endStartDate;
+     longDayStartTime = TimeMixin.getTimeFromDateTime(widget.eventInfo.longDays.startStartDate);
+     longDayFinishTime = TimeMixin.getTimeFromDateTime(widget.eventInfo.longDays.endEndDate);
 
     } else {
       selectedStartDayInLongType = DateTime(2100);
@@ -188,14 +190,14 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
       _fillRegularList();
     }
 
-    if (eventTypeEnum == DateTypeEnum.irregular && widget.eventInfo.irregularDays.isNotEmpty){
+    if (eventTypeEnum == DateTypeEnum.irregular && widget.eventInfo.irregularDays.dateIsNotEmpty()){
 
-      for (int i = 0; i<widget.eventInfo.irregularDays.length; i++){
-        Map<String, DateTime> date = widget.eventInfo.irregularDays[i];
+      for (int i = 0; i<widget.eventInfo.irregularDays.dates.length; i++){
+        OnceDate date = widget.eventInfo.irregularDays.dates[i];
 
-        chosenIrregularDays.add(date['date-startDate']!);
-        chosenIrregularStartTime.add(TimeMixin.getTimeFromDateTime(date['date-startDate']!));
-        chosenIrregularEndTime.add(TimeMixin.getTimeFromDateTime(date['date-endDate']!));
+        chosenIrregularDays.add(date.startDate);
+        chosenIrregularStartTime.add(TimeMixin.getTimeFromDateTime(date.startDate));
+        chosenIrregularEndTime.add(TimeMixin.getTimeFromDateTime(date.endDate));
 
       }
     }
@@ -749,6 +751,8 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
                           }
 
+
+
                           EventCustom event = EventCustom(
                               id: eventId,
                               dateType: eventTypeEnum, // сделать функционал
@@ -766,23 +770,29 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                               instagram: instagramController.text,
                               imageUrl: avatarURL ?? widget.eventInfo.imageUrl,
                               placeId: chosenPlace.id, // сделать функционал
-                              onceDay: DateMixin.generateOnceDayDateForEvent(
-                                  selectedDayInOnceType,
-                                  onceDayStartTime,
-                                  onceDayFinishTime
+                              onceDay: widget.eventInfo.onceDay.generateDateForEntity(
+                                  OnceDate.generateOnceMapForEntity(
+                                      selectedDayInOnceType,
+                                      onceDayStartTime,
+                                      onceDayFinishTime
+                                  )
                               ), // сделать функционал
-                              longDays: DateMixin.generateLongDayDatesForEvent(
-                                  selectedStartDayInLongType,
-                                  selectedEndDayInLongType,
-                                  longDayStartTime,
-                                  longDayFinishTime
+                              longDays: widget.eventInfo.longDays.generateDateForEntity(
+                                LongDate.generateLongMapForEntity(
+                                    selectedStartDayInLongType,
+                                    selectedEndDayInLongType,
+                                    longDayStartTime,
+                                    longDayFinishTime
+                                )
                               ), // сделать функционал
                               regularDays: TimeMixin.generateRegularTimesForEvent(regularStartTimes, regularFinishTimes),
 
-                              irregularDays: DateMixin.generateIrregularDatesForEvent(
-                                  chosenIrregularDays,
-                                  chosenIrregularStartTime,
-                                  chosenIrregularEndTime
+                              irregularDays: widget.eventInfo.irregularDays.generateDateForEntity(
+                                  IrregularDate.generateIrregularMapForEntity(
+                                      chosenIrregularDays,
+                                      chosenIrregularStartTime,
+                                      chosenIrregularEndTime
+                                  )
                               ),
 
                               // сделать функционал

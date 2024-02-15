@@ -1,6 +1,17 @@
-import 'package:dvij_flutter/dates/date_mixin.dart';
+import 'dart:convert';
 
 mixin TimeMixin {
+
+  static String extractTimeFromJson(String jsonString, String fieldId) {
+
+    // Декодируем JSON строку
+    Map<String, dynamic> json = jsonDecode(jsonString);
+
+    // Извлекаем значение "date"
+    String dateStr = json[fieldId];
+
+    return dateStr;
+  }
 
   /// Функция получения словаря времени из Json-строки из FireBaseRealtimeDatabase
   ///
@@ -28,8 +39,8 @@ mixin TimeMixin {
     Map<String, String> dictionary = _fillTimeMapWithDefaultValues(defaultValue, 7);
 
     for (int i = 1; i<8; i++){
-      dictionary['startTime$i'] = DateMixin.extractDateOrTimeFromJson(json, 'startTime$i');
-      dictionary['endTime$i'] = DateMixin.extractDateOrTimeFromJson(json, 'endTime$i');
+      dictionary['startTime$i'] = extractTimeFromJson(json, 'startTime$i');
+      dictionary['endTime$i'] = extractTimeFromJson(json, 'endTime$i');
     }
 
     return dictionary;

@@ -4,6 +4,9 @@ import 'package:dvij_flutter/classes/priceTypeOptions.dart';
 import 'package:dvij_flutter/classes/user_class.dart';
 import 'package:dvij_flutter/database/database_mixin.dart';
 import 'package:dvij_flutter/dates/date_mixin.dart';
+import 'package:dvij_flutter/dates/irregular_date_class.dart';
+import 'package:dvij_flutter/dates/long_date_class.dart';
+import 'package:dvij_flutter/dates/once_date_class.dart';
 import 'package:dvij_flutter/dates/time_mixin.dart';
 import 'package:dvij_flutter/filters/filter_mixin.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -30,10 +33,10 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
   String placeId;
   PriceTypeOption priceType;
   String price;
-  Map<String, DateTime> onceDay;
-  Map<String, DateTime> longDays;
+  OnceDate onceDay;
+  LongDate longDays;
   Map<String, String> regularDays;
-  List<Map<String, DateTime>> irregularDays;
+  IrregularDate irregularDays;
   int? addedToFavouritesCount;
   bool? inFav;
   bool? today;
@@ -74,39 +77,34 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
     City city = City(name: '', id: snapshot.child('city').value.toString());
     PriceTypeEnumClass priceType = PriceTypeEnumClass();
 
+    OnceDate onceDate = OnceDate();
     String onceDayString = snapshot.child('onceDay').value.toString();
-    Map<String, DateTime> onceDay = {};
 
+    LongDate longDate = LongDate();
     String longDaysString = snapshot.child('longDays').value.toString();
-    Map<String, DateTime> longDays = {};
 
-    List<Map<String, DateTime>> irregularDays = [];
+    IrregularDate irregularDate = IrregularDate();
     String irregularDaysString = snapshot.child('irregularDays').value.toString();
 
     // ---- РАБОТА С ДАТАМИ -----
 
     DateTypeEnum dateType = dateTypeClass.getEnumFromString(snapshot.child('eventType').value.toString());
+
     if (onceDayString != ''){
-      onceDay = DateMixin.getDateFromJson(onceDayString, 'date', 'startTime', 'endTime');
+      onceDate = onceDate.getFromJson(onceDayString);
     }
 
     if (longDaysString != ''){
-      longDays = DateMixin.getPeriodDatesFromJson(longDaysString, 'startDate', 'endDate', 'startTime', 'endTime');
-      if (longDays['endDate-endDate']!.isBefore(longDays['endDate-startDate']!)){
-        DateTime tempDate = longDays['endDate-endDate']!.add(const Duration(days: 1));
-        DateTime tempDateStart = longDays['startDate-endDate']!.add(const Duration(days: 1));
-        longDays['endDate-endDate'] = tempDate;
-        longDays['startDate-endDate'] = tempDateStart;
-      }
+      longDate = longDate.getFromJson(longDaysString);
     }
 
     Map<String, String> regularDays = TimeMixin.getTimeDictionaryFromJson(snapshot.child('regularDays').value.toString(), 'Не выбрано');
 
     if (irregularDaysString != ''){
-      irregularDays = DateMixin.getIrregularDatesFromJson(irregularDaysString);
+      irregularDate = irregularDate.getFromJson(irregularDaysString);
     }
 
-    bool today = DateMixin.todayOrNot(dateType, onceDay, longDays, regularDays, irregularDays);
+    bool today = DateMixin.todayOrNot(dateType, onceDate, longDate, regularDays, irregularDate);
 
     return EventCustom(
         id: snapshot.child('id').value.toString(),
@@ -127,10 +125,10 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
         placeId: snapshot.child('placeId').value.toString(),
         price: snapshot.child('price').value.toString(),
         priceType: priceType.getEnumFromString(snapshot.child('priceType').value.toString()),
-        onceDay: onceDay,
-        longDays: longDays,
+        onceDay: onceDate,
+        longDays: longDate,
         regularDays: regularDays,
-        irregularDays: irregularDays,
+        irregularDays: irregularDate,
         today: today,
     );
   }
@@ -156,10 +154,10 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
       instagram: '',
       imageUrl: 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2Fdvij_unknow_user.jpg?alt=media&token=b63ea5ef-7bdf-49e9-a3ef-1d34d676b6a7',
       placeId: '',
-      onceDay: {},
-      longDays: {},
+      onceDay: OnceDate(),
+      longDays: LongDate(),
       regularDays: {},
-      irregularDays: [],
+      irregularDays: IrregularDate(),
       priceType: PriceTypeOption.free,
       price: ''
   );
@@ -182,41 +180,42 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
         instagram: '',
         imageUrl: 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2Fdvij_unknow_user.jpg?alt=media&token=b63ea5ef-7bdf-49e9-a3ef-1d34d676b6a7',
         placeId: '',
-        onceDay: {},
-        longDays: {},
+        onceDay: OnceDate(),
+        longDays: LongDate(),
         regularDays: {},
-        irregularDays: [],
+        irregularDays: IrregularDate(),
         priceType: PriceTypeOption.free,
         price: ''
     );
   }
 
-  Map<String, dynamic> generateEventDataCode(EventCustom event) {
+  Map<String, dynamic> generateEventDataCode() {
     DateTypeEnumClass dateTypeEnumClass = DateTypeEnumClass();
     PriceTypeEnumClass priceTypeEnumClass = PriceTypeEnumClass();
+
     return <String, dynamic> {
-      'id': event.id,
-      'eventType': dateTypeEnumClass.getNameEnum(event.dateType),
-      'headline': event.headline,
-      'desc': event.desc,
-      'creatorId': event.creatorId,
+      'id': id,
+      'eventType': dateTypeEnumClass.getNameEnum(dateType),
+      'headline': headline,
+      'desc': desc,
+      'creatorId': creatorId,
       'createDate': DateMixin.generateDateString(createDate),
-      'category': event.category.id,
-      'city': event.city.id,
-      'street': event.street,
-      'house': event.house,
-      'phone': event.phone,
-      'whatsapp': event.whatsapp,
-      'telegram': event.telegram,
-      'instagram': event.instagram,
-      'imageUrl': event.imageUrl,
-      'placeId': event.placeId,
-      'priceType': priceTypeEnumClass.getNameEnum(event.priceType),
-      'price': event.price,
-      'onceDay': DateMixin.generateOnceTypeDate(event.onceDay),
-      'longDays': DateMixin.generateLongTypeDate(event.longDays),
+      'category': category.id,
+      'city': city.id,
+      'street': street,
+      'house': house,
+      'phone': phone,
+      'whatsapp': whatsapp,
+      'telegram': telegram,
+      'instagram': instagram,
+      'imageUrl': imageUrl,
+      'placeId': placeId,
+      'priceType': priceTypeEnumClass.getNameEnum(priceType),
+      'price': price,
+      'onceDay': onceDay.generateDateStingForDb(),
+      'longDays': longDays.generateDateStingForDb(),
       'regularDays': TimeMixin.generateRegularTypeTimes(regularDays),
-      'irregularDays': DateMixin.generateIrregularString(irregularDays),
+      'irregularDays': irregularDays.generateDateStingForDb(),
     };
   }
 
@@ -228,7 +227,7 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
     String creatorPath = 'users/$creatorId/myEvents/$id';
 
 
-    Map<String, dynamic> data = generateEventDataCode(this);
+    Map<String, dynamic> data = generateEventDataCode();
     Map<String, dynamic> dataToCreatorAndPlace = MixinDatabase.generateDataCode('eventId', id);
 
     String entityPublishResult = await MixinDatabase.publishToDB(entityPath, data);
