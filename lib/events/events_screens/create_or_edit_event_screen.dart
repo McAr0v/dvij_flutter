@@ -3,6 +3,7 @@ import 'package:dvij_flutter/database/database_mixin.dart';
 import 'package:dvij_flutter/dates/irregular_date_class.dart';
 import 'package:dvij_flutter/dates/long_date_class.dart';
 import 'package:dvij_flutter/dates/once_date_class.dart';
+import 'package:dvij_flutter/dates/regular_date_class.dart';
 import 'package:dvij_flutter/dates/time_mixin.dart';
 import 'package:dvij_flutter/events/event_category_class.dart';
 import 'package:dvij_flutter/classes/date_type_enum.dart';
@@ -185,7 +186,7 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
       selectedEndDayInLongType = DateTime(2100);
     }
 
-    if (eventTypeEnum == DateTypeEnum.regular && widget.eventInfo.regularDays.isNotEmpty){
+    if (eventTypeEnum == DateTypeEnum.regular && widget.eventInfo.regularDays){
 
       _fillRegularList();
     }
@@ -785,7 +786,9 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                                     longDayFinishTime
                                 )
                               ), // сделать функционал
-                              regularDays: TimeMixin.generateRegularTimesForEvent(regularStartTimes, regularFinishTimes),
+                              regularDays: widget.eventInfo.regularDays.generateDateForEntity(
+                                RegularDate.generateOnceMapForEntity(regularStartTimes, regularFinishTimes)
+                              ),
 
                               irregularDays: widget.eventInfo.irregularDays.generateDateForEntity(
                                   IrregularDate.generateIrregularMapForEntity(
@@ -919,8 +922,8 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
     for (int i = 0; i<regularStartTimes.length; i++){
 
-      regularStartTimes[i] = widget.eventInfo.regularDays['startTime${i+1}']!;
-      regularFinishTimes[i] = widget.eventInfo.regularDays['endTime${i+1}']!;
+      regularStartTimes[i] = widget.eventInfo.regularDays.getDayFromIndex(i).startTime.toString();
+      regularFinishTimes[i] = widget.eventInfo.regularDays.getDayFromIndex(i).endTime.toString();
 
     }
   }

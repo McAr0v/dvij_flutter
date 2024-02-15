@@ -7,6 +7,7 @@ import 'package:dvij_flutter/dates/date_mixin.dart';
 import 'package:dvij_flutter/dates/irregular_date_class.dart';
 import 'package:dvij_flutter/dates/long_date_class.dart';
 import 'package:dvij_flutter/dates/once_date_class.dart';
+import 'package:dvij_flutter/dates/regular_date_class.dart';
 import 'package:dvij_flutter/dates/time_mixin.dart';
 import 'package:dvij_flutter/filters/filter_mixin.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -35,7 +36,7 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
   String price;
   OnceDate onceDay;
   LongDate longDays;
-  Map<String, String> regularDays;
+  RegularDate regularDays;
   IrregularDate irregularDays;
   int? addedToFavouritesCount;
   bool? inFav;
@@ -83,8 +84,12 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
     LongDate longDate = LongDate();
     String longDaysString = snapshot.child('longDays').value.toString();
 
+    RegularDate regularDate = RegularDate();
+    String regularDateString = snapshot.child('regularDays').value.toString();
+
     IrregularDate irregularDate = IrregularDate();
     String irregularDaysString = snapshot.child('irregularDays').value.toString();
+
 
     // ---- РАБОТА С ДАТАМИ -----
 
@@ -98,7 +103,9 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
       longDate = longDate.getFromJson(longDaysString);
     }
 
-    Map<String, String> regularDays = TimeMixin.getTimeDictionaryFromJson(snapshot.child('regularDays').value.toString(), 'Не выбрано');
+    if (regularDateString != ''){
+      regularDate = regularDate.getFromJson(snapshot.child('regularDays').value.toString());
+    }
 
     if (irregularDaysString != ''){
       irregularDate = irregularDate.getFromJson(irregularDaysString);
@@ -127,7 +134,7 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
         priceType: priceType.getEnumFromString(snapshot.child('priceType').value.toString()),
         onceDay: onceDate,
         longDays: longDate,
-        regularDays: regularDays,
+        regularDays: regularDate,
         irregularDays: irregularDate,
         today: today,
     );
@@ -156,7 +163,7 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
       placeId: '',
       onceDay: OnceDate(),
       longDays: LongDate(),
-      regularDays: {},
+      regularDays: RegularDate(),
       irregularDays: IrregularDate(),
       priceType: PriceTypeOption.free,
       price: ''
@@ -182,7 +189,7 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
         placeId: '',
         onceDay: OnceDate(),
         longDays: LongDate(),
-        regularDays: {},
+        regularDays: RegularDate(),
         irregularDays: IrregularDate(),
         priceType: PriceTypeOption.free,
         price: ''
@@ -214,7 +221,7 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
       'price': price,
       'onceDay': onceDay.generateDateStingForDb(),
       'longDays': longDays.generateDateStingForDb(),
-      'regularDays': TimeMixin.generateRegularTypeTimes(regularDays),
+      'regularDays': regularDays.generateDateStingForDb(),
       'irregularDays': irregularDays.generateDateStingForDb(),
     };
   }

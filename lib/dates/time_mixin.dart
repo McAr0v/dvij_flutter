@@ -13,7 +13,7 @@ mixin TimeMixin {
     return dateStr;
   }
 
-  /// Функция получения словаря времени из Json-строки из FireBaseRealtimeDatabase
+  /*/// Функция получения словаря времени из Json-строки из FireBaseRealtimeDatabase
   ///
   /// <br>
   ///
@@ -45,7 +45,7 @@ mixin TimeMixin {
 
     return dictionary;
 
-  }
+  }*/
 
   /// Функция заполнения словаря времени значениями по умолчанию
   ///
@@ -75,7 +75,7 @@ mixin TimeMixin {
 
   }
 
-  static String generateRegularTypeTimes(
+  /*static String generateRegularTypeTimes(
       Map<String, String> timesMap
       ){
     String result = '';
@@ -99,7 +99,7 @@ mixin TimeMixin {
     }
 
     return result;
-  }
+  }*/
 
   static String _getCorrectTime(int number){
     if (number < 10) {
@@ -122,7 +122,7 @@ mixin TimeMixin {
 
 //Map<String, String> regularDays;
 
-  static Map<String, String> generateRegularTimesForEvent(List<String> startTimes, List<String> endTimes){
+  /*static Map<String, String> generateRegularTimesForEvent(List<String> startTimes, List<String> endTimes){
 
     Map<String, String> tempMap = {};
     for (int i = 0; i<startTimes.length; i++){
@@ -132,6 +132,6 @@ mixin TimeMixin {
 
     return tempMap;
 
-  }
+  }*/
 
 }
