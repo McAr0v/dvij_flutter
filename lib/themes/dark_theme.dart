@@ -8,7 +8,6 @@ class CustomTheme {
   // ---- ТЕМНАЯ ТЕМА ------
   static ThemeData get darkTheme {
     return ThemeData(
-
       // Всплывающее оповещение
 
       snackBarTheme: const SnackBarThemeData(
