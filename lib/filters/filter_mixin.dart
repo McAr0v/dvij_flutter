@@ -15,13 +15,13 @@ mixin FilterMixin {
     switch (dateTypeEnum) {
       case DateTypeEnum.once: return event.onceDay.checkDateForFilter(selectedStartDatePeriod, selectedEndDatePeriod);
       case DateTypeEnum.long: return event.longDays.checkDateForFilter(selectedStartDatePeriod, selectedEndDatePeriod);
-      case DateTypeEnum.regular: return checkEventRegularDayForFilter(event, selectedStartDatePeriod, selectedEndDatePeriod);
+      case DateTypeEnum.regular: return event.regularDays.checkDateForFilter(selectedStartDatePeriod, selectedEndDatePeriod);
       case DateTypeEnum.irregular: return event.irregularDays.checkDateForFilter(selectedStartDatePeriod, selectedEndDatePeriod);
     }
 
   }
 
-  static bool checkEventRegularDayForFilter (
+  /*static bool checkEventRegularDayForFilter (
       EventCustom event,
       DateTime selectedStartDatePeriod,
       DateTime selectedEndDatePeriod,
@@ -62,5 +62,5 @@ mixin FilterMixin {
 
     return result;
 
-  }
+  }*/
 }

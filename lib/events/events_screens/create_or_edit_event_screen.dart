@@ -186,7 +186,7 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
       selectedEndDayInLongType = DateTime(2100);
     }
 
-    if (eventTypeEnum == DateTypeEnum.regular && widget.eventInfo.regularDays){
+    if (eventTypeEnum == DateTypeEnum.regular){
 
       _fillRegularList();
     }
@@ -921,6 +921,9 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
   void _fillRegularList (){
 
     for (int i = 0; i<regularStartTimes.length; i++){
+
+      print(widget.eventInfo.regularDays.getDayFromIndex(i).startTime.toString());
+      print(widget.eventInfo.regularDays.getDayFromIndex(i).endTime.toString());
 
       regularStartTimes[i] = widget.eventInfo.regularDays.getDayFromIndex(i).startTime.toString();
       regularFinishTimes[i] = widget.eventInfo.regularDays.getDayFromIndex(i).endTime.toString();

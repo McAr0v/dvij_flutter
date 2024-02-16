@@ -4,7 +4,7 @@ class TimeCustom {
 
   TimeCustom({String? time}) {
     // Parse the time string and set hour and minutes
-    if (time != null) {
+    if (time != null && time != 'Не выбрано') {
       List<String> parts = time.split(':');
       hour = parts[0];
       minutes = parts[1];

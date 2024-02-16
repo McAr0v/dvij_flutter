@@ -1,8 +1,6 @@
 import 'dart:core';
 import 'package:dvij_flutter/dates/time_mixin.dart';
-import 'package:dvij_flutter/dates/times/time_class.dart';
 import 'package:dvij_flutter/dates/times/times_in_date_class.dart';
-
 import 'date_mixin.dart';
 import 'dates_interface.dart';
 
@@ -20,8 +18,46 @@ class RegularDate with DateMixin, TimeMixin implements IDates<RegularDate> {
 
   @override
   bool checkDateForFilter(DateTime startPeriod, DateTime endPeriod) {
-    // TODO: implement checkDateForFilter
-    throw UnimplementedError();
+    // ФУНКЦИЯ ПРОВЕРКИ РЕГУЛЯРНОЙ ДАТЫ НА ПОПАДАНИЕ В ЗАДАННЫЙ ПЕРИОД
+
+    bool result = false;
+
+    List<int> entityWeekDays = [];
+    List<int> filterWeekDays = [];
+
+    // Считываем дни недели, в которые проводится нужная сущность
+    for (int i = 0; i<7; i++){
+
+      TimesInDate tempDate = getDayFromIndex(i);
+      String startTime = tempDate.startTime.toString();
+
+      if (startTime != 'Не выбрано') entityWeekDays.add(i);
+
+    }
+
+    // Считываем дни недели периода из фильтра
+
+    for (int i = 0; i<6; i++){
+
+      // Duration - чтобы пройти по всем дням недели.
+      // В i передается индекс - 0, 1, 2, 3 и тд
+      DateTime tempDate = startPeriod.add(Duration(days: i));
+
+      if (DateMixin.dateIsBeforeEnd(tempDate, endPeriod)){
+        filterWeekDays.add(tempDate.weekday-1);
+        print(tempDate.weekday-1);
+      }
+    }
+
+    for (int entityWeekDay in entityWeekDays){
+      // Если в сущности дни не пустые и в фильтре дни не пустые, и фильтр содержит хотя бы 1 день из сущности
+      if (entityWeekDays.isNotEmpty && filterWeekDays.isNotEmpty && filterWeekDays.contains(entityWeekDay)) {
+        // вернем тру
+        result = true;
+      }
+    }
+
+    return result;
   }
 
 
@@ -86,7 +122,7 @@ class RegularDate with DateMixin, TimeMixin implements IDates<RegularDate> {
         '"startTime${4}": "${thursday.startTime.toString()}", "endTime${4}": "${thursday.endTime.toString()}", '
         '"startTime${5}": "${friday.startTime.toString()}", "endTime${5}": "${friday.endTime.toString()}", '
         '"startTime${6}": "${saturday.startTime.toString()}", "endTime${6}": "${saturday.endTime.toString()}", '
-        '"startTime${7}": "${sunday.startTime.toString()}", "endTime${7}": "${sunday.endTime.toString()}", '
+        '"startTime${7}": "${sunday.startTime.toString()}", "endTime${7}": "${sunday.endTime.toString()}"'
         '}';
   }
 
@@ -109,8 +145,36 @@ class RegularDate with DateMixin, TimeMixin implements IDates<RegularDate> {
 
   @override
   bool todayOrNot() {
-    // TODO: implement todayOrNot
-    throw UnimplementedError();
+    DateTime currentDayDate = DateTime.now();
+    int currentDay = currentDayDate.weekday;
+    String correctTodayMonth = DateMixin.getCorrectMonthOrDate(currentDayDate.month);
+    String correctTodayDay = DateMixin.getCorrectMonthOrDate(currentDayDate.day);
+
+    String startTimeToday = getDayFromIndex(currentDay-1).startTime.toString();
+    String endTimeToday = getDayFromIndex(currentDay-1).endTime.toString();
+
+    if (startTimeToday != 'Не выбрано' && endTimeToday != 'Не выбрано'){
+
+      // Парсим начальную дату до минут для сравнения
+      DateTime parsedStartTimeToMinutes = DateTime.parse('${currentDayDate.year}-$correctTodayMonth-$correctTodayDay $startTimeToday');
+
+      // Парсим начальную дату уже без точности до минут
+      DateTime parsedStartTime = DateTime.parse('${currentDayDate.year}-$correctTodayMonth-$correctTodayDay');
+      // Парсим конечную дату с точностью до минуты
+      DateTime parsedEndTime = DateTime.parse('${currentDayDate.year}-$correctTodayMonth-$correctTodayDay $endTimeToday');
+
+      // Проверка - если время завершения раньше чем время начала
+      // Именно для этого нужна переменная начального времени с точностью до минуты
+      // Если как бы завершение будет проходить в следущий день, то добавляем к финишной дате 1 день
+      if (parsedStartTimeToMinutes.isAfter(parsedEndTime)){
+        parsedEndTime = parsedEndTime.add(const Duration(days: 1));
+      }
+
+      return DateMixin.nowIsInPeriod(parsedStartTime, parsedEndTime);
+
+    } else {
+      return false;
+    }
   }
 
 

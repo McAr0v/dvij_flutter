@@ -201,17 +201,19 @@ class EventCardWidget extends StatelessWidget {
                                   ),
 
                                   if(
-                                  event.regularDays['startTime$currentWeekDayNumber'] != 'Не выбрано'
-                                  && event.regularDays['endTime$currentWeekDayNumber'] != 'Не выбрано'
+                                  event.regularDays.getDayFromIndex(currentWeekDayNumber-1).startTime.toString() != 'Не выбрано'
+                                  && event.regularDays.getDayFromIndex(currentWeekDayNumber-1).endTime.toString() != 'Не выбрано'
                                   ) Text(
-                                    '${DateMixin.getHumanWeekday(currentWeekDayNumber, false)}: c ${event.regularDays['startTime$currentWeekDayNumber']} до ${event.regularDays['endTime$currentWeekDayNumber']}',
+                                    '${DateMixin.getHumanWeekday(currentWeekDayNumber, false)}: '
+                                        'c ${event.regularDays.getDayFromIndex(currentWeekDayNumber-1).startTime.toString()} '
+                                        'до ${event.regularDays.getDayFromIndex(currentWeekDayNumber-1).endTime.toString()}',
                                     style: Theme.of(context).textTheme.bodySmall,
                                     softWrap: true,
                                   ),
 
                                   if(
-                                      event.regularDays['startTime$currentWeekDayNumber'] == 'Не выбрано'
-                                      && event.regularDays['endTime$currentWeekDayNumber'] == 'Не выбрано'
+                                      event.regularDays.getDayFromIndex(currentWeekDayNumber-1).startTime.toString() == 'Не выбрано'
+                                      && event.regularDays.getDayFromIndex(currentWeekDayNumber-1).endTime.toString() == 'Не выбрано'
                                   ) Text(
                                     'Сегодня не проводится. Смотри расписание на другие дни',
                                     style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.attentionRed),

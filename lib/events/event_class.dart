@@ -104,14 +104,14 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
     }
 
     if (regularDateString != ''){
-      regularDate = regularDate.getFromJson(snapshot.child('regularDays').value.toString());
+      regularDate = regularDate.getFromJson(regularDateString);
     }
 
     if (irregularDaysString != ''){
       irregularDate = irregularDate.getFromJson(irregularDaysString);
     }
 
-    bool today = DateMixin.todayOrNot(dateType, onceDate, longDate, regularDays, irregularDate);
+    bool today = DateMixin.todayOrNot(dateType, onceDate, longDate, regularDate, irregularDate);
 
     return EventCustom(
         id: snapshot.child('id').value.toString(),

@@ -1,5 +1,6 @@
 import 'package:dvij_flutter/dates/irregular_date_class.dart';
 import 'package:dvij_flutter/dates/once_date_class.dart';
+import 'package:dvij_flutter/dates/regular_date_class.dart';
 import 'package:dvij_flutter/dates/time_mixin.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +17,7 @@ class ScheduleRegularAndIrregularWidget extends StatelessWidget {
   final double verticalPadding;
   final Color backgroundColor;
   final DateTypeEnum dateTypeEnum;
-  final Map<String, String>? regularTimes; // Передаваемая переменная
+  final RegularDate? regularTimes; // Передаваемая переменная
 
 
   ScheduleRegularAndIrregularWidget({
@@ -55,14 +56,20 @@ class ScheduleRegularAndIrregularWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
 
-                        if (dateTypeEnum == DateTypeEnum.regular && regularTimes!.isNotEmpty && regularTimes != null) Column(
+                        if (dateTypeEnum == DateTypeEnum.regular && regularTimes != null) Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.start,
-                          children: List.generate(regularTimes!.length, (index) {
+                          children: List.generate(7, (index) {
                             return Column(
                               children: [
-                                if (regularTimes!['startTime${index+1}'] != 'Не выбрано' && regularTimes!['startTime${index+1}']!=regularTimes!['endTime${index+1}']) HeadlineAndDesc(headline: DateMixin.getHumanWeekday(index+1, false), description: 'День недели'),
-                                if (regularTimes!['startTime${index+1}'] != 'Не выбрано' && regularTimes!['startTime${index+1}']!=regularTimes!['endTime${index+1}']) const SizedBox(height: 10,),
+                                if (
+                                regularTimes!.getDayFromIndex(index).startTime.toString() != 'Не выбрано'
+                                    && regularTimes!.getDayFromIndex(index).startTime.toString() != regularTimes!.getDayFromIndex(index).endTime.toString())
+                                  HeadlineAndDesc(headline: DateMixin.getHumanWeekday(index+1, false), description: 'День недели'),
+                                if (
+                                regularTimes!.getDayFromIndex(index).startTime.toString() != 'Не выбрано'
+                                    && regularTimes!.getDayFromIndex(index).startTime.toString() != regularTimes!.getDayFromIndex(index).endTime.toString())
+                                  const SizedBox(height: 10,),
                               ],
                             );
                           }),
@@ -86,17 +93,23 @@ class ScheduleRegularAndIrregularWidget extends StatelessWidget {
 
                         SizedBox(width: 30,),
 
-                        if (dateTypeEnum == DateTypeEnum.regular && regularTimes!.isNotEmpty && regularTimes != null) Column(
+                        if (dateTypeEnum == DateTypeEnum.regular && regularTimes != null) Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.start,
-                          children: List.generate(regularTimes!.length, (index) {
+                          children: List.generate(7, (index) {
                             return Column(
                               children: [
-                                if (regularTimes!['startTime${index+1}'] != 'Не выбрано' && regularTimes!['startTime${index+1}']!=regularTimes!['endTime${index+1}']) HeadlineAndDesc(
-                                    headline: 'с ${regularTimes!['startTime${index+1}']} до ${regularTimes!['endTime${index+1}']}',
+                                if (
+                                regularTimes!.getDayFromIndex(index).startTime.toString() != 'Не выбрано'
+                                    && regularTimes!.getDayFromIndex(index).startTime.toString() != regularTimes!.getDayFromIndex(index).endTime.toString())
+                                  HeadlineAndDesc(
+                                    headline: 'с ${regularTimes!.getDayFromIndex(index).startTime.toString()} до ${regularTimes!.getDayFromIndex(index).endTime.toString()}',
                                     description: 'Время проведения'
                                 ),
-                                if (regularTimes!['startTime${index+1}'] != 'Не выбрано' && regularTimes!['startTime${index+1}']!=regularTimes!['endTime${index+1}']) const SizedBox(height: 10,),
+                                if (
+                                regularTimes!.getDayFromIndex(index).startTime.toString() != 'Не выбрано'
+                                    && regularTimes!.getDayFromIndex(index).startTime.toString() != regularTimes!.getDayFromIndex(index).endTime.toString())
+                                  const SizedBox(height: 10,),
                               ],
                             );
                           }),

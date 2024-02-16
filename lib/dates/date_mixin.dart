@@ -3,6 +3,7 @@ import 'package:dvij_flutter/classes/date_type_enum.dart';
 import 'package:dvij_flutter/dates/irregular_date_class.dart';
 import 'package:dvij_flutter/dates/long_date_class.dart';
 import 'package:dvij_flutter/dates/once_date_class.dart';
+import 'package:dvij_flutter/dates/regular_date_class.dart';
 
 mixin DateMixin {
 
@@ -418,7 +419,7 @@ mixin DateMixin {
           DateTypeEnum dateType,
           OnceDate onceDay,
           LongDate longDays,
-          Map<String, String> regularDays,
+          RegularDate regularDays,
           IrregularDate irregularDays,
       ){
 
@@ -432,37 +433,7 @@ mixin DateMixin {
       }
 
       case DateTypeEnum.regular : {
-        DateTime currentDayDate = DateTime.now();
-        int currentDay = currentDayDate.weekday;
-
-        String startTimeToday = regularDays['startTime$currentDay']!;
-        String endTimeToday = regularDays['endTime$currentDay']!;
-
-        if (startTimeToday != 'Не выбрано' && endTimeToday != 'Не выбрано'){
-          // Разделяем часы и минуты для парсинга
-          //List<String> startHourAndMinutes = startTimeToday.split(':');
-          //List<String> endHourAndMinutes = endTimeToday.split(':');
-
-          // Парсим начальную дату до минут для сравнения
-          DateTime parsedStartTimeToMinutes = DateTime.parse('${currentDayDate.year}-${getCorrectMonthOrDate(currentDayDate.month)}-${getCorrectMonthOrDate(currentDayDate.day)} $startTimeToday');
-
-          // Парсим начальную дату уже без точности до минут
-          DateTime parsedStartTime = DateTime.parse('${currentDayDate.year}-${getCorrectMonthOrDate(currentDayDate.month)}-${getCorrectMonthOrDate(currentDayDate.day)}');
-          // Парсим конечную дату с точностью до минуты
-          DateTime parsedEndTime = DateTime.parse('${currentDayDate.year}-${getCorrectMonthOrDate(currentDayDate.month)}-${getCorrectMonthOrDate(currentDayDate.day)} $endTimeToday');
-
-          // Проверка - если время завершения раньше чем время начала
-          // Именно для этого нужна переменная начального времени с точностью до минуты
-          // Если как бы завершение будет проходить в следущий день, то добавляем к финишной дате 1 день
-          if (parsedStartTimeToMinutes.isAfter(parsedEndTime)){
-            parsedEndTime = parsedEndTime.add(const Duration(days: 1));
-          }
-
-          return nowIsInPeriod(parsedStartTime, parsedEndTime);
-
-      } else {
-        return false;
-        }
+        return regularDays.todayOrNot();
       }
 
       case DateTypeEnum.irregular : {
