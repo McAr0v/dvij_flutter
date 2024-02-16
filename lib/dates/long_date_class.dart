@@ -60,14 +60,19 @@ class LongDate with DateMixin implements IDates<LongDate> {
 
     if (startTime != 'Не выбрано' && endTime != 'Не выбрано'){
 
+      String correctMonthStart = DateMixin.getCorrectMonthOrDate(startDay.month);
+      String correctDayStart = DateMixin.getCorrectMonthOrDate(startDay.day);
+      String correctMonthEnd = DateMixin.getCorrectMonthOrDate(endDay.month);
+      String correctDayEnd = DateMixin.getCorrectMonthOrDate(endDay.day);
+
       DateTime startDateStartDate = DateTime.parse(
-          '${startDay.year}-${DateMixin.getCorrectMonthOrDate(startDay.month)}-${DateMixin.getCorrectMonthOrDate(startDay.day)} $startTime');
+          '${startDay.year}-$correctMonthStart-$correctDayStart $startTime');
       DateTime startDateEndDate = DateTime.parse(
-          '${startDay.year}-${DateMixin.getCorrectMonthOrDate(startDay.month)}-${DateMixin.getCorrectMonthOrDate(startDay.day)} $endTime');
+          '${startDay.year}-$correctMonthStart-$correctDayStart $endTime');
       DateTime endDateStartDate = DateTime.parse(
-          '${endDay.year}-${DateMixin.getCorrectMonthOrDate(endDay.month)}-${DateMixin.getCorrectMonthOrDate(endDay.day)} $startTime');
+          '${endDay.year}-$correctMonthEnd-$correctDayEnd $startTime');
       DateTime endDateEndDate = DateTime.parse(
-          '${endDay.year}-${DateMixin.getCorrectMonthOrDate(endDay.month)}-${DateMixin.getCorrectMonthOrDate(endDay.day)} $endTime');
+          '${endDay.year}-$correctMonthEnd-$correctDayEnd $endTime');
 
       if (startDateStartDate.isAfter(startDateEndDate)){
         startDateEndDate = startDateEndDate.add(const Duration(days: 1));
@@ -161,7 +166,5 @@ class LongDate with DateMixin implements IDates<LongDate> {
     return (startOnlyDate.isBefore(endPeriod) || startOnlyDate.isAtSameMomentAs(endPeriod)) &&
         (endStartDate.isAfter(startPeriod) || endStartDate.isAtSameMomentAs(startPeriod));
   }
-
-
 
 }

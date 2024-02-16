@@ -59,21 +59,25 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
 
     // TODO !!! Сделать загрузку списка избранного при загрузке информации пользователя. Здесь обращаться к уже готовому списку
     // TODO !!! Не забыть реализовать обновление списка избранных при добавлении и удалении из избранных
+
+    // --- Читаем папку избранных сущностей у пользователя ----
+
     String favPath = 'users/$userId/favEvents/';
-    DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB(favPath);
+    DataSnapshot? favFolder = await MixinDatabase.getInfoFromDB(favPath);
 
-    if (snapshot != null) {
-      for (var childSnapshot in snapshot.children) {
+    if (favFolder != null) {
+      for (var idFolder in favFolder.children) {
 
-        DataSnapshot idSnapshot = childSnapshot.child('eventId');
+        DataSnapshot idSnapshot = idFolder.child('eventId');
 
+        // ---- Считываем ID и добавляем в список ID
         if (idSnapshot.exists){
           eventsId.add(idSnapshot.value.toString());
         }
       }
     }
 
-    // Если список избранных ID не пустой
+    // Если список ID не пустой
 
     if (eventsId.isNotEmpty){
 
@@ -122,13 +126,18 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
 
     // TODO !!! Сделать загрузку списка моих сущностей при загрузке информации пользователя. Здесь обращаться к уже готовому списку
     // TODO !!! Не забыть реализовать обновление списка моих сущностей при добавлении и удалении из раздела мои
+
+    // --- Читаем папку моих сущностей у пользователя ----
+
     String myPath = 'users/$userId/myEvents/';
-    DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB(myPath);
+    DataSnapshot? myFolder = await MixinDatabase.getInfoFromDB(myPath);
 
-    if (snapshot != null) {
-      for (var childSnapshot in snapshot.children) {
+    if (myFolder != null) {
+      for (var idFolder in myFolder.children) {
 
-        DataSnapshot idSnapshot = childSnapshot.child('eventId');
+        // ---- Считываем ID и добавляем в список ID
+
+        DataSnapshot idSnapshot = idFolder.child('eventId');
 
         if (idSnapshot.exists){
           eventsId.add(idSnapshot.value.toString());
@@ -136,7 +145,7 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
       }
     }
 
-    // Если список избранных ID не пустой, и не была вызвана функция обновления
+    // Если список ID не пустой, и не была вызвана функция обновления
     if (eventsId.isNotEmpty){
 
       // Если список всей ленты не пустой, то будем забирать данные из него
@@ -163,6 +172,10 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
     return events;
   }
 
+  /// ФУНКЦИЯ ГЕНЕРАЦИИ СЛОВАРЯ ДЛЯ ФИЛЬТРА
+  /// <br><br>
+  /// Автоматически генерирует ключ-значение, для передачи
+  /// в функцию [filterLists]
   Map<String, dynamic> generateMapForFilter (
       EventCategory eventCategoryFromFilter,
       City cityFromFilter,
@@ -205,7 +218,6 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
         events.eventsList.add(event);
       }
     }
-    // Возвращаем список
     eventsList = events.eventsList;
   }
 
@@ -243,32 +255,26 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
   void updateCurrentListFavInformation(String entityId, int favCounter, bool inFav) {
     // ---- Функция обновления списка из БД при добавлении или удалении из избранного
 
-    for (int i = 0; i<EventListsManager.currentFeedEventsList.eventsList.length; i++){
-      // Если ID совпадает
-      if (EventListsManager.currentFeedEventsList.eventsList[i].id == entityId){
-        // Обновляем данные об состоянии этого заведения как избранного
-        EventListsManager.currentFeedEventsList.eventsList[i].addedToFavouritesCount = favCounter;
-        EventListsManager.currentFeedEventsList.eventsList[i].inFav = inFav;
+    for (EventCustom event in EventListsManager.currentFeedEventsList.eventsList){
+      if (event.id == entityId){
+        event.addedToFavouritesCount = favCounter;
+        event.inFav = inFav;
         break;
       }
     }
 
-    for (int i = 0; i<EventListsManager.currentFavEventsList.eventsList.length; i++){
-      // Если ID совпадает
-      if (EventListsManager.currentFavEventsList.eventsList[i].id == entityId){
-        // Обновляем данные об состоянии этого заведения как избранного
-        EventListsManager.currentFavEventsList.eventsList[i].addedToFavouritesCount = favCounter;
-        EventListsManager.currentFavEventsList.eventsList[i].inFav = inFav;
+    for (EventCustom event in EventListsManager.currentFavEventsList.eventsList){
+      if (event.id == entityId){
+        event.addedToFavouritesCount = favCounter;
+        event.inFav = inFav;
         break;
       }
     }
 
-    for (int i = 0; i<EventListsManager.currentMyEventsList.eventsList.length; i++){
-      // Если ID совпадает
-      if (EventListsManager.currentMyEventsList.eventsList[i].id == entityId){
-        // Обновляем данные об состоянии этого заведения как избранного
-        EventListsManager.currentMyEventsList.eventsList[i].addedToFavouritesCount = favCounter;
-        EventListsManager.currentMyEventsList.eventsList[i].inFav = inFav;
+    for (EventCustom event in EventListsManager.currentMyEventsList.eventsList){
+      if (event.id == entityId){
+        event.addedToFavouritesCount = favCounter;
+        event.inFav = inFav;
         break;
       }
     }

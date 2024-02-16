@@ -21,17 +21,12 @@ class EventCategoryAddOrEditScreenState extends State<EventCategoryAddOrEditScre
 
   final TextEditingController _categoryNameController = TextEditingController();
 
-  // Переменная, включающая экран загрузки
   bool loading = false;
-
-  // --- Инициализируем состояние ----
 
   @override
   void initState() {
     super.initState();
-    // Влючаем экран загрузки
     loading = false;
-    // Если передан город для редактирования, устанавливаем его название в поле ввода
     if (widget.eventCategory != null) {
       _categoryNameController.text = widget.eventCategory!.name;
     }
@@ -44,14 +39,20 @@ class EventCategoryAddOrEditScreenState extends State<EventCategoryAddOrEditScre
     );
   }
 
+  void _showSnackBar(String message, Color color, int showTime) {
+    showSnackBar(context, message, color, showTime);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           title: Text(widget.eventCategory != null ? 'Редактирование категории мероприятия' : 'Создание категории мероприятия'),
 
+          // --- КНОПКА НАЗАД -----
+
           // Задаем особый выход на кнопку назад
-          // Чтобы не плодились экраны назад с разным списком городов
+          // Чтобы не плодились экраны назад с разным списком
 
           leading: IconButton(
             icon: const Icon(Icons.chevron_left),
@@ -66,7 +67,7 @@ class EventCategoryAddOrEditScreenState extends State<EventCategoryAddOrEditScre
           ),
         ),
 
-        // --- Само тело страницы ----
+        // --- САМА СТРАНИЦА ----
 
         body: Stack(
           children: [
@@ -77,7 +78,7 @@ class EventCategoryAddOrEditScreenState extends State<EventCategoryAddOrEditScre
                 children: [
                   const SizedBox(height: 40.0),
 
-                  // ---- Поле ввода города ---
+                  // ---- ПОЛЕ ВВОДА ---
 
                   TextField(
                     style: Theme.of(context).textTheme.bodyMedium,
@@ -91,15 +92,14 @@ class EventCategoryAddOrEditScreenState extends State<EventCategoryAddOrEditScre
 
                   const SizedBox(height: 40.0),
 
-                  // ---- Кнопка опубликовать -----
+                  // ---- КНОПКА ОПУБЛИИКОВАТЬ -----
 
                   // TODO Пока публикуется сделать экран загрузки
                   CustomButton(
                       buttonText: 'Опубликовать',
                       onTapMethod: (){
                         if (_categoryNameController.text == ''){
-                          showSnackBar(
-                            context,
+                          _showSnackBar(
                               'Название категории должно быть обязательно заполнено!',
                               AppColors.attentionRed,
                               2
@@ -111,7 +111,7 @@ class EventCategoryAddOrEditScreenState extends State<EventCategoryAddOrEditScre
                       }
                   ),
 
-                  SizedBox(height: 20.0),
+                  const SizedBox(height: 20.0),
 
                   // -- Кнопка отменить ----
 
@@ -137,7 +137,10 @@ class EventCategoryAddOrEditScreenState extends State<EventCategoryAddOrEditScre
 
   void _publishEventCategory() async {
 
-    loading = true;
+    setState(() {
+      loading = true;
+    });
+
 
     String categoryName = _categoryNameController.text;
 
@@ -150,13 +153,13 @@ class EventCategoryAddOrEditScreenState extends State<EventCategoryAddOrEditScre
     String result = await publishedEventCategory.addOrEditEntityInDb();
 
     if (result == 'success'){
-      loading = false;
-      showSnackBar(context, 'Категория успешно опубликована', Colors.green, 3);
-      // Возвращаемся на экран списка городов
-      // TODO - Вывести переход на страницу выше, за пределы виджета
+      setState(() {
+        loading = false;
+      });
+      _showSnackBar('Категория успешно опубликована', Colors.green, 3);
       navigateToEventCategoriesListScreen();
     } else {
-      // TODO Сделать обработчик ошибок, если публикация города не удалась
+      // TODO Сделать обработчик ошибок, если публикация не удалась
     }
   }
 }

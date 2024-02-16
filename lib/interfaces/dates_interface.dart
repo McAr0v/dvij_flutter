@@ -5,5 +5,4 @@ abstract class IDates<T> {
   T generateDateForEntity(Map<String, dynamic> mapOfArguments);
   bool todayOrNot();
   bool checkDateForFilter(DateTime startPeriod, DateTime endPeriod);
-
 }

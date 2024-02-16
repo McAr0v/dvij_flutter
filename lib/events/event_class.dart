@@ -308,7 +308,7 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
   }
 
   @override
-  Future getEntityByIdFromDb(String eventId) async {
+  Future<EventCustom> getEntityByIdFromDb(String eventId) async {
     EventCustom returnedEvent = EventCustom.emptyEvent;
 
     String path = 'events/$eventId/event_info';
@@ -344,7 +344,6 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
       String placePath = 'places/$placeId/events/$id';
       placePublishResult = await MixinDatabase.publishToDB(placePath, dataToCreatorAndPlace);
     }
-
 
     return checkSuccessFromDb(entityPublishResult, creatorPublishResult, placePublishResult, 'success');
   }

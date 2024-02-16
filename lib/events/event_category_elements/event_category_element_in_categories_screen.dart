@@ -1,6 +1,5 @@
 import 'package:dvij_flutter/events/event_category_class.dart';
 import 'package:flutter/material.dart';
-
 import '../event_categories_screens/event_category_add_or_edit_screen.dart';
 
 class EventCategoryElementInCategoriesScreen extends StatelessWidget {

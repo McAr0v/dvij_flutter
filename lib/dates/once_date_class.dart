@@ -108,7 +108,4 @@ class OnceDate with DateMixin implements IDates<OnceDate> {
   bool checkDateForFilter(DateTime startPeriod, DateTime endPeriod) {
     return DateMixin.dateIsInPeriod(startOnlyDate, startPeriod, endPeriod);
   }
-
-
-
 }

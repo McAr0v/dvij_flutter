@@ -45,7 +45,6 @@ class RegularDate with DateMixin, TimeMixin implements IDates<RegularDate> {
 
       if (DateMixin.dateIsBeforeEnd(tempDate, endPeriod)){
         filterWeekDays.add(tempDate.weekday-1);
-        print(tempDate.weekday-1);
       }
     }
 
