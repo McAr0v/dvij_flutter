@@ -1,4 +1,6 @@
 import 'package:dvij_flutter/events/event_class.dart';
+import 'package:dvij_flutter/events/events_list_class.dart';
+import 'package:dvij_flutter/events/events_list_manager.dart';
 import 'package:dvij_flutter/places/place_class.dart';
 import 'package:dvij_flutter/places/place_role_class.dart';
 import 'package:dvij_flutter/classes/role_in_app.dart';
@@ -135,9 +137,9 @@ class UserCustom {
       Place.currentMyPlaceList = [];
       Place.currentFeedPlaceList = [];
       Place.currentFavPlaceList = [];
-      EventCustom.currentFavEventsList = [];
-      EventCustom.currentFeedEventsList = [];
-      EventCustom.currentMyEventsList = [];
+      EventListsManager.currentFeedEventsList = EventsList();
+      EventListsManager.currentFavEventsList = EventsList();
+      EventListsManager.currentMyEventsList = EventsList();
       // TODO - добавить акции сюда как создам их экраны
       updateAccessLevel('');
       return 'success';
@@ -205,9 +207,9 @@ class UserCustom {
       Place.currentFeedPlaceList = [];
       Place.currentFavPlaceList = [];
       Place.currentMyPlaceList = [];
-      EventCustom.currentFavEventsList = [];
-      EventCustom.currentFeedEventsList = [];
-      EventCustom.currentMyEventsList = [];
+      EventListsManager.currentFeedEventsList = EventsList();
+      EventListsManager.currentFavEventsList = EventsList();
+      EventListsManager.currentMyEventsList = EventsList();
       // TODO - добавить акции сюда как создам их экраны
 
       // и возвращаем uid

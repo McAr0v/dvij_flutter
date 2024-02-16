@@ -7,7 +7,6 @@ import 'package:dvij_flutter/dates/regular_date_class.dart';
 import 'package:dvij_flutter/dates/time_mixin.dart';
 import 'package:dvij_flutter/events/event_category_class.dart';
 import 'package:dvij_flutter/classes/date_type_enum.dart';
-import 'package:dvij_flutter/events/events_list_class.dart';
 import 'package:dvij_flutter/places/place_class.dart';
 import 'package:dvij_flutter/classes/priceTypeOptions.dart';
 import 'package:dvij_flutter/elements/category_element_in_edit_screen.dart';
@@ -804,34 +803,31 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                               priceType: priceType
                           );
 
-                          String? editInDatabase = await event.createOrEditEvent();
+                          String? editInDatabase = await event.publishToDb();
 
                           // Если выгрузка успешна
                           if (editInDatabase == 'success') {
 
                             EventCustom newEvent = EventCustom.emptyEvent;
 
-                            newEvent = await newEvent.getEventById(eventId);
+                            newEvent = await newEvent.getEntityById(eventId);
 
                             if (widget.eventInfo.placeId != '' && widget.eventInfo.placeId != chosenPlace.id) {
 
-                              await EventCustom.deleteEventIdFromPlace(eventId, widget.eventInfo.placeId);
+                              await widget.eventInfo.deleteEntityIdFromPlace(widget.eventInfo.placeId);
 
                             }
 
                             // Если в передаваемом месте нет имени, т.е это создание
                             if (widget.eventInfo.headline == ''){
                               // То добавляем в списки новое созданное место
-
-                              EventCustom.currentFeedEventsList.add(newEvent);
-                              EventCustom.currentMyEventsList.add(newEvent);
-
+                              newEvent.addEntityToCurrentEventLists();
                             } else {
-
                               // Если редактирование, удаляем старое объявление
-                              event.deleteEntityFromCurrentEventLists();
+                              event.deleteEntityFromCurrentEntityLists();
+
                               // Добавляем отредактированное
-                              newEvent.addEntityFromCurrentEventLists();
+                              newEvent.addEntityToCurrentEventLists();
                             }
 
                             // Выключаем экран загрузки

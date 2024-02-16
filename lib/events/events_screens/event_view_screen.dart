@@ -1,19 +1,15 @@
 import 'package:dvij_flutter/dates/date_mixin.dart';
-import 'package:dvij_flutter/dates/time_mixin.dart';
 import 'package:dvij_flutter/events/event_class.dart';
 import 'package:dvij_flutter/elements/text_and_icons_widgets/headline_and_desc.dart';
 import 'package:dvij_flutter/elements/shedule_elements/shedule_once_and_long_widget.dart';
 import 'package:dvij_flutter/elements/social_elements/social_buttons_widget.dart';
 import 'package:dvij_flutter/elements/user_element_widget.dart';
-import 'package:dvij_flutter/methods/date_functions.dart';
-import 'package:dvij_flutter/methods/price_methods.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import '../../cities/city_class.dart';
 import '../../places/places_elements/place_widget_in_view_screen_in_event_and_promo.dart';
 import '../../places/places_screen/place_view_screen.dart';
-import '../event_category_class.dart';
 import '../../classes/date_type_enum.dart';
 import '../../places/place_class.dart';
 import '../../places/place_role_class.dart';
@@ -24,7 +20,6 @@ import '../../elements/text_and_icons_widgets/for_cards_small_widget_with_icon_a
 import '../../elements/loading_screen.dart';
 import '../../elements/shedule_elements/schedule_regular_and_irregular_widget.dart';
 import '../../elements/snack_bar.dart';
-import '../../methods/days_functions.dart';
 import '../events_elements/today_widget.dart';
 import 'create_or_edit_event_screen.dart';
 
@@ -36,10 +31,10 @@ class EventViewScreen extends StatefulWidget {
   const EventViewScreen({Key? key, required this.eventId}) : super(key: key);
 
   @override
-  _EventViewScreenState createState() => _EventViewScreenState();
+  EventViewScreenState createState() => EventViewScreenState();
 }
 
-class _EventViewScreenState extends State<EventViewScreen> {
+class EventViewScreenState extends State<EventViewScreen> {
 
   // ---- Инициализируем пустые переменные ----
 
@@ -194,13 +189,13 @@ class _EventViewScreenState extends State<EventViewScreen> {
                                 if (inFav)
                                 {
 
-                                  String resDel = await EventCustom.deleteEventFromFav(event.id);
+                                  String resDel = await event.deleteFromFav();
 
                                   if (resDel == 'success'){
                                     setState(() {
                                       inFav = false;
                                       favCounter --;
-                                      event.updateCurrentEventListFavInformation();
+                                      event.updateCurrentListFavInformation();
                                       //EventCustom.updateCurrentEventListFavInformation(event.id, favCounter, inFav);
                                     });
 
@@ -215,13 +210,14 @@ class _EventViewScreenState extends State<EventViewScreen> {
 
                                 }
                                 else {
-                                  String res = await EventCustom.addEventToFav(event.id);
+                                  String res = await event.addToFav();
+
                                   if (res == 'success') {
 
                                     setState(() {
                                       inFav = true;
                                       favCounter ++;
-                                      event.updateCurrentEventListFavInformation();
+                                      event.updateCurrentListFavInformation();
                                       //EventCustom.updateCurrentEventListFavInformation(event.id, favCounter, inFav);
                                     });
 
@@ -522,11 +518,11 @@ class _EventViewScreenState extends State<EventViewScreen> {
                                 deleting = true;
                               });
 
-                              String delete = await event.deleteEvent();
+                              String delete = await event.deleteFromDb();
 
                               if (delete == 'success'){
 
-                                event.deleteEntityFromCurrentEventLists();
+                                event.deleteEntityFromCurrentEntityLists();
                                 //EventCustom.deleteEventFromCurrentEventLists(widget.eventId);
                                 //Place.deletePlaceFormCurrentPlaceLists(widget.eventId);
 

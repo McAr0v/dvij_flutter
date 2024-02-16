@@ -44,8 +44,8 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
 
         EventCustom event = EventCustom.fromSnapshot(childSnapshot.child('event_info'));
 
-        event.inFav = await EventCustom.addedInFavOrNot(event.id);
-        event.addedToFavouritesCount = await EventCustom.getFavCount(event.id);
+        event.inFav = await event.addedInFavOrNot();
+        event.addedToFavouritesCount = await event.getFavCount();
 
         EventListsManager.currentFeedEventsList.eventsList.add(event);
         events.eventsList.add(event);
@@ -100,7 +100,7 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
         for (String event in eventsId){
 
           EventCustom temp = EventCustom.emptyEvent;
-          temp = await temp.getEventById(event);
+          temp = await temp.getEntityById(event);
 
           if (temp.id != ''){
             EventListsManager.currentFavEventsList.eventsList.add(temp);
@@ -156,7 +156,7 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
         // Если список ленты не прогружен, то считываем каждую сущность из БД
         for (var event in eventsId){
           EventCustom temp = EventCustom.emptyEvent;
-          temp = await temp.getEventById(event);
+          temp = await temp.getEntityById(event);
           if (temp.id != ''){
             EventListsManager.currentMyEventsList.eventsList.add(temp);
             events.eventsList.add(temp);
@@ -188,7 +188,7 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
   }
 
   @override
-  EventsList filterLists(Map<String, dynamic> mapOfArguments) {
+  void filterLists(Map<String, dynamic> mapOfArguments) {
 
     EventCategory eventCategoryFromFilter = mapOfArguments['eventCategoryFromFilter'];
     City cityFromFilter = mapOfArguments['cityFromFilter'];
@@ -202,13 +202,7 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
 
     for (EventCustom event in eventsList){
       bool result = event.checkFilter(
-          eventCategoryFromFilter,
-          cityFromFilter,
-          freePrice,
-          today,
-          onlyFromPlaceEvents,
-          selectedStartDatePeriod,
-          selectedEndDatePeriod
+          generateMapForFilter(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, selectedStartDatePeriod, selectedEndDatePeriod)
       );
 
       if (result) {
@@ -216,7 +210,7 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
       }
     }
     // Возвращаем список
-    return events;
+    eventsList = events.eventsList;
   }
 
   @override
@@ -295,15 +289,15 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
   Future<EventsList> getEntitiesFromStringList(String listInString, {String decimal = ','}) async {
     EventsList eventsList = EventsList();
 
-    List<String> splittedString = listInString.split(decimal);
+    List<String> splintedString = listInString.split(decimal);
 
-    for (int i = 0; i < splittedString.length; i++){
-      EventCustom tempEvent = eventsList.getEntityFromFeedListById(splittedString[i]);
+    for (int i = 0; i < splintedString.length; i++){
+      EventCustom tempEvent = eventsList.getEntityFromFeedListById(splintedString[i]);
 
       if (tempEvent.id != ''){
         eventsList.eventsList.add(tempEvent);
       } else {
-        tempEvent = await tempEvent.getEventById(splittedString[i]);
+        tempEvent = await tempEvent.getEntityById(splintedString[i]);
         if (tempEvent.id != ''){
           eventsList.eventsList.add(tempEvent);
         }

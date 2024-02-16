@@ -365,7 +365,7 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
                                       if (eventsList.eventsList[indexWithAddCountCorrection].inFav == true)
                                       {
                                         // --- Удаляем из избранных ---
-                                        String resDel = await EventCustom.deleteEventFromFav(eventsList.eventsList[indexWithAddCountCorrection].id);
+                                        String resDel = await eventsList.eventsList[indexWithAddCountCorrection].deleteFromFav();
                                         // ---- Инициализируем счетчик -----
                                         int favCounter = eventsList.eventsList[indexWithAddCountCorrection].addedToFavouritesCount!;
 
@@ -377,7 +377,7 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
                                             favCounter --;
                                             eventsList.eventsList[indexWithAddCountCorrection].addedToFavouritesCount = favCounter;
                                             // Обновляем общий список из БД
-                                            eventsList.eventsList[indexWithAddCountCorrection].updateCurrentEventListFavInformation();
+                                            eventsList.eventsList[indexWithAddCountCorrection].updateCurrentListFavInformation();
                                             //EventCustom.updateCurrentEventListFavInformation(eventsList[indexWithAddCountCorrection].id, favCounter, false);
 
                                           });
@@ -391,7 +391,7 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
                                         // --- Если заведение не в избранном ----
 
                                         // -- Добавляем в избранное ----
-                                        String res = await EventCustom.addEventToFav(eventsList.eventsList[indexWithAddCountCorrection].id);
+                                        String res = await eventsList.eventsList[indexWithAddCountCorrection].addToFav();
 
                                         // ---- Инициализируем счетчик добавивших в избранное
                                         int favCounter = eventsList.eventsList[indexWithAddCountCorrection].addedToFavouritesCount!;
@@ -404,7 +404,7 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
                                             favCounter ++;
                                             eventsList.eventsList[indexWithAddCountCorrection].addedToFavouritesCount = favCounter;
                                             // Обновляем список из БД
-                                            eventsList.eventsList[indexWithAddCountCorrection].updateCurrentEventListFavInformation();
+                                            eventsList.eventsList[indexWithAddCountCorrection].updateCurrentListFavInformation();
                                             //EventCustom.updateCurrentEventListFavInformation(eventsList[indexWithAddCountCorrection].id, favCounter, true);
                                           });
 
@@ -497,7 +497,7 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
       //List<EventCustom> tempList = [];
       //tempList = EventCustom.currentFeedEventsList;
 
-      eventsList = EventListsManager.currentFeedEventsList;
+      eventsList.eventsList = EventListsManager.currentFeedEventsList.eventsList;
 
       // --- Фильтруем список согласно новым выбранным данным из фильтра ----
       setState(() {
@@ -517,9 +517,10 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
 
       });
 
-      allElementsList = AdUser.generateIndexedList(adIndexesList, eventsList.eventsList.length);
+
 
       setState(() {
+        allElementsList = AdUser.generateIndexedList(adIndexesList, eventsList.eventsList.length);
         loading = false;
       });
     }

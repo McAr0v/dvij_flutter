@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../ads/ad_user_class.dart';
-import '../event_class.dart';
 import '../../classes/pair.dart';
 import '../../classes/user_class.dart';
 import '../../elements/loading_screen.dart';
@@ -24,12 +23,12 @@ class EventsFavPage extends StatefulWidget {
   const EventsFavPage({Key? key}) : super(key: key);
 
   @override
-  _EventsFavPageState createState() => _EventsFavPageState();
+  EventsFavPageState createState() => EventsFavPageState();
 }
 
 
 
-class _EventsFavPageState extends State<EventsFavPage> {
+class EventsFavPageState extends State<EventsFavPage> {
 
   // --- ОБЪЯВЛЯЕМ ПЕРЕМЕННЫЕ -----
 
@@ -73,6 +72,10 @@ class _EventsFavPageState extends State<EventsFavPage> {
   int adStep = 2;
   // --- Индекс первого рекламного элемента
   int firstIndexOfAd = 1;
+
+  void _showSnackBar(String text, Color color, int showSeconds){
+    showSnackBar(context, text, color, showSeconds);
+  }
 
   @override
   void initState(){
@@ -143,18 +146,6 @@ class _EventsFavPageState extends State<EventsFavPage> {
           )
       );
     });
-    /*setState(() {
-      eventsList = EventCustom.filterEvents(
-          eventCategoryFromFilter,
-          cityFromFilter,
-          freePrice,
-          today,
-          onlyFromPlaceEvents,
-          tempEventsList,
-          selectedStartDatePeriod,
-          selectedEndDatePeriod
-      );
-    });*/
 
     // --- Считываем индексы, где будет стоять реклама ----
 
@@ -189,13 +180,6 @@ class _EventsFavPageState extends State<EventsFavPage> {
             if (UserCustom.currentUser?.uid != null || UserCustom.currentUser?.uid != ''){
 
               eventsList.getFavListFromDb(UserCustom.currentUser!.uid, refresh: true);
-
-              //List<EventCustom> tempEventsList = await EventCustom.getFavEvents(UserCustom.currentUser!.uid, refresh: true);
-
-              /*setState(() {
-                eventsList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempEventsList, selectedStartDatePeriod, selectedEndDatePeriod);
-
-              });*/
 
               setState(() {
                 eventsList.filterLists(
@@ -286,7 +270,6 @@ class _EventsFavPageState extends State<EventsFavPage> {
                                 onChanged: (EventSortingOption? newValue) {
                                   setState(() {
                                     _selectedSortingOption = newValue!;
-                                    //EventCustom.sortEvents(_selectedSortingOption, eventsList);
                                     eventsList.sortEntitiesList(_selectedSortingOption);
                                   });
                                 },
@@ -384,34 +367,42 @@ class _EventsFavPageState extends State<EventsFavPage> {
                                       // --- Если уже в избранном ----
                                       if (eventsList.eventsList[indexWithAddCountCorrection].inFav == true)
                                       {
-                                        // --- Удаляем из избранных ---
-                                        String resDel = await EventCustom.deleteEventFromFav(eventsList.eventsList[indexWithAddCountCorrection].id);
-                                        // ---- Инициализируем счетчик -----
                                         int favCounter = eventsList.eventsList[indexWithAddCountCorrection].addedToFavouritesCount!;
+                                        setState(() {
+                                          loading = true;
+                                          // Обновляем текущий список
+                                          eventsList.eventsList[indexWithAddCountCorrection].inFav = false;
+                                          favCounter --;
+                                          eventsList.eventsList[indexWithAddCountCorrection].addedToFavouritesCount = favCounter;
+                                          // Обновляем общий список из БД
+                                          eventsList.eventsList[indexWithAddCountCorrection].updateCurrentListFavInformation();
+
+                                          //EventCustom.updateCurrentEventListFavInformation(eventsList[indexWithAddCountCorrection].id, favCounter, false);
+
+                                        });
+                                        // --- Удаляем из избранных ---
+                                        String resDel = await eventsList.eventsList[indexWithAddCountCorrection].deleteFromFav();
+
+                                        setState(() {
+                                          eventsList.eventsList = EventListsManager.currentFavEventsList.eventsList;
+                                          allElementsList = AdUser.generateIndexedList(adIndexesList, eventsList.eventsList.length);
+                                          loading = false;
+                                        });
 
                                         if (resDel == 'success'){
                                           // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
-                                          setState(() {
-                                            // Обновляем текущий список
-                                            eventsList.eventsList[indexWithAddCountCorrection].inFav = false;
-                                            favCounter --;
-                                            eventsList.eventsList[indexWithAddCountCorrection].addedToFavouritesCount = favCounter;
-                                            // Обновляем общий список из БД
-                                            eventsList.eventsList[indexWithAddCountCorrection].updateCurrentEventListFavInformation();
-                                            //EventCustom.updateCurrentEventListFavInformation(eventsList[indexWithAddCountCorrection].id, favCounter, false);
+                                          _showSnackBar('Удалено из избранных', AppColors.attentionRed, 1);
 
-                                          });
-                                          showSnackBar(context, 'Удалено из избранных', AppColors.attentionRed, 1);
                                         } else {
                                           // Если удаление из избранных не прошло, показываем сообщение
-                                          showSnackBar(context, resDel, AppColors.attentionRed, 1);
+                                          _showSnackBar(resDel, AppColors.attentionRed, 1);
                                         }
                                       }
                                       else {
                                         // --- Если заведение не в избранном ----
 
                                         // -- Добавляем в избранное ----
-                                        String res = await EventCustom.addEventToFav(eventsList.eventsList[indexWithAddCountCorrection].id);
+                                        String res = await eventsList.eventsList[indexWithAddCountCorrection].addToFav();
 
                                         // ---- Инициализируем счетчик добавивших в избранное
                                         int favCounter = eventsList.eventsList[indexWithAddCountCorrection].addedToFavouritesCount!;
@@ -424,18 +415,21 @@ class _EventsFavPageState extends State<EventsFavPage> {
                                             favCounter ++;
                                             eventsList.eventsList[indexWithAddCountCorrection].addedToFavouritesCount = favCounter;
 
-                                            eventsList.eventsList[indexWithAddCountCorrection].updateCurrentEventListFavInformation();
+                                            eventsList.eventsList[indexWithAddCountCorrection].updateCurrentListFavInformation();
+
+                                            eventsList = EventsList();
+                                            eventsList = EventListsManager.currentFavEventsList;
+                                            allElementsList = AdUser.generateIndexedList(adIndexesList, eventsList.eventsList.length);
 
                                             // Обновляем список из БД
                                             //EventCustom.updateCurrentEventListFavInformation(eventsList[indexWithAddCountCorrection].id, favCounter, true);
 
                                           });
-
-                                          showSnackBar(context, 'Добавлено в избранные', Colors.green, 1);
+                                          _showSnackBar('Добавлено в избранные', Colors.green, 1);
 
                                         } else {
                                           // Если добавление прошло неудачно, отображаем всплывающее окно
-                                          showSnackBar(context , res, AppColors.attentionRed, 1);
+                                          _showSnackBar(res, AppColors.attentionRed, 1);
                                         }
                                       }
                                     }
@@ -517,12 +511,11 @@ class _EventsFavPageState extends State<EventsFavPage> {
       });
 
       // --- Заново подгружаем список из БД ---
-      eventsList = EventListsManager.currentFavEventsList;
+      eventsList.eventsList = EventListsManager.currentFavEventsList.eventsList;
       //tempList = EventCustom.currentFavEventsList;
 
       // --- Фильтруем список согласно новым выбранным данным из фильтра ----
       setState(() {
-        //eventsList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempList, selectedStartDatePeriod, selectedEndDatePeriod);
         eventsList.filterLists(
             eventsList.generateMapForFilter(
                 eventCategoryFromFilter,
@@ -536,9 +529,10 @@ class _EventsFavPageState extends State<EventsFavPage> {
         );
       });
 
-      allElementsList = AdUser.generateIndexedList(adIndexesList, eventsList.eventsList.length);
+
 
       setState(() {
+        allElementsList = AdUser.generateIndexedList(adIndexesList, eventsList.eventsList.length);
         loading = false;
       });
     }

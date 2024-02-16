@@ -5,7 +5,7 @@ abstract class ILists<T, K, J>{
   Future<T> getFavListFromDb(String userId, {bool refresh = false});
   Future<T> getMyListFromDb(String userId, {bool refresh = false});
   K getEntityFromFeedListById(String id);
-  T filterLists(Map<String, dynamic> mapOfArguments);
+  void filterLists(Map<String, dynamic> mapOfArguments);
   void sortEntitiesList(J sorting);
   void deleteEntityFromCurrentFavList(String entityId);
   void addEntityToCurrentFavList(String entityId);

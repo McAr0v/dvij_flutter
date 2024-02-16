@@ -503,7 +503,8 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                                       if (eventsInThatPlace.eventsList[index].inFav!)
                                       {
                                         // --- Удаляем из избранных ---
-                                        String resDel = await EventCustom.deleteEventFromFav(eventsInThatPlace.eventsList[index].id);
+
+                                        String resDel = await eventsInThatPlace.eventsList[index].deleteFromFav();
                                         // ---- Инициализируем счетчик -----
                                         int favCounter = eventsInThatPlace.eventsList[index].addedToFavouritesCount!;
 
@@ -515,7 +516,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                                             favCounter --;
                                             eventsInThatPlace.eventsList[index].addedToFavouritesCount = favCounter;
                                             // Обновляем общий список из БД
-                                            eventsInThatPlace.eventsList[index].updateCurrentEventListFavInformation();
+                                            eventsInThatPlace.eventsList[index].updateCurrentListFavInformation();
                                             //EventCustom.updateCurrentEventListFavInformation(eventsInThatPlace[index].id, favCounter, false);
 
                                           });
@@ -529,7 +530,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                                         // --- Если заведение не в избранном ----
 
                                         // -- Добавляем в избранное ----
-                                        String res = await EventCustom.addEventToFav(eventsInThatPlace.eventsList[index].id);
+                                        String res = await eventsInThatPlace.eventsList[index].addToFav();
 
                                         // ---- Инициализируем счетчик добавивших в избранное
                                         int favCounter = eventsInThatPlace.eventsList[index].addedToFavouritesCount!;
@@ -543,7 +544,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                                             eventsInThatPlace.eventsList[index].addedToFavouritesCount = favCounter;
                                             // Обновляем список из БД
                                             //EventCustom.updateCurrentEventListFavInformation(eventsInThatPlace[index].id, favCounter, true);
-                                            eventsInThatPlace.eventsList[index].updateCurrentEventListFavInformation();
+                                            eventsInThatPlace.eventsList[index].updateCurrentListFavInformation();
                                           });
 
                                           showSnackBar(context, 'Добавлено в избранные', Colors.green, 1);

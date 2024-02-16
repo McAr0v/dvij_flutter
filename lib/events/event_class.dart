@@ -11,12 +11,12 @@ import 'package:dvij_flutter/dates/regular_date_class.dart';
 import 'package:dvij_flutter/dates/time_mixin.dart';
 import 'package:dvij_flutter/events/events_list_class.dart';
 import 'package:dvij_flutter/filters/filter_mixin.dart';
+import 'package:dvij_flutter/interfaces/entity_interface.dart';
 import 'package:firebase_database/firebase_database.dart';
 import '../methods/date_functions.dart';
 import 'event_category_class.dart';
-import 'event_sorting_options.dart';
 
-class EventCustom with MixinDatabase, DateMixin, TimeMixin {
+class EventCustom with MixinDatabase, DateMixin, TimeMixin implements IEntity{
   String id;
   DateTypeEnum dateType;
   String headline;
@@ -141,10 +141,6 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
     );
   }
 
-  static List<EventCustom> currentFeedEventsList = [];
-  static List<EventCustom> currentFavEventsList = [];
-  static List<EventCustom> currentMyEventsList = [];
-
   static EventCustom emptyEvent = EventCustom(
       id: '',
       dateType: DateTypeEnum.once,
@@ -197,7 +193,103 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
     );
   }
 
-  Map<String, dynamic> generateEventDataCode() {
+
+
+
+
+  @override
+  void addEntityToCurrentEventLists() {
+    EventsList eventsList = EventsList();
+    eventsList.addEntityFromCurrentEventLists(this);
+  }
+
+  @override
+  Future<String> addToFav() async {
+    EventsList favEvents = EventsList();
+
+    if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
+
+      String eventPath = 'events/$id/addedToFavourites/${UserCustom.currentUser?.uid}';
+      String userPath = 'users/${UserCustom.currentUser?.uid}/favEvents/$id';
+
+      Map<String, dynamic> eventData = MixinDatabase.generateDataCode('userId', UserCustom.currentUser?.uid);
+      Map<String, dynamic> userData = MixinDatabase.generateDataCode('eventId', id);
+
+      String eventPublish = await MixinDatabase.publishToDB(eventPath, eventData);
+      String userPublish = await MixinDatabase.publishToDB(userPath, userData);
+
+      favEvents.addEntityToCurrentFavList(id);
+
+      String result = 'success';
+
+      if (eventPublish != 'success') result = eventPublish;
+      if (userPublish != 'success') result = userPublish;
+
+      return result;
+
+    } else {
+      return 'Пользователь не зарегистрирован';
+    }
+  }
+
+  @override
+  Future<String> deleteEntityIdFromPlace(String placeId) async {
+    String placePath = 'places/$placeId/events/$id';
+    return await MixinDatabase.deleteFromDb(placePath);
+  }
+
+  @override
+  Future<String> deleteFromDb() async {
+    String entityPath = 'events/$id';
+    String creatorPath = 'users/$creatorId/myEvents/$id';
+    String placePath = 'places/$placeId/events/$id';
+    String inFavPath = 'users/${UserCustom.currentUser?.uid ?? ''}/favEvents/$id';
+
+    String placeDeleteResult = 'success';
+    String inFavListDeleteResult = 'success';
+    String entityDeleteResult = await MixinDatabase.deleteFromDb(entityPath);
+    String creatorDeleteResult = await MixinDatabase.deleteFromDb(creatorPath);
+    if (placeId != ''){
+      placeDeleteResult = await MixinDatabase.deleteFromDb(placePath);
+    }
+
+    if (inFav != null){
+      if (inFav!){
+        inFavListDeleteResult = await MixinDatabase.deleteFromDb(inFavPath);
+      }
+    }
+
+    return checkSuccessFromDb(entityDeleteResult, creatorDeleteResult, placeDeleteResult, inFavListDeleteResult);
+  }
+
+  @override
+  Future<String> deleteFromFav() async {
+    EventsList favEvents = EventsList();
+
+    if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
+
+      String eventPath = 'events/$id/addedToFavourites/${UserCustom.currentUser?.uid}';
+      String userPath = 'users/${UserCustom.currentUser?.uid}/favEvents/$id';
+
+      String eventDelete = await MixinDatabase.deleteFromDb(eventPath);
+      String userDelete = await MixinDatabase.deleteFromDb(userPath);
+
+      favEvents.deleteEntityFromCurrentFavList(id);
+
+      String result = 'success';
+
+      if (eventDelete != 'success') result = eventDelete;
+      if (userDelete != 'success') result = userDelete;
+
+      return result;
+
+    } else {
+      return 'Пользователь не зарегистрирован';
+    }
+  }
+
+  @override
+  Map<String, dynamic> generateEntityDataCode() {
     DateTypeEnumClass dateTypeEnumClass = DateTypeEnumClass();
     PriceTypeEnumClass priceTypeEnumClass = PriceTypeEnumClass();
 
@@ -227,20 +319,34 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
     };
   }
 
-  void updateCurrentEventListFavInformation(){
-    EventsList eventsList = EventsList();
-    eventsList.updateCurrentListFavInformation(id, addedToFavouritesCount!, inFav!);
+  @override
+  Future getEntityById(String eventId) async {
+    EventCustom returnedEvent = EventCustom.empty();
+
+    String path = 'events/$eventId/event_info';
+
+    DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB(path);
+
+    if (snapshot != null){
+      EventCustom event = EventCustom.fromSnapshot(snapshot);
+
+      event.inFav = await event.addedInFavOrNot();
+      event.addedToFavouritesCount = await event.getFavCount();
+
+      returnedEvent = event;
+    }
+    // Возвращаем список
+    return returnedEvent;
   }
 
-  // --- ФУНКЦИЯ ЗАПИСИ ДАННЫХ -----
-  Future<String> createOrEditEvent() async {
-
+  @override
+  Future<String> publishToDb() async {
     String placePublishResult = 'success';
     String entityPath = 'events/$id/event_info';
     String creatorPath = 'users/$creatorId/myEvents/$id';
 
 
-    Map<String, dynamic> data = generateEventDataCode();
+    Map<String, dynamic> data = generateEntityDataCode();
     Map<String, dynamic> dataToCreatorAndPlace = MixinDatabase.generateDataCode('eventId', id);
 
     String entityPublishResult = await MixinDatabase.publishToDB(entityPath, data);
@@ -253,47 +359,6 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
 
 
     return checkSuccessFromDb(entityPublishResult, creatorPublishResult, placePublishResult, 'success');
-
-  }
-
-  Future<String> deleteEvent() async {
-
-    String entityPath = 'events/$id';
-    String creatorPath = 'users/$creatorId/myEvents/$id';
-    String placePath = 'places/$placeId/events/$id';
-    String inFavPath = 'users/${UserCustom.currentUser?.uid ?? ''}/favEvents/$id';
-
-    String placeDeleteResult = 'success';
-    String inFavListDeleteResult = 'success';
-    String entityDeleteResult = await MixinDatabase.deleteFromDb(entityPath);
-    String creatorDeleteResult = await MixinDatabase.deleteFromDb(creatorPath);
-    if (placeId != ''){
-      placeDeleteResult = await MixinDatabase.deleteFromDb(placePath);
-    }
-
-    if (inFav != null){
-      if (inFav!){
-          inFavListDeleteResult = await MixinDatabase.deleteFromDb(inFavPath);
-      }
-    }
-
-    return checkSuccessFromDb(entityDeleteResult, creatorDeleteResult, placeDeleteResult, inFavListDeleteResult);
-
-  }
-
-  void deleteEntityFromCurrentEventLists(){
-    EventsList eventsList = EventsList();
-    eventsList.deleteEntityFromCurrentEventLists(id);
-  }
-
-  void addEntityFromCurrentEventLists(){
-    EventsList eventsList = EventsList();
-    eventsList.addEntityFromCurrentEventLists(this);
-  }
-
-  EventCustom getEntityFromFeedList(String id){
-    EventsList eventsList = EventsList();
-    return eventsList.getEntityFromFeedListById(id);
   }
 
   static String checkSuccessFromDb(
@@ -315,188 +380,29 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
     }
   }
 
-  static Future<String> deleteEventIdFromPlace(
-      String eventId,
-      String placeId
-      ) async {
-      String placePath = 'places/$placeId/events/$eventId';
-      return await MixinDatabase.deleteFromDb(placePath);
+  @override
+  void updateCurrentListFavInformation() {
+    EventsList eventsList = EventsList();
+    eventsList.updateCurrentListFavInformation(id, addedToFavouritesCount!, inFav!);
   }
 
-  /*static Future<List<EventCustom>> getAllEvents() async {
+  @override
+  Future<bool> addedInFavOrNot() async {
+    if (UserCustom.currentUser?.uid != null)
+    {
+      DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB('events/$id/addedToFavourites/${UserCustom.currentUser?.uid}');
 
-    List<EventCustom> events = [];
-    currentFeedEventsList = [];
-
-    DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB('events');
-
-    if (snapshot != null) {
-      for (var childSnapshot in snapshot.children) {
-
-        EventCustom event = EventCustom.fromSnapshot(childSnapshot.child('event_info'));
-
-        event.inFav = await EventCustom.addedInFavOrNot(event.id);
-        event.addedToFavouritesCount = await EventCustom.getFavCount(event.id);
-
-        currentFeedEventsList.add(event);
-        events.add(event);
-
-      }
-    }
-    return events;
-  }*/
-
-  /*static Future<List<EventCustom>> getFavEvents(String userId, {bool refresh = false}) async {
-
-    List<EventCustom> events = [];
-    currentFavEventsList = [];
-    List<String> eventsId = [];
-
-    // TODO !!! Сделать загрузку списка избранного при загрузке информации пользователя. Здесь обращаться к уже готовому списку
-    // TODO !!! Не забыть реализовать обновление списка избранных при добавлении и удалении из избранных
-    String favPath = 'users/$userId/favEvents/';
-    DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB(favPath);
-
-    if (snapshot != null) {
-      for (var childSnapshot in snapshot.children) {
-
-        DataSnapshot idSnapshot = childSnapshot.child('eventId');
-
-        if (idSnapshot.exists){
-          eventsId.add(idSnapshot.value.toString());
+      if (snapshot != null){
+        for (var childSnapshot in snapshot.children) {
+          if (childSnapshot.value == UserCustom.currentUser?.uid) return true;
         }
       }
     }
 
-    // Если список избранных ID не пустой
+    return false;
+  }
 
-    if (eventsId.isNotEmpty){
-
-      // Если список всей ленты не пустой и не была вызвана функция обновления, то будем забирать данные из него
-      if (currentFeedEventsList.isNotEmpty && !refresh){
-
-        for (String id in eventsId) {
-          EventCustom favEvent = getEventFromFeedListById(id);
-          if (favEvent.id != ''){
-            if (favEvent.id == id){
-              currentFavEventsList.add(favEvent);
-              events.add(favEvent);
-            }
-          }
-        }
-
-      } else {
-
-        // Если список ленты не прогружен, то считываем каждую сущность из БД
-        for (String event in eventsId){
-
-          EventCustom temp = EventCustom.emptyEvent;
-          temp = await temp.getEventById(event);
-
-          if (temp.id != ''){
-            currentFavEventsList.add(temp);
-            events.add(temp);
-          }
-        }
-      }
-    }
-    return events;
-  }*/
-
-  /*static EventCustom getEventFromFeedListById(String id){
-    return currentFeedEventsList.firstWhere((
-        element) => element.id == id, orElse: () => EventCustom.emptyEvent);
-  }*/
-
-  /*static EventCustom getEventFromFeedListById(String id){
-    EventCustom tempEvent = EventCustom.emptyEvent;
-  }*/
-
-  /*static Future<List<EventCustom>> getMyEvents(String userId, {bool refresh = false}) async {
-
-    List<EventCustom> events = [];
-    currentMyEventsList = [];
-    List<String> eventsId = [];
-
-    // TODO !!! Сделать загрузку списка моих сущностей при загрузке информации пользователя. Здесь обращаться к уже готовому списку
-    // TODO !!! Не забыть реализовать обновление списка моих сущностей при добавлении и удалении из раздела мои
-    String favPath = 'users/$userId/myEvents/';
-    DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB(favPath);
-
-    if (snapshot != null) {
-      for (var childSnapshot in snapshot.children) {
-
-        DataSnapshot idSnapshot = childSnapshot.child('eventId');
-
-        if (idSnapshot.exists){
-          eventsId.add(idSnapshot.value.toString());
-        }
-      }
-    }
-
-    // Если список избранных ID не пустой, и не была вызвана функция обновления
-    if (eventsId.isNotEmpty){
-
-      // Если список всей ленты не пустой, то будем забирать данные из него
-      if (currentFeedEventsList.isNotEmpty && !refresh) {
-        for (String id in eventsId) {
-          EventCustom favEvent = getEventFromFeedListById(id);
-          if (favEvent.id == id) {
-            currentMyEventsList.add(favEvent);
-            events.add(favEvent);
-          }
-        }
-      } else {
-        // Если список ленты не прогружен, то считываем каждую сущность из БД
-        for (var event in eventsId){
-          EventCustom temp = EventCustom.emptyEvent;
-          temp = await temp.getEventById(event);
-          if (temp.id != ''){
-            currentMyEventsList.add(temp);
-            events.add(temp);
-          }
-        }
-      }
-    }
-    return events;
-  }*/
-
-
-  /*static List<EventCustom> filterEvents(
-      EventCategory eventCategoryFromFilter,
-      City cityFromFilter,
-      bool freePrice,
-      bool today,
-      bool onlyFromPlaceEvents,
-      List<EventCustom> eventsList,
-      DateTime selectedStartDatePeriod,
-      DateTime selectedEndDatePeriod,
-      ) {
-
-    List<EventCustom> events = [];
-
-    for (int i = 0; i<eventsList.length; i++){
-
-      bool result = checkFilter(
-        eventCategoryFromFilter,
-        cityFromFilter,
-        freePrice,
-        today,
-        onlyFromPlaceEvents,
-        eventsList[i],
-        selectedStartDatePeriod,
-        selectedEndDatePeriod
-      );
-
-      if (result) {
-        events.add(eventsList[i]);
-      }
-    }
-    // Возвращаем список
-    return events;
-  }*/
-
-  bool checkFilter (
+  Map<String, dynamic> generateMapForFilter(
       EventCategory eventCategoryFromFilter,
       City cityFromFilter,
       bool freePrice,
@@ -505,6 +411,27 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
       DateTime selectedStartDatePeriod,
       DateTime selectedEndDatePeriod,
       ) {
+    return {
+      'eventCategoryFromFilter': eventCategoryFromFilter,
+      'cityFromFilter': cityFromFilter,
+      'freePrice': freePrice,
+      'today': today,
+      'onlyFromPlaceEvents': onlyFromPlaceEvents,
+      'selectedStartDatePeriod': selectedStartDatePeriod,
+      'selectedEndDatePeriod': selectedEndDatePeriod,
+    };
+  }
+
+  @override
+  bool checkFilter(Map<String, dynamic> mapOfArguments) {
+
+    EventCategory eventCategoryFromFilter = mapOfArguments['eventCategoryFromFilter'];
+    City cityFromFilter = mapOfArguments['cityFromFilter'];
+    bool freePrice = mapOfArguments['freePrice'];
+    bool today = mapOfArguments['today'];
+    bool onlyFromPlaceEvents = mapOfArguments['onlyFromPlaceEvents'];
+    DateTime selectedStartDatePeriod = mapOfArguments['selectedStartDatePeriod'];
+    DateTime selectedEndDatePeriod = mapOfArguments['selectedEndDatePeriod'];
 
     City cityFromEvent = this.city;
     EventCategory categoryFromEvent = this.category;
@@ -517,214 +444,28 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin {
     bool checkDate = selectedStartDatePeriod == DateTime(2100) || FilterMixin.checkEventDatesForFilter(this, selectedStartDatePeriod, selectedEndDatePeriod);
 
     return category && city && checkFreePrice && checkToday && checkFromPlaceEvent && checkDate;
-
-
   }
 
-
-  /*static void sortEvents(EventSortingOption sorting, List<EventCustom> events) {
-
-    switch (sorting){
-
-      case EventSortingOption.nameAsc: events.sort((a, b) => a.headline.compareTo(b.headline)); break;
-
-      case EventSortingOption.nameDesc: events.sort((a, b) => b.headline.compareTo(a.headline)); break;
-
-      case EventSortingOption.favCountAsc: events.sort((a, b) => a.addedToFavouritesCount!.compareTo(b.addedToFavouritesCount!)); break;
-
-      case EventSortingOption.favCountDesc: events.sort((a, b) => b.addedToFavouritesCount!.compareTo(a.addedToFavouritesCount!)); break;
-
-    }
-
-  }*/
-
-  Future<EventCustom> getEventById(String eventId) async {
-
-    EventCustom returnedEvent = EventCustom.empty();
-
-    String path = 'events/$eventId/event_info';
-
-    DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB(path);
-
-    if (snapshot != null){
-      EventCustom event = EventCustom.fromSnapshot(snapshot);
-
-      event.inFav = await EventCustom.addedInFavOrNot(event.id);
-      event.addedToFavouritesCount = await EventCustom.getFavCount(event.id);
-
-      returnedEvent = event;
-    }
-    // Возвращаем список
-    return returnedEvent;
+  @override
+  void deleteEntityFromCurrentEntityLists() {
+    EventsList eventsList = EventsList();
+    eventsList.deleteEntityFromCurrentEventLists(id);
   }
 
+  @override
+  getEntityFromFeedList(String id) {
+    EventsList eventsList = EventsList();
+    return eventsList.getEntityFromFeedListById(id);
+  }
 
-
-  static Future<int> getFavCount(String eventId) async {
-
-    DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB('events/$eventId/addedToFavourites');
+  @override
+  Future<int> getFavCount() async {
+    DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB('events/$id/addedToFavourites');
 
     if (snapshot != null) {
       return snapshot.children.length;
     } else {
       return 0;
     }
-
   }
-
-  static Future<bool> addedInFavOrNot(String eventId) async {
-
-    if (UserCustom.currentUser?.uid != null)
-    {
-      DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB('events/$eventId/addedToFavourites/${UserCustom.currentUser?.uid}');
-
-      if (snapshot != null){
-        for (var childSnapshot in snapshot.children) {
-          if (childSnapshot.value == UserCustom.currentUser?.uid) return true;
-        }
-      }
-    }
-
-    return false;
-
-  }
-
-  static Future<String> addEventToFav(String eventId) async {
-
-    EventsList favEvents = EventsList();
-
-    if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
-
-      String eventPath = 'events/$eventId/addedToFavourites/${UserCustom.currentUser?.uid}';
-      String userPath = 'users/${UserCustom.currentUser?.uid}/favEvents/$eventId';
-
-      Map<String, dynamic> eventData = MixinDatabase.generateDataCode('userId', UserCustom.currentUser?.uid);
-      Map<String, dynamic> userData = MixinDatabase.generateDataCode('eventId', eventId);
-
-      String eventPublish = await MixinDatabase.publishToDB(eventPath, eventData);
-      String userPublish = await MixinDatabase.publishToDB(userPath, userData);
-
-      favEvents.addEntityToCurrentFavList(eventId);
-
-      String result = 'success';
-
-      if (eventPublish != 'success') result = eventPublish;
-      if (userPublish != 'success') result = userPublish;
-
-      return result;
-
-    } else {
-      return 'Пользователь не зарегистрирован';
-    }
-
-  }
-
-  static Future<String> deleteEventFromFav(String eventId) async {
-
-    EventsList favEvents = EventsList();
-
-    if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
-
-      String eventPath = 'events/$eventId/addedToFavourites/${UserCustom.currentUser?.uid}';
-      String userPath = 'users/${UserCustom.currentUser?.uid}/favEvents/$eventId';
-
-      String eventDelete = await MixinDatabase.deleteFromDb(eventPath);
-      String userDelete = await MixinDatabase.deleteFromDb(userPath);
-
-      favEvents.deleteEntityFromCurrentFavList(eventId);
-
-      String result = 'success';
-
-      if (eventDelete != 'success') result = eventDelete;
-      if (userDelete != 'success') result = userDelete;
-
-      return result;
-
-    } else {
-      return 'Пользователь не зарегистрирован';
-    }
-  }
-
-
-  /*static void deleteEventFromCurrentFavList(String eventId){
-
-    currentFavEventsList.removeWhere((event) => event.id == eventId);
-
-  }*/
-
-  /*static void addEventToCurrentFavList(String eventId){
-
-    for (var event in currentFeedEventsList){
-      if (event.id == eventId){
-        currentFavEventsList.add(event);
-        break;
-      }
-    }
-  }*/
-
-
-  /*static void updateCurrentEventListFavInformation(String eventId, int favCounter, bool inFav){
-    // ---- Функция обновления списка из БД при добавлении или удалении из избранного
-
-    for (int i = 0; i<currentFeedEventsList.length; i++){
-      // Если ID совпадает
-      if (currentFeedEventsList[i].id == eventId){
-        // Обновляем данные об состоянии этого заведения как избранного
-        currentFeedEventsList[i].addedToFavouritesCount = favCounter;
-        currentFeedEventsList[i].inFav = inFav;
-        break;
-      }
-    }
-
-    for (int i = 0; i<currentFavEventsList.length; i++){
-      // Если ID совпадает
-      if (currentFavEventsList[i].id == eventId){
-        // Обновляем данные об состоянии этого заведения как избранного
-        currentFavEventsList[i].addedToFavouritesCount = favCounter;
-        currentFavEventsList[i].inFav = inFav;
-        break;
-      }
-    }
-
-    for (int i = 0; i<currentMyEventsList.length; i++){
-      // Если ID совпадает
-      if (currentMyEventsList[i].id == eventId){
-        // Обновляем данные об состоянии этого заведения как избранного
-        currentMyEventsList[i].addedToFavouritesCount = favCounter;
-        currentMyEventsList[i].inFav = inFav;
-        break;
-      }
-    }
-
-  }*/
-
-  /*static void deleteEventFromCurrentEventLists(String eventId){
-    // ---- Функция обновления списка из БД при добавлении или удалении из избранного
-
-    currentFeedEventsList.removeWhere((event) => event.id == eventId);
-    currentFavEventsList.removeWhere((event) => event.id == eventId);
-    currentMyEventsList.removeWhere((event) => event.id == eventId);
-
-  }*/
-
-  /*static Future<List<EventCustom>> getEventsList(String eventsListInString, {String decimal = ','}) async {
-    List<EventCustom> tempList = [];
-
-    List<String> splittedString = eventsListInString.split(decimal);
-
-    for (int i = 0; i < splittedString.length; i++){
-      EventCustom tempEvent = getEventFromFeedListById(splittedString[i]);
-
-      if (tempEvent.id != ''){
-        tempList.add(tempEvent);
-      } else {
-        tempEvent = await tempEvent.getEventById(splittedString[i]);
-        if (tempEvent.id != ''){
-          tempList.add(tempEvent);
-        }
-      }
-    }
-
-    return tempList;
-  }*/
 }
