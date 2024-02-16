@@ -15,10 +15,6 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
     this.eventsList = eventsList ?? this.eventsList;
   }
 
-  //EventsList currentFeedEventsList = EventsList();
-  //EventsList currentFavEventsList = EventsList();
-  //EventsList currentMyEventsList = EventsList();
-
   @override
   String toString() {
     if (eventsList.isEmpty){
@@ -37,12 +33,12 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
     EventsList events = EventsList();
     EventListsManager.currentFeedEventsList = EventsList();
 
-    DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB('events');
+    DataSnapshot? eventsSnapshot = await MixinDatabase.getInfoFromDB('events');
 
-    if (snapshot != null) {
-      for (var childSnapshot in snapshot.children) {
+    if (eventsSnapshot != null) {
+      for (var eventIdsFolder in eventsSnapshot.children) {
 
-        EventCustom event = EventCustom.fromSnapshot(childSnapshot.child('event_info'));
+        EventCustom event = EventCustom.fromSnapshot(eventIdsFolder.child('event_info'));
 
         event.inFav = await event.addedInFavOrNot();
         event.addedToFavouritesCount = await event.getFavCount();
@@ -279,7 +275,7 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
   }
 
   @override
-  void deleteEntityFromCurrentEventLists(String eventId) {
+  void deleteEntityFromCurrentEntitiesLists(String eventId) {
     EventListsManager.currentFeedEventsList.eventsList.removeWhere((event) => event.id == eventId);
     EventListsManager.currentFavEventsList.eventsList.removeWhere((event) => event.id == eventId);
     EventListsManager.currentMyEventsList.eventsList.removeWhere((event) => event.id == eventId);
@@ -308,7 +304,7 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
   }
 
   @override
-  void addEntityFromCurrentEventLists(EventCustom entity) {
+  void addEntityFromCurrentEntitiesLists(EventCustom entity) {
     EventListsManager.currentFeedEventsList.eventsList.add(entity);
     EventListsManager.currentMyEventsList.eventsList.add(entity);
     if(entity.inFav != null && entity.inFav!) EventListsManager.currentFavEventsList.eventsList.add(entity);

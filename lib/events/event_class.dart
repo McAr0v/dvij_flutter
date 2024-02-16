@@ -188,7 +188,7 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
   @override
   void addEntityToCurrentEntitiesLists() {
     EventsList eventsList = EventsList();
-    eventsList.addEntityFromCurrentEventLists(this);
+    eventsList.addEntityFromCurrentEntitiesLists(this);
   }
 
   @override
@@ -450,7 +450,7 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
   @override
   void deleteEntityFromCurrentEntityLists() {
     EventsList eventsList = EventsList();
-    eventsList.deleteEntityFromCurrentEventLists(id);
+    eventsList.deleteEntityFromCurrentEntitiesLists(id);
   }
 
   @override
