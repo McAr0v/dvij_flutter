@@ -1,5 +1,3 @@
-import '../cities/city_class.dart';
-
 abstract class ILists<T, K, J>{
   Future<T> getListFromDb();
   Future<T> getFavListFromDb(String userId, {bool refresh = false});

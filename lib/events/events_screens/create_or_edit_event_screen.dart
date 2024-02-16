@@ -810,7 +810,7 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
                             EventCustom newEvent = EventCustom.emptyEvent;
 
-                            newEvent = await newEvent.getEntityById(eventId);
+                            newEvent = await newEvent.getEntityByIdFromDb(eventId);
 
                             if (widget.eventInfo.placeId != '' && widget.eventInfo.placeId != chosenPlace.id) {
 
@@ -821,13 +821,13 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                             // Если в передаваемом месте нет имени, т.е это создание
                             if (widget.eventInfo.headline == ''){
                               // То добавляем в списки новое созданное место
-                              newEvent.addEntityToCurrentEventLists();
+                              newEvent.addEntityToCurrentEntitiesLists();
                             } else {
                               // Если редактирование, удаляем старое объявление
                               event.deleteEntityFromCurrentEntityLists();
 
                               // Добавляем отредактированное
-                              newEvent.addEntityToCurrentEventLists();
+                              newEvent.addEntityToCurrentEntitiesLists();
                             }
 
                             // Выключаем экран загрузки

@@ -16,7 +16,7 @@ import 'package:firebase_database/firebase_database.dart';
 import '../methods/date_functions.dart';
 import 'event_category_class.dart';
 
-class EventCustom with MixinDatabase, DateMixin, TimeMixin implements IEntity{
+class EventCustom with MixinDatabase, TimeMixin implements IEntity{
   String id;
   DateTypeEnum dateType;
   String headline;
@@ -28,7 +28,7 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin implements IEntity{
   String street;
   String house;
   String phone;
-  String whatsapp; // Формат даты (например, "yyyy-MM-dd")
+  String whatsapp;
   String telegram;
   String instagram;
   String imageUrl;
@@ -72,7 +72,19 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin implements IEntity{
 
   });
 
+  /// МЕТОД СЧИТЫВАНИЯ СУЩНОСТИ С БД
+  ///
+  /// <br>
+  /// Передаем "снимок" с бд и возвращаем заполненную сущность
+  /// <br>
+  /// <br>
+  /// Принимает [DataSnapshot],
+  /// <br>
+  /// Возвращает [EventCustom]
   factory EventCustom.fromSnapshot(DataSnapshot snapshot) {
+
+
+    // --- ИНИЦИАЛИЗИРУЕМ ПЕРЕМЕННЫЕ ----
 
     DateTypeEnumClass dateTypeClass = DateTypeEnumClass();
     EventCategory eventCategory = EventCategory(name: '', id: snapshot.child('category').value.toString());
@@ -93,6 +105,7 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin implements IEntity{
 
 
     // ---- РАБОТА С ДАТАМИ -----
+    // ---- СЧИТЫВАЕМ И ГЕНЕРИРУЕМ ДАТЫ -----
 
     DateTypeEnum dateType = dateTypeClass.getEnumFromString(snapshot.child('eventType').value.toString());
 
@@ -112,7 +125,11 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin implements IEntity{
       irregularDate = irregularDate.getFromJson(irregularDaysString);
     }
 
+    // ---- МЕТКА - СЕГОДНЯ ИЛИ НЕТ -----
+
     bool today = DateMixin.todayOrNot(dateType, onceDate, longDate, regularDate, irregularDate);
+
+    // ---- ВОЗВРАЩАЕМ ЗАПОЛНЕННУЮ СУЩНОСТЬ -----
 
     return EventCustom(
         id: snapshot.child('id').value.toString(),
@@ -141,7 +158,8 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin implements IEntity{
     );
   }
 
-  static EventCustom emptyEvent = EventCustom(
+  /// Переменная пустого [EventCustom]
+  static final EventCustom emptyEvent = EventCustom(
       id: '',
       dateType: DateTypeEnum.once,
       headline: '',
@@ -166,39 +184,9 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin implements IEntity{
       price: ''
   );
 
-  factory EventCustom.empty() {
-    return EventCustom(
-        id: '',
-        dateType: DateTypeEnum.once,
-        headline: '',
-        desc: '',
-        creatorId: '',
-        createDate: DateTime(2100),
-        category: EventCategory.emptyEventCategory,
-        city: City.emptyCity,
-        street: '',
-        house: '',
-        phone: '',
-        whatsapp: '',
-        telegram: '',
-        instagram: '',
-        imageUrl: 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2Fdvij_unknow_user.jpg?alt=media&token=b63ea5ef-7bdf-49e9-a3ef-1d34d676b6a7',
-        placeId: '',
-        onceDay: OnceDate(),
-        longDays: LongDate(),
-        regularDays: RegularDate(),
-        irregularDays: IrregularDate(),
-        priceType: PriceTypeOption.free,
-        price: ''
-    );
-  }
-
-
-
-
 
   @override
-  void addEntityToCurrentEventLists() {
+  void addEntityToCurrentEntitiesLists() {
     EventsList eventsList = EventsList();
     eventsList.addEntityFromCurrentEventLists(this);
   }
@@ -320,8 +308,8 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin implements IEntity{
   }
 
   @override
-  Future getEntityById(String eventId) async {
-    EventCustom returnedEvent = EventCustom.empty();
+  Future getEntityByIdFromDb(String eventId) async {
+    EventCustom returnedEvent = EventCustom.emptyEvent;
 
     String path = 'events/$eventId/event_info';
 
@@ -361,6 +349,15 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin implements IEntity{
     return checkSuccessFromDb(entityPublishResult, creatorPublishResult, placePublishResult, 'success');
   }
 
+  /// МЕТОД ПРОВЕРКИ РЕЗУЛЬТАТОВ ВЫГРУЗКИ В БД
+  ///
+  /// <br>
+  /// Передаем результаты разных асинхронных выгрузок из одной функции
+  /// <br>
+  /// <br>
+  /// Вернет [String] "success" если все они успешны,
+  /// <br>
+  /// Вернет код ошибки, если хоть одна не успешна
   static String checkSuccessFromDb(
       String result1,
       String result2,
@@ -402,6 +399,10 @@ class EventCustom with MixinDatabase, DateMixin, TimeMixin implements IEntity{
     return false;
   }
 
+  /// ФУНКЦИЯ ГЕНЕРАЦИИ СЛОВАРЯ ФИЛЬТРА ДЛЯ ПЕРЕДАЧИ В ФУНКЦИЮ
+  /// <br><br>
+  /// Автоматически делает словарь из данных фильтра, по которым
+  /// будет производиться фильтрация сущности
   Map<String, dynamic> generateMapForFilter(
       EventCategory eventCategoryFromFilter,
       City cityFromFilter,

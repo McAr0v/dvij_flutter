@@ -100,7 +100,7 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
         for (String event in eventsId){
 
           EventCustom temp = EventCustom.emptyEvent;
-          temp = await temp.getEntityById(event);
+          temp = await temp.getEntityByIdFromDb(event);
 
           if (temp.id != ''){
             EventListsManager.currentFavEventsList.eventsList.add(temp);
@@ -156,7 +156,7 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
         // Если список ленты не прогружен, то считываем каждую сущность из БД
         for (var event in eventsId){
           EventCustom temp = EventCustom.emptyEvent;
-          temp = await temp.getEntityById(event);
+          temp = await temp.getEntityByIdFromDb(event);
           if (temp.id != ''){
             EventListsManager.currentMyEventsList.eventsList.add(temp);
             events.eventsList.add(temp);
@@ -297,7 +297,7 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
       if (tempEvent.id != ''){
         eventsList.eventsList.add(tempEvent);
       } else {
-        tempEvent = await tempEvent.getEntityById(splintedString[i]);
+        tempEvent = await tempEvent.getEntityByIdFromDb(splintedString[i]);
         if (tempEvent.id != ''){
           eventsList.eventsList.add(tempEvent);
         }

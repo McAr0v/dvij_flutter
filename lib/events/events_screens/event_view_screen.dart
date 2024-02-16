@@ -43,7 +43,7 @@ class EventViewScreenState extends State<EventViewScreen> {
   UserCustom creator = UserCustom.empty('', '');
   PlaceRole currentUserPlaceRole = PlaceRole(name: '', id: '', desc: '', controlLevel: '');
 
-  EventCustom event = EventCustom.empty();
+  EventCustom event = EventCustom.emptyEvent;
 
   DateTime currentDate = DateTime.now();
 
