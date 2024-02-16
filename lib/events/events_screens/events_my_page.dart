@@ -1,6 +1,7 @@
 import 'package:dvij_flutter/cities/city_class.dart';
 import 'package:dvij_flutter/events/event_category_class.dart';
 import 'package:dvij_flutter/events/event_sorting_options.dart';
+import 'package:dvij_flutter/events/events_list_class.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -13,6 +14,7 @@ import '../../elements/snack_bar.dart';
 import '../../elements/text_and_icons_widgets/headline_and_desc.dart';
 import '../events_elements/event_card_widget.dart';
 import '../events_elements/event_filter_page.dart';
+import '../events_list_manager.dart';
 import 'create_or_edit_event_screen.dart';
 import 'event_view_screen.dart';
 
@@ -32,7 +34,7 @@ class _EventsMyPageState extends State<EventsMyPage> {
 
   // --- ОБЪЯВЛЯЕМ ПЕРЕМЕННЫЕ -----
 
-  late List<EventCustom> eventsList;
+  EventsList eventsList = EventListsManager.currentMyEventsList;
   late List<EventCategory> eventCategoriesList;
 
   // --- Переменные фильтра по умолчанию ----
@@ -106,37 +108,40 @@ class _EventsMyPageState extends State<EventsMyPage> {
 
     // ----- РАБОТАЕМ СО СПИСКОМ МЕРОПРИЯТИЙ -----
 
-    List<EventCustom> tempEventsList = [];
+    //List<EventCustom> tempEventsList = [];
 
-    if (EventCustom.currentMyEventsList.isEmpty){
+    if (EventListsManager.currentMyEventsList.eventsList.isEmpty){
       // ---- Если список пуст ----
       // ---- И Юзер залогинен
       // ---- Считываем с БД заведения -----
 
       if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
-        tempEventsList = await EventCustom.getMyEvents(UserCustom.currentUser!.uid);
+        eventsList = await eventsList.getMyListFromDb(UserCustom.currentUser!.uid);
+        //tempEventsList = await EventCustom.getMyEvents(UserCustom.currentUser!.uid);
       }
 
     } else {
       // --- Если список не пустой ----
       // --- Подгружаем готовый список ----
 
-      tempEventsList = EventCustom.currentMyEventsList;
+      eventsList = EventListsManager.currentMyEventsList;
+      //tempEventsList = EventCustom.currentMyEventsList;
 
     }
 
     // --- Фильтруем список ----
 
     setState(() {
-      eventsList = EventCustom.filterEvents(
-          eventCategoryFromFilter,
-          cityFromFilter,
-          freePrice,
-          today,
-          onlyFromPlaceEvents,
-          tempEventsList,
-          selectedStartDatePeriod,
-          selectedEndDatePeriod
+      eventsList.filterLists(
+          eventsList.generateMapForFilter(
+              eventCategoryFromFilter,
+              cityFromFilter,
+              freePrice,
+              today,
+              onlyFromPlaceEvents,
+              selectedStartDatePeriod,
+              selectedEndDatePeriod
+          )
       );
     });
 
@@ -145,7 +150,7 @@ class _EventsMyPageState extends State<EventsMyPage> {
     adIndexesList = AdUser.getAdIndexesList(adList, adStep, firstIndexOfAd);
 
     setState(() {
-      allElementsList = AdUser.generateIndexedList(adIndexesList, eventsList.length);
+      allElementsList = AdUser.generateIndexedList(adIndexesList, eventsList.eventsList.length);
     });
 
     setState(() {
@@ -168,15 +173,32 @@ class _EventsMyPageState extends State<EventsMyPage> {
               refresh = true;
             });
 
-            eventsList = [];
+            eventsList = EventsList();
 
             if (UserCustom.currentUser?.uid != null || UserCustom.currentUser?.uid != ''){
 
-              List<EventCustom> tempEventsList = await EventCustom.getMyEvents(UserCustom.currentUser!.uid, refresh: true);
+              eventsList = await eventsList.getMyListFromDb(UserCustom.currentUser!.uid, refresh: true);
+
+              //List<EventCustom> tempEventsList = await EventCustom.getMyEvents(UserCustom.currentUser!.uid, refresh: true);
 
               setState(() {
-                eventsList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempEventsList, selectedStartDatePeriod, selectedEndDatePeriod);
+                //eventsList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempEventsList, selectedStartDatePeriod, selectedEndDatePeriod);
+
+                eventsList.filterLists(
+                    eventsList.generateMapForFilter(
+                        eventCategoryFromFilter,
+                        cityFromFilter,
+                        freePrice,
+                        today,
+                        onlyFromPlaceEvents,
+                        selectedStartDatePeriod,
+                        selectedEndDatePeriod
+                    )
+                );
+
               });
+
+              allElementsList = AdUser.generateIndexedList(adIndexesList, eventsList.eventsList.length);
 
             }
 
@@ -248,7 +270,8 @@ class _EventsMyPageState extends State<EventsMyPage> {
                                   onChanged: (EventSortingOption? newValue) {
                                     setState(() {
                                       _selectedSortingOption = newValue!;
-                                      EventCustom.sortEvents(_selectedSortingOption, eventsList);
+                                      eventsList.sortEntitiesList(_selectedSortingOption);
+                                      //EventCustom.sortEvents(_selectedSortingOption, eventsList);
                                     });
                                   },
                                   items: const [
@@ -277,7 +300,7 @@ class _EventsMyPageState extends State<EventsMyPage> {
 
                       // ---- Если список пустой -----
 
-                      if (eventsList.isEmpty) Expanded(
+                      if (eventsList.eventsList.isEmpty) Expanded(
                           child: ListView.builder(
                               padding: const EdgeInsets.all(15.0),
                               itemCount: 1,
@@ -295,7 +318,7 @@ class _EventsMyPageState extends State<EventsMyPage> {
 
                       // ---- Если список не пустой -----
 
-                      if (eventsList.isNotEmpty) Expanded(
+                      if (eventsList.eventsList.isNotEmpty) Expanded(
                           child: ListView.builder(
                               padding: const EdgeInsets.all(15.0),
                               itemCount: allElementsList.length,
@@ -310,21 +333,21 @@ class _EventsMyPageState extends State<EventsMyPage> {
                                 } else {
                                   int indexWithAddCountCorrection = allElementsList[index].second;
                                   return EventCardWidget(
-                                    event: eventsList[indexWithAddCountCorrection],
+                                    event: eventsList.eventsList[indexWithAddCountCorrection],
                                     onTap: () async {
 
                                       // TODO - переделать на мероприятия
                                       final results = await Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => EventViewScreen(eventId: eventsList[indexWithAddCountCorrection].id),
+                                          builder: (context) => EventViewScreen(eventId: eventsList.eventsList[indexWithAddCountCorrection].id),
                                         ),
                                       );
 
                                       if (results != null) {
                                         setState(() {
-                                          eventsList[indexWithAddCountCorrection].inFav = results[0];
-                                          eventsList[indexWithAddCountCorrection].addedToFavouritesCount = results[1];
+                                          eventsList.eventsList[indexWithAddCountCorrection].inFav = results[0];
+                                          eventsList.eventsList[indexWithAddCountCorrection].addedToFavouritesCount = results[1];
                                         });
                                       }
                                     },
@@ -343,22 +366,23 @@ class _EventsMyPageState extends State<EventsMyPage> {
                                       else {
 
                                         // --- Если уже в избранном ----
-                                        if (eventsList[indexWithAddCountCorrection].inFav == true)
+                                        if (eventsList.eventsList[indexWithAddCountCorrection].inFav == true)
                                         {
                                           // --- Удаляем из избранных ---
-                                          String resDel = await EventCustom.deleteEventFromFav(eventsList[indexWithAddCountCorrection].id);
+                                          String resDel = await EventCustom.deleteEventFromFav(eventsList.eventsList[indexWithAddCountCorrection].id);
                                           // ---- Инициализируем счетчик -----
-                                          int favCounter = eventsList[indexWithAddCountCorrection].addedToFavouritesCount!;
+                                          int favCounter = eventsList.eventsList[indexWithAddCountCorrection].addedToFavouritesCount!;
 
                                           if (resDel == 'success'){
                                             // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
                                             setState(() {
                                               // Обновляем текущий список
-                                              eventsList[indexWithAddCountCorrection].inFav = false;
+                                              eventsList.eventsList[indexWithAddCountCorrection].inFav = false;
                                               favCounter --;
-                                              eventsList[indexWithAddCountCorrection].addedToFavouritesCount = favCounter;
+                                              eventsList.eventsList[indexWithAddCountCorrection].addedToFavouritesCount = favCounter;
                                               // Обновляем общий список из БД
-                                              EventCustom.updateCurrentEventListFavInformation(eventsList[indexWithAddCountCorrection].id, favCounter, false);
+                                              //EventCustom.updateCurrentEventListFavInformation(eventsList[indexWithAddCountCorrection].id, favCounter, false);
+                                              eventsList.eventsList[indexWithAddCountCorrection].updateCurrentEventListFavInformation();
 
                                             });
                                             showSnackBar(context, 'Удалено из избранных', AppColors.attentionRed, 1);
@@ -371,20 +395,21 @@ class _EventsMyPageState extends State<EventsMyPage> {
                                           // --- Если заведение не в избранном ----
 
                                           // -- Добавляем в избранное ----
-                                          String res = await EventCustom.addEventToFav(eventsList[indexWithAddCountCorrection].id);
+                                          String res = await EventCustom.addEventToFav(eventsList.eventsList[indexWithAddCountCorrection].id);
 
                                           // ---- Инициализируем счетчик добавивших в избранное
-                                          int favCounter = eventsList[indexWithAddCountCorrection].addedToFavouritesCount!;
+                                          int favCounter = eventsList.eventsList[indexWithAddCountCorrection].addedToFavouritesCount!;
 
                                           if (res == 'success') {
                                             // --- Если добавилось успешно, так же обновляем текущий список и список из БД
                                             setState(() {
                                               // Обновляем текущий список
-                                              eventsList[indexWithAddCountCorrection].inFav = true;
+                                              eventsList.eventsList[indexWithAddCountCorrection].inFav = true;
                                               favCounter ++;
-                                              eventsList[indexWithAddCountCorrection].addedToFavouritesCount = favCounter;
+                                              eventsList.eventsList[indexWithAddCountCorrection].addedToFavouritesCount = favCounter;
                                               // Обновляем список из БД
-                                              EventCustom.updateCurrentEventListFavInformation(eventsList[indexWithAddCountCorrection].id, favCounter, true);
+                                              //EventCustom.updateCurrentEventListFavInformation(eventsList[indexWithAddCountCorrection].id, favCounter, true);
+                                              eventsList.eventsList[indexWithAddCountCorrection].updateCurrentEventListFavInformation();
 
                                             });
 
@@ -484,7 +509,7 @@ class _EventsMyPageState extends State<EventsMyPage> {
         onlyFromPlaceEvents = results [4];
         selectedStartDatePeriod = results[5];
         selectedEndDatePeriod = results[6];
-        eventsList = [];
+        eventsList = EventsList();
 
         // ---- Обновляем счетчик выбранных настроек ----
         _setFiltersCount(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, selectedStartDatePeriod, selectedEndDatePeriod);
@@ -492,15 +517,27 @@ class _EventsMyPageState extends State<EventsMyPage> {
       });
 
       // --- Заново подгружаем список из БД ---
-      List<EventCustom> tempList = [];
-      tempList = EventCustom.currentMyEventsList;
+      //List<EventCustom> tempList = [];
+      //tempList = EventCustom.currentMyEventsList;
+      eventsList = EventListsManager.currentMyEventsList;
 
       // --- Фильтруем список согласно новым выбранным данным из фильтра ----
       setState(() {
-        eventsList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempList, selectedStartDatePeriod, selectedEndDatePeriod);
+        eventsList.filterLists(
+            eventsList.generateMapForFilter(
+                eventCategoryFromFilter,
+                cityFromFilter,
+                freePrice,
+                today,
+                onlyFromPlaceEvents,
+                selectedStartDatePeriod,
+                selectedEndDatePeriod
+            )
+        );
+        //eventsList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempList, selectedStartDatePeriod, selectedEndDatePeriod);
       });
 
-      allElementsList = AdUser.generateIndexedList(adIndexesList, eventsList.length);
+      allElementsList = AdUser.generateIndexedList(adIndexesList, eventsList.eventsList.length);
 
       setState(() {
         loading = false;

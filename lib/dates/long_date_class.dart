@@ -1,5 +1,5 @@
 import 'date_mixin.dart';
-import 'dates_interface.dart';
+import '../interfaces/dates_interface.dart';
 
 class LongDate with DateMixin implements IDates<LongDate> {
 

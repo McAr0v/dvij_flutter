@@ -2,7 +2,7 @@ import 'dart:core';
 import 'package:dvij_flutter/dates/time_mixin.dart';
 import 'package:dvij_flutter/dates/times/times_in_date_class.dart';
 import 'date_mixin.dart';
-import 'dates_interface.dart';
+import '../interfaces/dates_interface.dart';
 
 class RegularDate with DateMixin, TimeMixin implements IDates<RegularDate> {
 

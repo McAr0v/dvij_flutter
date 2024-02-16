@@ -1,4 +1,5 @@
 import 'package:dvij_flutter/events/event_class.dart';
+import 'package:dvij_flutter/events/events_list_class.dart';
 import 'package:dvij_flutter/promos/promo_class.dart';
 import 'package:dvij_flutter/elements/text_and_icons_widgets/headline_and_desc.dart';
 import 'package:dvij_flutter/elements/social_elements/social_buttons_widget.dart';
@@ -53,7 +54,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
   String city = '';
   PlaceCategory category = PlaceCategory.empty;
 
-  List<EventCustom> eventsInThatPlace = [];
+  EventsList eventsInThatPlace = EventsList();
   List<PromoCustom> promosInThatPlace = [];
 
   DateTime currentDate = DateTime.now();
@@ -125,7 +126,8 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
       if (place.eventsList != null && place.eventsList != ''){
 
-        eventsInThatPlace = await EventCustom.getEventsList(place.eventsList!);
+        //eventsInThatPlace = await EventCustom.getEventsList(place.eventsList!);
+        eventsInThatPlace = await eventsInThatPlace.getEntitiesFromStringList(place.eventsList!);
 
       }
 
@@ -445,7 +447,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
                       if (events) const SizedBox(height: 16.0),
 
-                      if (events && eventsInThatPlace.isEmpty) Container(
+                      if (events && eventsInThatPlace.eventsList.isEmpty) Container(
                         decoration: BoxDecoration(
                           color: AppColors.greyOnBackground
                         ),
@@ -459,27 +461,27 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                         ),
                       ),
 
-                      if (events && eventsInThatPlace.isNotEmpty) Column(
-                        children: List.generate(eventsInThatPlace.length, (index) {
+                      if (events && eventsInThatPlace.eventsList.isNotEmpty) Column(
+                        children: List.generate(eventsInThatPlace.eventsList.length, (index) {
                           return Column( // сюда можно вставить шаблон элемента
                               children: [
 
                                 EventCardWidget(
-                                    event: eventsInThatPlace[index],
+                                    event: eventsInThatPlace.eventsList[index],
                                   onTap: () async {
 
                                     // TODO - переделать на мероприятия
                                     final results = await Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => EventViewScreen(eventId: eventsInThatPlace[index].id),
+                                        builder: (context) => EventViewScreen(eventId: eventsInThatPlace.eventsList[index].id),
                                       ),
                                     );
 
                                     if (results != null) {
                                       setState(() {
-                                        eventsInThatPlace[index].inFav = results[0];
-                                        eventsInThatPlace[index].addedToFavouritesCount = results[1];
+                                        eventsInThatPlace.eventsList[index].inFav = results[0];
+                                        eventsInThatPlace.eventsList[index].addedToFavouritesCount = results[1];
                                       });
                                     }
                                   },
@@ -498,22 +500,23 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                                     else {
 
                                       // --- Если уже в избранном ----
-                                      if (eventsInThatPlace[index].inFav == 'true')
+                                      if (eventsInThatPlace.eventsList[index].inFav!)
                                       {
                                         // --- Удаляем из избранных ---
-                                        String resDel = await EventCustom.deleteEventFromFav(eventsInThatPlace[index].id);
+                                        String resDel = await EventCustom.deleteEventFromFav(eventsInThatPlace.eventsList[index].id);
                                         // ---- Инициализируем счетчик -----
-                                        int favCounter = eventsInThatPlace[index].addedToFavouritesCount!;
+                                        int favCounter = eventsInThatPlace.eventsList[index].addedToFavouritesCount!;
 
                                         if (resDel == 'success'){
                                           // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
                                           setState(() {
                                             // Обновляем текущий список
-                                            eventsInThatPlace[index].inFav = false;
+                                            eventsInThatPlace.eventsList[index].inFav = false;
                                             favCounter --;
-                                            eventsInThatPlace[index].addedToFavouritesCount = favCounter;
+                                            eventsInThatPlace.eventsList[index].addedToFavouritesCount = favCounter;
                                             // Обновляем общий список из БД
-                                            EventCustom.updateCurrentEventListFavInformation(eventsInThatPlace[index].id, favCounter, false);
+                                            eventsInThatPlace.eventsList[index].updateCurrentEventListFavInformation();
+                                            //EventCustom.updateCurrentEventListFavInformation(eventsInThatPlace[index].id, favCounter, false);
 
                                           });
                                           showSnackBar(context, 'Удалено из избранных', AppColors.attentionRed, 1);
@@ -526,20 +529,21 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                                         // --- Если заведение не в избранном ----
 
                                         // -- Добавляем в избранное ----
-                                        String res = await EventCustom.addEventToFav(eventsInThatPlace[index].id);
+                                        String res = await EventCustom.addEventToFav(eventsInThatPlace.eventsList[index].id);
 
                                         // ---- Инициализируем счетчик добавивших в избранное
-                                        int favCounter = eventsInThatPlace[index].addedToFavouritesCount!;
+                                        int favCounter = eventsInThatPlace.eventsList[index].addedToFavouritesCount!;
 
                                         if (res == 'success') {
                                           // --- Если добавилось успешно, так же обновляем текущий список и список из БД
                                           setState(() {
                                             // Обновляем текущий список
-                                            eventsInThatPlace[index].inFav = true;
+                                            eventsInThatPlace.eventsList[index].inFav = true;
                                             favCounter ++;
-                                            eventsInThatPlace[index].addedToFavouritesCount = favCounter;
+                                            eventsInThatPlace.eventsList[index].addedToFavouritesCount = favCounter;
                                             // Обновляем список из БД
-                                            EventCustom.updateCurrentEventListFavInformation(eventsInThatPlace[index].id, favCounter, true);
+                                            //EventCustom.updateCurrentEventListFavInformation(eventsInThatPlace[index].id, favCounter, true);
+                                            eventsInThatPlace.eventsList[index].updateCurrentEventListFavInformation();
                                           });
 
                                           showSnackBar(context, 'Добавлено в избранные', Colors.green, 1);

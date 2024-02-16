@@ -1,6 +1,6 @@
 import 'package:dvij_flutter/dates/once_date_class.dart';
 import 'date_mixin.dart';
-import 'dates_interface.dart';
+import '../interfaces/dates_interface.dart';
 
 class IrregularDate with DateMixin implements IDates<IrregularDate> {
 

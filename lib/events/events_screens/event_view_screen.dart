@@ -77,7 +77,7 @@ class _EventViewScreenState extends State<EventViewScreen> {
   Future<void> fetchAndSetData() async {
     try {
 
-      event = EventCustom.getEventFromFeedListById(widget.eventId);
+      event = event.getEntityFromFeedList(widget.eventId);
 
       price = PriceTypeEnumClass.getFormattedPriceString(event.priceType, event.price);
 
@@ -200,7 +200,8 @@ class _EventViewScreenState extends State<EventViewScreen> {
                                     setState(() {
                                       inFav = false;
                                       favCounter --;
-                                      EventCustom.updateCurrentEventListFavInformation(event.id, favCounter, inFav);
+                                      event.updateCurrentEventListFavInformation();
+                                      //EventCustom.updateCurrentEventListFavInformation(event.id, favCounter, inFav);
                                     });
 
                                     showSnackBar(context, 'Удалено из избранных', AppColors.attentionRed, 1);
@@ -220,7 +221,8 @@ class _EventViewScreenState extends State<EventViewScreen> {
                                     setState(() {
                                       inFav = true;
                                       favCounter ++;
-                                      EventCustom.updateCurrentEventListFavInformation(event.id, favCounter, inFav);
+                                      event.updateCurrentEventListFavInformation();
+                                      //EventCustom.updateCurrentEventListFavInformation(event.id, favCounter, inFav);
                                     });
 
                                     showSnackBar(context, 'Добавлено в избранные', Colors.green, 1);
@@ -524,7 +526,8 @@ class _EventViewScreenState extends State<EventViewScreen> {
 
                               if (delete == 'success'){
 
-                                EventCustom.deleteEventFromCurrentEventLists(widget.eventId);
+                                event.deleteEntityFromCurrentEventLists();
+                                //EventCustom.deleteEventFromCurrentEventLists(widget.eventId);
                                 //Place.deletePlaceFormCurrentPlaceLists(widget.eventId);
 
                                 showSnackBar(context, 'Мероприятие успешно удалено', Colors.green, 2);

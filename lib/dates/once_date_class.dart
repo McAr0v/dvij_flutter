@@ -1,5 +1,5 @@
 import 'package:dvij_flutter/dates/date_mixin.dart';
-import 'package:dvij_flutter/dates/dates_interface.dart';
+import 'package:dvij_flutter/interfaces/dates_interface.dart';
 
 class OnceDate with DateMixin implements IDates<OnceDate> {
 

@@ -7,6 +7,7 @@ import 'package:dvij_flutter/dates/regular_date_class.dart';
 import 'package:dvij_flutter/dates/time_mixin.dart';
 import 'package:dvij_flutter/events/event_category_class.dart';
 import 'package:dvij_flutter/classes/date_type_enum.dart';
+import 'package:dvij_flutter/events/events_list_class.dart';
 import 'package:dvij_flutter/places/place_class.dart';
 import 'package:dvij_flutter/classes/priceTypeOptions.dart';
 import 'package:dvij_flutter/elements/category_element_in_edit_screen.dart';
@@ -827,18 +828,11 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
                             } else {
 
-                              // Если редактирование то удаляем старые неотредактированные данные
-                              EventCustom.deleteEventFromCurrentEventLists(eventId);
-
-                              // Добавляем обновленное
-                              EventCustom.currentFeedEventsList.add(newEvent);
-                              EventCustom.currentMyEventsList.add(newEvent);
-                              if (newEvent.inFav!) EventCustom.currentFavEventsList.add(newEvent);
-
+                              // Если редактирование, удаляем старое объявление
+                              event.deleteEntityFromCurrentEventLists();
+                              // Добавляем отредактированное
+                              newEvent.addEntityFromCurrentEventLists();
                             }
-
-
-
 
                             // Выключаем экран загрузки
                             setState(() {
