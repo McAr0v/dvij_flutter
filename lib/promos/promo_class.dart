@@ -1,17 +1,11 @@
 import 'package:dvij_flutter/cities/city_class.dart';
 import 'package:dvij_flutter/classes/date_type_enum.dart';
-import 'package:dvij_flutter/places/place_category_class.dart';
-import 'package:dvij_flutter/places/place_sorting_options.dart';
-import 'package:dvij_flutter/classes/priceTypeOptions.dart';
 import 'package:dvij_flutter/promos/promo_category_class.dart';
 import 'package:dvij_flutter/promos/promo_sorting_options.dart';
 import 'package:dvij_flutter/classes/user_class.dart';
-import 'package:dvij_flutter/methods/days_functions.dart';
 import 'package:firebase_database/firebase_database.dart';
-
 import '../methods/date_functions.dart';
 import '../events/event_category_class.dart';
-import '../events/event_sorting_options.dart';
 
 class PromoCustom {
   String id;
