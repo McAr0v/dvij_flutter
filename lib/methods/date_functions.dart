@@ -622,7 +622,7 @@ bool checkDateOnToday(DateTime startEventDateOnlyDate, DateTime startEventDateWi
 
 }*/
 
-bool checkPromoOnceDayForFilter (
+/*bool checkPromoOnceDayForFilter (
     PromoCustom promo,
     DateTime selectedStartDatePeriod,
     DateTime selectedEndDatePeriod,
@@ -635,7 +635,7 @@ bool checkPromoOnceDayForFilter (
   return (eventDate.isAtSameMomentAs(selectedStartDatePeriod) || eventDate.isAfter(selectedStartDatePeriod)) &&
       (eventDate.isBefore(selectedEndDatePeriod) || eventDate.isAtSameMomentAs(selectedEndDatePeriod));
 
-}
+}*/
 
 /*bool checkEventLongDayForFilter (
     EventCustom event,
@@ -653,7 +653,7 @@ bool checkPromoOnceDayForFilter (
 
 }*/
 
-bool checkPromoLongDayForFilter (
+/*bool checkPromoLongDayForFilter (
     PromoCustom promo,
     DateTime selectedStartDatePeriod,
     DateTime selectedEndDatePeriod,
@@ -710,7 +710,7 @@ bool checkPromoRegularDayForFilter (
 
   return result;
 
-}
+}*/
 
 /*bool checkEventRegularDayForFilter (
     EventCustom event,
@@ -789,7 +789,7 @@ bool checkPromoRegularDayForFilter (
 
 }*/
 
-bool checkPromoIrregularDayForFilter(
+/*bool checkPromoIrregularDayForFilter(
     PromoCustom promo,
     DateTime selectedStartDatePeriod,
     DateTime selectedEndDatePeriod,
@@ -923,4 +923,4 @@ bool checkPromosDatesForFilter (
     case DateTypeEnum.irregular: return checkPromoIrregularDayForFilter(promo, selectedStartDatePeriod, selectedEndDatePeriod);
   }
 
-}
+}*/

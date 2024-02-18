@@ -1,8 +1,12 @@
 import 'dart:io';
+import 'package:dvij_flutter/database/database_mixin.dart';
+import 'package:dvij_flutter/dates/irregular_date_class.dart';
+import 'package:dvij_flutter/dates/long_date_class.dart';
+import 'package:dvij_flutter/dates/once_date_class.dart';
+import 'package:dvij_flutter/dates/regular_date_class.dart';
+import 'package:dvij_flutter/dates/time_mixin.dart';
 import 'package:dvij_flutter/classes/date_type_enum.dart';
 import 'package:dvij_flutter/places/place_class.dart';
-import 'package:dvij_flutter/promos/promo_category_class.dart';
-import 'package:dvij_flutter/promos/promo_class.dart';
 import 'package:dvij_flutter/elements/category_element_in_edit_screen.dart';
 import 'package:dvij_flutter/places/choose_place_in_event_and_promo.dart';
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/irregular_type_date_time_picker_widget.dart';
@@ -11,26 +15,24 @@ import 'package:dvij_flutter/elements/types_of_date_time_pickers/once_type_date_
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/regular_two_type_date_time_picker_widget.dart';
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/type_of_date_widget.dart';
 import 'package:dvij_flutter/methods/days_functions.dart';
-import 'package:firebase_database/firebase_database.dart';
+import 'package:dvij_flutter/promos/promo_category_class.dart';
+import 'package:dvij_flutter/promos/promo_class.dart';
+import 'package:dvij_flutter/promos/promos_elements/promo_category_picker_page.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import '../../cities/city_class.dart';
-import '../../events/event_class.dart';
+import '../../elements/snack_bar.dart';
+import '../../places/places_elements/place_picker_page.dart';
 import '../../classes/role_in_app.dart';
 import '../../classes/user_class.dart';
 import '../../elements/choose_dialogs/city_choose_dialog.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../elements/image_in_edit_screen.dart';
 import '../../elements/loading_screen.dart';
-import '../../elements/snack_bar.dart';
 import '../../image_Uploader/image_uploader.dart';
 import '../../image_uploader/image_picker.dart';
 import '../../methods/date_functions.dart';
-import '../../places/places_elements/place_picker_page.dart';
 import '../../themes/app_colors.dart';
-import '../promos_elements/promo_category_picker_page.dart';
-
-
 
 class CreateOrEditPromoScreen extends StatefulWidget {
   final PromoCustom promoInfo;
@@ -51,6 +53,8 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
   final ImagePickerService imagePickerService = ImagePickerService();
   final ImageUploader imageUploader = ImageUploader();
 
+  final DateTypeEnumClass dateTypeEnumClass = DateTypeEnumClass();
+
   late TextEditingController headlineController;
   late TextEditingController descController;
   late City chosenCity;
@@ -63,29 +67,19 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
   late TextEditingController cityController;
   late TextEditingController imageController;
 
-
   late String promoId;
   late String creatorId;
-  late String createdTime;
-
+  late DateTime createdTime;
 
   File? _imageFile;
-
-  //late DateTime selectedDate;
-
 
   late RoleInApp chosenRoleInApp;
   late int accessLevel;
 
-  DateTypeEnum promoTypeEnum = DateTypeEnum.once;
-
-  late TextEditingController fixedPriceController;
-  late TextEditingController startPriceController;
-  late TextEditingController endPriceController;
+  DateTypeEnum dateTypeEnum = DateTypeEnum.once;
 
   // ПЕРЕМЕННЫЕ ВРЕМЕНИ РАБОТЫ?
   late DateTime selectedDayInOnceType;
-  late String onceDay;
   String onceDayStartTime = 'Не выбрано';
   String onceDayFinishTime = 'Не выбрано';
 
@@ -101,8 +95,6 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
 
   // Здесь хранятся выбранные даты нерегулярных дней
   List<DateTime> chosenIrregularDays = [];
-  // Это список для временного хранения дат в стринге из БД при парсинге
-  List<String> tempIrregularDaysString = [];
   // Выбранные даты начала
   List<String> chosenIrregularStartTime = [];
   // Выбранные даты завершения
@@ -119,7 +111,7 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
 
   List<City> _cities = [];
   List<PromoCategory> _categories = [];
-  late PromoCategory chosenCategory;
+  PromoCategory chosenCategory = PromoCategory.empty;
 
   // --- Функция перехода на страницу профиля ----
 
@@ -154,68 +146,59 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
     loading = true;
 
     _categories = PromoCategory.currentPromoCategoryList;
-    //accessLevel = UserCustom.accessLevel;
 
-    promoTypeEnum = PromoCustom.getPromoTypeEnum(widget.promoInfo.promoType);
+    dateTypeEnum = widget.promoInfo.dateType;
 
-    if (promoTypeEnum == DateTypeEnum.once && widget.promoInfo.onceDay != ''){
-      onceDay = extractDateOrTimeFromJson(widget.promoInfo.onceDay, 'date');
-      selectedDayInOnceType = DateTime.parse(onceDay);
+    if (dateTypeEnum == DateTypeEnum.once && widget.promoInfo.onceDay.dateIsNotEmpty()){
+      selectedDayInOnceType = widget.promoInfo.onceDay.startDate;
 
       // Если в выбранной дате из БД день раньше, чем сегодня, то меняем выбранный день на сегодня
-      if (selectedDayInOnceType.isBefore(DateTime.now().add(const Duration(hours: 6)))){
-        selectedDayInOnceType = DateTime.now().add(const Duration(hours: 6));
+      if (selectedDayInOnceType.isBefore(DateTime.now())){
+        selectedDayInOnceType = DateTime.now();
       }
 
-      onceDayStartTime = extractDateOrTimeFromJson(widget.promoInfo.onceDay, 'startTime');
-      onceDayFinishTime = extractDateOrTimeFromJson(widget.promoInfo.onceDay, 'endTime');
+      onceDayStartTime = TimeMixin.getTimeFromDateTime(widget.promoInfo.onceDay.startDate);
+      onceDayFinishTime = TimeMixin.getTimeFromDateTime(widget.promoInfo.onceDay.endDate);
+
     } else {
       selectedDayInOnceType = DateTime(2100);
     }
 
-    if (promoTypeEnum == DateTypeEnum.long && widget.promoInfo.longDays != '') {
+    if (dateTypeEnum == DateTypeEnum.long && widget.promoInfo.longDays.dateIsNotEmpty()) {
 
-      longStartDay = extractDateOrTimeFromJson(widget.promoInfo.longDays, 'startDate');
-      longEndDay = extractDateOrTimeFromJson(widget.promoInfo.longDays, 'endDate');
-      selectedStartDayInLongType = DateTime.parse(longStartDay);
-      selectedEndDayInLongType = DateTime.parse(longEndDay);
-      longDayStartTime = extractDateOrTimeFromJson(widget.promoInfo.longDays, 'startTime');
-      longDayFinishTime = extractDateOrTimeFromJson(widget.promoInfo.longDays, 'endTime');
+      selectedStartDayInLongType = widget.promoInfo.longDays.startStartDate;
+      selectedEndDayInLongType = widget.promoInfo.longDays.endStartDate;
+      longDayStartTime = TimeMixin.getTimeFromDateTime(widget.promoInfo.longDays.startStartDate);
+      longDayFinishTime = TimeMixin.getTimeFromDateTime(widget.promoInfo.longDays.endEndDate);
 
     } else {
       selectedStartDayInLongType = DateTime(2100);
       selectedEndDayInLongType = DateTime(2100);
     }
 
-    if (promoTypeEnum == DateTypeEnum.regular && widget.promoInfo.regularDays != ''){
+    if (dateTypeEnum == DateTypeEnum.regular){
 
       _fillRegularList();
     }
 
-    if (promoTypeEnum == DateTypeEnum.irregular && widget.promoInfo.irregularDays != ''){
+    if (dateTypeEnum == DateTypeEnum.irregular && widget.promoInfo.irregularDays.dateIsNotEmpty()){
 
-      // Парсим даты и время в списки
-      parseInputString(widget.promoInfo.irregularDays, tempIrregularDaysString, chosenIrregularStartTime, chosenIrregularEndTime);
+      for (int i = 0; i<widget.promoInfo.irregularDays.dates.length; i++){
+        OnceDate date = widget.promoInfo.irregularDays.dates[i];
 
-      for (String date in tempIrregularDaysString){
-        // Преобразуем даты из String в DateTime и кидаем в нужный список
-        chosenIrregularDays.add(getDateFromString(date));
+        chosenIrregularDays.add(date.startDate);
+        chosenIrregularStartTime.add(TimeMixin.getTimeFromDateTime(date.startDate));
+        chosenIrregularEndTime.add(TimeMixin.getTimeFromDateTime(date.endDate));
+
       }
     }
 
     if (widget.promoInfo.id == '') {
-
-      DatabaseReference eventReference = FirebaseDatabase.instance.ref().child('promos');
-
-      // --- Генерируем уникальный ключ ---
-      DatabaseReference newEventReference = eventReference.push();
       // ---- Получаем уникальный ключ ----
-      promoId = newEventReference.key!; // Получаем уникальный ключ
+      promoId = MixinDatabase.generateKey()!;
 
     } else {
-
       promoId = widget.promoInfo.id;
-
     }
 
     if (widget.promoInfo.placeId != '') {
@@ -235,9 +218,8 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
 
     }
 
-    if (widget.promoInfo.createDate == ''){
-      DateTime now = DateTime.now();
-      createdTime = '${now.day}.${now.month}.${now.year}';
+    if (widget.promoInfo.createDate == DateTime(2100)){
+      createdTime = DateTime.now();
     }
     else {
       createdTime = widget.promoInfo.createDate;
@@ -288,7 +270,7 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
       instagramController = TextEditingController(text: '');
     }
 
-    cityController = TextEditingController(text: widget.promoInfo.city);
+    cityController = TextEditingController(text: widget.promoInfo.city.name);
     streetController = TextEditingController(text: widget.promoInfo.street);
     houseController = TextEditingController(text: widget.promoInfo.house);
 
@@ -297,9 +279,9 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
     _cities = City.currentCityList;
     _categories = PromoCategory.currentPromoCategoryList;
 
-    chosenCategory = PromoCategory.getPromoCategoryFromCategoriesList(widget.promoInfo.category);
+    chosenCategory = widget.promoInfo.category;
 
-    chosenCity = City.getCityByIdFromList(widget.promoInfo.city);
+    chosenCity = widget.promoInfo.city;
 
     setState(() {
       loading = false;
@@ -375,7 +357,7 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
                         },
                       ),
 
-                      if (chosenCategory.id != "") CategoryElementInEditScreen(
+                      if (chosenCategory.id != '') CategoryElementInEditScreen(
                         categoryName: chosenCategory.name,
                         onActionPressed: () {
                           //_showCityPickerDialog();
@@ -393,19 +375,19 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
                           child: Column (
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              
+
                               TypeOfDateWidget(
-                                  type: promoTypeEnum,
-                                  onChooseType: (DateTypeEnum? newValue) {
-                                    setState(() {
-                                      promoTypeEnum = newValue!;
-                                    });
-                                  },
+                                type: dateTypeEnum,
+                                onChooseType: (DateTypeEnum? newValue) {
+                                  setState(() {
+                                    dateTypeEnum = newValue!;
+                                  });
+                                },
                               ),
 
                               const SizedBox(height: 20.0),
 
-                              if (promoTypeEnum == DateTypeEnum.once) OnceTypeDateTimePickerWidget(
+                              if (dateTypeEnum == DateTypeEnum.once) OnceTypeDateTimePickerWidget(
                                 //title: 'Выбери дату и время проведения мероприятия',
                                   dateLabelText: 'Дата проведения акции',
                                   startTimeLabelText: "Начало",
@@ -439,7 +421,7 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
 
 
 
-                              if (promoTypeEnum == DateTypeEnum.long) LongTypeDateTimePickerWidget(
+                              if (dateTypeEnum == DateTypeEnum.long) LongTypeDateTimePickerWidget(
                                   startDateLabelText: 'Дата начала акции',
                                   endDateLabelText: 'Дата завершения акции',
                                   startTimeLabelText: "Начало",
@@ -486,7 +468,7 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
                                   }
                               ),
 
-                              if (promoTypeEnum == DateTypeEnum.regular) Column(
+                              if (dateTypeEnum == DateTypeEnum.regular) Column(
                                 children: List.generate(regularStartTimes.length, (index) {
                                   return RegularTwoTypeDateTimePickerWidget(
                                     startTimeLabelText: "Начало",
@@ -508,7 +490,7 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
                                 }).toList(),
                               ),
 
-                              if (promoTypeEnum == DateTypeEnum.irregular && chosenIrregularDays.isNotEmpty) Column(
+                              if (dateTypeEnum == DateTypeEnum.irregular && chosenIrregularDays.isNotEmpty) Column(
                                 children: List.generate(chosenIrregularDays.length, (index) {
                                   return IrregularTypeDateTimePickerWidget(
                                       dateLabelText: "Дата проведения акции",
@@ -550,8 +532,8 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
                                 }).toList(),
                               ),
 
-                              if (promoTypeEnum == DateTypeEnum.irregular) SizedBox(height: 20,),
-                              if (promoTypeEnum == DateTypeEnum.irregular) CustomButton(
+                              if (dateTypeEnum == DateTypeEnum.irregular) const SizedBox(height: 20,),
+                              if (dateTypeEnum == DateTypeEnum.irregular) CustomButton(
                                   buttonText: "Добавить дату",
                                   onTapMethod: (){
                                     setState(() {
@@ -607,7 +589,7 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
                         keyboardType: TextInputType.phone,
                         controller: phoneController,
                         decoration: const InputDecoration(
-                          labelText: 'Контактный телефон',
+                          labelText: 'Телефон для справок',
                         ),
                       ),
 
@@ -617,7 +599,7 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
                         keyboardType: TextInputType.phone,
                         controller: whatsappController,
                         decoration: const InputDecoration(
-                          labelText: 'Whatsapp',
+                          labelText: 'Whatsapp для справок',
                         ),
                       ),
 
@@ -627,7 +609,7 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
                         keyboardType: TextInputType.text,
                         controller: telegramController,
                         decoration: const InputDecoration(
-                          labelText: 'Telegram',
+                          labelText: 'Telegram для справок',
                         ),
                       ),
 
@@ -637,7 +619,7 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
                         keyboardType: TextInputType.text,
                         controller: instagramController,
                         decoration: const InputDecoration(
-                          labelText: 'Instagram',
+                          labelText: 'Instagram для справок',
                         ),
                       ),
 
@@ -649,10 +631,8 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
                         buttonText: 'Сохранить изменения',
                         onTapMethod: () async {
 
-                          DateTypeEnumClass dateTypeEnumClass = DateTypeEnumClass();
-
                           String checkDates = checkTimeAndDate(
-                              promoTypeEnum,
+                              dateTypeEnum,
                               selectedDayInOnceType,
                               onceDayStartTime,
                               onceDayFinishTime,
@@ -692,7 +672,7 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
 
 
                               // Выгружаем изображение в БД и получаем URL картинки
-                              avatarURL = await ImageUploader.uploadImageInPromo(promoId, compressedImage);
+                              avatarURL = await ImageUploader.uploadImageInEvent(promoId, compressedImage);
 
                               // Если URL аватарки есть
                               if (avatarURL != null) {
@@ -710,15 +690,17 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
 
                             }
 
+
+
                             PromoCustom promo = PromoCustom(
                                 id: promoId,
-                                promoType: dateTypeEnumClass.getNameEnum(promoTypeEnum), // сделать функционал
+                                dateType: dateTypeEnum, // сделать функционал
                                 headline: headlineController.text,
                                 desc: descController.text,
                                 creatorId: creatorId,
                                 createDate: createdTime,
-                                category: chosenCategory.id,
-                                city: chosenCity.id,
+                                category: chosenCategory,
+                                city: chosenCity,
                                 street: streetController.text,
                                 house: houseController.text,
                                 phone: phoneController.text,
@@ -727,64 +709,60 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
                                 instagram: instagramController.text,
                                 imageUrl: avatarURL ?? widget.promoInfo.imageUrl,
                                 placeId: chosenPlace.id, // сделать функционал
-                                onceDay: generateOnceTypeDate(
-                                    selectedDayInOnceType,
-                                    onceDayStartTime,
-                                    onceDayFinishTime
+                                onceDay: widget.promoInfo.onceDay.generateDateForEntity(
+                                    OnceDate.generateOnceMapForEntity(
+                                        selectedDayInOnceType,
+                                        onceDayStartTime,
+                                        onceDayFinishTime
+                                    )
                                 ), // сделать функционал
-                                longDays: generateLongTypeDate(
-                                    selectedStartDayInLongType,
-                                    selectedEndDayInLongType,
-                                    longDayStartTime,
-                                    longDayFinishTime
+                                longDays: widget.promoInfo.longDays.generateDateForEntity(
+                                    LongDate.generateLongMapForEntity(
+                                        selectedStartDayInLongType,
+                                        selectedEndDayInLongType,
+                                        longDayStartTime,
+                                        longDayFinishTime
+                                    )
                                 ), // сделать функционал
-                                regularDays: generateRegularTypeDateTwo(regularStartTimes, regularFinishTimes), // сделать функционал
+                                regularDays: widget.promoInfo.regularDays.generateDateForEntity(
+                                    RegularDate.generateOnceMapForEntity(regularStartTimes, regularFinishTimes)
+                                ),
 
-                                irregularDays: sortDateTimeListAndRelatedData(
-                                    chosenIrregularDays,
-                                    chosenIrregularStartTime,
-                                    chosenIrregularEndTime
+                                irregularDays: widget.promoInfo.irregularDays.generateDateForEntity(
+                                    IrregularDate.generateIrregularMapForEntity(
+                                        chosenIrregularDays,
+                                        chosenIrregularStartTime,
+                                        chosenIrregularEndTime
+                                    )
                                 ),
                             );
 
-                            String? editInDatabase = await PromoCustom.createOrEditPromo(promo);
+                            String? editInDatabase = await promo.publishToDb();
 
                             // Если выгрузка успешна
                             if (editInDatabase == 'success') {
 
-                              PromoCustom newPromo = await PromoCustom.getPromoById(promoId);
+                              PromoCustom newPromo = PromoCustom.emptyPromo;
 
-                              // TODO Проверить удаление, если было заведение, а потом сменили адрес вручную
+                              newPromo = await newPromo.getEntityByIdFromDb(promoId);
+
                               if (widget.promoInfo.placeId != '' && widget.promoInfo.placeId != chosenPlace.id) {
 
-                                await PromoCustom.deletePromoIdFromPlace(promoId, widget.promoInfo.placeId);
+                                await widget.promoInfo.deleteEntityIdFromPlace(widget.promoInfo.placeId);
 
                               }
 
                               // Если в передаваемом месте нет имени, т.е это создание
                               if (widget.promoInfo.headline == ''){
                                 // То добавляем в списки новое созданное место
-
-                                PromoCustom.currentFeedPromoList.add(newPromo);
-                                PromoCustom.currentMyPromoList.add(newPromo);
-
-
+                                newPromo.addEntityToCurrentEntitiesLists();
                               } else {
+                                // Если редактирование, удаляем старое объявление
+                                promo.deleteEntityFromCurrentEntityLists();
 
-                                // Если редактирование то удаляем старые неотредактированные данные
-
-                                PromoCustom.deletePromoFromCurrentPromoLists(promoId);
-
-                                // Добавляем обновленное
-                                PromoCustom.currentFeedPromoList.add(newPromo);
-                                PromoCustom.currentMyPromoList.add(newPromo);
-
-                                if (bool.parse(newPromo.inFav!)) PromoCustom.currentFavPromoList.add(newPromo);
-
+                                // Добавляем отредактированное
+                                newPromo.addEntityToCurrentEntitiesLists();
                               }
-
-
-
 
                               // Выключаем экран загрузки
                               setState(() {
@@ -849,7 +827,7 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
         var offsetAnimation = animation.drive(tween);
         return SlideTransition(position: offsetAnimation, child: child);
       },
-      transitionDuration: Duration(milliseconds: 100),
+      transitionDuration: const Duration(milliseconds: 100),
 
     );
   }
@@ -861,17 +839,16 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
       setState(() {
         chosenCategory = selectedCategory;
       });
-      print("Selected category: ${selectedCategory.name}, ID: ${selectedCategory.id}");
     }
   }
 
   void _fillRegularList (){
-    //int counter = 1;
 
     for (int i = 0; i<regularStartTimes.length; i++){
 
-      regularStartTimes[i] = extractDateOrTimeFromJson(widget.promoInfo.regularDays, 'startTime${i+1}');
-      regularFinishTimes[i] = extractDateOrTimeFromJson(widget.promoInfo.regularDays, 'endTime${i+1}');
+
+      regularStartTimes[i] = widget.promoInfo.regularDays.getDayFromIndex(i).startTime.toString();
+      regularFinishTimes[i] = widget.promoInfo.regularDays.getDayFromIndex(i).endTime.toString();
 
     }
   }
@@ -891,7 +868,7 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
         var offsetAnimation = animation.drive(tween);
         return SlideTransition(position: offsetAnimation, child: child);
       },
-      transitionDuration: Duration(milliseconds: 100),
+      transitionDuration: const Duration(milliseconds: 100),
 
     );
   }
@@ -904,7 +881,6 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
         chosenPlace = selectedPlace;
         chosenCity = City.getCityByIdFromList(chosenPlace.city);
       });
-      //print("Selected category: ${selectedPlace.name}, ID: ${selectedPlace.id}");
     }
   }
 
@@ -923,7 +899,7 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
         var offsetAnimation = animation.drive(tween);
         return SlideTransition(position: offsetAnimation, child: child);
       },
-      transitionDuration: Duration(milliseconds: 100),
+      transitionDuration: const Duration(milliseconds: 100),
 
     );
   }
@@ -1010,28 +986,4 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
       }
     }
   }
-
-  // TODO Вынести эту функцию в отдельный класс. Она скопирована в EventViewScreen
-  void parseInputString(
-      String inputString, List<String> datesList, List<String> startTimeList, List<String> endTimeList) {
-    RegExp dateRegExp = RegExp(r'"date": "([^"]+)"');
-    RegExp startTimeRegExp = RegExp(r'"startTime": "([^"]+)"');
-    RegExp endTimeRegExp = RegExp(r'"endTime": "([^"]+)"');
-
-    List<Match> matches = dateRegExp.allMatches(inputString).toList();
-    for (Match match in matches) {
-      datesList.add(match.group(1)!);
-    }
-
-    matches = startTimeRegExp.allMatches(inputString).toList();
-    for (Match match in matches) {
-      startTimeList.add(match.group(1)!);
-    }
-
-    matches = endTimeRegExp.allMatches(inputString).toList();
-    for (Match match in matches) {
-      endTimeList.add(match.group(1)!);
-    }
-  }
-
 }

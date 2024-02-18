@@ -1,3 +1,5 @@
+import 'package:dvij_flutter/promos/promo_class.dart';
+
 import '../classes/date_type_enum.dart';
 import '../dates/date_mixin.dart';
 import '../events/event_class.dart';
@@ -21,46 +23,21 @@ mixin FilterMixin {
 
   }
 
-  /*static bool checkEventRegularDayForFilter (
-      EventCustom event,
+  static bool checkPromoDatesForFilter (
+      PromoCustom promo,
       DateTime selectedStartDatePeriod,
       DateTime selectedEndDatePeriod,
       ) {
 
-    // ФУНКЦИЯ ПРОВЕРКИ РЕГУЛЯРНОЙ ДАТЫ НА ПОПАДАНИЕ В ЗАДАННЫЙ ПЕРИОД
+    DateTypeEnum dateTypeEnum = promo.dateType;
 
-    bool result = false;
-
-    List<int> eventWeekDays = [];
-    List<int> filterWeekDays = [];
-
-    // Считываем дни недели, в которые проводится мероприятие
-    for (int i = 0; i<7; i++){
-
-      String startTime = event.regularDays['startTime${i+1}']!;
-
-      if (startTime != 'Не выбрано') eventWeekDays.add(i+1);
-
+    switch (dateTypeEnum) {
+      case DateTypeEnum.once: return promo.onceDay.checkDateForFilter(selectedStartDatePeriod, selectedEndDatePeriod);
+      case DateTypeEnum.long: return promo.longDays.checkDateForFilter(selectedStartDatePeriod, selectedEndDatePeriod);
+      case DateTypeEnum.regular: return promo.regularDays.checkDateForFilter(selectedStartDatePeriod, selectedEndDatePeriod);
+      case DateTypeEnum.irregular: return promo.irregularDays.checkDateForFilter(selectedStartDatePeriod, selectedEndDatePeriod);
     }
 
-    // Считываем дни недели периода из фильтра
+  }
 
-    for (int i = 0; i<7; i++){
-
-      DateTime tempDate = selectedStartDatePeriod.add(Duration(days: i));
-
-      if (DateMixin.dateIsBeforeEnd(tempDate, selectedEndDatePeriod)){
-        filterWeekDays.add(tempDate.weekday);
-      }
-    }
-
-    for (int eventWeekDay in eventWeekDays){
-      if (eventWeekDays.isNotEmpty && filterWeekDays.isNotEmpty && filterWeekDays.contains(eventWeekDay)) {
-        result = true;
-      }
-    }
-
-    return result;
-
-  }*/
 }

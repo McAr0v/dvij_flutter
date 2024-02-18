@@ -1,41 +1,48 @@
 import 'package:dvij_flutter/cities/city_class.dart';
 import 'package:dvij_flutter/classes/date_type_enum.dart';
-import 'package:dvij_flutter/promos/promo_category_class.dart';
-import 'package:dvij_flutter/promos/promo_sorting_options.dart';
 import 'package:dvij_flutter/classes/user_class.dart';
+import 'package:dvij_flutter/database/database_mixin.dart';
+import 'package:dvij_flutter/dates/date_mixin.dart';
+import 'package:dvij_flutter/dates/irregular_date_class.dart';
+import 'package:dvij_flutter/dates/long_date_class.dart';
+import 'package:dvij_flutter/dates/once_date_class.dart';
+import 'package:dvij_flutter/dates/regular_date_class.dart';
+import 'package:dvij_flutter/dates/time_mixin.dart';
+import 'package:dvij_flutter/filters/filter_mixin.dart';
+import 'package:dvij_flutter/interfaces/entity_interface.dart';
+import 'package:dvij_flutter/promos/promo_category_class.dart';
+import 'package:dvij_flutter/promos/promos_list_class.dart';
 import 'package:firebase_database/firebase_database.dart';
 import '../methods/date_functions.dart';
-import '../events/event_category_class.dart';
 
-class PromoCustom {
+class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
   String id;
-  String promoType;
+  DateTypeEnum dateType;
   String headline;
   String desc;
   String creatorId;
-  String createDate;
-  String category;
-  String city;
+  DateTime createDate;
+  PromoCategory category;
+  City city;
   String street;
   String house;
   String phone;
-  String whatsapp; // Формат даты (например, "yyyy-MM-dd")
+  String whatsapp;
   String telegram;
   String instagram;
   String imageUrl;
   String placeId;
-  String onceDay;
-  String longDays;
-  String regularDays;
-  String irregularDays;
-  String? addedToFavouritesCount;
-  String? canEdit;
-  String? inFav;
-  String? today;
+  OnceDate onceDay;
+  LongDate longDays;
+  RegularDate regularDays;
+  IrregularDate irregularDays;
+  int? addedToFavouritesCount;
+  bool? inFav;
+  bool? today;
 
   PromoCustom({
     required this.id,
-    required this.promoType,
+    required this.dateType,
     required this.headline,
     required this.desc,
     required this.creatorId,
@@ -55,73 +62,104 @@ class PromoCustom {
     required this.regularDays,
     required this.irregularDays,
     this.addedToFavouritesCount,
-    this.canEdit,
     this.inFav,
     this.today,
 
   });
 
+  /// МЕТОД СЧИТЫВАНИЯ СУЩНОСТИ С БД
+  ///
+  /// <br>
+  /// Передаем "снимок" с бд и возвращаем заполненную сущность
+  /// <br>
+  /// <br>
+  /// Принимает [DataSnapshot],
+  /// <br>
+  /// Возвращает [EventCustom]
   factory PromoCustom.fromSnapshot(DataSnapshot snapshot) {
-    // Указываем путь к нашим полям
-    DataSnapshot idSnapshot = snapshot.child('id');
-    DataSnapshot promoTypeSnapshot = snapshot.child('promoType');
-    DataSnapshot headlineSnapshot = snapshot.child('headline');
-    DataSnapshot descSnapshot = snapshot.child('desc');
-    DataSnapshot creatorIdSnapshot = snapshot.child('creatorId');
-    DataSnapshot createDateSnapshot = snapshot.child('createDate');
-    DataSnapshot categorySnapshot = snapshot.child('category');
-    DataSnapshot citySnapshot = snapshot.child('city');
-    DataSnapshot streetSnapshot = snapshot.child('street');
-    DataSnapshot houseSnapshot = snapshot.child('house');
-    DataSnapshot phoneSnapshot = snapshot.child('phone');
-    DataSnapshot whatsappSnapshot = snapshot.child('whatsapp');
-    DataSnapshot telegramSnapshot = snapshot.child('telegram');
-    DataSnapshot instagramSnapshot = snapshot.child('instagram');
-    DataSnapshot imageUrlSnapshot = snapshot.child('imageUrl');
-    DataSnapshot placeIdSnapshot = snapshot.child('placeId');
-    DataSnapshot onceDayDateSnapshot = snapshot.child('onceDay');
-    DataSnapshot longDaysSnapshot = snapshot.child('longDays');
-    DataSnapshot regularDaysSnapshot = snapshot.child('regularDays');
-    DataSnapshot irregularDaysSnapshot = snapshot.child('irregularDays');
+
+
+    // --- ИНИЦИАЛИЗИРУЕМ ПЕРЕМЕННЫЕ ----
+
+    DateTypeEnumClass dateTypeClass = DateTypeEnumClass();
+    PromoCategory promoCategory = PromoCategory(name: '', id: snapshot.child('category').value.toString());
+    City city = City(name: '', id: snapshot.child('city').value.toString());
+
+    OnceDate onceDate = OnceDate();
+    String onceDayString = snapshot.child('onceDay').value.toString();
+
+    LongDate longDate = LongDate();
+    String longDaysString = snapshot.child('longDays').value.toString();
+
+    RegularDate regularDate = RegularDate();
+    String regularDateString = snapshot.child('regularDays').value.toString();
+
+    IrregularDate irregularDate = IrregularDate();
+    String irregularDaysString = snapshot.child('irregularDays').value.toString();
+
+
+    // ---- РАБОТА С ДАТАМИ -----
+    // ---- СЧИТЫВАЕМ И ГЕНЕРИРУЕМ ДАТЫ -----
+
+    DateTypeEnum dateType = dateTypeClass.getEnumFromString(snapshot.child('promoType').value.toString());
+
+    if (onceDayString != ''){
+      onceDate = onceDate.getFromJson(onceDayString);
+    }
+
+    if (longDaysString != ''){
+      longDate = longDate.getFromJson(longDaysString);
+    }
+
+    if (regularDateString != ''){
+      regularDate = regularDate.getFromJson(regularDateString);
+    }
+
+    if (irregularDaysString != ''){
+      irregularDate = irregularDate.getFromJson(irregularDaysString);
+    }
+
+    // ---- МЕТКА - СЕГОДНЯ ИЛИ НЕТ -----
+
+    bool today = DateMixin.todayOrNot(dateType, onceDate, longDate, regularDate, irregularDate);
+
+    // ---- ВОЗВРАЩАЕМ ЗАПОЛНЕННУЮ СУЩНОСТЬ -----
 
     return PromoCustom(
-        id: idSnapshot.value.toString() ?? '',
-        promoType: promoTypeSnapshot.value.toString() ?? '',
-        headline: headlineSnapshot.value.toString() ?? '',
-        desc: descSnapshot.value.toString() ?? '',
-        creatorId: creatorIdSnapshot.value.toString() ?? '',
-        createDate: createDateSnapshot.value.toString() ?? '',
-        category: categorySnapshot.value.toString() ?? '',
-        city: citySnapshot.value.toString() ?? '',
-        street: streetSnapshot.value.toString() ?? '',
-        house: houseSnapshot.value.toString() ?? '',
-        phone: phoneSnapshot.value.toString() ?? '',
-        whatsapp: whatsappSnapshot.value.toString() ?? '',
-        telegram: telegramSnapshot.value.toString() ?? '',
-        instagram: instagramSnapshot.value.toString() ?? '',
-        imageUrl: imageUrlSnapshot.value.toString() ?? '',
-        placeId: placeIdSnapshot.value.toString() ?? '',
-        onceDay: onceDayDateSnapshot.value.toString() ?? '',
-        longDays: longDaysSnapshot.value.toString() ?? '',
-        regularDays: regularDaysSnapshot.value.toString() ?? '',
-        irregularDays: irregularDaysSnapshot.value.toString() ?? ''
-
+      id: snapshot.child('id').value.toString(),
+      dateType: dateType,
+      headline: snapshot.child('headline').value.toString(),
+      desc: snapshot.child('desc').value.toString(),
+      creatorId: snapshot.child('creatorId').value.toString(),
+      createDate: getDateFromString(snapshot.child('createDate').value.toString()),
+      category: promoCategory.getEntityByIdFromList(snapshot.child('category').value.toString()),
+      city: city.getEntityByIdFromList(snapshot.child('city').value.toString()),
+      street: snapshot.child('street').value.toString(),
+      house: snapshot.child('house').value.toString(),
+      phone: snapshot.child('phone').value.toString(),
+      whatsapp: snapshot.child('whatsapp').value.toString(),
+      telegram: snapshot.child('telegram').value.toString(),
+      instagram: snapshot.child('instagram').value.toString(),
+      imageUrl: snapshot.child('imageUrl').value.toString(),
+      placeId: snapshot.child('placeId').value.toString(),
+      onceDay: onceDate,
+      longDays: longDate,
+      regularDays: regularDate,
+      irregularDays: irregularDate,
+      today: today,
     );
   }
 
-  static List<PromoCustom> currentFeedPromoList = [];
-  static List<PromoCustom> currentFavPromoList = [];
-  static List<PromoCustom> currentMyPromoList = [];
-
-  static PromoCustom emptyPromo = PromoCustom(
+  /// Переменная пустого [PromoCustom]
+  static final PromoCustom emptyPromo = PromoCustom(
       id: '',
-      promoType: '',
+      dateType: DateTypeEnum.once,
       headline: '',
       desc: '',
       creatorId: '',
-      createDate: '',
-      category: '',
-      city: '',
+      createDate: DateTime(2100),
+      category: PromoCategory.empty,
+      city: City.emptyCity,
       street: '',
       house: '',
       phone: '',
@@ -130,718 +168,287 @@ class PromoCustom {
       instagram: '',
       imageUrl: 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2Fdvij_unknow_user.jpg?alt=media&token=b63ea5ef-7bdf-49e9-a3ef-1d34d676b6a7',
       placeId: '',
-      onceDay: '',
-      longDays: '',
-      regularDays: '',
-      irregularDays: ''
-
+      onceDay: OnceDate(),
+      longDays: LongDate(),
+      regularDays: RegularDate(),
+      irregularDays: IrregularDate(),
   );
 
-  factory PromoCustom.empty() {
-    return PromoCustom(
-        id: '',
-        promoType: '',
-        headline: '',
-        desc: '',
-        creatorId: '',
-        createDate: '',
-        category: '',
-        city: '',
-        street: '',
-        house: '',
-        phone: '',
-        whatsapp: '',
-        telegram: '',
-        instagram: '',
-        imageUrl: 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2Fdvij_unknow_user.jpg?alt=media&token=b63ea5ef-7bdf-49e9-a3ef-1d34d676b6a7',
-        placeId: '',
-        onceDay: '',
-        longDays: '',
-        regularDays: '',
-        irregularDays: ''
-    );
+
+  @override
+  void addEntityToCurrentEntitiesLists() {
+    PromoList promosList = PromoList();
+    promosList.addEntityFromCurrentEntitiesLists(this);
   }
 
-  // --- ИНИЦИАЛИЗИРУЕМ БАЗУ ДАННЫХ -----
-  final DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
+  @override
+  Future<String> addToFav() async {
+    PromoList favPromos = PromoList();
 
-  // Метод для добавления нового пола или редактирования пола в Firebase
+    if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
 
-  // --- ФУНКЦИЯ ЗАПИСИ ДАННЫХ Места -----
-  static Future<String?> createOrEditPromo(PromoCustom promo) async {
+      String promoPath = 'promos/$id/addedToFavourites/${UserCustom.currentUser?.uid}';
+      String userPath = 'users/${UserCustom.currentUser?.uid}/favPromos/$id';
 
-    try {
+      Map<String, dynamic> promoData = MixinDatabase.generateDataCode('userId', UserCustom.currentUser?.uid);
+      Map<String, dynamic> userData = MixinDatabase.generateDataCode('promoId', id);
 
-      String promoPath = 'promos/${promo.id}/promo_info';
-      String creatorPath = 'users/${promo.creatorId}/myPromos/${promo.id}';
-      String placePath = 'places/${promo.placeId}/promos/${promo.id}';
+      String promoPublish = await MixinDatabase.publishToDB(promoPath, promoData);
+      String userPublish = await MixinDatabase.publishToDB(userPath, userData);
 
-      // Записываем данные пользователя в базу данных
-      await FirebaseDatabase.instance.ref().child(promoPath).set({
-        'id': promo.id,
-        'promoType': promo.promoType,
-        'headline': promo.headline,
-        'desc': promo.desc,
-        'creatorId': promo.creatorId,
-        'createDate': promo.createDate,
-        'category': promo.category,
-        'city': promo.city,
-        'street': promo.street,
-        'house': promo.house,
-        'phone': promo.phone,
-        'whatsapp': promo.whatsapp,
-        'telegram': promo.telegram,
-        'instagram': promo.instagram,
-        'imageUrl': promo.imageUrl,
-        'placeId': promo.placeId ?? '',
-        'onceDay': promo.onceDay,
-        'longDays': promo.longDays,
-        'regularDays': promo.regularDays,
-        'irregularDays': promo.irregularDays,
+      favPromos.addEntityToCurrentFavList(id);
 
-      });
+      String result = 'success';
 
-      // Записываем данные пользователя в базу данных
-      await FirebaseDatabase.instance.ref().child(creatorPath).set({
-        'promoId': promo.id,
-        //'roleId': '-NngrYovmKAw_cp0pYfJ'
-      });
+      if (promoPublish != 'success') result = promoPublish;
+      if (userPublish != 'success') result = userPublish;
 
-      if (promo.placeId != '') {
-        await FirebaseDatabase.instance.ref().child(placePath).set(
-            {
-              'promoId': promo.id,
-            }
-        );
-      }
+      return result;
 
-      // Если успешно
-      return 'success';
-
-    } catch (e) {
-      // Если ошибки
-      // TODO Сделать обработку ошибок. Наверняка есть какие то, которые можно различать и писать что случилось
-      print('Error writing user data: $e');
-      return 'Failed to write user data. Error: $e';
+    } else {
+      return 'Пользователь не зарегистрирован';
     }
   }
 
-  static Future<String> deletePromo(
-      String promoId,
-      // List<UserCustom> users, Восстановить если надо добавлять других пользователей
-      String creatorId,
-      String placeId
-      ) async {
-    try {
+  @override
+  Future<String> deleteEntityIdFromPlace(String placeId) async {
+    String placePath = 'places/$placeId/promos/$id';
+    return await MixinDatabase.deleteFromDb(placePath);
+  }
 
-      DatabaseReference reference = FirebaseDatabase.instance.ref().child('promos').child(promoId);
+  @override
+  Future<String> deleteFromDb() async {
+    String entityPath = 'promos/$id';
+    String creatorPath = 'users/$creatorId/myPromos/$id';
+    String placePath = 'places/$placeId/promos/$id';
+    String inFavPath = 'users/${UserCustom.currentUser?.uid ?? ''}/favPromos/$id';
 
-      // Проверяем, существует ли город с указанным ID
-      DataSnapshot snapshot = await reference.get();
-      if (!snapshot.exists) {
-        return 'Акция не найдена';
+    String placeDeleteResult = 'success';
+    String inFavListDeleteResult = 'success';
+    String entityDeleteResult = await MixinDatabase.deleteFromDb(entityPath);
+    String creatorDeleteResult = await MixinDatabase.deleteFromDb(creatorPath);
+    if (placeId != ''){
+      placeDeleteResult = await MixinDatabase.deleteFromDb(placePath);
+    }
+
+    if (inFav != null){
+      if (inFav!){
+        inFavListDeleteResult = await MixinDatabase.deleteFromDb(inFavPath);
       }
+    }
 
-      // Удаляем место
-      await reference.remove();
+    return checkSuccessFromDb(entityDeleteResult, creatorDeleteResult, placeDeleteResult, inFavListDeleteResult);
+  }
 
-      // Удалить админские записи у пользователей
+  @override
+  Future<String> deleteFromFav() async {
+    PromoList favPromos = PromoList();
 
-      /*for (var user in users) {
+    if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
 
-        DatabaseReference userReference = FirebaseDatabase.instance.ref().child('users').child(user.uid).child('myPlaces').child(eventId);
+      String promoPath = 'promos/$id/addedToFavourites/${UserCustom.currentUser?.uid}';
+      String userPath = 'users/${UserCustom.currentUser?.uid}/favPromos/$id';
 
-        await userReference.remove();
+      String promoDelete = await MixinDatabase.deleteFromDb(promoPath);
+      String userDelete = await MixinDatabase.deleteFromDb(userPath);
 
-      }*/
+      favPromos.deleteEntityFromCurrentFavList(id);
 
-      // Удаляем создателя
+      String result = 'success';
 
-      if (creatorId != '') {
-        DatabaseReference userReference = FirebaseDatabase.instance.ref().child('users').child(creatorId).child('myPromos').child(promoId);
+      if (promoDelete != 'success') result = promoDelete;
+      if (userDelete != 'success') result = userDelete;
 
-        await userReference.remove();
-      }
+      return result;
 
-      if (placeId != '') {
-        await PromoCustom.deletePromoIdFromPlace(promoId, placeId);
-      }
-
-
-
-      // TODO По хорошему надо удалять и акции
-
-      return 'success';
-    } catch (error) {
-      return 'Ошибка при удалении акции: $error';
+    } else {
+      return 'Пользователь не зарегистрирован';
     }
   }
 
-  static Future<String> deletePromoIdFromPlace(
-      String promoId,
-      // List<UserCustom> users, Восстановить если надо добавлять других пользователей
-      String placeId
-      ) async {
-    try {
+  @override
+  Map<String, dynamic> generateEntityDataCode() {
+    DateTypeEnumClass dateTypeEnumClass = DateTypeEnumClass();
 
-      DatabaseReference reference = FirebaseDatabase.instance.ref().child('places/$placeId/promos').child(promoId);
-
-      // Проверяем, существует ли город с указанным ID
-      DataSnapshot snapshot = await reference.get();
-      if (!snapshot.exists) {
-        return 'Акция не найдена';
-      }
-
-      // Удаляем место
-      await reference.remove();
-
-      return 'success';
-
-    } catch (error) {
-      return '$error';
-    }
+    return <String, dynamic> {
+      'id': id,
+      'promoType': dateTypeEnumClass.getNameEnum(dateType),
+      'headline': headline,
+      'desc': desc,
+      'creatorId': creatorId,
+      'createDate': DateMixin.generateDateString(createDate),
+      'category': category.id,
+      'city': city.id,
+      'street': street,
+      'house': house,
+      'phone': phone,
+      'whatsapp': whatsapp,
+      'telegram': telegram,
+      'instagram': instagram,
+      'imageUrl': imageUrl,
+      'placeId': placeId,
+      'onceDay': onceDay.generateDateStingForDb(),
+      'longDays': longDays.generateDateStingForDb(),
+      'regularDays': regularDays.generateDateStingForDb(),
+      'irregularDays': irregularDays.generateDateStingForDb(),
+    };
   }
 
-  static Future<List<PromoCustom>> getAllPromos() async {
+  @override
+  Future<PromoCustom> getEntityByIdFromDb(String promoId) async {
+    PromoCustom returnedPromo = PromoCustom.emptyPromo;
 
-    List<PromoCustom> promos = [];
-    currentFeedPromoList = [];
+    String path = 'promos/$promoId/promo_info';
 
-    // Указываем путь
-    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('promos');
+    DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB(path);
 
-    // Получаем снимок данных папки
-    DataSnapshot snapshot = await reference.get();
+    if (snapshot != null){
+      PromoCustom promo = PromoCustom.fromSnapshot(snapshot);
 
-    // Итерируем по каждому дочернему элементу
-    // Здесь сделано так потому что мы не знаем ключа города
-    // и нам нужен каждый город, независимо от ключа
+      promo.inFav = await promo.addedInFavOrNot();
+      promo.addedToFavouritesCount = await promo.getFavCount();
 
-    for (var childSnapshot in snapshot.children) {
-      // заполняем город (City.fromSnapshot) из снимка данных
-      // и обавляем в список городов
-
-      PromoCustom promo = PromoCustom.fromSnapshot(childSnapshot.child('promo_info'));
-
-      String favCount = await PromoCustom.getFavCount(promo.id);
-      String inFav = await PromoCustom.addedInFavOrNot(promo.id);
-      //bool fromPlace = eventFromPlace(event.placeId);
-
-      promo.inFav = inFav;
-      promo.addedToFavouritesCount = favCount;
-      promo.today = todayPromoOrNot(promo).toString();
-
-      currentFeedPromoList.add(promo);
-
-      promos.add(promo);
-
+      returnedPromo = promo;
     }
-
-    // Возвращаем список
-    return promos;
-  }
-
-  /*static bool eventFromPlace (String placeId) {
-    return placeId != '';
-  }*/
-
-  static Future<List<PromoCustom>> getFavPromos(String userId) async {
-
-    List<PromoCustom> promos = [];
-    currentFavPromoList = [];
-    List<String> promosId = [];
-
-    // Указываем путь
-    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('users/$userId/favPromos/');
-
-    // Получаем снимок данных папки
-    DataSnapshot snapshot = await reference.get();
-
-    // Итерируем по каждому дочернему элементу
-    // Здесь сделано так потому что мы не знаем ключа города
-    // и нам нужен каждый город, независимо от ключа
-
-    for (var childSnapshot in snapshot.children) {
-      // заполняем город (City.fromSnapshot) из снимка данных
-      // и обавляем в список городов
-
-      DataSnapshot idSnapshot = childSnapshot.child('promoId');
-
-      if (idSnapshot.exists){
-        promosId.add(idSnapshot.value.toString());
-      }
-    }
-
-    if (promosId.isNotEmpty){
-
-      for (var promo in promosId){
-
-        PromoCustom temp = await getPromoById(promo);
-
-        if (temp.id != ''){
-          currentFavPromoList.add(temp);
-          promos.add(temp);
-        }
-
-      }
-
-    }
-    // Возвращаем список
-    return promos;
-  }
-
-  static Future<List<PromoCustom>> getMyPromos(String userId) async {
-
-    List<PromoCustom> promos = [];
-    currentMyPromoList = [];
-    List<String> promosId = [];
-
-    // Указываем путь
-    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('users/$userId/myPromos/');
-
-    // Получаем снимок данных папки
-    DataSnapshot snapshot = await reference.get();
-
-    // Итерируем по каждому дочернему элементу
-    // Здесь сделано так потому что мы не знаем ключа города
-    // и нам нужен каждый город, независимо от ключа
-
-    for (var childSnapshot in snapshot.children) {
-      // заполняем город (City.fromSnapshot) из снимка данных
-      // и обавляем в список городов
-
-      DataSnapshot idSnapshot = childSnapshot.child('promoId');
-
-      if (idSnapshot.exists){
-        promosId.add(idSnapshot.value.toString());
-      }
-    }
-
-    if (promosId.isNotEmpty){
-
-      for (var promo in promosId){
-
-        PromoCustom temp = await getPromoById(promo);
-
-        if (temp.id != ''){
-          currentMyPromoList.add(temp);
-          promos.add(temp);
-        }
-
-      }
-
-    }
-    // Возвращаем список
-    return promos;
-  }
-
-
-  static List<PromoCustom> filterPromos(
-      PromoCategory promoCategoryFromFilter,
-      City cityFromFilter,
-      bool today,
-      bool onlyFromPlacePromos,
-      List<PromoCustom> promosList,
-      DateTime selectedStartDatePeriod,
-      DateTime selectedEndDatePeriod,
-      ) {
-
-    List<PromoCustom> promos = [];
-
-    for (int i = 0; i<promosList.length; i++){
-
-      bool result = checkFilter(
-          promoCategoryFromFilter,
-          cityFromFilter,
-          today,
-          onlyFromPlacePromos,
-          promosList[i],
-          selectedStartDatePeriod,
-          selectedEndDatePeriod
-      );
-
-      if (result) {
-        promos.add(promosList[i]);
-      }
-    }
-    // Возвращаем список
-    return promos;
-  }
-
-  static bool checkFilter (
-      PromoCategory promoCategoryFromFilter,
-      City cityFromFilter,
-      bool today,
-      bool onlyFromPlacePromos,
-      PromoCustom promo,
-      DateTime selectedStartDatePeriod,
-      DateTime selectedEndDatePeriod,
-      ) {
-
-    City cityFromEvent = City.getCityByIdFromList(promo.city);
-    EventCategory categoryFromEvent = EventCategory.getEventCategoryFromCategoriesList(promo.category);
-
-    bool category = promoCategoryFromFilter.id == '' || promoCategoryFromFilter.id == categoryFromEvent.id;
-    bool city = cityFromFilter.id == '' || cityFromFilter.id == cityFromEvent.id;
-    bool checkToday = today == false || bool.parse(promo.today!) == true;
-    bool checkFromPlaceEvent = onlyFromPlacePromos == false || promo.placeId != '';
-    bool checkDate = selectedStartDatePeriod == DateTime(2100) || checkPromosDatesForFilter(promo, selectedStartDatePeriod, selectedEndDatePeriod);
-
-    return category && city && checkToday && checkFromPlaceEvent && checkDate;
-
-
-  }
-
-
-  static void sortPromos(PromoSortingOption sorting, List<PromoCustom> events) {
-
-    switch (sorting){
-
-      case PromoSortingOption.nameAsc: events.sort((a, b) => a.headline.compareTo(b.headline)); break;
-
-      case PromoSortingOption.nameDesc: events.sort((a, b) => b.headline.compareTo(a.headline)); break;
-
-      case PromoSortingOption.favCountAsc: events.sort((a, b) => int.parse(a.addedToFavouritesCount!).compareTo(int.parse(b.addedToFavouritesCount!))); break;
-
-      case PromoSortingOption.favCountDesc: events.sort((a, b) => int.parse(b.addedToFavouritesCount!).compareTo(int.parse(a.addedToFavouritesCount!))); break;
-
-    }
-
-  }
-
-
-
-  static Future<PromoCustom> getPromoById(String promoId) async {
-
-    PromoCustom returnedPromo = PromoCustom.empty();
-
-    // Указываем путь
-    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('promos');
-
-    // Получаем снимок данных папки
-    DataSnapshot snapshot = await reference.get();
-
-    // Итерируем по каждому дочернему элементу
-    // Здесь сделано так потому что мы не знаем ключа города
-    // и нам нужен каждый город, независимо от ключа
-
-    for (var childSnapshot in snapshot.children) {
-      // заполняем город (City.fromSnapshot) из снимка данных
-      // и обавляем в список городов
-
-      PromoCustom promo = PromoCustom.fromSnapshot(childSnapshot.child('promo_info'));
-
-      if (promo.id == promoId) {
-
-        returnedPromo = promo;
-        String favCount = await PromoCustom.getFavCount(promo.id);
-        String inFav = await PromoCustom.addedInFavOrNot(promo.id);
-        String canEdit = await PromoCustom.canEditOrNot(promo.id);
-        promo.canEdit = canEdit;
-        promo.inFav = inFav;
-        promo.addedToFavouritesCount = favCount;
-        promo.today = todayPromoOrNot(promo).toString();
-      }
-    }
-
     // Возвращаем список
     return returnedPromo;
   }
 
+  @override
+  Future<String> publishToDb() async {
+    String placePublishResult = 'success';
+    String entityPath = 'promos/$id/promo_info';
+    String creatorPath = 'users/$creatorId/myPromos/$id';
 
 
-  static Future<String> getFavCount(String promoId) async {
+    Map<String, dynamic> data = generateEntityDataCode();
+    Map<String, dynamic> dataToCreatorAndPlace = MixinDatabase.generateDataCode('promoId', id);
 
-    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('promos/$promoId/addedToFavourites');
+    String entityPublishResult = await MixinDatabase.publishToDB(entityPath, data);
+    String creatorPublishResult = await MixinDatabase.publishToDB(creatorPath, dataToCreatorAndPlace);
 
-    // Получаем снимок данных папки
-    DataSnapshot snapshot = await reference.get();
+    if (placeId != '') {
+      String placePath = 'places/$placeId/promos/$id';
+      placePublishResult = await MixinDatabase.publishToDB(placePath, dataToCreatorAndPlace);
+    }
 
-    return snapshot.children.length.toString();
-
+    return checkSuccessFromDb(entityPublishResult, creatorPublishResult, placePublishResult, 'success');
   }
 
-  static Future<String> addedInFavOrNot(String promoId) async {
+  /// МЕТОД ПРОВЕРКИ РЕЗУЛЬТАТОВ ВЫГРУЗКИ В БД
+  ///
+  /// <br>
+  /// Передаем результаты разных асинхронных выгрузок из одной функции
+  /// <br>
+  /// <br>
+  /// Вернет [String] "success" если все они успешны,
+  /// <br>
+  /// Вернет код ошибки, если хоть одна не успешна
+  static String checkSuccessFromDb(
+      String result1,
+      String result2,
+      String result3,
+      String result4,
+      ){
+    if (result1 != 'success'){
+      return result1;
+    } else if (result2 != 'success'){
+      return result2;
+    } else if (result3 != 'success'){
+      return result3;
+    } else if (result4 != 'success'){
+      return result4;
+    } else {
+      return 'success';
+    }
+  }
 
-    String addedToFavourites = 'false';
+  @override
+  void updateCurrentListFavInformation() {
+    PromoList promosList = PromoList();
+    promosList.updateCurrentListFavInformation(id, addedToFavouritesCount!, inFav!);
+  }
 
+  @override
+  Future<bool> addedInFavOrNot() async {
     if (UserCustom.currentUser?.uid != null)
     {
-
-      final DatabaseReference reference = FirebaseDatabase.instance.ref().child('promos/$promoId/addedToFavourites/${UserCustom.currentUser?.uid}');
-
-      // Получаем снимок данных папки
-      DataSnapshot snapshot = await reference.get();
-
-      for (var childSnapshot in snapshot.children) {
-        // заполняем город (City.fromSnapshot) из снимка данных
-        // и обавляем в список городов
-
-        if (childSnapshot.value == UserCustom.currentUser?.uid) addedToFavourites = 'true';
-
-      }
-
-    }
-
-    return addedToFavourites;
-
-  }
-
-  static Future<String> canEditOrNot(String promoId) async {
-
-    String canEdit = 'false';
-
-    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('promos/$promoId/canEdit');
-
-    // Получаем снимок данных папки
-    DataSnapshot snapshot = await reference.get();
-
-    for (var childSnapshot in snapshot.children) {
-      // заполняем город (City.fromSnapshot) из снимка данных
-      // и обавляем в список городов
-
-      if (childSnapshot.value == UserCustom.currentUser?.uid) canEdit = 'true';
-
-    }
-
-    return canEdit;
-
-  }
-
-  static Future<String> addPromoToFav(String promoId) async {
-
-    try {
-
-      if (UserCustom.currentUser?.uid != null){
-        String promoPath = 'promos/$promoId/addedToFavourites/${UserCustom.currentUser?.uid}';
-        String userPath = 'users/${UserCustom.currentUser?.uid}/favPromos/$promoId';
-
-        // Записываем данные пользователя в базу данных
-        await FirebaseDatabase.instance.ref().child(promoPath).set({
-          'userId': UserCustom.currentUser?.uid,
-        });
-
-        await FirebaseDatabase.instance.ref(userPath).set(
-            {
-              'promoId': promoId,
-            }
-        );
-
-        addPromoToCurrentFavList(promoId);
-
-        // Если успешно
-        return 'success';
-
-      } else {
-
-        return 'Пользователь не зарегистрирован';
-
-      }
-
-    } catch (e) {
-      // Если ошибки
-      // TODO Сделать обработку ошибок. Наверняка есть какие то, которые можно различать и писать что случилось
-      print('Ошибка записи в избранное: $e');
-      return 'Ошибка записи в избранное: $e';
-    }
-  }
-
-  static void deletePromoFromCurrentFavList(String promoId){
-
-    currentFavPromoList.removeWhere((promo) => promo.id == promoId);
-
-  }
-
-  static void addPromoToCurrentFavList(String promoId){
-
-    for (var promo in currentFeedPromoList){
-      if (promo.id == promoId){
-        currentFavPromoList.add(promo);
-        break;
-      }
-    }
-  }
-
-
-  static void updateCurrentPromoListFavInformation(String promoId, String favCounter, String inFav){
-    // ---- Функция обновления списка из БД при добавлении или удалении из избранного
-
-    for (int i = 0; i<currentFeedPromoList.length; i++){
-      // Если ID совпадает
-      if (currentFeedPromoList[i].id == promoId){
-        // Обновляем данные об состоянии этого заведения как избранного
-        currentFeedPromoList[i].addedToFavouritesCount = favCounter;
-        currentFeedPromoList[i].inFav = inFav;
-        break;
-      }
-    }
-
-    for (int i = 0; i<currentFavPromoList.length; i++){
-      // Если ID совпадает
-      if (currentFavPromoList[i].id == promoId){
-        // Обновляем данные об состоянии этого заведения как избранного
-        currentFavPromoList[i].addedToFavouritesCount = favCounter;
-        currentFavPromoList[i].inFav = inFav;
-        break;
-      }
-    }
-
-    for (int i = 0; i<currentMyPromoList.length; i++){
-      // Если ID совпадает
-      if (currentMyPromoList[i].id == promoId){
-        // Обновляем данные об состоянии этого заведения как избранного
-        currentMyPromoList[i].addedToFavouritesCount = favCounter;
-        currentMyPromoList[i].inFav = inFav;
-        break;
-      }
-    }
-
-  }
-
-  static void deletePromoFromCurrentPromoLists(String promoId){
-    // ---- Функция обновления списка из БД при добавлении или удалении из избранного
-
-    currentFeedPromoList.removeWhere((promo) => promo.id == promoId);
-    currentFavPromoList.removeWhere((promo) => promo.id == promoId);
-    currentMyPromoList.removeWhere((promo) => promo.id == promoId);
-  }
-
-  static Future<String> deletePromoFromFav(String promoId) async {
-    try {
-      if (UserCustom.currentUser?.uid != null){
-        DatabaseReference reference = FirebaseDatabase.instance.ref().child('promos/$promoId/addedToFavourites').child(UserCustom.currentUser!.uid);
-
-        // Проверяем, существует ли город с указанным ID
-        DataSnapshot snapshot = await reference.get();
-        if (!snapshot.exists) {
-          return 'Пользователь не найден';
-        }
-
-        // Удаляем город
-        await reference.remove();
-
-        DatabaseReference referenceUser = FirebaseDatabase.instance.ref().child('users/${UserCustom.currentUser?.uid}/favPromos').child(promoId);
-
-        DataSnapshot snapshotUser = await referenceUser.get();
-        if (!snapshotUser.exists) {
-          return 'Акция у пользователя не найдена';
-        }
-
-        // Удаляем город
-        await referenceUser.remove();
-
-      }
-
-      deletePromoFromCurrentFavList(promoId);
-
-      return 'success';
-    } catch (error) {
-      return 'Ошибка при удалении города: $error';
-    }
-  }
-
-  // --- ФУНКЦИЯ ЗАПИСИ ДАННЫХ Места -----
-  static Future<String?> writeUserRoleInPromo(String promoId, String userId, String roleId) async {
-
-    try {
-
-      String placePath = 'promos/$promoId/managers/$userId';
-      String userPath = 'users/$userId/myPromos/$promoId';
-
-      // Записываем данные пользователя в базу данных
-      await FirebaseDatabase.instance.ref().child(placePath).set({
-        'userId': userId,
-        'roleId': roleId,
-      });
-
-      // Записываем данные пользователя в базу данных
-      await FirebaseDatabase.instance.ref().child(userPath).set({
-        'eventId': promoId,
-        'roleId': roleId,
-      });
-
-      // Если успешно
-      return 'success';
-
-    } catch (e) {
-      // Если ошибки
-      // TODO Сделать обработку ошибок. Наверняка есть какие то, которые можно различать и писать что случилось
-      print('Error writing user data: $e');
-      return 'Failed to write user data. Error: $e';
-    }
-  }
-
-  static Future<String?> deleteUserRoleInPromo(String promoId, String userId) async {
-
-    try {
-
-      String placePath = 'promos/$promoId/managers/$userId';
-      String userPath = 'users/$userId/myPromos/$promoId';
-
-      // Записываем данные пользователя в базу данных
-      await FirebaseDatabase.instance.ref().child(placePath).remove();
-      await FirebaseDatabase.instance.ref().child(userPath).remove();
-
-      // Если успешно
-      return 'success';
-
-    } catch (e) {
-      // Если ошибки
-      // TODO Сделать обработку ошибок. Наверняка есть какие то, которые можно различать и писать что случилось
-      print('Error writing user data: $e');
-      return 'Failed to write user data. Error: $e';
-    }
-  }
-
-  static DateTypeEnum getPromoTypeEnum (String promoType) {
-    switch (promoType){
-
-      case 'once': return DateTypeEnum.once;
-      case 'long': return DateTypeEnum.long;
-      case 'regular': return DateTypeEnum.regular;
-      case 'irregular': return DateTypeEnum.irregular;
-      default: return DateTypeEnum.once;
-
-    }
-  }
-
-  static Future<List<PromoCustom>> getPromosList(String promosListInString, {String decimal = ','}) async {
-    List<PromoCustom> tempList = [];
-
-    List<String> splittedString = promosListInString.split(decimal);
-
-    for (int i = 0; i < splittedString.length; i++){
-      PromoCustom tempPromo = getPromoFromFeedList(splittedString[i]);
-
-      if (tempPromo.id != ''){
-        tempList.add(tempPromo);
-      } else {
-        tempPromo = await getPromoById(splittedString[i]);
-        if (tempPromo.id != ''){
-          tempList.add(tempPromo);
+      DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB('promos/$id/addedToFavourites/${UserCustom.currentUser?.uid}');
+
+      if (snapshot != null){
+        for (var childSnapshot in snapshot.children) {
+          if (childSnapshot.value == UserCustom.currentUser?.uid) return true;
         }
       }
     }
 
-    return tempList;
-
+    return false;
   }
 
-  static PromoCustom getPromoFromFeedList (String promoId){
+  /// ФУНКЦИЯ ГЕНЕРАЦИИ СЛОВАРЯ ФИЛЬТРА ДЛЯ ПЕРЕДАЧИ В ФУНКЦИЮ
+  /// <br><br>
+  /// Автоматически делает словарь из данных фильтра, по которым
+  /// будет производиться фильтрация сущности
+  Map<String, dynamic> generateMapForFilter(
+      PromoCategory promoCategoryFromFilter,
+      City cityFromFilter,
+      bool today,
+      bool onlyFromPlacePromos,
+      DateTime selectedStartDatePeriod,
+      DateTime selectedEndDatePeriod,
+      ) {
+    return {
+      'promoCategoryFromFilter': promoCategoryFromFilter,
+      'cityFromFilter': cityFromFilter,
+      'today': today,
+      'onlyFromPlacePromos': onlyFromPlacePromos,
+      'selectedStartDatePeriod': selectedStartDatePeriod,
+      'selectedEndDatePeriod': selectedEndDatePeriod,
+    };
+  }
 
-    PromoCustom result = PromoCustom.emptyPromo;
+  @override
+  bool checkFilter(Map<String, dynamic> mapOfArguments) {
 
-    if (currentFeedPromoList.isNotEmpty){
-      for (int i = 0; i < currentFeedPromoList.length; i++ )
-      {
-        if (currentFeedPromoList[i].id == promoId) {
-          return currentFeedPromoList[i];
-        }
-      }
+    PromoCategory promoCategoryFromFilter = mapOfArguments['promoCategoryFromFilter'];
+    City cityFromFilter = mapOfArguments['cityFromFilter'];
+    bool today = mapOfArguments['today'];
+    bool onlyFromPlacePromos = mapOfArguments['onlyFromPlacePromos'];
+    DateTime selectedStartDatePeriod = mapOfArguments['selectedStartDatePeriod'];
+    DateTime selectedEndDatePeriod = mapOfArguments['selectedEndDatePeriod'];
+
+    City cityFromEvent = this.city;
+    PromoCategory categoryFromPromo = this.category;
+
+    bool category = promoCategoryFromFilter.id == '' || promoCategoryFromFilter.id == categoryFromPromo.id;
+    bool city = cityFromFilter.id == '' || cityFromFilter.id == cityFromEvent.id;
+    bool checkToday = today == false || this.today! == true;
+    bool checkFromPlacePromo = onlyFromPlacePromos == false || placeId != '';
+    bool checkDate = selectedStartDatePeriod == DateTime(2100) || FilterMixin.checkPromoDatesForFilter(this, selectedStartDatePeriod, selectedEndDatePeriod);
+
+    return category && city && checkToday && checkFromPlacePromo && checkDate;
+  }
+
+  @override
+  void deleteEntityFromCurrentEntityLists() {
+    PromoList promosList = PromoList();
+    promosList.deleteEntityFromCurrentEntitiesLists(id);
+  }
+
+  @override
+  getEntityFromFeedList(String id) {
+    PromoList promosList = PromoList();
+    return promosList.getEntityFromFeedListById(id);
+  }
+
+  @override
+  Future<int> getFavCount() async {
+    DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB('promos/$id/addedToFavourites');
+
+    if (snapshot != null) {
+      return snapshot.children.length;
+    } else {
+      return 0;
     }
-
-    return result;
-
   }
-
 }

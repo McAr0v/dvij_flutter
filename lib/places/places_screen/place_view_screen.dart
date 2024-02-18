@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import '../../cities/city_class.dart';
-import '../../promos/promos_elements/PromoCardWidget.dart';
+import '../../promos/promos_elements/promo_card_widget.dart';
 import '../../promos/promotions/promo_view_page.dart';
 import '../place_category_class.dart';
 import '../place_class.dart';

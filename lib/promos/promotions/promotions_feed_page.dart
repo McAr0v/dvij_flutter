@@ -13,7 +13,7 @@ import '../../classes/user_class.dart';
 import '../../elements/loading_screen.dart';
 import '../../elements/snack_bar.dart';
 import '../../elements/text_and_icons_widgets/headline_and_desc.dart';
-import '../promos_elements/PromoCardWidget.dart';
+import '../promos_elements/promo_card_widget.dart';
 import '../promos_elements/promo_filter_page.dart';
 
 
