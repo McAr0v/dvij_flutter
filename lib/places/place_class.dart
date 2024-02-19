@@ -1,47 +1,41 @@
 import 'package:dvij_flutter/cities/city_class.dart';
+import 'package:dvij_flutter/dates/regular_date_class.dart';
 import 'package:dvij_flutter/places/place_category_class.dart';
+import 'package:dvij_flutter/places/place_list_class.dart';
 import 'package:dvij_flutter/places/place_sorting_options.dart';
 import 'package:dvij_flutter/classes/user_class.dart';
 import 'package:dvij_flutter/methods/days_functions.dart';
 import 'package:firebase_database/firebase_database.dart';
 
-class Place {
+import '../database/database_mixin.dart';
+import '../dates/date_mixin.dart';
+import '../dates/time_mixin.dart';
+import '../interfaces/entity_interface.dart';
+
+class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
   String id;
   String name;
   String desc;
   String creatorId;
-  String createDate;
-  String category;
-  String city;
+  DateTime createDate;
+  PlaceCategory category;
+  City city;
   String street;
   String house;
   String phone;
-  String whatsapp; // Формат даты (например, "yyyy-MM-dd")
+  String whatsapp;
   String telegram;
   String instagram;
   String imageUrl;
-  String mondayStartTime;
-  String mondayFinishTime;
-  String tuesdayStartTime;
-  String tuesdayFinishTime;
-  String wednesdayStartTime;
-  String wednesdayFinishTime;
-  String thursdayStartTime;
-  String thursdayFinishTime;
-  String fridayStartTime;
-  String fridayFinishTime;
-  String saturdayStartTime;
-  String saturdayFinishTime;
-  String sundayStartTime;
-  String sundayFinishTime;
-  String? addedToFavouritesCount;
-  String? eventsCount;
-  String? promoCount;
-  String? canEdit;
-  String? inFav;
-  String? nowIsOpen;
-  String? eventsList;
-  String? promosList;
+  RegularDate openingHours;
+  int? addedToFavouritesCount;
+  int? eventsCount;
+  int? promoCount;
+  bool? canEdit;
+  bool? inFav;
+  bool? nowIsOpen;
+  List<String>? eventsList;
+  List<String>? promosList;
 
   Place({
     required this.id,
@@ -58,20 +52,7 @@ class Place {
     required this.telegram,
     required this.instagram,
     required this.imageUrl,
-    required this.mondayStartTime,
-    required this.mondayFinishTime,
-    required this.tuesdayStartTime,
-    required this.tuesdayFinishTime,
-    required this.wednesdayStartTime,
-    required this.wednesdayFinishTime,
-    required this.thursdayStartTime,
-    required this.thursdayFinishTime,
-    required this.fridayStartTime,
-    required this.fridayFinishTime,
-    required this.saturdayStartTime,
-    required this.saturdayFinishTime,
-    required this.sundayStartTime,
-    required this.sundayFinishTime,
+    required this.openingHours,
     this.addedToFavouritesCount,
     this.canEdit,
     this.eventsCount,
@@ -84,81 +65,46 @@ class Place {
   });
 
   factory Place.fromSnapshot(DataSnapshot snapshot) {
-    // Указываем путь к нашим полям
-    DataSnapshot idSnapshot = snapshot.child('id');
-    DataSnapshot nameSnapshot = snapshot.child('name');
-    DataSnapshot descSnapshot = snapshot.child('desc');
-    DataSnapshot creatorIdSnapshot = snapshot.child('creatorId');
-    DataSnapshot createDateSnapshot = snapshot.child('createDate');
-    DataSnapshot categorySnapshot = snapshot.child('category');
-    DataSnapshot citySnapshot = snapshot.child('city');
-    DataSnapshot streetSnapshot = snapshot.child('street');
-    DataSnapshot houseSnapshot = snapshot.child('house');
-    DataSnapshot phoneSnapshot = snapshot.child('phone');
-    DataSnapshot whatsappSnapshot = snapshot.child('whatsapp');
-    DataSnapshot telegramSnapshot = snapshot.child('telegram');
-    DataSnapshot instagramSnapshot = snapshot.child('instagram');
-    DataSnapshot imageUrlSnapshot = snapshot.child('imageUrl');
-    DataSnapshot mondayStartTimeSnapshot = snapshot.child('mondayStartTime');
-    DataSnapshot mondayFinishTimeSnapshot = snapshot.child('mondayFinishTime');
-    DataSnapshot tuesdayStartTimeSnapshot = snapshot.child('tuesdayStartTime');
-    DataSnapshot tuesdayFinishTimeSnapshot = snapshot.child('tuesdayFinishTime');
-    DataSnapshot wednesdayStartTimeSnapshot = snapshot.child('wednesdayStartTime');
-    DataSnapshot wednesdayFinishTimeSnapshot = snapshot.child('wednesdayFinishTime');
-    DataSnapshot thursdayStartTimeSnapshot = snapshot.child('thursdayStartTime');
-    DataSnapshot thursdayFinishTimeSnapshot = snapshot.child('thursdayFinishTime');
-    DataSnapshot fridayStartTimeSnapshot = snapshot.child('fridayStartTime');
-    DataSnapshot fridayFinishTimeSnapshot = snapshot.child('fridayFinishTime');
-    DataSnapshot saturdayStartTimeSnapshot = snapshot.child('saturdayStartTime');
-    DataSnapshot saturdayFinishTimeSnapshot = snapshot.child('saturdayFinishTime');
-    DataSnapshot sundayStartTimeSnapshot = snapshot.child('sundayStartTime');
-    DataSnapshot sundayFinishTimeSnapshot = snapshot.child('sundayFinishTime');
+    PlaceCategory placeCategory = PlaceCategory(name: '', id: snapshot.child('category').value.toString());
+    City city = City(name: '', id: snapshot.child('city').value.toString());
+    RegularDate openingHours = RegularDate();
+    String openingHoursString = snapshot.child('openingHours').value.toString();
+    bool nowIsOpen = false;
+
+    if (openingHoursString != ''){
+      openingHours = openingHours.getFromJson(openingHoursString);
+      nowIsOpen = openingHours.todayOrNot();
+    }
 
     return Place(
-      id: idSnapshot.value.toString() ?? '',
-      name: nameSnapshot.value.toString() ?? '',
-      desc: descSnapshot.value.toString() ?? '',
-      creatorId: creatorIdSnapshot.value.toString() ?? '',
-      createDate: createDateSnapshot.value.toString() ?? '',
-      category: categorySnapshot.value.toString() ?? '',
-      city: citySnapshot.value.toString() ?? '',
-      street: streetSnapshot.value.toString() ?? '',
-      house: houseSnapshot.value.toString() ?? '',
-      phone: phoneSnapshot.value.toString() ?? '',
-      whatsapp: whatsappSnapshot.value.toString() ?? '',
-      telegram: telegramSnapshot.value.toString() ?? '',
-      instagram: instagramSnapshot.value.toString() ?? '',
-      imageUrl: imageUrlSnapshot.value.toString() ?? '',
-      mondayStartTime: mondayStartTimeSnapshot.value.toString() ?? '',
-      mondayFinishTime: mondayFinishTimeSnapshot.value.toString() ?? '',
-      tuesdayStartTime: tuesdayStartTimeSnapshot.value.toString() ?? '',
-      tuesdayFinishTime: tuesdayFinishTimeSnapshot.value.toString() ?? '',
-      wednesdayStartTime: wednesdayStartTimeSnapshot.value.toString() ?? '',
-      wednesdayFinishTime: wednesdayFinishTimeSnapshot.value.toString() ?? '',
-      thursdayStartTime: thursdayStartTimeSnapshot.value.toString() ?? '',
-      thursdayFinishTime: thursdayFinishTimeSnapshot.value.toString() ?? '',
-      fridayStartTime: fridayStartTimeSnapshot.value.toString() ?? '',
-      fridayFinishTime: fridayFinishTimeSnapshot.value.toString() ?? '',
-      saturdayStartTime: saturdayStartTimeSnapshot.value.toString() ?? '',
-      saturdayFinishTime: saturdayFinishTimeSnapshot.value.toString() ?? '',
-      sundayFinishTime: sundayFinishTimeSnapshot.value.toString() ?? '',
-      sundayStartTime: sundayStartTimeSnapshot.value.toString() ?? ''
-
+      id: snapshot.child('id').value.toString(),
+      name: snapshot.child('name').value.toString(),
+      desc: snapshot.child('desc').value.toString(),
+      creatorId: snapshot.child('creatorId').value.toString(),
+      createDate: DateMixin.getDateFromString(snapshot.child('createDate').value.toString()),
+      category: placeCategory.getEntityByIdFromList(snapshot.child('category').value.toString()),
+      city: city.getEntityByIdFromList(snapshot.child('city').value.toString()),
+      street: snapshot.child('street').value.toString(),
+      house: snapshot.child('house').value.toString(),
+      phone: snapshot.child('phone').value.toString(),
+      whatsapp: snapshot.child('whatsapp').value.toString(),
+      telegram: snapshot.child('telegram').value.toString(),
+      instagram: snapshot.child('instagram').value.toString(),
+      imageUrl: snapshot.child('imageUrl').value.toString(),
+      openingHours: openingHours,
+      nowIsOpen: nowIsOpen
     );
   }
 
-  static List<Place> currentFeedPlaceList = [];
-  static List<Place> currentFavPlaceList = [];
-  static List<Place> currentMyPlaceList = [];
-
+  /// Переменная пустого [Place]
   static Place emptyPlace = Place(
       id: '',
       name: '',
       desc: '',
       creatorId: '',
-      createDate: '',
-      category: '',
-      city: '',
+      createDate: DateTime(2100),
+      category: PlaceCategory.empty,
+      city: City.emptyCity,
       street: '',
       house: '',
       phone: '',
@@ -166,297 +112,91 @@ class Place {
       telegram: '',
       instagram: '',
       imageUrl: 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2Fdvij_unknow_user.jpg?alt=media&token=b63ea5ef-7bdf-49e9-a3ef-1d34d676b6a7',
-      mondayStartTime: '',
-      mondayFinishTime: '',
-      tuesdayStartTime: '',
-      tuesdayFinishTime: '',
-      wednesdayStartTime: '',
-      wednesdayFinishTime: '',
-      thursdayStartTime: '',
-      thursdayFinishTime: '',
-      fridayStartTime: '',
-      fridayFinishTime: '',
-      saturdayStartTime: '',
-      saturdayFinishTime: '',
-      sundayStartTime: '',
-      sundayFinishTime: ''
+      openingHours: RegularDate(),
   );
 
-  factory Place.empty() {
-    return Place(
-        id: '',
-        name: '',
-        desc: '',
-        creatorId: '',
-        createDate: '',
-        category: '',
-        city: '',
-        street: '',
-        house: '',
-        phone: '',
-        whatsapp: '',
-        telegram: '',
-        instagram: '',
-        imageUrl: 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2Fdvij_unknow_user.jpg?alt=media&token=b63ea5ef-7bdf-49e9-a3ef-1d34d676b6a7',
-        mondayStartTime: '',
-        mondayFinishTime: '',
-        tuesdayStartTime: '',
-        tuesdayFinishTime: '',
-        wednesdayStartTime: '',
-        wednesdayFinishTime: '',
-        thursdayStartTime: '',
-        thursdayFinishTime: '',
-        fridayStartTime: '',
-        fridayFinishTime: '',
-        saturdayStartTime: '',
-        saturdayFinishTime: '',
-        sundayStartTime: '',
-        sundayFinishTime: ''
-    );
+  @override
+  Future<String> publishToDb() async {
+    String entityPath = 'places/$id/place_info';
+    String creatorPath = 'users/$creatorId/myPlaces/$id';
+
+    Map<String, dynamic> data = generateEntityDataCode();
+    Map<String, dynamic> dataToCreatorAndPlace = {
+      'placeId': id,
+      'roleId': '-NngrYovmKAw_cp0pYfJ'
+    };
+
+    String entityPublishResult = await MixinDatabase.publishToDB(entityPath, data);
+    String creatorPublishResult = await MixinDatabase.publishToDB(creatorPath, dataToCreatorAndPlace);
+
+    String result = 'success';
+
+    if (entityPublishResult != 'success') result = entityPublishResult;
+    if (creatorPublishResult != 'success') result = creatorPublishResult;
+
+    return result;
+
   }
 
-  // TODO убрать время каждого дня в отдельности и сделать списками
+  /// Функция получения списка нужных ID
+  /// <br><br>
+  /// Нужна для удаления записей у админов при удалении заведения, получения списка мероприятий и тд
+  /// <br><br>
+  /// [folderPath] - Путь до папки с нужными Id (например: places/$id/managers)
+  /// <br>
+  /// [fieldName] - Название поля с нужным Id (например: userId)
+  Future<List<String>> getNeededIds(String folderPath, String fieldName) async {
+    List<String> list = [];
 
-  // --- ИНИЦИАЛИЗИРУЕМ БАЗУ ДАННЫХ -----
-  final DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
+    DataSnapshot? foldersSnapshot = await MixinDatabase.getInfoFromDB(folderPath);
 
-  // Метод для добавления нового пола или редактирования пола в Firebase
-
-  // --- ФУНКЦИЯ ЗАПИСИ ДАННЫХ Места -----
-  static Future<String?> createOrEditPlace(Place place) async {
-
-    try {
-
-      String placePath = 'places/${place.id}/place_info';
-      String creatorPath = 'users/${place.creatorId}/myPlaces/${place.id}';
-
-      // Записываем данные пользователя в базу данных
-      await FirebaseDatabase.instance.ref().child(placePath).set({
-        'id': place.id,
-        'name': place.name,
-        'desc': place.desc,
-        'creatorId': place.creatorId,
-        'createDate': place.createDate,
-        'category': place.category,
-        'city': place.city,
-        'street': place.street,
-        'house': place.house,
-        'phone': place.phone,
-        'whatsapp': place.whatsapp,
-        'telegram': place.telegram,
-        'instagram': place.instagram,
-        'imageUrl': place.imageUrl,
-        'mondayStartTime': place.mondayStartTime,
-        'mondayFinishTime': place.mondayFinishTime,
-        'tuesdayStartTime': place.tuesdayStartTime,
-        'tuesdayFinishTime': place.tuesdayFinishTime,
-        'wednesdayFinishTime': place.wednesdayFinishTime,
-        'wednesdayStartTime': place.wednesdayStartTime,
-        'thursdayStartTime': place.thursdayStartTime,
-        'thursdayFinishTime': place.thursdayFinishTime,
-        'fridayStartTime': place.fridayStartTime,
-        'fridayFinishTime': place.fridayFinishTime,
-        'saturdayStartTime': place.saturdayStartTime,
-        'saturdayFinishTime': place.saturdayFinishTime,
-        'sundayStartTime': place.sundayStartTime,
-        'sundayFinishTime': place.sundayFinishTime,
-
-      });
-
-      // Записываем данные пользователя в базу данных
-      await FirebaseDatabase.instance.ref().child(creatorPath).set({
-        'placeId': place.id,
-        'roleId': '-NngrYovmKAw_cp0pYfJ'
-      });
-
-      // Если успешно
-      return 'success';
-
-    } catch (e) {
-      // Если ошибки
-      // TODO Сделать обработку ошибок. Наверняка есть какие то, которые можно различать и писать что случилось
-      print('Error writing user data: $e');
-      return 'Failed to write user data. Error: $e';
-    }
-  }
-
-  static Future<String> deletePlace(String placeId, List<UserCustom> users, String creatorId) async {
-    try {
-
-      DatabaseReference reference = FirebaseDatabase.instance.ref().child('places').child(placeId);
-
-      // Проверяем, существует ли город с указанным ID
-      DataSnapshot snapshot = await reference.get();
-      if (!snapshot.exists) {
-        return 'Место не найдено';
-      }
-
-      // Удаляем место
-      await reference.remove();
-
-      // Удалить админские записи у пользователей
-
-      for (var user in users) {
-
-        DatabaseReference userReference = FirebaseDatabase.instance.ref().child('users').child(user.uid).child('myPlaces').child(placeId);
-
-        await userReference.remove();
-
-      }
-
-      // Удаляем создателя
-
-      if (creatorId != '') {
-        DatabaseReference userReference = FirebaseDatabase.instance.ref().child('users').child(creatorId).child('myPlaces').child(placeId);
-
-        await userReference.remove();
-      }
-
-
-
-      // TODO По хорошему надо удалять и мероприятия
-
-      return 'success';
-    } catch (error) {
-      return 'Ошибка при удалении города: $error';
-    }
-  }
-
-  static Future<List<Place>> getAllPlaces() async {
-
-    List<Place> places = [];
-    currentFeedPlaceList = [];
-
-    // Указываем путь
-    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('places');
-
-    // Получаем снимок данных папки
-    DataSnapshot snapshot = await reference.get();
-
-    // Итерируем по каждому дочернему элементу
-    // Здесь сделано так потому что мы не знаем ключа города
-    // и нам нужен каждый город, независимо от ключа
-
-    for (var childSnapshot in snapshot.children) {
-      // заполняем город (City.fromSnapshot) из снимка данных
-      // и обавляем в список городов
-
-      Place place = Place.fromSnapshot(childSnapshot.child('place_info'));
-
-      String favCount = await Place.getFavCount(place.id);
-      String eventsCount = await Place.getEventsCount(place.id);
-      String promosCount = await Place.getPromoCount(place.id);
-      String inFav = await Place.addedInFavOrNot(place.id);
-      bool nowIsOpenInPlace = nowIsOpenPlace(place);
-
-      place.eventsList = await getEventsList(place.id);
-      place.promosList = await getPromosList(place.id);
-
-      place.inFav = inFav;
-      place.addedToFavouritesCount = favCount;
-      place.eventsCount = eventsCount;
-      place.promoCount = promosCount;
-      place.nowIsOpen = nowIsOpenInPlace.toString();
-
-
-      currentFeedPlaceList.add(place);
-
-      places.add(place);
-
-    }
-
-    // Возвращаем список
-    return places;
-  }
-
-  static Future<List<Place>> getFavPlaces(String userId) async {
-
-    List<Place> places = [];
-    currentFavPlaceList = [];
-    List<String> placesId = [];
-
-    // Указываем путь
-    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('users/$userId/favPlaces/');
-
-    // Получаем снимок данных папки
-    DataSnapshot snapshot = await reference.get();
-
-    // Итерируем по каждому дочернему элементу
-    // Здесь сделано так потому что мы не знаем ключа города
-    // и нам нужен каждый город, независимо от ключа
-
-    for (var childSnapshot in snapshot.children) {
-      // заполняем город (City.fromSnapshot) из снимка данных
-      // и обавляем в список городов
-
-      DataSnapshot idSnapshot = childSnapshot.child('placeId');
-
-      if (idSnapshot.exists){
-        placesId.add(idSnapshot.value.toString());
-      }
-    }
-
-    if (placesId.isNotEmpty){
-
-      for (var place in placesId){
-
-        Place temp = await getPlaceById(place);
-
-        if (temp.id != ''){
-          currentFavPlaceList.add(temp);
-          places.add(temp);
+    if (foldersSnapshot != null){
+      for (var neededFolder in foldersSnapshot.children){
+        if (neededFolder.exists){
+          String entity = neededFolder.child(fieldName).value.toString();
+          list.add(entity);
         }
-
       }
-
     }
-    // Возвращаем список
-    return places;
+
+    return list;
+
   }
 
-  static Future<List<Place>> getMyPlaces(String userId) async {
+  @override
+  Future<String> deleteFromDb() async {
+    // Путь самого заведения
+    String entityPath = 'places/$id';
+    // Путь создателя заведения
+    String creatorPath = 'users/$creatorId/myPromos/$id';
 
-    List<Place> places = [];
-    currentMyPlaceList = [];
-    List<String> placesId = [];
+    // Получаем списки админов заведения
+    List<String> adminsList = await getNeededIds('places/$id/managers', 'userId');
+    // Получаем списки добавивших заведение в избранное
+    // TODO - сделать такое же удаление добавивших в изрбанное, как в заведениях, в мероприятиях и акциях
+    List<String> favUsersList = await getNeededIds('places/$id/addedToFavourites', 'userId');
 
-    // Указываем путь
-    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('users/$userId/myPlaces/');
+    // TODO По хорошему надо удалять и мероприятия и акции из удаляемых заведений
 
-    // Получаем снимок данных папки
-    DataSnapshot snapshot = await reference.get();
+    // Удаляем заведение
+    String entityDeleteResult = await MixinDatabase.deleteFromDb(entityPath);
+    // Удаляем запись у создателя
+    String creatorDeleteResult = await MixinDatabase.deleteFromDb(creatorPath);
 
-    // Итерируем по каждому дочернему элементу
-    // Здесь сделано так потому что мы не знаем ключа города
-    // и нам нужен каждый город, независимо от ключа
-
-    for (var childSnapshot in snapshot.children) {
-      // заполняем город (City.fromSnapshot) из снимка данных
-      // и обавляем в список городов
-
-      DataSnapshot idSnapshot = childSnapshot.child('placeId');
-
-      if (idSnapshot.exists){
-        placesId.add(idSnapshot.value.toString());
-      }
+    // Удаляем записи у админов
+    for (String admin in adminsList){
+      String adminPath = 'users/$admin/myPlaces/$id';
+      String deleteAdminResult = await MixinDatabase.deleteFromDb(adminPath);
     }
 
-    if (placesId.isNotEmpty){
-
-      for (var place in placesId){
-
-        Place temp = await getPlaceById(place);
-
-        if (temp.id != ''){
-          currentMyPlaceList.add(temp);
-          places.add(temp);
-        }
-
-      }
-
+    // Удаляем записи у пользователей, добавивших в избранное
+    for (String favUser in favUsersList){
+      String favUserPath = 'users/$favUser/favPlaces/$id';
+      String deleteAdminResult = await MixinDatabase.deleteFromDb(favUserPath);
     }
-    // Возвращаем список
-    return places;
+
+    // Возвращаем результат удаления самого заведения
+    return entityDeleteResult;
   }
 
   static List<Place> filterPlaces(
@@ -518,74 +258,26 @@ class Place {
 
   }
 
-  static void sortPlaces(PlaceSortingOption sorting, List<Place> places) {
+  @override
+  Future<Place> getEntityByIdFromDb(String entityId) async {
+    Place returnedPlace = Place.emptyPlace;
 
-    switch (sorting){
+    String path = 'places/$entityId/place_info';
 
-      case PlaceSortingOption.nameAsc: places.sort((a, b) => a.name.compareTo(b.name)); break;
+    DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB(path);
 
-      case PlaceSortingOption.nameDesc: places.sort((a, b) => b.name.compareTo(a.name)); break;
+    if (snapshot != null){
+      Place place = Place.fromSnapshot(snapshot);
+      place.inFav = await place.addedInFavOrNot();
+      place.addedToFavouritesCount = await place.getFavCount();
+      place.eventsList = await place.getNeededIds('places/${place.id}/events/', 'eventId');
+      place.promosList = await place.getNeededIds('places/${place.id}/promos/', 'promoId');
+      place.eventsCount = place.eventsList?.length;
+      place.promoCount = place.promosList?.length;
+      // TODO - разработать функционал CanEdit для заведений
 
-      case PlaceSortingOption.promoCountAsc: places.sort((a, b) => int.parse(a.promoCount!).compareTo(int.parse(b.promoCount!))); break;
-
-      case PlaceSortingOption.promoCountDesc: places.sort((a, b) => int.parse(b.promoCount!).compareTo(int.parse(a.promoCount!))); break;
-
-      case PlaceSortingOption.eventCountAsc: places.sort((a, b) => int.parse(a.eventsCount!).compareTo(int.parse(b.eventsCount!))); break;
-
-      case PlaceSortingOption.eventCountDesc: places.sort((a, b) => int.parse(b.eventsCount!).compareTo(int.parse(a.eventsCount!))); break;
-
-      case PlaceSortingOption.favCountAsc: places.sort((a, b) => int.parse(a.addedToFavouritesCount!).compareTo(int.parse(b.addedToFavouritesCount!))); break;
-
-      case PlaceSortingOption.favCountDesc: places.sort((a, b) => int.parse(b.addedToFavouritesCount!).compareTo(int.parse(a.addedToFavouritesCount!))); break;
-
+      returnedPlace = place;
     }
-
-  }
-
-  static Future<Place> getPlaceById(String placeId) async {
-
-    Place returnedPlace = Place.empty();
-
-    // Указываем путь
-    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('places');
-
-    // Получаем снимок данных папки
-    DataSnapshot snapshot = await reference.get();
-
-    // Итерируем по каждому дочернему элементу
-    // Здесь сделано так потому что мы не знаем ключа города
-    // и нам нужен каждый город, независимо от ключа
-
-    for (var childSnapshot in snapshot.children) {
-      // заполняем город (City.fromSnapshot) из снимка данных
-      // и обавляем в список городов
-
-      Place place = Place.fromSnapshot(childSnapshot.child('place_info'));
-
-      if (place.id == placeId) {
-
-        returnedPlace = place;
-        String favCount = await Place.getFavCount(place.id);
-        String eventsCount = await Place.getEventsCount(place.id);
-        String promosCount = await Place.getPromoCount(place.id);
-        String inFav = await Place.addedInFavOrNot(place.id);
-        String canEdit = await Place.canEditOrNot(place.id);
-        bool nowIsOpenInPlace = nowIsOpenPlace(place);
-
-        place.eventsList = await getEventsList(place.id);
-        place.promosList = await getPromosList(place.id);
-        place.nowIsOpen = nowIsOpenInPlace.toString();
-        place.canEdit = canEdit;
-        place.inFav = inFav;
-        place.addedToFavouritesCount = favCount;
-        place.eventsCount = eventsCount;
-        place.promoCount = promosCount;
-
-
-      }
-
-    }
-
     // Возвращаем список
     return returnedPlace;
   }
@@ -601,7 +293,7 @@ class Place {
 
   }
 
-  static Future<String> getEventsCount(String placeId) async {
+  /*static Future<String> getEventsCount(String placeId) async {
 
     final DatabaseReference reference = FirebaseDatabase.instance.ref().child('places/$placeId/events');
 
@@ -610,9 +302,9 @@ class Place {
 
     return snapshot.children.length.toString();
 
-  }
+  }*/
 
-  static Future<String> getEventsList(String placeId) async {
+  /*static Future<String> getEventsList(String placeId) async {
 
     List<String> eventsList = [];
 
@@ -645,9 +337,9 @@ class Place {
 
     return result;
 
-  }
+  }*/
 
-  static Future<String> getPromosList(String placeId) async {
+  /*static Future<String> getPromosList(String placeId) async {
 
     List<String> promosList = [];
 
@@ -691,7 +383,7 @@ class Place {
 
     return snapshot.children.length.toString();
 
-  }
+  }*/
 
   static Future<String> addedInFavOrNot(String placeId) async {
 
@@ -742,41 +434,58 @@ class Place {
 
   }
 
-  static Future<String> addPlaceToFav(String placeId) async {
+  @override
+  Future<String> addToFav() async {
+    PlaceList favPlaces = PlaceList();
 
-    try {
+    if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
 
-      if (UserCustom.currentUser?.uid != null){
-        String placePath = 'places/$placeId/addedToFavourites/${UserCustom.currentUser?.uid}';
-        String userPath = 'users/${UserCustom.currentUser?.uid}/favPlaces/$placeId';
+      String placePath = 'places/$id/addedToFavourites/${UserCustom.currentUser?.uid}';
+      String userPath = 'users/${UserCustom.currentUser?.uid}/favPlaces/$id';
 
-        // Записываем данные пользователя в базу данных
-        await FirebaseDatabase.instance.ref().child(placePath).set({
-          'userId': UserCustom.currentUser?.uid,
-        });
+      Map<String, dynamic> placeData = MixinDatabase.generateDataCode('userId', UserCustom.currentUser?.uid);
+      Map<String, dynamic> userData = MixinDatabase.generateDataCode('placeId', id);
 
-        await FirebaseDatabase.instance.ref(userPath).set(
-            {
-              'placeId': placeId,
-            }
-        );
+      String placePublish = await MixinDatabase.publishToDB(placePath, placeData);
+      String userPublish = await MixinDatabase.publishToDB(userPath, userData);
 
-        addPlaceToCurrentFavList(placeId);
+      favPlaces.addEntityToCurrentFavList(id);
 
-        // Если успешно
-        return 'success';
+      String result = 'success';
 
-      } else {
+      if (placePublish != 'success') result = placePublish;
+      if (userPublish != 'success') result = userPublish;
 
-        return 'Пользователь не зарегистрирован';
+      return result;
 
-      }
+    } else {
+      return 'Пользователь не зарегистрирован';
+    }
+  }
 
-    } catch (e) {
-      // Если ошибки
-      // TODO Сделать обработку ошибок. Наверняка есть какие то, которые можно различать и писать что случилось
-      print('Ошибка записи в избранное: $e');
-      return 'Ошибка записи в избранное: $e';
+  @override
+  Future<String> deleteFromFav() async {
+    PlaceList favPLaces = PlaceList();
+
+    if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
+
+      String eventPath = 'places/$id/addedToFavourites/${UserCustom.currentUser?.uid}';
+      String userPath = 'users/${UserCustom.currentUser?.uid}/favPlaces/$id';
+
+      String eventDelete = await MixinDatabase.deleteFromDb(eventPath);
+      String userDelete = await MixinDatabase.deleteFromDb(userPath);
+
+      favPLaces.deleteEntityFromCurrentFavList(id);
+
+      String result = 'success';
+
+      if (eventDelete != 'success') result = eventDelete;
+      if (userDelete != 'success') result = userDelete;
+
+      return result;
+
+    } else {
+      return 'Пользователь не зарегистрирован';
     }
   }
 
@@ -840,39 +549,7 @@ class Place {
     currentMyPlaceList.removeWhere((place) => place.id == placeId);
   }
 
-  static Future<String> deletePlaceFromFav(String placeId) async {
-    try {
-      if (UserCustom.currentUser?.uid != null){
-        DatabaseReference reference = FirebaseDatabase.instance.ref().child('places/$placeId/addedToFavourites').child(UserCustom.currentUser!.uid);
 
-        // Проверяем, существует ли город с указанным ID
-        DataSnapshot snapshot = await reference.get();
-        if (!snapshot.exists) {
-          return 'Пользователь не найден';
-        }
-
-        // Удаляем город
-        await reference.remove();
-
-        DatabaseReference referenceUser = FirebaseDatabase.instance.ref().child('users/${UserCustom.currentUser?.uid}/favPlaces').child(placeId);
-
-        DataSnapshot snapshotUser = await referenceUser.get();
-        if (!snapshotUser.exists) {
-          return 'Заведение у пользователя не найдено';
-        }
-
-        // Удаляем город
-        await referenceUser.remove();
-
-      }
-
-      deletePlaceFromCurrentFavList(placeId);
-
-      return 'success';
-    } catch (error) {
-      return 'Ошибка при удалении города: $error';
-    }
-  }
 
   // --- ФУНКЦИЯ ЗАПИСИ ДАННЫХ Места -----
   static Future<String?> writeUserRoleInPlace(String placeId, String userId, String roleId) async {
@@ -941,6 +618,65 @@ class Place {
       tempPlace = await getPlaceById(placeId);
     }
     return tempPlace;
+  }
+
+  @override
+  void addEntityToCurrentEntitiesLists() {
+    // TODO: implement addEntityToCurrentEntitiesLists
+  }
+
+
+
+  @override
+  void deleteEntityFromCurrentEntityLists() {
+    // TODO: implement deleteEntityFromCurrentEntityLists
+  }
+
+  @override
+  Future<String> deleteEntityIdFromPlace(String placeId) {
+    Future<String> result = 'Эта функция не используется в заведениях' as Future<String>;
+    return result;
+  }
+
+
+
+
+
+  @override
+  Map<String, dynamic> generateEntityDataCode() {
+
+    return <String, dynamic> {
+      'id': id,
+      'name': name,
+      'desc': desc,
+      'creatorId': creatorId,
+      'createDate': DateMixin.generateDateString(createDate),
+      'category': category.id,
+      'city': city.id,
+      'street': street,
+      'house': house,
+      'phone': phone,
+      'whatsapp': whatsapp,
+      'telegram': telegram,
+      'instagram': instagram,
+      'imageUrl': imageUrl,
+      'openingHours': openingHours.generateDateStingForDb(),
+    };
+  }
+
+
+
+  @override
+  Place getEntityFromFeedList(String id) {
+    // TODO: implement getEntityFromFeedList
+    throw UnimplementedError();
+  }
+
+
+
+  @override
+  void updateCurrentListFavInformation() {
+    // TODO: implement updateCurrentListFavInformation
   }
 
 }

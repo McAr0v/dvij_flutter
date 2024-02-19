@@ -137,7 +137,7 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
         headline: snapshot.child('headline').value.toString(),
         desc: snapshot.child('desc').value.toString(),
         creatorId: snapshot.child('creatorId').value.toString(),
-        createDate: getDateFromString(snapshot.child('createDate').value.toString()),
+        createDate: DateMixin.getDateFromString(snapshot.child('createDate').value.toString()),
         category: eventCategory.getEntityByIdFromList(snapshot.child('category').value.toString()),
         city: city.getEntityByIdFromList(snapshot.child('city').value.toString()),
         street: snapshot.child('street').value.toString(),
