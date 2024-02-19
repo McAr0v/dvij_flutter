@@ -1,29 +1,28 @@
+import 'package:dvij_flutter/dates/date_mixin.dart';
 import 'package:dvij_flutter/events/event_class.dart';
-import 'package:dvij_flutter/promos/promo_category_class.dart';
-import 'package:dvij_flutter/promos/promo_class.dart';
 import 'package:dvij_flutter/elements/text_and_icons_widgets/headline_and_desc.dart';
 import 'package:dvij_flutter/elements/shedule_elements/shedule_once_and_long_widget.dart';
 import 'package:dvij_flutter/elements/social_elements/social_buttons_widget.dart';
 import 'package:dvij_flutter/elements/user_element_widget.dart';
-import 'package:dvij_flutter/methods/date_functions.dart';
+import 'package:dvij_flutter/promos/promo_class.dart';
+import 'package:dvij_flutter/promos/promotions/create_or_edit_promo_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import '../../cities/city_class.dart';
+import '../../events/events_elements/today_widget.dart';
+import '../../places/places_elements/place_widget_in_view_screen_in_event_and_promo.dart';
+import '../../places/places_screen/place_view_screen.dart';
 import '../../classes/date_type_enum.dart';
 import '../../places/place_class.dart';
 import '../../places/place_role_class.dart';
+import '../../classes/priceTypeOptions.dart';
 import '../../classes/user_class.dart';
 import '../../elements/exit_dialog/exit_dialog.dart';
 import '../../elements/text_and_icons_widgets/for_cards_small_widget_with_icon_and_text.dart';
 import '../../elements/loading_screen.dart';
 import '../../elements/shedule_elements/schedule_regular_and_irregular_widget.dart';
 import '../../elements/snack_bar.dart';
-import '../../events/events_elements/today_widget.dart';
-import '../../methods/days_functions.dart';
-import '../../places/places_elements/place_widget_in_view_screen_in_event_and_promo.dart';
-import '../../places/places_screen/place_view_screen.dart';
-import 'create_or_edit_promo_screen.dart';
 
 
 // --- ЭКРАН ЗАЛОГИНЕВШЕГОСЯ ПОЛЬЗОВАТЕЛЯ -----
@@ -33,50 +32,31 @@ class PromoViewScreen extends StatefulWidget {
   const PromoViewScreen({Key? key, required this.promoId}) : super(key: key);
 
   @override
-  _PromoViewScreenState createState() => _PromoViewScreenState();
+  PromoViewScreenState createState() => PromoViewScreenState();
 }
 
-class _PromoViewScreenState extends State<PromoViewScreen> {
+class PromoViewScreenState extends State<PromoViewScreen> {
+
+  // ---- Инициализируем пустые переменные ----
 
   bool today = false;
 
   UserCustom creator = UserCustom.empty('', '');
   PlaceRole currentUserPlaceRole = PlaceRole(name: '', id: '', desc: '', controlLevel: '');
 
-  PromoCustom promo = PromoCustom.empty();
-  String city = '';
-  PromoCategory category = PromoCategory.empty;
-
-  DateTypeEnum promoTypeEnum = DateTypeEnum.once;
+  PromoCustom promo = PromoCustom.emptyPromo;
 
   DateTime currentDate = DateTime.now();
 
   Place place = Place.emptyPlace;
 
+  int favCounter = 0;
+  bool inFav = false;
+
   // --- Переключатель показа экрана загрузки -----
 
   bool loading = true;
   bool deleting = false;
-  String inFav = 'false';
-  int favCounter = 0;
-
-  String onceDay = '';
-  String onceDayStartTime = '';
-  String onceDayFinishTime = '';
-
-  String longStartDay = '';
-  String longEndDay = '';
-  String longDayStartTime = '';
-  String longDayFinishTime = '';
-
-  List<String> regularStartTimes = fillTimeListWithDefaultValues('Не выбрано', 7);
-  List<String> regularFinishTimes = fillTimeListWithDefaultValues('Не выбрано', 7);
-
-  List<String> tempIrregularDaysString = [];
-  // Выбранные даты начала
-  List<String> chosenIrregularStartTime = [];
-  // Выбранные даты завершения
-  List<String> chosenIrregularEndTime = [];
 
   // ---- Инициализация экрана -----
   @override
@@ -90,53 +70,17 @@ class _PromoViewScreenState extends State<PromoViewScreen> {
   // --- Функция получения и ввода данных ---
 
   Future<void> fetchAndSetData() async {
-
-    DateTypeEnumClass dateTypeEnumClass = DateTypeEnumClass();
     try {
 
-      //promo = await PromoCustom.getPromoById(widget.promoId);
-
-      promo = PromoCustom.getPromoFromFeedList(widget.promoId);
-
-      promoTypeEnum = dateTypeEnumClass.getEnumFromString(promo.promoType);
-
-      if (promoTypeEnum == DateTypeEnum.once && promo.onceDay != ''){
-        onceDay = extractDateOrTimeFromJson(promo.onceDay, 'date');
-        onceDayStartTime = extractDateOrTimeFromJson(promo.onceDay, 'startTime');
-        onceDayFinishTime = extractDateOrTimeFromJson(promo.onceDay, 'endTime');
-      }
-
-      if (promoTypeEnum == DateTypeEnum.long && promo.longDays != '') {
-        longStartDay = extractDateOrTimeFromJson(promo.longDays, 'startDate');
-        longEndDay = extractDateOrTimeFromJson(promo.longDays, 'endDate');
-        longDayStartTime = extractDateOrTimeFromJson(promo.longDays, 'startTime');
-        longDayFinishTime = extractDateOrTimeFromJson(promo.longDays, 'endTime');
-      }
-
-      if (promoTypeEnum == DateTypeEnum.regular && promo.regularDays != ''){
-
-        _fillRegularList();
-      }
-
-      if (promoTypeEnum == DateTypeEnum.irregular && promo.irregularDays != ''){
-
-        // TODO Вынести эту функцию в отдельный класс. Она скопирована из CreateOrEditEventScreen
-        // Парсим даты и время в списки
-        parseInputString(promo.irregularDays, tempIrregularDaysString, chosenIrregularStartTime, chosenIrregularEndTime);
-
-      }
+      promo = promo.getEntityFromFeedList(widget.promoId);
 
       if (promo.placeId != '') {
-        // placeAdminsList = await UserCustom.getPlaceAdminsUsers(event.placeId);
 
+        // TODO Считать заведение со списка, если список заведений прогружен
         // Считываем информацию о заведении
         place = await Place.getPlaceFromList(promo.placeId);
-        //place = await Place.getPlaceById(promo.placeId);
-
 
       }
-
-
 
       // Выдаем права на редактирование мероприятия
       // Если наш пользователь создатель
@@ -153,12 +97,10 @@ class _PromoViewScreenState extends State<PromoViewScreen> {
 
       }
 
+      // TODO - Сделать проверку - если создатель это текущий пользователь, то подгрузить его данные
       creator = await UserCustom.getUserById(promo.creatorId);
-
-      city = City.getCityByIdFromList(promo.city).name;
-      category = PromoCategory.getPromoCategoryFromCategoriesList(promo.category);
       inFav = promo.inFav!;
-      favCounter = int.parse(promo.addedToFavouritesCount!);
+      favCounter = promo.addedToFavouritesCount!;
 
       // ---- Убираем экран загрузки -----
       setState(() {
@@ -176,17 +118,6 @@ class _PromoViewScreenState extends State<PromoViewScreen> {
       '/Promotions',
           (route) => false,
     );
-  }
-
-  void _fillRegularList (){
-
-
-    for (int i = 0; i<regularStartTimes.length; i++){
-
-      regularStartTimes[i] = extractDateOrTimeFromJson(promo.regularDays, 'startTime${i+1}');
-      regularFinishTimes[i] = extractDateOrTimeFromJson(promo.regularDays, 'endTime${i+1}');
-
-    }
   }
 
   @override
@@ -238,7 +169,7 @@ class _PromoViewScreenState extends State<PromoViewScreen> {
                           child: SmallWidgetForCardsWithIconAndText(
                             icon: Icons.bookmark,
                             text: '$favCounter',
-                            iconColor: inFav == 'true' ? AppColors.brandColor : AppColors.white,
+                            iconColor: inFav ? AppColors.brandColor : AppColors.white,
                             side: false,
                             backgroundColor: AppColors.greyBackground.withOpacity(0.8),
                             onPressed: () async {
@@ -253,16 +184,19 @@ class _PromoViewScreenState extends State<PromoViewScreen> {
 
                               else {
 
-                                if (inFav == 'true')
+                                if (inFav)
                                 {
 
-                                  String resDel = await PromoCustom.deletePromoFromFav(promo.id);
+                                  String resDel = await promo.deleteFromFav();
 
                                   if (resDel == 'success'){
                                     setState(() {
-                                      inFav = 'false';
+                                      inFav = false;
                                       favCounter --;
-                                      PromoCustom.updateCurrentPromoListFavInformation(promo.id, favCounter.toString(), inFav);
+                                      promo.inFav = inFav;
+                                      promo.addedToFavouritesCount = favCounter;
+                                      promo.updateCurrentListFavInformation();
+                                      //EventCustom.updateCurrentEventListFavInformation(event.id, favCounter, inFav);
                                     });
 
                                     showSnackBar(context, 'Удалено из избранных', AppColors.attentionRed, 1);
@@ -276,16 +210,17 @@ class _PromoViewScreenState extends State<PromoViewScreen> {
 
                                 }
                                 else {
-
-                                  String res = await PromoCustom.addPromoToFav(promo.id);
+                                  String res = await promo.addToFav();
 
                                   if (res == 'success') {
 
                                     setState(() {
-                                      inFav = 'true';
+                                      inFav = true;
                                       favCounter ++;
-                                      PromoCustom.updateCurrentPromoListFavInformation(promo.id, favCounter.toString(), inFav);
-
+                                      promo.inFav = inFav;
+                                      promo.addedToFavouritesCount = favCounter;
+                                      promo.updateCurrentListFavInformation();
+                                      //EventCustom.updateCurrentEventListFavInformation(event.id, favCounter, inFav);
                                     });
 
                                     showSnackBar(context, 'Добавлено в избранные', Colors.green, 1);
@@ -309,7 +244,7 @@ class _PromoViewScreenState extends State<PromoViewScreen> {
                           left: 10.0,
                           child: SmallWidgetForCardsWithIconAndText(
                             //icon: Icons.visibility,
-                              text: category.name,
+                              text: promo.category.name,
                               iconColor: AppColors.white,
                               side: true,
                               backgroundColor: AppColors.greyBackground.withOpacity(0.8)
@@ -344,7 +279,7 @@ class _PromoViewScreenState extends State<PromoViewScreen> {
                                       style: Theme.of(context).textTheme.bodySmall,
                                     ),
                                     if (place.id == '') Text(
-                                      '$city, ${promo.street}, ${promo.house}',
+                                      '${promo.city.name}, ${promo.street}, ${promo.house}',
                                       style: Theme.of(context).textTheme.bodySmall,
                                     )
                                   ],
@@ -366,7 +301,7 @@ class _PromoViewScreenState extends State<PromoViewScreen> {
                               onPressed: () async {
                                 Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => CreateOrEditPromoScreen(promoInfo: promo))
+                                    MaterialPageRoute(builder: (context) => CreateOrEditPromoScreen(promoInfo: promo,))
                                 );
                               },
                               // Действие при нажатии на кнопку редактирования
@@ -377,10 +312,10 @@ class _PromoViewScreenState extends State<PromoViewScreen> {
                         // ---- Остальные данные пользователя ----
 
                         // TODO Проверить вывод времени в функции определения сегодня
-                        if (promo.today != 'false') const SizedBox(height: 5.0),
+                        if (promo.today!) const SizedBox(height: 5.0),
 
                         // ПЕРЕДЕЛАТЬ ПОД СЕГОДНЯ
-                        if (promo.today != 'false') TodayWidget(isTrue: bool.parse(promo.today!)),
+                        if (promo.today!) TodayWidget(isTrue: promo.today!),
 
                         const SizedBox(height: 16.0),
 
@@ -400,7 +335,7 @@ class _PromoViewScreenState extends State<PromoViewScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     //const SizedBox(height: 20,),
-                                    Text('Контакты для связи', style: Theme.of(context).textTheme.titleMedium,),
+                                    Text('Контакты для справок', style: Theme.of(context).textTheme.titleMedium,),
                                     Text('По контактам ниже вы можете связаться с организатором', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.greyText),),
 
 
@@ -422,43 +357,35 @@ class _PromoViewScreenState extends State<PromoViewScreen> {
 
                         const SizedBox(height: 16.0),
 
-                        /*if (promoTypeEnum == DateTypeEnum.once) ScheduleOnceAndLongWidget(
-                          dateHeadline: 'Дата проведения',
-                          dateDesc: 'Акция проводится один раз',
-                          dateTypeEnum: promoTypeEnum,
-                          startTime: onceDayStartTime,
-                          endTime: onceDayFinishTime,
-                          onceDate: onceDay,
+                        if (promo.dateType == DateTypeEnum.once) ScheduleOnceAndLongWidget(
+                            dateHeadline: 'Дата проведения',
+                            dateDesc: 'Акция проводится один раз',
+                            dateTypeEnum: promo.dateType,
+                            onceDate: promo.onceDay
                         ),
 
-                        if (promoTypeEnum == DateTypeEnum.long) ScheduleOnceAndLongWidget(
+                        if (promo.dateType == DateTypeEnum.long) ScheduleOnceAndLongWidget(
                           dateHeadline: 'Расписание',
                           dateDesc: 'Акция проводится каждый день в течении указанного периода',
-                          dateTypeEnum: promoTypeEnum,
-                          startTime: longDayStartTime,
-                          endTime: longDayFinishTime,
-                          longStartDate: longStartDay,
-                          longEndDate: longEndDay,
+                          dateTypeEnum: promo.dateType,
+                          longDates: promo.longDays,
                         ),
 
 
 
-                        if (promoTypeEnum == DateTypeEnum.regular) ScheduleRegularAndIrregularWidget(
-                          dateTypeEnum: promoTypeEnum,
-                          regularStartTimes: regularStartTimes,
-                          regularFinishTimes: regularFinishTimes,
+                        if (promo.dateType == DateTypeEnum.regular) ScheduleRegularAndIrregularWidget(
+                          dateTypeEnum: promo.dateType,
+                          regularTimes: promo.regularDays,
                           headline: 'Расписание',
                           desc: 'Акция проводится каждую неделю в определенные дни',
                         ),
 
-                        if (promoTypeEnum == DateTypeEnum.irregular) ScheduleRegularAndIrregularWidget(
-                          dateTypeEnum: promoTypeEnum,
-                          irregularDays: tempIrregularDaysString,
-                          irregularStartTime: chosenIrregularStartTime,
-                          irregularEndTime: chosenIrregularEndTime,
+                        if (promo.dateType == DateTypeEnum.irregular) ScheduleRegularAndIrregularWidget(
+                          dateTypeEnum: promo.dateType,
+                          irregularDays: promo.irregularDays,
                           headline: 'Расписание',
                           desc: 'Акция проводится в определенные дни',
-                        ),*/
+                        ),
 
                         const SizedBox(height: 16.0),
 
@@ -501,7 +428,7 @@ class _PromoViewScreenState extends State<PromoViewScreen> {
                                     SizedBox(height: 20,),
 
                                     if (promo.street != '' && place.id == '') HeadlineAndDesc(
-                                        headline: '${City.getCityByIdFromList(promo.city).name}, ${promo.street} ${promo.house} ',
+                                        headline: '${promo.city.name}, ${promo.street} ${promo.house} ',
                                         description: 'Место проведения'
                                     ),
 
@@ -559,9 +486,9 @@ class _PromoViewScreenState extends State<PromoViewScreen> {
                         ),
 
 
-                        if (promo.createDate != '' && int.parse(currentUserPlaceRole.controlLevel) >= 90) const SizedBox(height: 30.0),
+                        if (promo.createDate != DateTime(2100) && int.parse(currentUserPlaceRole.controlLevel) >= 90) const SizedBox(height: 30.0),
 
-                        if (promo.createDate != '' && int.parse(currentUserPlaceRole.controlLevel) >= 90) HeadlineAndDesc(headline: promo.createDate, description: 'Создано в движе', ),
+                        if (promo.createDate != DateTime(2100) && int.parse(currentUserPlaceRole.controlLevel) >= 90) HeadlineAndDesc(headline: DateMixin.getHumanDateFromDateTime(promo.createDate), description: 'Создано в движе', ),
 
                         const SizedBox(height: 30.0),
 
@@ -579,11 +506,13 @@ class _PromoViewScreenState extends State<PromoViewScreen> {
                                 deleting = true;
                               });
 
-                              String delete = await PromoCustom.deletePromo(widget.promoId, promo.creatorId, promo.placeId);
+                              String delete = await promo.deleteFromDb();
 
                               if (delete == 'success'){
 
-                                PromoCustom.deletePromoFromCurrentPromoLists(widget.promoId);
+                                promo.deleteEntityFromCurrentEntityLists();
+                                //EventCustom.deleteEventFromCurrentEventLists(widget.eventId);
+                                //Place.deletePlaceFormCurrentPlaceLists(widget.eventId);
 
                                 showSnackBar(context, 'Акция успешно удалена', Colors.green, 2);
                                 navigateToPromos();
@@ -611,27 +540,5 @@ class _PromoViewScreenState extends State<PromoViewScreen> {
           ],
         )
     );
-  }
-}
-
-void parseInputString(
-    String inputString, List<String> datesList, List<String> startTimeList, List<String> endTimeList) {
-  RegExp dateRegExp = RegExp(r'"date": "([^"]+)"');
-  RegExp startTimeRegExp = RegExp(r'"startTime": "([^"]+)"');
-  RegExp endTimeRegExp = RegExp(r'"endTime": "([^"]+)"');
-
-  List<Match> matches = dateRegExp.allMatches(inputString).toList();
-  for (Match match in matches) {
-    datesList.add(match.group(1)!);
-  }
-
-  matches = startTimeRegExp.allMatches(inputString).toList();
-  for (Match match in matches) {
-    startTimeList.add(match.group(1)!);
-  }
-
-  matches = endTimeRegExp.allMatches(inputString).toList();
-  for (Match match in matches) {
-    endTimeList.add(match.group(1)!);
   }
 }

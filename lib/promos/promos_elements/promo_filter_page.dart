@@ -18,7 +18,7 @@ class PromoFilterPage extends StatefulWidget {
   PromoCategory chosenCategory;
   City chosenCity;
   bool today;
-  bool onlyFromPlaceEvents;
+  bool onlyFromPlacePromos;
   DateTime selectedStartDatePeriod;
   DateTime selectedEndDatePeriod;
 
@@ -26,7 +26,7 @@ class PromoFilterPage extends StatefulWidget {
     required this.categories,
     required this.chosenCategory,
     required this.chosenCity,
-    required this.onlyFromPlaceEvents,
+    required this.onlyFromPlacePromos,
     required this.today,
     required this.selectedStartDatePeriod,
     required this.selectedEndDatePeriod
@@ -68,7 +68,7 @@ class _PromoFilterPageState extends State<PromoFilterPage> {
     chosenCategory = widget.chosenCategory;
 
     today = widget.today;
-    onlyFromPlaceEvents = widget.onlyFromPlaceEvents;
+    onlyFromPlaceEvents = widget.onlyFromPlacePromos;
 
     selectedStartDatePeriod = widget.selectedStartDatePeriod;
     selectedEndDatePeriod = widget.selectedEndDatePeriod;

@@ -2,6 +2,11 @@ import 'package:dvij_flutter/cities/city_class.dart';
 import 'package:dvij_flutter/promos/promo_category_class.dart';
 import 'package:dvij_flutter/promos/promo_class.dart';
 import 'package:dvij_flutter/promos/promo_sorting_options.dart';
+import 'package:dvij_flutter/promos/promos_elements/promo_card_widget.dart';
+import 'package:dvij_flutter/promos/promos_elements/promo_filter_page.dart';
+import 'package:dvij_flutter/promos/promos_list_class.dart';
+import 'package:dvij_flutter/promos/promos_list_manager.dart';
+import 'package:dvij_flutter/promos/promotions/create_or_edit_promo_screen.dart';
 import 'package:dvij_flutter/promos/promotions/promo_view_page.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
@@ -12,9 +17,6 @@ import '../../classes/user_class.dart';
 import '../../elements/loading_screen.dart';
 import '../../elements/snack_bar.dart';
 import '../../elements/text_and_icons_widgets/headline_and_desc.dart';
-import '../promos_elements/promo_card_widget.dart';
-import '../promos_elements/promo_filter_page.dart';
-import 'create_or_edit_promo_screen.dart';
 
 
 // ---- ЭКРАН ЛЕНТЫ ЗАВЕДЕНИЙ ------
@@ -32,7 +34,7 @@ class PromotionsMyPageState extends State<PromotionsMyPage> {
 
   // --- ОБЪЯВЛЯЕМ ПЕРЕМЕННЫЕ -----
 
-  late List<PromoCustom> promosList;
+  PromoList promosList = PromoListsManager.currentMyPromoList;
   late List<PromoCategory> promoCategoriesList;
 
   // --- Переменные фильтра по умолчанию ----
@@ -87,7 +89,7 @@ class PromotionsMyPageState extends State<PromotionsMyPage> {
       loading = true;
     });
 
-    // --- Подгружаем список категорий -----
+    // --- Подгружаем список категорий заведений -----
 
     promoCategoriesList = PromoCategory.currentPromoCategoryList;
 
@@ -102,39 +104,41 @@ class PromotionsMyPageState extends State<PromotionsMyPage> {
         selectedEndDatePeriod
     );
 
-    // ----- РАБОТАЕМ СО СПИСКОМ -----
+    // ----- РАБОТАЕМ СО СПИСКОМ МЕРОПРИЯТИЙ -----
 
-    List<PromoCustom> tempPromosList = [];
+    //List<EventCustom> tempEventsList = [];
 
-
-    if (PromoCustom.currentMyPromoList.isEmpty){
+    if (PromoListsManager.currentMyPromoList.promosList.isEmpty){
       // ---- Если список пуст ----
       // ---- И Юзер залогинен
       // ---- Считываем с БД заведения -----
 
       if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
-        tempPromosList = await PromoCustom.getMyPromos(UserCustom.currentUser!.uid);
+        promosList = await promosList.getMyListFromDb(UserCustom.currentUser!.uid);
+        //tempEventsList = await EventCustom.getMyEvents(UserCustom.currentUser!.uid);
       }
 
     } else {
       // --- Если список не пустой ----
       // --- Подгружаем готовый список ----
 
-      tempPromosList = PromoCustom.currentMyPromoList;
+      promosList = PromoListsManager.currentMyPromoList;
+      //tempEventsList = EventCustom.currentMyEventsList;
 
     }
 
     // --- Фильтруем список ----
 
     setState(() {
-      promosList = PromoCustom.filterPromos(
-          promoCategoryFromFilter,
-          cityFromFilter,
-          today,
-          onlyFromPlacePromos,
-          tempPromosList,
-          selectedStartDatePeriod,
-          selectedEndDatePeriod
+      promosList.filterLists(
+          promosList.generateMapForFilter(
+              promoCategoryFromFilter,
+              cityFromFilter,
+              today,
+              onlyFromPlacePromos,
+              selectedStartDatePeriod,
+              selectedEndDatePeriod
+          )
       );
     });
 
@@ -143,7 +147,7 @@ class PromotionsMyPageState extends State<PromotionsMyPage> {
     adIndexesList = AdUser.getAdIndexesList(adList, adStep, firstIndexOfAd);
 
     setState(() {
-      allElementsList = AdUser.generateIndexedList(adIndexesList, promosList.length);
+      allElementsList = AdUser.generateIndexedList(adIndexesList, promosList.promosList.length);
     });
 
     setState(() {
@@ -151,7 +155,7 @@ class PromotionsMyPageState extends State<PromotionsMyPage> {
     });
   }
 
-  // ---- Сам экран ленты ----
+  // ---- Сам экран ленты заведений ----
 
   @override
   Widget build(BuildContext context) {
@@ -166,15 +170,31 @@ class PromotionsMyPageState extends State<PromotionsMyPage> {
             refresh = true;
           });
 
-          promosList = [];
+          promosList = PromoList();
 
           if (UserCustom.currentUser?.uid != null || UserCustom.currentUser?.uid != ''){
 
-            List<PromoCustom> tempEventsList = await PromoCustom.getMyPromos(UserCustom.currentUser!.uid);
+            promosList = await promosList.getMyListFromDb(UserCustom.currentUser!.uid, refresh: true);
+
+            //List<EventCustom> tempEventsList = await EventCustom.getMyEvents(UserCustom.currentUser!.uid, refresh: true);
 
             setState(() {
-              promosList = PromoCustom.filterPromos(promoCategoryFromFilter, cityFromFilter, today, onlyFromPlacePromos, tempEventsList, selectedStartDatePeriod, selectedEndDatePeriod);
+              //eventsList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempEventsList, selectedStartDatePeriod, selectedEndDatePeriod);
+
+              promosList.filterLists(
+                  promosList.generateMapForFilter(
+                      promoCategoryFromFilter,
+                      cityFromFilter,
+                      today,
+                      onlyFromPlacePromos,
+                      selectedStartDatePeriod,
+                      selectedEndDatePeriod
+                  )
+              );
+
             });
+
+            allElementsList = AdUser.generateIndexedList(adIndexesList, promosList.promosList.length);
 
           }
 
@@ -246,7 +266,8 @@ class PromotionsMyPageState extends State<PromotionsMyPage> {
                                 onChanged: (PromoSortingOption? newValue) {
                                   setState(() {
                                     _selectedSortingOption = newValue!;
-                                    PromoCustom.sortPromos(_selectedSortingOption, promosList);
+                                    promosList.sortEntitiesList(_selectedSortingOption);
+                                    //EventCustom.sortEvents(_selectedSortingOption, eventsList);
                                   });
                                 },
                                 items: const [
@@ -275,7 +296,7 @@ class PromotionsMyPageState extends State<PromotionsMyPage> {
 
                     // ---- Если список пустой -----
 
-                    if (promosList.isEmpty) Expanded(
+                    if (promosList.promosList.isEmpty) Expanded(
                         child: ListView.builder(
                             padding: const EdgeInsets.all(15.0),
                             itemCount: 1,
@@ -293,7 +314,7 @@ class PromotionsMyPageState extends State<PromotionsMyPage> {
 
                     // ---- Если список не пустой -----
 
-                    if (promosList.isNotEmpty) Expanded(
+                    if (promosList.promosList.isNotEmpty) Expanded(
                         child: ListView.builder(
                             padding: const EdgeInsets.all(15.0),
                             itemCount: allElementsList.length,
@@ -308,24 +329,24 @@ class PromotionsMyPageState extends State<PromotionsMyPage> {
                               } else {
                                 int indexWithAddCountCorrection = allElementsList[index].second;
                                 return PromoCardWidget(
-                                    promo: promosList[indexWithAddCountCorrection],
-                                    onTap:  () async {
+                                  promo: promosList.promosList[indexWithAddCountCorrection],
+                                  onTap: () async {
 
-                                      // TODO - переделать на акции
-                                      final results = await Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => PromoViewScreen(promoId: promosList[indexWithAddCountCorrection].id),
-                                        ),
-                                      );
+                                    // TODO - переделать на мероприятия
+                                    final results = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => PromoViewScreen(promoId: promosList.promosList[indexWithAddCountCorrection].id),
+                                      ),
+                                    );
 
-                                      if (results != null) {
-                                        setState(() {
-                                          promosList[indexWithAddCountCorrection].inFav = results[0].toString();
-                                          promosList[indexWithAddCountCorrection].addedToFavouritesCount = results[1].toString();
-                                        });
-                                      }
-                                    },
+                                    if (results != null) {
+                                      setState(() {
+                                        promosList.promosList[indexWithAddCountCorrection].inFav = results[0];
+                                        promosList.promosList[indexWithAddCountCorrection].addedToFavouritesCount = results[1];
+                                      });
+                                    }
+                                  },
 
                                   // --- Функция на нажатие на карточке кнопки ИЗБРАННОЕ ---
                                   onFavoriteIconPressed: () async {
@@ -341,22 +362,25 @@ class PromotionsMyPageState extends State<PromotionsMyPage> {
                                     else {
 
                                       // --- Если уже в избранном ----
-                                      if (promosList[indexWithAddCountCorrection].inFav == 'true')
+                                      if (promosList.promosList[indexWithAddCountCorrection].inFav == true)
                                       {
                                         // --- Удаляем из избранных ---
-                                        String resDel = await PromoCustom.deletePromoFromFav(promosList[indexWithAddCountCorrection].id);
+                                        String resDel = await promosList.promosList[indexWithAddCountCorrection].deleteFromFav();
                                         // ---- Инициализируем счетчик -----
-                                        int favCounter = int.parse(promosList[indexWithAddCountCorrection].addedToFavouritesCount!);
+                                        int favCounter = promosList.promosList[indexWithAddCountCorrection].addedToFavouritesCount!;
 
                                         if (resDel == 'success'){
                                           // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
                                           setState(() {
                                             // Обновляем текущий список
-                                            promosList[indexWithAddCountCorrection].inFav = 'false';
+                                            promosList.promosList[indexWithAddCountCorrection].inFav = false;
                                             favCounter --;
-                                            promosList[indexWithAddCountCorrection].addedToFavouritesCount = favCounter.toString();
+                                            promosList.promosList[indexWithAddCountCorrection].addedToFavouritesCount = favCounter;
                                             // Обновляем общий список из БД
-                                            PromoCustom.updateCurrentPromoListFavInformation(promosList[indexWithAddCountCorrection].id, favCounter.toString(), 'false');
+                                            //EventCustom.updateCurrentEventListFavInformation(eventsList[indexWithAddCountCorrection].id, favCounter, false);
+                                            promosList.promosList[indexWithAddCountCorrection].updateCurrentListFavInformation();
+
+
 
                                           });
                                           showSnackBar(context, 'Удалено из избранных', AppColors.attentionRed, 1);
@@ -369,20 +393,21 @@ class PromotionsMyPageState extends State<PromotionsMyPage> {
                                         // --- Если заведение не в избранном ----
 
                                         // -- Добавляем в избранное ----
-                                        String res = await PromoCustom.addPromoToFav(promosList[indexWithAddCountCorrection].id);
+                                        String res = await promosList.promosList[indexWithAddCountCorrection].addToFav();
 
                                         // ---- Инициализируем счетчик добавивших в избранное
-                                        int favCounter = int.parse(promosList[indexWithAddCountCorrection].addedToFavouritesCount!);
+                                        int favCounter = promosList.promosList[indexWithAddCountCorrection].addedToFavouritesCount!;
 
                                         if (res == 'success') {
                                           // --- Если добавилось успешно, так же обновляем текущий список и список из БД
                                           setState(() {
                                             // Обновляем текущий список
-                                            promosList[indexWithAddCountCorrection].inFav = 'true';
+                                            promosList.promosList[indexWithAddCountCorrection].inFav = true;
                                             favCounter ++;
-                                            promosList[indexWithAddCountCorrection].addedToFavouritesCount = favCounter.toString();
+                                            promosList.promosList[indexWithAddCountCorrection].addedToFavouritesCount = favCounter;
                                             // Обновляем список из БД
-                                            PromoCustom.updateCurrentPromoListFavInformation(promosList[indexWithAddCountCorrection].id, favCounter.toString(), 'true');
+                                            //EventCustom.updateCurrentEventListFavInformation(eventsList[indexWithAddCountCorrection].id, favCounter, true);
+                                            promosList.promosList[indexWithAddCountCorrection].updateCurrentListFavInformation();
 
                                           });
 
@@ -432,7 +457,7 @@ class PromotionsMyPageState extends State<PromotionsMyPage> {
       PromoCategory promoCategoryFromFilter,
       City cityFromFilter,
       bool todayFromFilter,
-      bool onlyFromPlacePromosFromFilter,
+      bool onlyFromPlaceEventsFromFilter,
       DateTime selectedStartDatePeriod,
       DateTime selectedEndDatePeriod
       ){
@@ -450,7 +475,7 @@ class PromotionsMyPageState extends State<PromotionsMyPage> {
 
     if (todayFromFilter) count++;
 
-    if (onlyFromPlacePromosFromFilter) count++;
+    if (onlyFromPlaceEventsFromFilter) count++;
 
     if (selectedStartDatePeriod != DateTime(2100)) count++;
 
@@ -478,7 +503,7 @@ class PromotionsMyPageState extends State<PromotionsMyPage> {
         onlyFromPlacePromos = results [3];
         selectedStartDatePeriod = results[4];
         selectedEndDatePeriod = results[5];
-        promosList = [];
+        promosList = PromoList();
 
         // ---- Обновляем счетчик выбранных настроек ----
         _setFiltersCount(promoCategoryFromFilter, cityFromFilter, today, onlyFromPlacePromos, selectedStartDatePeriod, selectedEndDatePeriod);
@@ -486,17 +511,29 @@ class PromotionsMyPageState extends State<PromotionsMyPage> {
       });
 
       // --- Заново подгружаем список из БД ---
-      List<PromoCustom> tempList = [];
-      tempList = PromoCustom.currentMyPromoList;
+      //List<EventCustom> tempList = [];
+      //tempList = EventCustom.currentMyEventsList;
+      promosList.promosList = PromoListsManager.currentMyPromoList.promosList;
 
       // --- Фильтруем список согласно новым выбранным данным из фильтра ----
       setState(() {
-        promosList = PromoCustom.filterPromos(promoCategoryFromFilter, cityFromFilter, today, onlyFromPlacePromos, tempList, selectedStartDatePeriod, selectedEndDatePeriod);
+        promosList.filterLists(
+            promosList.generateMapForFilter(
+                promoCategoryFromFilter,
+                cityFromFilter,
+                today,
+                onlyFromPlacePromos,
+                selectedStartDatePeriod,
+                selectedEndDatePeriod
+            )
+        );
+        //eventsList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempList, selectedStartDatePeriod, selectedEndDatePeriod);
       });
 
-      allElementsList = AdUser.generateIndexedList(adIndexesList, promosList.length);
+
 
       setState(() {
+        allElementsList = AdUser.generateIndexedList(adIndexesList, promosList.promosList.length);
         loading = false;
       });
     }
@@ -514,7 +551,7 @@ class PromotionsMyPageState extends State<PromotionsMyPage> {
           categories: categories,
           chosenCategory: promoCategoryFromFilter,
           chosenCity: cityFromFilter,
-          onlyFromPlaceEvents: onlyFromPlacePromos,
+          onlyFromPlacePromos: onlyFromPlacePromos,
           today: today,
           selectedEndDatePeriod: selectedEndDatePeriod,
           selectedStartDatePeriod: selectedStartDatePeriod,

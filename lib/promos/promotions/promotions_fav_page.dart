@@ -1,7 +1,10 @@
 import 'package:dvij_flutter/cities/city_class.dart';
 import 'package:dvij_flutter/promos/promo_category_class.dart';
-import 'package:dvij_flutter/promos/promo_class.dart';
 import 'package:dvij_flutter/promos/promo_sorting_options.dart';
+import 'package:dvij_flutter/promos/promos_elements/promo_card_widget.dart';
+import 'package:dvij_flutter/promos/promos_elements/promo_filter_page.dart';
+import 'package:dvij_flutter/promos/promos_list_class.dart';
+import 'package:dvij_flutter/promos/promos_list_manager.dart';
 import 'package:dvij_flutter/promos/promotions/promo_view_page.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
@@ -12,8 +15,6 @@ import '../../classes/user_class.dart';
 import '../../elements/loading_screen.dart';
 import '../../elements/snack_bar.dart';
 import '../../elements/text_and_icons_widgets/headline_and_desc.dart';
-import '../promos_elements/promo_card_widget.dart';
-import '../promos_elements/promo_filter_page.dart';
 
 
 // ---- ЭКРАН ЛЕНТЫ ЗАВЕДЕНИЙ ------
@@ -31,7 +32,7 @@ class PromotionsFavPageState extends State<PromotionsFavPage> {
 
   // --- ОБЪЯВЛЯЕМ ПЕРЕМЕННЫЕ -----
 
-  late List<PromoCustom> promosList;
+  PromoList promosList = PromoListsManager.currentFavPromoList;
   late List<PromoCategory> promoCategoriesList;
 
   // --- Переменные фильтра по умолчанию ----
@@ -71,6 +72,10 @@ class PromotionsFavPageState extends State<PromotionsFavPage> {
   // --- Индекс первого рекламного элемента
   int firstIndexOfAd = 1;
 
+  void _showSnackBar(String text, Color color, int showSeconds){
+    showSnackBar(context, text, color, showSeconds);
+  }
+
   @override
   void initState(){
 
@@ -86,7 +91,7 @@ class PromotionsFavPageState extends State<PromotionsFavPage> {
       loading = true;
     });
 
-    // --- Подгружаем список категорий -----
+    // --- Подгружаем список категорий заведений -----
 
     promoCategoriesList = PromoCategory.currentPromoCategoryList;
 
@@ -101,39 +106,44 @@ class PromotionsFavPageState extends State<PromotionsFavPage> {
         selectedEndDatePeriod
     );
 
-    // ----- РАБОТАЕМ СО СПИСКОМ -----
+    // ----- РАБОТАЕМ СО СПИСКОМ МЕРОПРИЯТИЙ -----
 
-    List<PromoCustom> tempPromosList = [];
+    //EventsList tempEventsList = EventsList();
 
-
-    if (PromoCustom.currentFavPromoList.isEmpty){
+    if (PromoListsManager.currentFavPromoList.promosList.isEmpty){
       // ---- Если список пуст ----
       // ---- И Юзер залогинен
       // ---- Считываем с БД заведения -----
 
       if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
-        tempPromosList = await PromoCustom.getFavPromos(UserCustom.currentUser!.uid);
+        //tempEventsList = await EventCustom.getFavEvents(UserCustom.currentUser!.uid);
+        promosList = await promosList.getFavListFromDb(UserCustom.currentUser!.uid);
       }
 
     } else {
       // --- Если список не пустой ----
       // --- Подгружаем готовый список ----
 
-      tempPromosList = PromoCustom.currentFavPromoList;
+      //tempEventsList = EventCustom.currentFavEventsList;
+      setState(() {
+        promosList = PromoListsManager.currentFavPromoList;
+      });
+
 
     }
 
     // --- Фильтруем список ----
 
     setState(() {
-      promosList = PromoCustom.filterPromos(
-          promoCategoryFromFilter,
-          cityFromFilter,
-          today,
-          onlyFromPlacePromos,
-          tempPromosList,
-          selectedStartDatePeriod,
-          selectedEndDatePeriod
+      promosList.filterLists(
+          promosList.generateMapForFilter(
+              promoCategoryFromFilter,
+              cityFromFilter,
+              today,
+              onlyFromPlacePromos,
+              selectedStartDatePeriod,
+              selectedEndDatePeriod
+          )
       );
     });
 
@@ -142,7 +152,7 @@ class PromotionsFavPageState extends State<PromotionsFavPage> {
     adIndexesList = AdUser.getAdIndexesList(adList, adStep, firstIndexOfAd);
 
     setState(() {
-      allElementsList = AdUser.generateIndexedList(adIndexesList, promosList.length);
+      allElementsList = AdUser.generateIndexedList(adIndexesList, promosList.promosList.length);
     });
 
     setState(() {
@@ -150,261 +160,308 @@ class PromotionsFavPageState extends State<PromotionsFavPage> {
     });
   }
 
-  // ---- Сам экран ленты ----
+  // ---- Сам экран ленты заведений ----
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: RefreshIndicator (
+        body: RefreshIndicator (
 
-        // ---- Виджет обновления списка при протягивании экрана вниз ----
+          // ---- Виджет обновления списка при протягивании экрана вниз ----
 
-        onRefresh: () async {
-
-          setState(() {
-            refresh = true;
-          });
-
-          promosList = [];
-
-          if (UserCustom.currentUser?.uid != null || UserCustom.currentUser?.uid != ''){
-
-            List<PromoCustom> tempEventsList = await PromoCustom.getFavPromos(UserCustom.currentUser!.uid);
+          onRefresh: () async {
 
             setState(() {
-              promosList = PromoCustom.filterPromos(promoCategoryFromFilter, cityFromFilter, today, onlyFromPlacePromos, tempEventsList, selectedStartDatePeriod, selectedEndDatePeriod);
+              refresh = true;
             });
 
-          }
+            promosList = PromoList();
 
-          setState(() {
-            refresh = false;
-          });
+            if (UserCustom.currentUser?.uid != null || UserCustom.currentUser?.uid != ''){
 
-        },
-        child: Stack (
-          children: [
-            if (UserCustom.currentUser?.uid == null || UserCustom.currentUser?.uid == '') Center(
-              child: Text(
-                'Чтобы добавлять акции в избранное, нужно зарегистрироваться',
-                style: Theme.of(context).textTheme.bodyMedium,
-                textAlign: TextAlign.center,
-              ),
-            )
-            else if (loading) const LoadingScreen(loadingText: 'Подожди, идет загрузка акций')
-            else if (refresh) Center(
-                child: Text(
-                  'Подожди, идет обновление акций',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
+              promosList = await promosList.getFavListFromDb(UserCustom.currentUser!.uid, refresh: true);
+
+              setState(() {
+                promosList.filterLists(
+                    promosList.generateMapForFilter(
+                        promoCategoryFromFilter,
+                        cityFromFilter,
+                        today,
+                        onlyFromPlacePromos,
+                        selectedStartDatePeriod,
+                        selectedEndDatePeriod
+                    )
+                );
+              });
+
+              allElementsList = AdUser.generateIndexedList(adIndexesList, promosList.promosList.length);
+
+            }
+
+            setState(() {
+              refresh = false;
+            });
+
+          },
+          child: Stack (
+            children: [
+              if (UserCustom.currentUser?.uid == null || UserCustom.currentUser?.uid == '') Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Text(
+                      'Чтобы добавлять акции в избранные, нужно зарегистрироваться',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                      textAlign: TextAlign.center,
+                    ),
+                  )
               )
-              else Column(
-                  children: [
-                    // ---- Фильтр и сортировка -----
-                    Container(
-                        padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-                        color: AppColors.greyOnBackground,
-                        child: Row (
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
+              else if (loading) const LoadingScreen(loadingText: 'Подожди, идет загрузка акций')
+              else if (refresh) Center(
+                  child: Text(
+                    'Подожди, идет обновление акций',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                )
+                else Column(
+                    children: [
+                      // ---- Фильтр и сортировка -----
+                      Container(
+                          padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+                          color: AppColors.greyOnBackground,
+                          child: Row (
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
 
-                            // ---- Фильтр -----
+                              // ---- Фильтр -----
 
-                            GestureDetector(
-                              onTap: (){
-                                _showFilterDialog();
-                              },
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'Фильтр ${filterCount > 0 ? '($filterCount)' : ''}',
-                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: filterCount > 0 ? AppColors.brandColor : AppColors.white),
-                                  ),
-
-                                  const SizedBox(width: 20,),
-
-                                  Icon(
-                                    FontAwesomeIcons.filter,
-                                    size: 20,
-                                    color: filterCount > 0 ? AppColors.brandColor : AppColors.white ,
-                                  )
-                                ],
-                              ),
-                            ),
-
-                            // ------ Сортировка ------
-
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.5,
-                              child: DropdownButton<PromoSortingOption>(
-                                style: Theme.of(context).textTheme.bodySmall,
-                                isExpanded: true,
-                                value: _selectedSortingOption,
-                                onChanged: (PromoSortingOption? newValue) {
-                                  setState(() {
-                                    _selectedSortingOption = newValue!;
-                                    PromoCustom.sortPromos(_selectedSortingOption, promosList);
-                                  });
+                              GestureDetector(
+                                onTap: (){
+                                  _showFilterDialog();
                                 },
-                                items: const [
-                                  DropdownMenuItem(
-                                    value: PromoSortingOption.nameAsc,
-                                    child: Text('По имени: А-Я'),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: PromoSortingOption.nameDesc,
-                                    child: Text('По имени: Я-А'),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: PromoSortingOption.favCountAsc,
-                                    child: Text('В избранном: по возрастанию'),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: PromoSortingOption.favCountDesc,
-                                    child: Text('В избранном: по убыванию'),
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],
-                        )
-                    ),
-
-                    // ---- Если список пустой -----
-
-                    if (promosList.isEmpty) Expanded(
-                        child: ListView.builder(
-                            padding: const EdgeInsets.all(15.0),
-                            itemCount: 1,
-                            itemBuilder: (context, index) {
-                              return const Column(
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    Center(
-                                      child: Text('Пусто'),
+                                    Text(
+                                      'Фильтр ${filterCount > 0 ? '($filterCount)' : ''}',
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: filterCount > 0 ? AppColors.brandColor : AppColors.white),
+                                    ),
+
+                                    const SizedBox(width: 20,),
+
+                                    Icon(
+                                      FontAwesomeIcons.filter,
+                                      size: 20,
+                                      color: filterCount > 0 ? AppColors.brandColor : AppColors.white ,
                                     )
-                                  ]
-                              );
-                            }
-                        )
-                    ),
+                                  ],
+                                ),
+                              ),
 
-                    // ---- Если список не пустой -----
+                              // ------ Сортировка ------
 
-                    if (promosList.isNotEmpty) Expanded(
-                        child: ListView.builder(
-                            padding: const EdgeInsets.all(15.0),
-                            itemCount: allElementsList.length,
-                            itemBuilder: (context, index) {
-                              if (allElementsList[index].first == 'ad')  {
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 20,
-                                      horizontal: 20),
-                                  child: HeadlineAndDesc(headline: adList[allElementsList[index].second], description: 'реклама'),
-                                );
-                              } else {
-                                int indexWithAddCountCorrection = allElementsList[index].second;
-                                return PromoCardWidget(
-                                  promo: promosList[indexWithAddCountCorrection],
-                                  onTap:  () async {
-
-                                    // TODO - переделать на акции
-                                    final results = await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => PromoViewScreen(promoId: promosList[indexWithAddCountCorrection].id),
-                                      ),
-                                    );
-
-                                    if (results != null) {
-                                      setState(() {
-                                        promosList[indexWithAddCountCorrection].inFav = results[0].toString();
-                                        promosList[indexWithAddCountCorrection].addedToFavouritesCount = results[1].toString();
-                                      });
-                                    }
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.5,
+                                child: DropdownButton<PromoSortingOption>(
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                  isExpanded: true,
+                                  value: _selectedSortingOption,
+                                  onChanged: (PromoSortingOption? newValue) {
+                                    setState(() {
+                                      _selectedSortingOption = newValue!;
+                                      promosList.sortEntitiesList(_selectedSortingOption);
+                                    });
                                   },
+                                  items: const [
+                                    DropdownMenuItem(
+                                      value: PromoSortingOption.nameAsc,
+                                      child: Text('По имени: А-Я'),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: PromoSortingOption.nameDesc,
+                                      child: Text('По имени: Я-А'),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: PromoSortingOption.favCountAsc,
+                                      child: Text('В избранном: по возрастанию'),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: PromoSortingOption.favCountDesc,
+                                      child: Text('В избранном: по убыванию'),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          )
+                      ),
 
-                                  // --- Функция на нажатие на карточке кнопки ИЗБРАННОЕ ---
-                                  onFavoriteIconPressed: () async {
+                      // ---- Если список пустой -----
 
-                                    // TODO Сделать проверку на подтвержденный Email
-                                    // ---- Если не зарегистрирован или не вошел ----
-                                    if (UserCustom.currentUser?.uid == '' || UserCustom.currentUser?.uid == null)
-                                    {
-                                      showSnackBar(context, 'Чтобы добавлять в избранное, нужно зарегистрироваться!', AppColors.attentionRed, 2);
-                                    }
-
-                                    // --- Если пользователь залогинен -----
-                                    else {
-
-                                      // --- Если уже в избранном ----
-                                      if (promosList[indexWithAddCountCorrection].inFav == 'true')
-                                      {
-                                        // --- Удаляем из избранных ---
-                                        String resDel = await PromoCustom.deletePromoFromFav(promosList[indexWithAddCountCorrection].id);
-                                        // ---- Инициализируем счетчик -----
-                                        int favCounter = int.parse(promosList[indexWithAddCountCorrection].addedToFavouritesCount!);
-
-                                        if (resDel == 'success'){
-                                          // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
-                                          setState(() {
-                                            // Обновляем текущий список
-                                            promosList[indexWithAddCountCorrection].inFav = 'false';
-                                            favCounter --;
-                                            promosList[indexWithAddCountCorrection].addedToFavouritesCount = favCounter.toString();
-                                            // Обновляем общий список из БД
-                                            PromoCustom.updateCurrentPromoListFavInformation(promosList[indexWithAddCountCorrection].id, favCounter.toString(), 'false');
-
-                                          });
-                                          showSnackBar(context, 'Удалено из избранных', AppColors.attentionRed, 1);
-                                        } else {
-                                          // Если удаление из избранных не прошло, показываем сообщение
-                                          showSnackBar(context, resDel, AppColors.attentionRed, 1);
-                                        }
-                                      }
-                                      else {
-                                        // --- Если заведение не в избранном ----
-
-                                        // -- Добавляем в избранное ----
-                                        String res = await PromoCustom.addPromoToFav(promosList[indexWithAddCountCorrection].id);
-
-                                        // ---- Инициализируем счетчик добавивших в избранное
-                                        int favCounter = int.parse(promosList[indexWithAddCountCorrection].addedToFavouritesCount!);
-
-                                        if (res == 'success') {
-                                          // --- Если добавилось успешно, так же обновляем текущий список и список из БД
-                                          setState(() {
-                                            // Обновляем текущий список
-                                            promosList[indexWithAddCountCorrection].inFav = 'true';
-                                            favCounter ++;
-                                            promosList[indexWithAddCountCorrection].addedToFavouritesCount = favCounter.toString();
-                                            // Обновляем список из БД
-                                            PromoCustom.updateCurrentPromoListFavInformation(promosList[indexWithAddCountCorrection].id, favCounter.toString(), 'true');
-
-                                          });
-
-                                          showSnackBar(context, 'Добавлено в избранные', Colors.green, 1);
-
-                                        } else {
-                                          // Если добавление прошло неудачно, отображаем всплывающее окно
-                                          showSnackBar(context , res, AppColors.attentionRed, 1);
-                                        }
-                                      }
-                                    }
-                                  },
+                      if (promosList.promosList.isEmpty) Expanded(
+                          child: ListView.builder(
+                              padding: const EdgeInsets.all(15.0),
+                              itemCount: 1,
+                              itemBuilder: (context, index) {
+                                return const Column(
+                                    children: [
+                                      Center(
+                                        child: Text('Пусто'),
+                                      )
+                                    ]
                                 );
                               }
+                          )
+                      ),
 
-                            }
-                        )
-                    )
-                  ],
-                ),
-          ],
-        ),
-      ),
+                      // ---- Если список не пустой -----
+
+                      if (promosList.promosList.isNotEmpty) Expanded(
+                          child: ListView.builder(
+                              padding: const EdgeInsets.all(15.0),
+                              itemCount: allElementsList.length,
+                              itemBuilder: (context, index) {
+                                if (allElementsList[index].first == 'ad')  {
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 20,
+                                        horizontal: 20),
+                                    child: HeadlineAndDesc(headline: adList[allElementsList[index].second], description: 'реклама'),
+                                  );
+                                } else {
+                                  int indexWithAddCountCorrection = allElementsList[index].second;
+                                  return PromoCardWidget(
+                                    promo: promosList.promosList[indexWithAddCountCorrection],
+                                    onTap: () async {
+
+                                      // TODO - переделать на мероприятия
+                                      final results = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => PromoViewScreen(promoId: promosList.promosList[indexWithAddCountCorrection].id),
+                                        ),
+                                      );
+
+                                      if (results != null) {
+                                        promosList = PromoListsManager.currentFavPromoList;
+                                        setState(() {
+                                          promosList.filterLists(
+                                              promosList.generateMapForFilter(
+                                                  promoCategoryFromFilter,
+                                                  cityFromFilter,
+                                                  today,
+                                                  onlyFromPlacePromos,
+                                                  selectedStartDatePeriod,
+                                                  selectedEndDatePeriod
+                                              )
+                                          );
+                                        });
+
+                                        // --- Считываем индексы, где будет стоять реклама ----
+
+                                        adIndexesList = AdUser.getAdIndexesList(adList, adStep, firstIndexOfAd);
+
+                                        setState(() {
+                                          allElementsList = AdUser.generateIndexedList(adIndexesList, promosList.promosList.length);
+                                        });
+                                      }
+
+                                    },
+
+                                    // --- Функция на нажатие на карточке кнопки ИЗБРАННОЕ ---
+                                    onFavoriteIconPressed: () async {
+
+                                      // TODO Сделать проверку на подтвержденный Email
+                                      // ---- Если не зарегистрирован или не вошел ----
+                                      if (UserCustom.currentUser?.uid == '' || UserCustom.currentUser?.uid == null)
+                                      {
+                                        showSnackBar(context, 'Чтобы добавлять в избранное, нужно зарегистрироваться!', AppColors.attentionRed, 2);
+                                      }
+
+                                      // --- Если пользователь залогинен -----
+                                      else {
+
+                                        // --- Если уже в избранном ----
+                                        if (promosList.promosList[indexWithAddCountCorrection].inFav == true)
+                                        {
+                                          int favCounter = promosList.promosList[indexWithAddCountCorrection].addedToFavouritesCount!;
+                                          setState(() {
+                                            loading = true;
+                                            // Обновляем текущий список
+                                            promosList.promosList[indexWithAddCountCorrection].inFav = false;
+                                            favCounter --;
+                                            promosList.promosList[indexWithAddCountCorrection].addedToFavouritesCount = favCounter;
+                                            // Обновляем общий список из БД
+                                            promosList.promosList[indexWithAddCountCorrection].updateCurrentListFavInformation();
+
+                                            //EventCustom.updateCurrentEventListFavInformation(eventsList[indexWithAddCountCorrection].id, favCounter, false);
+
+                                          });
+                                          // --- Удаляем из избранных ---
+                                          String resDel = await promosList.promosList[indexWithAddCountCorrection].deleteFromFav();
+
+                                          setState(() {
+                                            promosList = PromoListsManager.currentFavPromoList;
+                                            allElementsList = AdUser.generateIndexedList(adIndexesList, promosList.promosList.length);
+                                            loading = false;
+                                          });
+
+                                          if (resDel == 'success'){
+                                            // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
+                                            _showSnackBar('Удалено из избранных', AppColors.attentionRed, 1);
+
+                                          } else {
+                                            // Если удаление из избранных не прошло, показываем сообщение
+                                            _showSnackBar(resDel, AppColors.attentionRed, 1);
+                                          }
+                                        }
+                                        else {
+                                          // --- Если заведение не в избранном ----
+
+                                          // -- Добавляем в избранное ----
+                                          String res = await promosList.promosList[indexWithAddCountCorrection].addToFav();
+
+                                          // ---- Инициализируем счетчик добавивших в избранное
+                                          int favCounter = promosList.promosList[indexWithAddCountCorrection].addedToFavouritesCount!;
+
+                                          if (res == 'success') {
+                                            // --- Если добавилось успешно, так же обновляем текущий список и список из БД
+                                            setState(() {
+                                              // Обновляем текущий список
+                                              promosList.promosList[indexWithAddCountCorrection].inFav = true;
+                                              favCounter ++;
+                                              promosList.promosList[indexWithAddCountCorrection].addedToFavouritesCount = favCounter;
+
+                                              promosList.promosList[indexWithAddCountCorrection].updateCurrentListFavInformation();
+
+                                              promosList = PromoList();
+                                              promosList = PromoListsManager.currentFavPromoList;
+                                              allElementsList = AdUser.generateIndexedList(adIndexesList, promosList.promosList.length);
+
+                                              // Обновляем список из БД
+                                              //EventCustom.updateCurrentEventListFavInformation(eventsList[indexWithAddCountCorrection].id, favCounter, true);
+
+                                            });
+                                            _showSnackBar('Добавлено в избранные', Colors.green, 1);
+
+                                          } else {
+                                            // Если добавление прошло неудачно, отображаем всплывающее окно
+                                            _showSnackBar(res, AppColors.attentionRed, 1);
+                                          }
+                                        }
+                                      }
+                                    },
+                                  );
+                                }
+
+                              }
+                          )
+                      )
+                    ],
+                  ),
+            ],
+          ),
+        )
     );
   }
 
@@ -413,7 +470,7 @@ class PromotionsFavPageState extends State<PromotionsFavPage> {
       PromoCategory promoCategoryFromFilter,
       City cityFromFilter,
       bool todayFromFilter,
-      bool onlyFromPlacePromosFromFilter,
+      bool onlyFromPlaceEventsFromFilter,
       DateTime selectedStartDatePeriod,
       DateTime selectedEndDatePeriod
       ){
@@ -431,7 +488,7 @@ class PromotionsFavPageState extends State<PromotionsFavPage> {
 
     if (todayFromFilter) count++;
 
-    if (onlyFromPlacePromosFromFilter) count++;
+    if (onlyFromPlaceEventsFromFilter) count++;
 
     if (selectedStartDatePeriod != DateTime(2100)) count++;
 
@@ -459,7 +516,7 @@ class PromotionsFavPageState extends State<PromotionsFavPage> {
         onlyFromPlacePromos = results [3];
         selectedStartDatePeriod = results[4];
         selectedEndDatePeriod = results[5];
-        promosList = [];
+        promosList = PromoList();
 
         // ---- Обновляем счетчик выбранных настроек ----
         _setFiltersCount(promoCategoryFromFilter, cityFromFilter, today, onlyFromPlacePromos, selectedStartDatePeriod, selectedEndDatePeriod);
@@ -467,17 +524,27 @@ class PromotionsFavPageState extends State<PromotionsFavPage> {
       });
 
       // --- Заново подгружаем список из БД ---
-      List<PromoCustom> tempList = [];
-      tempList = PromoCustom.currentMyPromoList;
+      promosList.promosList = PromoListsManager.currentFavPromoList.promosList;
+      //tempList = EventCustom.currentFavEventsList;
 
       // --- Фильтруем список согласно новым выбранным данным из фильтра ----
       setState(() {
-        promosList = PromoCustom.filterPromos(promoCategoryFromFilter, cityFromFilter, today, onlyFromPlacePromos, tempList, selectedStartDatePeriod, selectedEndDatePeriod);
+        promosList.filterLists(
+            promosList.generateMapForFilter(
+                promoCategoryFromFilter,
+                cityFromFilter,
+                today,
+                onlyFromPlacePromos,
+                selectedStartDatePeriod,
+                selectedEndDatePeriod
+            )
+        );
       });
 
-      allElementsList = AdUser.generateIndexedList(adIndexesList, promosList.length);
+
 
       setState(() {
+        allElementsList = AdUser.generateIndexedList(adIndexesList, promosList.promosList.length);
         loading = false;
       });
     }
@@ -495,7 +562,7 @@ class PromotionsFavPageState extends State<PromotionsFavPage> {
           categories: categories,
           chosenCategory: promoCategoryFromFilter,
           chosenCity: cityFromFilter,
-          onlyFromPlaceEvents: onlyFromPlacePromos,
+          onlyFromPlacePromos: onlyFromPlacePromos,
           today: today,
           selectedEndDatePeriod: selectedEndDatePeriod,
           selectedStartDatePeriod: selectedStartDatePeriod,

@@ -179,7 +179,7 @@ class EventsFavPageState extends State<EventsFavPage> {
 
             if (UserCustom.currentUser?.uid != null || UserCustom.currentUser?.uid != ''){
 
-              eventsList.getFavListFromDb(UserCustom.currentUser!.uid, refresh: true);
+              eventsList = await eventsList.getFavListFromDb(UserCustom.currentUser!.uid, refresh: true);
 
               setState(() {
                 eventsList.filterLists(
@@ -344,11 +344,26 @@ class EventsFavPageState extends State<EventsFavPage> {
                                     );
 
                                     if (results != null) {
+                                      eventsList = EventListsManager.currentFavEventsList;
                                       setState(() {
-                                        eventsList.eventsList[indexWithAddCountCorrection].inFav = results[0];
-                                        eventsList.eventsList[indexWithAddCountCorrection].addedToFavouritesCount = results[1];
+                                        eventsList.filterLists(
+                                            eventsList.generateMapForFilter(
+                                                eventCategoryFromFilter,
+                                                cityFromFilter,
+                                                freePrice,
+                                                today,
+                                                onlyFromPlaceEvents,
+                                                selectedStartDatePeriod,
+                                                selectedEndDatePeriod
+                                            )
+                                        );
+                                      });
+
+                                      setState(() {
+                                        allElementsList = AdUser.generateIndexedList(adIndexesList, eventsList.eventsList.length);
                                       });
                                     }
+
                                   },
 
                                   // --- Функция на нажатие на карточке кнопки ИЗБРАННОЕ ---
@@ -384,7 +399,7 @@ class EventsFavPageState extends State<EventsFavPage> {
                                         String resDel = await eventsList.eventsList[indexWithAddCountCorrection].deleteFromFav();
 
                                         setState(() {
-                                          eventsList.eventsList = EventListsManager.currentFavEventsList.eventsList;
+                                          eventsList = EventListsManager.currentFavEventsList;
                                           allElementsList = AdUser.generateIndexedList(adIndexesList, eventsList.eventsList.length);
                                           loading = false;
                                         });

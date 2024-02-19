@@ -195,6 +195,8 @@ class EventViewScreenState extends State<EventViewScreen> {
                                     setState(() {
                                       inFav = false;
                                       favCounter --;
+                                      event.inFav = inFav;
+                                      event.addedToFavouritesCount = favCounter;
                                       event.updateCurrentListFavInformation();
                                       //EventCustom.updateCurrentEventListFavInformation(event.id, favCounter, inFav);
                                     });
@@ -217,6 +219,8 @@ class EventViewScreenState extends State<EventViewScreen> {
                                     setState(() {
                                       inFav = true;
                                       favCounter ++;
+                                      event.inFav = inFav;
+                                      event.addedToFavouritesCount = favCounter;
                                       event.updateCurrentListFavInformation();
                                       //EventCustom.updateCurrentEventListFavInformation(event.id, favCounter, inFav);
                                     });

@@ -37,7 +37,7 @@ class RegularDate with DateMixin, TimeMixin implements IDates<RegularDate> {
 
     // Считываем дни недели периода из фильтра
 
-    for (int i = 0; i<6; i++){
+    for (int i = 0; i<7; i++){
 
       // Duration - чтобы пройти по всем дням недели.
       // В i передается индекс - 0, 1, 2, 3 и тд

@@ -3,6 +3,7 @@ import 'package:dvij_flutter/events/events_list_class.dart';
 import 'package:dvij_flutter/promos/promo_class.dart';
 import 'package:dvij_flutter/elements/text_and_icons_widgets/headline_and_desc.dart';
 import 'package:dvij_flutter/elements/social_elements/social_buttons_widget.dart';
+import 'package:dvij_flutter/promos/promos_list_class.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
@@ -55,7 +56,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
   PlaceCategory category = PlaceCategory.empty;
 
   EventsList eventsInThatPlace = EventsList();
-  List<PromoCustom> promosInThatPlace = [];
+  PromoList promosInThatPlace = PromoList();
 
   DateTime currentDate = DateTime.now();
   bool isOpen = false;
@@ -133,7 +134,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
       if (place.promosList != null && place.promosList != ''){
 
-        promosInThatPlace = await PromoCustom.getPromosList(place.promosList!);
+        promosInThatPlace = await promosInThatPlace.getEntitiesFromStringList(place.promosList!);
 
       }
 
@@ -574,7 +575,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
                       if (!events) const SizedBox(height: 16.0),
 
-                      if (!events && promosInThatPlace.isEmpty) Container(
+                      if (!events && promosInThatPlace.promosList.isEmpty) Container(
                         decoration: BoxDecoration(
                             color: AppColors.greyOnBackground
                         ),
@@ -588,26 +589,26 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                         ),
                       ),
 
-                      if (!events && promosInThatPlace.isNotEmpty) Column(
-                        children: List.generate(promosInThatPlace.length, (index) {
+                      if (!events && promosInThatPlace.promosList.isNotEmpty) Column(
+                        children: List.generate(promosInThatPlace.promosList.length, (index) {
                           return Column( // сюда можно вставить шаблон элемента
                               children: [
 
                                 PromoCardWidget(
-                                    promo: promosInThatPlace[index],
+                                    promo: promosInThatPlace.promosList[index],
                                   onTap:  () async {
 
                                     final results = await Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => PromoViewScreen(promoId: promosInThatPlace[index].id),
+                                        builder: (context) => PromoViewScreen(promoId: promosInThatPlace.promosList[index].id),
                                       ),
                                     );
 
                                     if (results != null) {
                                       setState(() {
-                                        promosInThatPlace[index].inFav = results[0].toString();
-                                        promosInThatPlace[index].addedToFavouritesCount = results[1].toString();
+                                        promosInThatPlace.promosList[index].inFav = results[0];
+                                        promosInThatPlace.promosList[index].addedToFavouritesCount = results[1];
                                       });
                                     }
                                   },
@@ -626,22 +627,22 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                                     else {
 
                                       // --- Если уже в избранном ----
-                                      if (promosInThatPlace[index].inFav == 'true')
+                                      if (promosInThatPlace.promosList[index].inFav!)
                                       {
-                                        // --- Удаляем из избранных ---
-                                        String resDel = await PromoCustom.deletePromoFromFav(promosInThatPlace[index].id);
+                                        String resDel = await promosInThatPlace.promosList[index].deleteFromFav();
                                         // ---- Инициализируем счетчик -----
-                                        int favCounter = int.parse(promosInThatPlace[index].addedToFavouritesCount!);
+                                        int favCounter = promosInThatPlace.promosList[index].addedToFavouritesCount!;
 
                                         if (resDel == 'success'){
                                           // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
                                           setState(() {
                                             // Обновляем текущий список
-                                            promosInThatPlace[index].inFav = 'false';
+                                            promosInThatPlace.promosList[index].inFav = false;
                                             favCounter --;
-                                            promosInThatPlace[index].addedToFavouritesCount = favCounter.toString();
+                                            promosInThatPlace.promosList[index].addedToFavouritesCount = favCounter;
                                             // Обновляем общий список из БД
-                                            PromoCustom.updateCurrentPromoListFavInformation(promosInThatPlace[index].id, favCounter.toString(), 'false');
+                                            //EventCustom.updateCurrentEventListFavInformation(eventsList[indexWithAddCountCorrection].id, favCounter, false);
+                                            promosInThatPlace.promosList[index].updateCurrentListFavInformation();
 
                                           });
                                           showSnackBar(context, 'Удалено из избранных', AppColors.attentionRed, 1);
@@ -654,20 +655,21 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                                         // --- Если заведение не в избранном ----
 
                                         // -- Добавляем в избранное ----
-                                        String res = await PromoCustom.addPromoToFav(promosInThatPlace[index].id);
+                                        String res = await promosInThatPlace.promosList[index].addToFav();
 
                                         // ---- Инициализируем счетчик добавивших в избранное
-                                        int favCounter = int.parse(promosInThatPlace[index].addedToFavouritesCount!);
+                                        int favCounter = promosInThatPlace.promosList[index].addedToFavouritesCount!;
 
                                         if (res == 'success') {
                                           // --- Если добавилось успешно, так же обновляем текущий список и список из БД
                                           setState(() {
                                             // Обновляем текущий список
-                                            promosInThatPlace[index].inFav = 'true';
+                                            promosInThatPlace.promosList[index].inFav = true;
                                             favCounter ++;
-                                            promosInThatPlace[index].addedToFavouritesCount = favCounter.toString();
+                                            promosInThatPlace.promosList[index].addedToFavouritesCount = favCounter;
                                             // Обновляем список из БД
-                                            PromoCustom.updateCurrentPromoListFavInformation(promosInThatPlace[index].id, favCounter.toString(), 'true');
+                                            //EventCustom.updateCurrentEventListFavInformation(eventsList[indexWithAddCountCorrection].id, favCounter, true);
+                                            promosInThatPlace.promosList[index].updateCurrentListFavInformation();
 
                                           });
 
