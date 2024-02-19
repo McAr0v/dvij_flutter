@@ -68,7 +68,7 @@ class PlaceWidgetInCreateEventScreen extends StatelessWidget {
                   const SizedBox(height: 5.0),
 
                   Text(
-                    '${City.getCityByIdFromList(place.city).name}, ул. ${place.street} - ${place.house}',
+                    '${place.city.name}, ул. ${place.street} - ${place.house}',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
 

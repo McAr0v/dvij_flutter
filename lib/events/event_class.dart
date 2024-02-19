@@ -13,7 +13,6 @@ import 'package:dvij_flutter/events/events_list_class.dart';
 import 'package:dvij_flutter/filters/filter_mixin.dart';
 import 'package:dvij_flutter/interfaces/entity_interface.dart';
 import 'package:firebase_database/firebase_database.dart';
-import '../methods/date_functions.dart';
 import 'event_category_class.dart';
 
 class EventCustom with MixinDatabase, TimeMixin implements IEntity{
@@ -398,7 +397,7 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
     return false;
   }
 
-  /// ФУНКЦИЯ ГЕНЕРАЦИИ СЛОВАРЯ ФИЛЬТРА ДЛЯ ПЕРЕДАЧИ В ФУНКЦИЮ
+  /*/// ФУНКЦИЯ ГЕНЕРАЦИИ СЛОВАРЯ ФИЛЬТРА ДЛЯ ПЕРЕДАЧИ В ФУНКЦИЮ
   /// <br><br>
   /// Автоматически делает словарь из данных фильтра, по которым
   /// будет производиться фильтрация сущности
@@ -420,7 +419,7 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
       'selectedStartDatePeriod': selectedStartDatePeriod,
       'selectedEndDatePeriod': selectedEndDatePeriod,
     };
-  }
+  }*/
 
   @override
   bool checkFilter(Map<String, dynamic> mapOfArguments) {

@@ -4,6 +4,7 @@ import 'package:dvij_flutter/elements/text_and_icons_widgets/headline_and_desc.d
 import 'package:dvij_flutter/elements/shedule_elements/shedule_once_and_long_widget.dart';
 import 'package:dvij_flutter/elements/social_elements/social_buttons_widget.dart';
 import 'package:dvij_flutter/elements/user_element_widget.dart';
+import 'package:dvij_flutter/places/place_list_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
@@ -78,10 +79,11 @@ class EventViewScreenState extends State<EventViewScreen> {
 
       if (event.placeId != '') {
 
-        // TODO Считать заведение со списка, если список заведений прогружен
-        // Считываем информацию о заведении
-        place = await Place.getPlaceFromList(event.placeId);
-
+        if (PlaceListManager.currentFeedPlacesList.placeList.isNotEmpty){
+          place = place.getEntityFromFeedList(event.placeId);
+        } else {
+          place = await place.getEntityByIdFromDb(event.placeId);
+        }
       }
 
       // Выдаем права на редактирование мероприятия
@@ -277,7 +279,7 @@ class EventViewScreenState extends State<EventViewScreen> {
                                       style: Theme.of(context).textTheme.titleMedium,
                                     ),
                                     if (place.id != '') Text(
-                                      '${place.name}, ${City.getCityByIdFromList(place.city).name}, ${place.street}, ${place.house}',
+                                      '${place.name}, ${place.city.name}, ${place.street}, ${place.house}',
                                       style: Theme.of(context).textTheme.bodySmall,
                                     ),
                                     if (place.id == '') Text(

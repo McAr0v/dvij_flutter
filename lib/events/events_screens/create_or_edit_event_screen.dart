@@ -17,6 +17,8 @@ import 'package:dvij_flutter/elements/types_of_date_time_pickers/once_type_date_
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/regular_two_type_date_time_picker_widget.dart';
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/type_of_date_widget.dart';
 import 'package:dvij_flutter/methods/days_functions.dart';
+import 'package:dvij_flutter/places/place_list_class.dart';
+import 'package:dvij_flutter/places/place_list_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import '../../cities/city_class.dart';
@@ -100,8 +102,8 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
   String longDayStartTime = 'Не выбрано';
   String longDayFinishTime = 'Не выбрано';
 
-  List<String> regularStartTimes = fillTimeListWithDefaultValues('Не выбрано', 7);
-  List<String> regularFinishTimes = fillTimeListWithDefaultValues('Не выбрано', 7);
+  List<String> regularStartTimes = TimeMixin.fillTimeListWithDefaultValues('Не выбрано', 7);
+  List<String> regularFinishTimes = TimeMixin.fillTimeListWithDefaultValues('Не выбрано', 7);
 
   // Здесь хранятся выбранные даты нерегулярных дней
   List<DateTime> chosenIrregularDays = [];
@@ -111,7 +113,7 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
   List<String> chosenIrregularEndTime = [];
 
 
-  List<Place> myPlaces = [];
+  PlaceList myPlaces = PlaceList();
 
   bool loading = true;
   bool saving = false;
@@ -212,7 +214,13 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
     }
 
     if (widget.eventInfo.placeId != '') {
-      chosenPlace = await Place.getPlaceById(widget.eventInfo.placeId);
+      //chosenPlace = await Place.getPlaceById(widget.eventInfo.placeId);
+      if (PlaceListManager.currentFeedPlacesList.placeList.isNotEmpty){
+        chosenPlace = chosenPlace.getEntityFromFeedList(widget.eventInfo.placeId);
+      } else {
+        chosenPlace = await chosenPlace.getEntityByIdFromDb(widget.eventInfo.placeId);
+      }
+
       inPlace = true;
     } else {
       inPlace = false;
@@ -235,13 +243,16 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
       createdTime = widget.eventInfo.createDate;
     }
 
-    if (Place.currentMyPlaceList.isNotEmpty){
+    //Place.currentMyPlaceList.isNotEmpty
+    if (PlaceListManager.currentMyPlacesList.placeList.isNotEmpty){
 
-      myPlaces = Place.currentMyPlaceList;
+      myPlaces = PlaceListManager.currentMyPlacesList;
 
     } else if (UserCustom.currentUser != null && UserCustom.currentUser!.uid != ''){
 
-      myPlaces = await Place.getMyPlaces(UserCustom.currentUser!.uid);
+      myPlaces = await myPlaces.getMyListFromDb(UserCustom.currentUser!.uid);
+
+      //myPlaces = await Place.getMyPlaces(UserCustom.currentUser!.uid);
 
     }
 
@@ -617,7 +628,7 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                         chosenPlace: chosenPlace,
                         onDeletePlace: (){
                           setState(() {
-                            chosenPlace = Place.empty();
+                            chosenPlace = Place.emptyPlace;
                             chosenCity = City(name: '', id: '');
                           });
                         },
@@ -636,7 +647,7 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                         onTapInputAddress: (){
                           setState(() {
                             inPlace = false;
-                            chosenPlace = Place.empty();
+                            chosenPlace = Place.emptyPlace;
                             chosenCity = City(id: '', name: '');
                           });
                         },
@@ -912,9 +923,6 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
     for (int i = 0; i<regularStartTimes.length; i++){
 
-      print(widget.eventInfo.regularDays.getDayFromIndex(i).startTime.toString());
-      print(widget.eventInfo.regularDays.getDayFromIndex(i).endTime.toString());
-
       regularStartTimes[i] = widget.eventInfo.regularDays.getDayFromIndex(i).startTime.toString();
       regularFinishTimes[i] = widget.eventInfo.regularDays.getDayFromIndex(i).endTime.toString();
 
@@ -947,12 +955,12 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
     if (selectedPlace != null) {
       setState(() {
         chosenPlace = selectedPlace;
-        chosenCity = City.getCityByIdFromList(chosenPlace.city);
+        chosenCity = chosenPlace.city;
       });
     }
   }
 
-  Route _createPopupPlace(List<Place> places) {
+  Route _createPopupPlace(PlaceList places) {
     return PageRouteBuilder(
 
       pageBuilder: (context, animation, secondaryAnimation) {
@@ -1052,29 +1060,6 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
           selectedEndDayInLongType = selectedStartDayInLongType;
         });
       }
-    }
-  }
-
-  // TODO Вынести эту функцию в отдельный класс. Она скопирована в EventViewScreen
-  void parseInputString(
-      String inputString, List<String> datesList, List<String> startTimeList, List<String> endTimeList) {
-    RegExp dateRegExp = RegExp(r'"date": "([^"]+)"');
-    RegExp startTimeRegExp = RegExp(r'"startTime": "([^"]+)"');
-    RegExp endTimeRegExp = RegExp(r'"endTime": "([^"]+)"');
-
-    List<Match> matches = dateRegExp.allMatches(inputString).toList();
-    for (Match match in matches) {
-      datesList.add(match.group(1)!);
-    }
-
-    matches = startTimeRegExp.allMatches(inputString).toList();
-    for (Match match in matches) {
-      startTimeList.add(match.group(1)!);
-    }
-
-    matches = endTimeRegExp.allMatches(inputString).toList();
-    for (Match match in matches) {
-      endTimeList.add(match.group(1)!);
     }
   }
 

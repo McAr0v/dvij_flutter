@@ -1,9 +1,11 @@
-import 'package:dvij_flutter/events/event_class.dart';
 import 'package:dvij_flutter/events/events_list_class.dart';
 import 'package:dvij_flutter/events/events_list_manager.dart';
-import 'package:dvij_flutter/places/place_class.dart';
+import 'package:dvij_flutter/places/place_list_class.dart';
+import 'package:dvij_flutter/places/place_list_manager.dart';
 import 'package:dvij_flutter/places/place_role_class.dart';
 import 'package:dvij_flutter/classes/role_in_app.dart';
+import 'package:dvij_flutter/promos/promos_list_class.dart';
+import 'package:dvij_flutter/promos/promos_list_manager.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
@@ -134,13 +136,18 @@ class UserCustom {
     try {
       await FirebaseAuth.instance.signOut();
       currentUser = null; // Обнуляем текущего пользователя при выходе
-      Place.currentMyPlaceList = [];
-      Place.currentFeedPlaceList = [];
-      Place.currentFavPlaceList = [];
+      PlaceListManager.currentFeedPlacesList = PlaceList();
+      PlaceListManager.currentMyPlacesList = PlaceList();
+      PlaceListManager.currentFavPlacesList = PlaceList();
+
       EventListsManager.currentFeedEventsList = EventsList();
       EventListsManager.currentFavEventsList = EventsList();
       EventListsManager.currentMyEventsList = EventsList();
-      // TODO - добавить акции сюда как создам их экраны
+
+      PromoListsManager.currentFeedPromosList = PromoList();
+      PromoListsManager.currentFavPromoList = PromoList();
+      PromoListsManager.currentMyPromoList = PromoList();
+
       updateAccessLevel('');
       return 'success';
     } catch (e) {
@@ -204,13 +211,17 @@ class UserCustom {
       // Если пользователь успешно вошел, обновляем текущего пользователя
       currentUser = await readUserDataAndWriteCurrentUser(credential.user!.uid);
       updateAccessLevel(currentUser!.role);
-      Place.currentFeedPlaceList = [];
-      Place.currentFavPlaceList = [];
-      Place.currentMyPlaceList = [];
+      PlaceListManager.currentFeedPlacesList = PlaceList();
+      PlaceListManager.currentMyPlacesList = PlaceList();
+      PlaceListManager.currentFavPlacesList = PlaceList();
+
       EventListsManager.currentFeedEventsList = EventsList();
       EventListsManager.currentFavEventsList = EventsList();
       EventListsManager.currentMyEventsList = EventsList();
-      // TODO - добавить акции сюда как создам их экраны
+
+      PromoListsManager.currentFeedPromosList = PromoList();
+      PromoListsManager.currentFavPromoList = PromoList();
+      PromoListsManager.currentMyPromoList = PromoList();
 
       // и возвращаем uid
       return credential.user?.uid;

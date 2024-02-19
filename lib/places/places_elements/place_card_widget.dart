@@ -17,13 +17,6 @@ class PlaceCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    bool isOpen = false;
-
-    if (place.nowIsOpen == 'true') isOpen = true;
-
-    String placeCategory = PlaceCategory.getPlaceCategoryFromCategoriesList(place.category).name;
-    String placeCity = City.getCityByIdFromList(place.city).name;
-
     return GestureDetector(
       onTap: onTap,
       child: Card(
@@ -61,7 +54,7 @@ class PlaceCardWidget extends StatelessWidget {
                   child: SmallWidgetForCardsWithIconAndText(
                     icon: Icons.bookmark,
                     text: '${place.addedToFavouritesCount}',
-                    iconColor: place.inFav == 'true' ? AppColors.brandColor : AppColors.white,
+                    iconColor: place.inFav! ? AppColors.brandColor : AppColors.white,
                     side: false,
                     backgroundColor: AppColors.greyBackground.withOpacity(0.8),
                     onPressed: onFavoriteIconPressed,
@@ -73,7 +66,7 @@ class PlaceCardWidget extends StatelessWidget {
                   left: 10.0,
                   child: SmallWidgetForCardsWithIconAndText(
                     //icon: Icons.visibility,
-                      text: placeCategory,
+                      text: place.category.name,
                       iconColor: AppColors.white,
                       side: true,
                       backgroundColor: AppColors.greyBackground.withOpacity(0.8)
@@ -96,13 +89,13 @@ class PlaceCardWidget extends StatelessWidget {
                   ),
                   //SizedBox(height: 8.0),
                   Text(
-                    '$placeCity, ${place.street}, ${place.house}',
+                    '${place.city.name}, ${place.street}, ${place.house}',
                     style: Theme.of(context).textTheme.labelMedium,
                     softWrap: true,
                   ),
                   SizedBox(height: 10.0),
 
-                  NowIsWorkWidget(isTrue: isOpen),
+                  NowIsWorkWidget(isTrue: place.nowIsOpen!),
 
                   const SizedBox(height: 10.0),
 

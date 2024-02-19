@@ -2,7 +2,6 @@ import 'package:dvij_flutter/places/place_class.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../../cities/city_class.dart';
 
 class PlaceWidgetInViewScreenInEventAndPromoScreen extends StatelessWidget {
   final Place place;
@@ -68,7 +67,7 @@ class PlaceWidgetInViewScreenInEventAndPromoScreen extends StatelessWidget {
                     const SizedBox(height: 5.0),
 
                     Text(
-                      '${City.getCityByIdFromList(place.city).name}, ул. ${place.street} - ${place.house}',
+                      '${place.city.name}, ул. ${place.street} - ${place.house}',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
 
@@ -90,7 +89,7 @@ class PlaceWidgetInViewScreenInEventAndPromoScreen extends StatelessWidget {
               // ---- Редактирование ----
 
               IconButton(
-                icon: Icon(FontAwesomeIcons.chevronRight, size: 18,),
+                icon: const Icon(FontAwesomeIcons.chevronRight, size: 18,),
                 // --- Уходим на экран редактирования -----
                 onPressed: onTapMethod,
               ),

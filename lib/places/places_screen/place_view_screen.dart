@@ -51,15 +51,14 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
   PlaceRole creatorPlaceRole = PlaceRole(name: '', id: '', desc: '', controlLevel: '');
   PlaceRole currentUserPlaceRole = PlaceRole(name: '', id: '', desc: '', controlLevel: '');
 
-  Place place = Place.empty();
-  String city = '';
+  Place place = Place.emptyPlace;
+  City city = City.emptyCity;
   PlaceCategory category = PlaceCategory.empty;
 
   EventsList eventsInThatPlace = EventsList();
   PromoList promosInThatPlace = PromoList();
 
   DateTime currentDate = DateTime.now();
-  bool isOpen = false;
 
   // --- Переключатель показа экрана загрузки -----
 
@@ -91,7 +90,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
       //place = await Place.getPlaceById(widget.placeId);
 
-      place = await Place.getPlaceFromList(widget.placeId);
+      place = place.getEntityFromFeedList(widget.placeId);
 
       if (place.name != ''){
 
@@ -119,15 +118,11 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
         }
       }
 
-      city = City.getCityByIdFromList(place.city).name;
-      category = category.getEntityByIdFromList(place.category);
-      inFav = place.inFav!;
-      favCounter = int.parse(place.addedToFavouritesCount!);
-      isOpen = nowIsOpenPlace(place);
+      city = place.city;
+      category = place.category;
 
-      if (place.eventsList != null && place.eventsList != ''){
+      if (place.eventsList != null && place.eventsList!.isNotEmpty){
 
-        //eventsInThatPlace = await EventCustom.getEventsList(place.eventsList!);
         eventsInThatPlace = await eventsInThatPlace.getEntitiesFromStringList(place.eventsList!);
 
       }

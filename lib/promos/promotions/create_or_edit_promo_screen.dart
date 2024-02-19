@@ -90,8 +90,8 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
   String longDayStartTime = 'Не выбрано';
   String longDayFinishTime = 'Не выбрано';
 
-  List<String> regularStartTimes = fillTimeListWithDefaultValues('Не выбрано', 7);
-  List<String> regularFinishTimes = fillTimeListWithDefaultValues('Не выбрано', 7);
+  List<String> regularStartTimes = TimeMixin.fillTimeListWithDefaultValues('Не выбрано', 7);
+  List<String> regularFinishTimes = TimeMixin.fillTimeListWithDefaultValues('Не выбрано', 7);
 
   // Здесь хранятся выбранные даты нерегулярных дней
   List<DateTime> chosenIrregularDays = [];

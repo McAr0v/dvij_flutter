@@ -32,4 +32,18 @@ mixin TimeMixin {
     return '${_getCorrectTime(date.hour)}:${_getCorrectTime(date.minute)}';
   }
 
+  static List<String> fillTimeListWithDefaultValues(String value, int count){
+
+    List<String> list = [];
+
+    for (int i = 0; i < count; i++){
+
+      list.add(value);
+
+    }
+
+    return list;
+
+  }
+
 }

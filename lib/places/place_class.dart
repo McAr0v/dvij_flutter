@@ -2,9 +2,7 @@ import 'package:dvij_flutter/cities/city_class.dart';
 import 'package:dvij_flutter/dates/regular_date_class.dart';
 import 'package:dvij_flutter/places/place_category_class.dart';
 import 'package:dvij_flutter/places/place_list_class.dart';
-import 'package:dvij_flutter/places/place_sorting_options.dart';
 import 'package:dvij_flutter/classes/user_class.dart';
-import 'package:dvij_flutter/methods/days_functions.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 import '../database/database_mixin.dart';
@@ -198,8 +196,7 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
     // Возвращаем результат удаления самого заведения
     return entityDeleteResult;
   }
-
-  static List<Place> filterPlaces(
+  /*static List<Place> filterPlaces(
       PlaceCategory placeCategoryFromFilter,
       City cityFromFilter,
       bool nowIsOpen,
@@ -229,33 +226,26 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
     }
     // Возвращаем список
     return places;
-  }
-
-  static bool checkFilter (
-      PlaceCategory placeCategoryFromFilter,
-      City cityFromFilter,
-      bool nowIsOpenFromFilter,
-      bool haveEventsFromFilter,
-      bool havePromosFromFilter,
-      Place place,
-      //City cityFromPlace,
-      //PlaceCategory categoryFromPlace
-      ) {
+  }*/
 
 
 
-    City cityFromPlace = City.getCityByIdFromList(place.city);
-    PlaceCategory categoryFromPlace = PlaceCategory.getPlaceCategoryFromCategoriesList(place.category);
+  @override
+  bool checkFilter(Map<String, dynamic> mapOfArguments) {
 
-    bool category = placeCategoryFromFilter.id == '' || placeCategoryFromFilter.id == categoryFromPlace.id;
-    bool city = cityFromFilter.id == '' || cityFromFilter.id == cityFromPlace.id;
-    bool checkNowIsOpen = nowIsOpenFromFilter == false ||  bool.parse(place.nowIsOpen!);
-    bool events = haveEventsFromFilter == false || int.parse(place.eventsCount!) > 0;
-    bool promos = havePromosFromFilter == false || int.parse(place.promoCount!) > 0;
+    PlaceCategory placeCategoryFromFilter = mapOfArguments['placeCategoryFromFilter'];
+    City cityFromFilter = mapOfArguments['cityFromFilter'];
+    bool haveEventsFromFilter = mapOfArguments['haveEventsFromFilter'];
+    bool havePromosFromFilter = mapOfArguments['havePromosFromFilter'];
+    bool nowIsOpenFromFilter = mapOfArguments['nowIsOpenFromFilter'];
+
+    bool category = placeCategoryFromFilter.id == '' || placeCategoryFromFilter.id == this.category.id;
+    bool city = cityFromFilter.id == '' || cityFromFilter.id == this.city.id;
+    bool checkNowIsOpen = nowIsOpenFromFilter == false ||  nowIsOpen!;
+    bool events = haveEventsFromFilter == false || eventsCount! > 0;
+    bool promos = havePromosFromFilter == false || promoCount! > 0;
 
     return category && city && checkNowIsOpen && events && promos;
-
-
   }
 
   @override
@@ -282,7 +272,7 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
     return returnedPlace;
   }
 
-  static Future<String> getFavCount(String placeId) async {
+  /*static Future<String> getFavCount(String placeId) async {
 
     final DatabaseReference reference = FirebaseDatabase.instance.ref().child('places/$placeId/addedToFavourites');
 
@@ -291,7 +281,7 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
 
     return snapshot.children.length.toString();
 
-  }
+  }*/
 
   /*static Future<String> getEventsCount(String placeId) async {
 
@@ -385,7 +375,7 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
 
   }*/
 
-  static Future<String> addedInFavOrNot(String placeId) async {
+  /*static Future<String> addedInFavOrNot(String placeId) async {
 
     String addedToFavourites = 'false';
 
@@ -411,9 +401,9 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
 
     return addedToFavourites;
 
-  }
+  }*/
 
-  static Future<String> canEditOrNot(String placeId) async {
+  /*static Future<String> canEditOrNot(String placeId) async {
 
     String canEdit = 'false';
 
@@ -432,7 +422,7 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
 
     return canEdit;
 
-  }
+  }*/
 
   @override
   Future<String> addToFav() async {
@@ -489,7 +479,7 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
     }
   }
 
-  static void deletePlaceFromCurrentFavList(String placeId){
+  /*static void deletePlaceFromCurrentFavList(String placeId){
 
     currentFavPlaceList.removeWhere((place) => place.id == placeId);
 
@@ -503,10 +493,10 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
         break;
       }
     }
-  }
+  }*/
 
 
-  static void updateCurrentPlaceListFavInformation(String placeId, String favCounter, String inFav){
+  /*static void updateCurrentPlaceListFavInformation(String placeId, String favCounter, String inFav){
     // ---- Функция обновления списка из БД при добавлении или удалении из избранного
 
     for (int i = 0; i<currentFeedPlaceList.length; i++){
@@ -539,15 +529,15 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
       }
     }
 
-  }
+  }*/
 
-  static void deletePlaceFormCurrentPlaceLists(String placeId){
+  /*static void deletePlaceFormCurrentPlaceLists(String placeId){
     // ---- Функция обновления списка из БД при добавлении или удалении из избранного
 
     currentFeedPlaceList.removeWhere((place) => place.id == placeId);
     currentFavPlaceList.removeWhere((place) => place.id == placeId);
     currentMyPlaceList.removeWhere((place) => place.id == placeId);
-  }
+  }*/
 
 
 
@@ -604,7 +594,7 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
     }
   }
 
-  static Future<Place> getPlaceFromList(String placeId) async {
+  /*static Future<Place> getPlaceFromList(String placeId) async {
     Place tempPlace = Place.emptyPlace;
 
     if (currentFeedPlaceList.isNotEmpty){
@@ -618,29 +608,15 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
       tempPlace = await getPlaceById(placeId);
     }
     return tempPlace;
-  }
-
-  @override
-  void addEntityToCurrentEntitiesLists() {
-    // TODO: implement addEntityToCurrentEntitiesLists
-  }
+  }*/
 
 
-
-  @override
-  void deleteEntityFromCurrentEntityLists() {
-    // TODO: implement deleteEntityFromCurrentEntityLists
-  }
 
   @override
   Future<String> deleteEntityIdFromPlace(String placeId) {
     Future<String> result = 'Эта функция не используется в заведениях' as Future<String>;
     return result;
   }
-
-
-
-
 
   @override
   Map<String, dynamic> generateEntityDataCode() {
@@ -668,15 +644,53 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
 
   @override
   Place getEntityFromFeedList(String id) {
-    // TODO: implement getEntityFromFeedList
-    throw UnimplementedError();
+    PlaceList placeList = PlaceList();
+    return placeList.getEntityFromFeedListById(id);
   }
 
+  @override
+  void deleteEntityFromCurrentEntityLists() {
+    PlaceList placeList = PlaceList();
+    placeList.deleteEntityFromCurrentEntitiesLists(id);
+  }
 
+  @override
+  void addEntityToCurrentEntitiesLists() {
+    PlaceList placeList = PlaceList();
+    placeList.addEntityFromCurrentEntitiesLists(this);
+  }
 
   @override
   void updateCurrentListFavInformation() {
-    // TODO: implement updateCurrentListFavInformation
+    PlaceList placeList = PlaceList();
+    placeList.updateCurrentListFavInformation(id, addedToFavouritesCount!, inFav!);
+  }
+
+  @override
+  Future<bool> addedInFavOrNot() async {
+    if (UserCustom.currentUser?.uid != null)
+    {
+      DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB('places/$id/addedToFavourites/${UserCustom.currentUser?.uid}');
+
+      if (snapshot != null){
+        for (var childSnapshot in snapshot.children) {
+          if (childSnapshot.value == UserCustom.currentUser?.uid) return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  @override
+  Future<int> getFavCount() async {
+    DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB('places/$id/addedToFavourites');
+
+    if (snapshot != null) {
+      return snapshot.children.length;
+    } else {
+      return 0;
+    }
   }
 
 }

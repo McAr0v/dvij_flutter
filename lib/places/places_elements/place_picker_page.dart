@@ -1,12 +1,13 @@
 import 'package:dvij_flutter/events/event_category_class.dart';
 import 'package:dvij_flutter/places/place_category_class.dart';
+import 'package:dvij_flutter/places/place_list_class.dart';
 import 'package:flutter/material.dart';
 import '../../cities/city_class.dart';
 import '../../places/place_class.dart';
 import '../../themes/app_colors.dart';
 
 class PlacePickerPage extends StatefulWidget {
-  final List<Place> places;
+  final PlaceList places;
 
   PlacePickerPage({required this.places});
 
@@ -21,12 +22,12 @@ class _PlacePickerPageState extends State<PlacePickerPage> {
   @override
   void initState() {
     super.initState();
-    filteredPlaces = List.from(widget.places);
+    filteredPlaces = List.from(widget.places.placeList);
   }
 
   void updateFilteredCategories(String query) {
     setState(() {
-      filteredPlaces = widget.places
+      filteredPlaces = widget.places.placeList
           .where((category) =>
           category.name.toLowerCase().contains(query.toLowerCase()))
           .toList();
@@ -82,7 +83,7 @@ class _PlacePickerPageState extends State<PlacePickerPage> {
               ),
               SizedBox(height: 8.0),
 
-              if (widget.places.isEmpty) Expanded(
+              if (widget.places.placeList.isEmpty) Expanded(
                   child: Container (
                     padding: EdgeInsets.all(15),
                     //color: AppColors.greyOnBackground,
@@ -98,7 +99,7 @@ class _PlacePickerPageState extends State<PlacePickerPage> {
                   )
               ),
 
-              if (widget.places.isNotEmpty) Expanded(
+              if (widget.places.placeList.isNotEmpty) Expanded(
                   child: Container (
                     padding: EdgeInsets.all(15),
                     //color: AppColors.greyOnBackground,

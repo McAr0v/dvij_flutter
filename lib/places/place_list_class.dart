@@ -1,8 +1,10 @@
+import 'package:dvij_flutter/places/place_category_class.dart';
 import 'package:dvij_flutter/places/place_class.dart';
 import 'package:dvij_flutter/places/place_list_manager.dart';
 import 'package:dvij_flutter/places/place_sorting_options.dart';
 import 'package:firebase_database/firebase_database.dart';
 
+import '../cities/city_class.dart';
 import '../database/database_mixin.dart';
 import '../interfaces/lists_interface.dart';
 
@@ -15,39 +17,102 @@ class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
 
   @override
   void addEntityFromCurrentEntitiesLists(Place entity) {
-    // TODO: implement addEntityFromCurrentEntitiesLists
+    PlaceListManager.currentFeedPlacesList.placeList.add(entity);
+    PlaceListManager.currentMyPlacesList.placeList.add(entity);
+    if(entity.inFav != null && entity.inFav!) PlaceListManager.currentFavPlacesList.placeList.add(entity);
   }
 
   @override
   void addEntityToCurrentFavList(String entityId) {
-    // TODO: implement addEntityToCurrentFavList
+    for (var place in PlaceListManager.currentFeedPlacesList.placeList){
+      if (place.id == entityId){
+        PlaceListManager.currentFavPlacesList.placeList.add(place);
+        break;
+      }
+    }
   }
 
   @override
   void deleteEntityFromCurrentEntitiesLists(String id) {
-    // TODO: implement deleteEntityFromCurrentEntitiesLists
+    PlaceListManager.currentFeedPlacesList.placeList.removeWhere((place) => place.id == id);
+    PlaceListManager.currentFavPlacesList.placeList.removeWhere((place) => place.id == id);
+    PlaceListManager.currentMyPlacesList.placeList.removeWhere((place) => place.id == id);
   }
 
   @override
   void deleteEntityFromCurrentFavList(String entityId) {
-    // TODO: implement deleteEntityFromCurrentFavList
+    PlaceListManager.currentFavPlacesList.placeList.removeWhere((place) => place.id == entityId);
+  }
+
+  /// ФУНКЦИЯ ГЕНЕРАЦИИ СЛОВАРЯ ФИЛЬТРА ДЛЯ ПЕРЕДАЧИ В ФУНКЦИЮ
+  /// <br><br>
+  /// Автоматически делает словарь из данных фильтра, по которым
+  /// будет производиться фильтрация сущности
+  Map<String, dynamic> generateMapForFilter(
+      PlaceCategory placeCategoryFromFilter,
+      City cityFromFilter,
+      bool haveEventsFromFilter,
+      bool nowIsOpenFromFilter,
+      bool havePromosFromFilter,
+      ) {
+    return {
+      'placeCategoryFromFilter': placeCategoryFromFilter,
+      'cityFromFilter': cityFromFilter,
+      'haveEventsFromFilter': haveEventsFromFilter,
+      'havePromosFromFilter': havePromosFromFilter,
+      'nowIsOpenFromFilter': nowIsOpenFromFilter,
+    };
   }
 
   @override
   void filterLists(Map<String, dynamic> mapOfArguments) {
-    // TODO: implement filterLists
+    PlaceCategory placeCategoryFromFilter = mapOfArguments['placeCategoryFromFilter'];
+    City cityFromFilter = mapOfArguments['cityFromFilter'];
+    bool haveEventsFromFilter = mapOfArguments['haveEventsFromFilter'];
+    bool havePromosFromFilter = mapOfArguments['havePromosFromFilter'];
+    bool nowIsOpenFromFilter = mapOfArguments['nowIsOpenFromFilter'];
+
+    PlaceList places = PlaceList();
+
+    for (Place place in placeList){
+
+      bool result = place.checkFilter(
+          generateMapForFilter(placeCategoryFromFilter, cityFromFilter, haveEventsFromFilter, havePromosFromFilter, nowIsOpenFromFilter)
+      );
+
+      if (result) {
+        places.placeList.add(place);
+      }
+    }
+    placeList = places.placeList;
   }
 
   @override
-  Future<PlaceList> getEntitiesFromStringList(String listInString, {String decimal = ','}) {
-    // TODO: implement getEntitiesFromStringList
-    throw UnimplementedError();
+  Future<PlaceList> getEntitiesFromStringList(String listInString, {String decimal = ','}) async {
+    PlaceList placeList = PlaceList();
+
+    List<String> splintedString = listInString.split(decimal);
+
+    for (int i = 0; i < splintedString.length; i++){
+      Place tempPlace = placeList.getEntityFromFeedListById(splintedString[i]);
+
+      if (tempPlace.id != ''){
+        placeList.placeList.add(tempPlace);
+      } else {
+        tempPlace = await tempPlace.getEntityByIdFromDb(splintedString[i]);
+        if (tempPlace.id != ''){
+          placeList.placeList.add(tempPlace);
+        }
+      }
+    }
+
+    return placeList;
   }
 
   @override
   Place getEntityFromFeedListById(String id) {
-    // TODO: implement getEntityFromFeedListById
-    throw UnimplementedError();
+    return PlaceListManager.currentFeedPlacesList.placeList.firstWhere((
+        element) => element.id == id, orElse: () => Place.emptyPlace);
   }
 
   @override
@@ -197,7 +262,29 @@ class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
 
   @override
   void updateCurrentListFavInformation(String entityId, int favCounter, bool inFav) {
-    // TODO: implement updateCurrentListFavInformation
+    for (Place place in PlaceListManager.currentFeedPlacesList.placeList){
+      if (place.id == entityId){
+        place.addedToFavouritesCount = favCounter;
+        place.inFav = inFav;
+        break;
+      }
+    }
+
+    for (Place place in PlaceListManager.currentFavPlacesList.placeList){
+      if (place.id == entityId){
+        place.addedToFavouritesCount = favCounter;
+        place.inFav = inFav;
+        break;
+      }
+    }
+
+    for (Place place in PlaceListManager.currentMyPlacesList.placeList){
+      if (place.id == entityId){
+        place.addedToFavouritesCount = favCounter;
+        place.inFav = inFav;
+        break;
+      }
+    }
   }
 
 }
