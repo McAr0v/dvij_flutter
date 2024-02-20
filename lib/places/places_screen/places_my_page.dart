@@ -28,7 +28,7 @@ class PlacesMyPage extends StatefulWidget {
 
 
 class PlacesMyPageState extends State<PlacesMyPage> {
-  late PlaceList placesMyList; // Список мест
+  PlaceList placesMyList = PlaceList(); // Список мест
   late List<PlaceCategory> placeCategoriesList; // Список категорий мест
 
   // --- Переменные фильтра по умолчанию ----

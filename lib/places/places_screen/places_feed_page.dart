@@ -27,7 +27,7 @@ class PlacesFeedPage extends StatefulWidget {
 }
 
 class PlacesFeedPageState extends State<PlacesFeedPage> {
-  late PlaceList placesList; // Список мест
+  PlaceList placesList = PlaceList(); // Список мест
   late List<PlaceCategory> placeCategoriesList; // Список категорий мест
 
   // --- Переменные фильтра по умолчанию ----
@@ -108,25 +108,29 @@ class PlacesFeedPageState extends State<PlacesFeedPage> {
       placesList = await placesList.getListFromDb();
 
       // --- Фильтруем список -----
-      setState(() {
-        placesList.filterLists(
-            placesList.generateMapForFilter(
-                placeCategoryFromFilter,
-                cityFromFilter,
-                haveEventsFromFilter,
-                nowIsOpenFromFilter,
-                havePromosFromFilter
-            )
-        );
-      });
+      if (placesList.placeList.isNotEmpty){
+        setState(() {
+          placesList.filterLists(
+              placesList.generateMapForFilter(
+                  placeCategoryFromFilter,
+                  cityFromFilter,
+                  haveEventsFromFilter,
+                  nowIsOpenFromFilter,
+                  havePromosFromFilter
+              )
+          );
+        });
+      }
+
 
     } else {
       // --- Если список не пустой ----
       // --- Подгружаем готовый список ----
-      placesList = PlaceListManager.currentFeedPlacesList;
+
 
       // --- Фильтруем список -----
       setState(() {
+        placesList = PlaceListManager.currentFeedPlacesList;
         placesList.filterLists(
             placesList.generateMapForFilter(
                 placeCategoryFromFilter,
@@ -503,10 +507,11 @@ class PlacesFeedPageState extends State<PlacesFeedPage> {
 
       // --- Заново подгружаем список из БД ---
 
-      placesList = PlaceListManager.currentFeedPlacesList;
+      //placesList = PlaceListManager.currentFeedPlacesList;
 
       // --- Фильтруем список согласно новым выбранным данным из фильтра ----
       setState(() {
+        placesList.placeList = PlaceListManager.currentFeedPlacesList.placeList;
         placesList.filterLists(
             placesList.generateMapForFilter(
                 placeCategoryFromFilter,

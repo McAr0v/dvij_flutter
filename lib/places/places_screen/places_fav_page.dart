@@ -26,7 +26,7 @@ class PlacesFavPage extends StatefulWidget {
 
 
 class PlacesFavPageState extends State<PlacesFavPage> {
-  late PlaceList placesFavList; // Список мест
+  PlaceList placesFavList = PlaceList(); // Список мест
   late List<PlaceCategory> placeCategoriesList; // Список категорий мест
 
   // --- Переменные фильтра по умолчанию ----

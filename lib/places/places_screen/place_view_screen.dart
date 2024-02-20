@@ -136,6 +136,9 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
       }
 
+      inFav = place.inFav!;
+      favCounter = place.addedToFavouritesCount!;
+
 
       // ---- Убираем экран загрузки -----
       setState(() {
@@ -246,7 +249,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                         child: SmallWidgetForCardsWithIconAndText(
                           icon: Icons.bookmark,
                           text: '$favCounter',
-                          iconColor: inFav == 'true' ? AppColors.brandColor : AppColors.white,
+                          iconColor: inFav ? AppColors.brandColor : AppColors.white,
                           side: false,
                           backgroundColor: AppColors.greyBackground.withOpacity(0.8),
                           onPressed: () async {
@@ -358,7 +361,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                                   style: Theme.of(context).textTheme.titleMedium,
                                 ),
                                 Text(
-                                  '$city, ${place.street}, ${place.house}',
+                                  '${city.name}, ${place.street}, ${place.house}',
                                   style: Theme.of(context).textTheme.bodySmall,
                                 )
                               ],

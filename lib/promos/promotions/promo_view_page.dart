@@ -78,7 +78,7 @@ class PromoViewScreenState extends State<PromoViewScreen> {
 
         // TODO Считать заведение со списка, если список заведений прогружен
         // Считываем информацию о заведении
-        place = await Place.getPlaceFromList(promo.placeId);
+        place = await place.getEntityByIdFromDb(promo.placeId);
 
       }
 
@@ -275,7 +275,7 @@ class PromoViewScreenState extends State<PromoViewScreen> {
                                       style: Theme.of(context).textTheme.titleMedium,
                                     ),
                                     if (place.id != '') Text(
-                                      '${place.name}, ${City.getCityByIdFromList(place.city).name}, ${place.street}, ${place.house}',
+                                      '${place.name}, ${place.city.name}, ${place.street}, ${place.house}',
                                       style: Theme.of(context).textTheme.bodySmall,
                                     ),
                                     if (place.id == '') Text(

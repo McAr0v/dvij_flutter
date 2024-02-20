@@ -14,7 +14,8 @@ import 'package:dvij_flutter/elements/types_of_date_time_pickers/long_type_date_
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/once_type_date_time_picker_widget.dart';
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/regular_two_type_date_time_picker_widget.dart';
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/type_of_date_widget.dart';
-import 'package:dvij_flutter/methods/days_functions.dart';
+import 'package:dvij_flutter/places/place_list_class.dart';
+import 'package:dvij_flutter/places/place_list_manager.dart';
 import 'package:dvij_flutter/promos/promo_category_class.dart';
 import 'package:dvij_flutter/promos/promo_class.dart';
 import 'package:dvij_flutter/promos/promos_elements/promo_category_picker_page.dart';
@@ -101,7 +102,7 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
   List<String> chosenIrregularEndTime = [];
 
 
-  List<Place> myPlaces = [];
+  PlaceList myPlaces = PlaceList();
 
   bool loading = true;
   bool saving = false;
@@ -226,13 +227,14 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
       createdTime = widget.promoInfo.createDate;
     }
 
-    if (Place.currentMyPlaceList.isNotEmpty){
+    if (PlaceListManager.currentMyPlacesList.placeList.isNotEmpty){
 
-      myPlaces = Place.currentMyPlaceList;
+      myPlaces = PlaceListManager.currentMyPlacesList;
 
     } else if (UserCustom.currentUser != null && UserCustom.currentUser!.uid != ''){
 
-      myPlaces = await Place.getMyPlaces(UserCustom.currentUser!.uid);
+      //myPlaces = await Place.getMyPlaces(UserCustom.currentUser!.uid);
+      myPlaces = await myPlaces.getMyListFromDb(UserCustom.currentUser!.uid);
 
     }
 
@@ -556,7 +558,7 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
                           chosenPlace: chosenPlace,
                           onDeletePlace: (){
                             setState(() {
-                              chosenPlace = Place.empty();
+                              chosenPlace = Place.emptyPlace;
                               chosenCity = City(name: '', id: '');
                             });
                           },
@@ -575,7 +577,7 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
                           onTapInputAddress: (){
                             setState(() {
                               inPlace = false;
-                              chosenPlace = Place.empty();
+                              chosenPlace = Place.emptyPlace;
                               chosenCity = City(id: '', name: '');
                             });
                           },
@@ -880,12 +882,12 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
     if (selectedPlace != null) {
       setState(() {
         chosenPlace = selectedPlace;
-        chosenCity = City.getCityByIdFromList(chosenPlace.city);
+        chosenCity = chosenPlace.city;
       });
     }
   }
 
-  Route _createPopupPlace(List<Place> places) {
+  Route _createPopupPlace(PlaceList places) {
     return PageRouteBuilder(
 
       pageBuilder: (context, animation, secondaryAnimation) {
