@@ -196,39 +196,6 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
     // Возвращаем результат удаления самого заведения
     return entityDeleteResult;
   }
-  /*static List<Place> filterPlaces(
-      PlaceCategory placeCategoryFromFilter,
-      City cityFromFilter,
-      bool nowIsOpen,
-      bool haveEventsFromFilter,
-      bool havePromosFromFilter,
-      List<Place> placesList
-      ) {
-
-    List<Place> places = [];
-
-    for (int i = 0; i<placesList.length; i++){
-
-      bool result = checkFilter(
-          placeCategoryFromFilter,
-          cityFromFilter,
-          nowIsOpen,
-          haveEventsFromFilter,
-          havePromosFromFilter,
-          placesList[i],
-          //cityFromPlace,
-          //categoryFromPlace
-      );
-
-      if (result) {
-        places.add(placesList[i]);
-      }
-    }
-    // Возвращаем список
-    return places;
-  }*/
-
-
 
   @override
   bool checkFilter(Map<String, dynamic> mapOfArguments) {
@@ -272,157 +239,6 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
     return returnedPlace;
   }
 
-  /*static Future<String> getFavCount(String placeId) async {
-
-    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('places/$placeId/addedToFavourites');
-
-    // Получаем снимок данных папки
-    DataSnapshot snapshot = await reference.get();
-
-    return snapshot.children.length.toString();
-
-  }*/
-
-  /*static Future<String> getEventsCount(String placeId) async {
-
-    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('places/$placeId/events');
-
-    // Получаем снимок данных папки
-    DataSnapshot snapshot = await reference.get();
-
-    return snapshot.children.length.toString();
-
-  }*/
-
-  /*static Future<String> getEventsList(String placeId) async {
-
-    List<String> eventsList = [];
-
-    String result = '';
-
-    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('places/$placeId/events');
-
-    // Получаем снимок данных папки
-    DataSnapshot snapshot = await reference.get();
-
-    for (var childSnapshot in snapshot.children) {
-      // заполняем роль (RoleInApp.fromSnapshot) из снимка данных
-      // и добавляем в список ролей
-
-      DataSnapshot eventIdSnapshot = childSnapshot.child('eventId');
-
-      if (eventIdSnapshot.exists) {
-        eventsList.add(eventIdSnapshot.value.toString());
-      }
-
-    }
-
-    for (int i = 0; i<eventsList.length; i++){
-      if (i != eventsList.length - 1){
-        result = '$result${eventsList[i]},';
-      } else {
-        result = '$result${eventsList[i]}';
-      }
-    }
-
-    return result;
-
-  }*/
-
-  /*static Future<String> getPromosList(String placeId) async {
-
-    List<String> promosList = [];
-
-    String result = '';
-
-    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('places/$placeId/promos');
-
-    // Получаем снимок данных папки
-    DataSnapshot snapshot = await reference.get();
-
-    for (var childSnapshot in snapshot.children) {
-      // заполняем роль (RoleInApp.fromSnapshot) из снимка данных
-      // и добавляем в список ролей
-
-      DataSnapshot eventIdSnapshot = childSnapshot.child('promoId');
-
-      if (eventIdSnapshot.exists) {
-        promosList.add(eventIdSnapshot.value.toString());
-      }
-
-    }
-
-    for (int i = 0; i<promosList.length; i++){
-      if (i != promosList.length - 1){
-        result = '$result${promosList[i]},';
-      } else {
-        result = '$result${promosList[i]}';
-      }
-    }
-
-    return result;
-
-  }
-
-  static Future<String> getPromoCount(String placeId) async {
-
-    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('places/$placeId/promos');
-
-    // Получаем снимок данных папки
-    DataSnapshot snapshot = await reference.get();
-
-    return snapshot.children.length.toString();
-
-  }*/
-
-  /*static Future<String> addedInFavOrNot(String placeId) async {
-
-    String addedToFavourites = 'false';
-
-    if (UserCustom.currentUser?.uid != null)
-      {
-
-        final DatabaseReference reference = FirebaseDatabase.instance.ref().child('places/$placeId/addedToFavourites/${UserCustom.currentUser?.uid}');
-
-        // Получаем снимок данных папки
-        DataSnapshot snapshot = await reference.get();
-
-        for (var childSnapshot in snapshot.children) {
-          // заполняем город (City.fromSnapshot) из снимка данных
-          // и обавляем в список городов
-
-          if (childSnapshot.value == UserCustom.currentUser?.uid) addedToFavourites = 'true';
-
-        }
-
-      }
-
-
-
-    return addedToFavourites;
-
-  }*/
-
-  /*static Future<String> canEditOrNot(String placeId) async {
-
-    String canEdit = 'false';
-
-    final DatabaseReference reference = FirebaseDatabase.instance.ref().child('places/$placeId/canEdit');
-
-    // Получаем снимок данных папки
-    DataSnapshot snapshot = await reference.get();
-
-    for (var childSnapshot in snapshot.children) {
-      // заполняем город (City.fromSnapshot) из снимка данных
-      // и обавляем в список городов
-
-      if (childSnapshot.value == UserCustom.currentUser?.uid) canEdit = 'true';
-
-    }
-
-    return canEdit;
-
-  }*/
 
   @override
   Future<String> addToFav() async {
@@ -691,6 +507,26 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
     } else {
       return 0;
     }
+  }
+
+  Future<List<Map<String, String>>> getPlaceAdmins() async {
+
+    List<Map<String, String>> adminsList = [];
+
+    String placePath = 'places/$id/managers/';
+    DataSnapshot? managersSnapshot = await MixinDatabase.getInfoFromDB(placePath);
+
+    if (managersSnapshot != null){
+      for(var idFolders in managersSnapshot.children){
+        Map<String, String> temp = {
+          'userId': idFolders.child('userId').value.toString(),
+          'roleId': idFolders.child('roleId').value.toString(),
+        };
+        adminsList.add(temp);
+      }
+    }
+
+    return adminsList;
   }
 
 }

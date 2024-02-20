@@ -1,7 +1,7 @@
 import 'package:dvij_flutter/methods/date_functions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../../classes/date_type_enum.dart';
+import '../../dates/date_type_enum.dart';
 import '../../themes/app_colors.dart';
 import '../text_and_icons_widgets/headline_and_desc.dart';
 

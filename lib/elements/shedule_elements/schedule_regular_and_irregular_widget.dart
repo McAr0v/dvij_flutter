@@ -4,7 +4,7 @@ import 'package:dvij_flutter/dates/regular_date_class.dart';
 import 'package:dvij_flutter/dates/time_mixin.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../../classes/date_type_enum.dart';
+import '../../dates/date_type_enum.dart';
 import '../../dates/date_mixin.dart';
 import '../../themes/app_colors.dart';
 import '../text_and_icons_widgets/headline_and_desc.dart';

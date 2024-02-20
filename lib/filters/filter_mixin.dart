@@ -1,6 +1,6 @@
 import 'package:dvij_flutter/promos/promo_class.dart';
 
-import '../classes/date_type_enum.dart';
+import '../dates/date_type_enum.dart';
 import '../dates/date_mixin.dart';
 import '../events/event_class.dart';
 

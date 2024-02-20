@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:dvij_flutter/classes/date_type_enum.dart';
+import 'package:dvij_flutter/dates/date_type_enum.dart';
 import 'package:dvij_flutter/dates/irregular_date_class.dart';
 import 'package:dvij_flutter/dates/long_date_class.dart';
 import 'package:dvij_flutter/dates/once_date_class.dart';

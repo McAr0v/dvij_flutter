@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-import '../../classes/date_type_enum.dart';
+import '../../dates/date_type_enum.dart';
 
 class TypeOfDateWidget extends StatelessWidget {
   final DateTypeEnum type; // Передаваемая переменная

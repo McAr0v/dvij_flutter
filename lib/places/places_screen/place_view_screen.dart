@@ -5,6 +5,7 @@ import 'package:dvij_flutter/promos/promo_class.dart';
 import 'package:dvij_flutter/elements/text_and_icons_widgets/headline_and_desc.dart';
 import 'package:dvij_flutter/elements/social_elements/social_buttons_widget.dart';
 import 'package:dvij_flutter/promos/promos_list_class.dart';
+import 'package:dvij_flutter/users/PlaceUser.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
@@ -43,14 +44,10 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
   // ---- Инициализируем пустые переменные ----
 
-  UserCustom userInfo = UserCustom.empty('', '');
-
-  ////////
-  List<UserCustom> users = [];
-  List<PlaceRole> _roles = [];
-  UserCustom creator = UserCustom.empty('', '');
-  PlaceRole creatorPlaceRole = PlaceRole(name: '', id: '', desc: '', controlLevel: '');
-  PlaceRole currentUserPlaceRole = PlaceRole(name: '', id: '', desc: '', controlLevel: '');
+  List<Map<String, String>> usersFromDb = [];
+  List<PlaceUser> users = [];
+  PlaceUser creator = PlaceUser();
+  PlaceUser currentPlaceUser = PlaceUser();
 
   Place place = Place.emptyPlace;
   City city = City.emptyCity;
@@ -83,13 +80,6 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
   Future<void> fetchAndSetData() async {
     try {
-      ///////
-      if (PlaceRole.currentPlaceRoleList.isNotEmpty)
-      {
-        _roles = PlaceRole.currentPlaceRoleList;
-      }
-
-      //place = await Place.getPlaceById(widget.placeId);
 
       place = place.getEntityFromFeedList(widget.placeId);
 
@@ -98,7 +88,17 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
       if (place.name != ''){
 
         if (UserCustom.currentUser != null){
-          userInfo = UserCustom.currentUser!;
+
+          currentPlaceUser = PlaceUser(
+            uid: UserCustom.currentUser!.uid,
+            email: UserCustom.currentUser!.email,
+            name: UserCustom.currentUser!.name,
+            lastname: UserCustom.currentUser!.lastname,
+            avatar: UserCustom.currentUser!.avatar
+          );
+
+          /////// ТУТ ЗАКОНЧИЛ
+          usersFromDb = await place.getPlaceAdmins();
           currentUserPlaceRole = await UserCustom.getPlaceRoleInUserById(widget.placeId, userInfo.uid);
 
           creator = (await UserCustom.readUserData(place.creatorId))!;

@@ -13,7 +13,7 @@ import '../../cities/city_class.dart';
 import '../../events/events_elements/today_widget.dart';
 import '../../places/places_elements/place_widget_in_view_screen_in_event_and_promo.dart';
 import '../../places/places_screen/place_view_screen.dart';
-import '../../classes/date_type_enum.dart';
+import '../../dates/date_type_enum.dart';
 import '../../places/place_class.dart';
 import '../../places/place_role_class.dart';
 import '../../classes/priceTypeOptions.dart';

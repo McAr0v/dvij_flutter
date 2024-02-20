@@ -4,7 +4,7 @@ import 'package:dvij_flutter/methods/date_class.dart';
 import '../dates/date_mixin.dart';
 import '../events/event_category_class.dart';
 import '../events/event_class.dart';
-import '../classes/date_type_enum.dart';
+import '../dates/date_type_enum.dart';
 import '../classes/pair.dart';
 
 List<int> splitDate(String date, String symbol)

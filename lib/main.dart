@@ -36,7 +36,6 @@ void main() async {
   await RoleInApp.getRolesInAppAndSave();
   await PlaceCategory.getPlaceCategoryAndSave();
   await EventCategory.getEventCategoryAndSave();
-  await PlaceRole.getPlaceRolesAndSave();
   await PromoCategory.getPromoCategoryAndSave();
   await AdUser.getAllAdsAndSave();
 

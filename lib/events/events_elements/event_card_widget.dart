@@ -1,7 +1,7 @@
 import 'package:dvij_flutter/classes/priceTypeOptions.dart';
 import 'package:dvij_flutter/dates/time_mixin.dart';
 import 'package:dvij_flutter/events/event_class.dart';
-import 'package:dvij_flutter/classes/date_type_enum.dart';
+import 'package:dvij_flutter/dates/date_type_enum.dart';
 import 'package:dvij_flutter/elements/text_and_icons_widgets/for_cards_small_widget_with_icon_and_text.dart';
 import 'package:dvij_flutter/elements/text_and_icons_widgets/icon_and_text_widget.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';

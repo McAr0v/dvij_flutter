@@ -6,7 +6,7 @@ import 'package:dvij_flutter/dates/once_date_class.dart';
 import 'package:dvij_flutter/dates/regular_date_class.dart';
 import 'package:dvij_flutter/dates/time_mixin.dart';
 import 'package:dvij_flutter/events/event_category_class.dart';
-import 'package:dvij_flutter/classes/date_type_enum.dart';
+import 'package:dvij_flutter/dates/date_type_enum.dart';
 import 'package:dvij_flutter/places/place_class.dart';
 import 'package:dvij_flutter/classes/priceTypeOptions.dart';
 import 'package:dvij_flutter/elements/category_element_in_edit_screen.dart';
