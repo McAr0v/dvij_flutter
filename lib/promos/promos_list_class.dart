@@ -284,18 +284,16 @@ class PromoList implements ILists<PromoList, PromoCustom, PromoSortingOption>{
   }
 
   @override
-  Future<PromoList> getEntitiesFromStringList(String listInString, {String decimal = ','}) async {
+  Future<PromoList> getEntitiesFromStringList(List<String> listInString) async {
     PromoList promosList = PromoList();
 
-    List<String> splintedString = listInString.split(decimal);
-
-    for (int i = 0; i < splintedString.length; i++){
-      PromoCustom tempPromo = promosList.getEntityFromFeedListById(splintedString[i]);
+    for (int i = 0; i < listInString.length; i++){
+      PromoCustom tempPromo = promosList.getEntityFromFeedListById(listInString[i]);
 
       if (tempPromo.id != ''){
         promosList.promosList.add(tempPromo);
       } else {
-        tempPromo = await tempPromo.getEntityByIdFromDb(splintedString[i]);
+        tempPromo = await tempPromo.getEntityByIdFromDb(listInString[i]);
         if (tempPromo.id != ''){
           promosList.promosList.add(tempPromo);
         }

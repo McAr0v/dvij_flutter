@@ -110,5 +110,5 @@ abstract class ILists<T, K, J>{
   /// Считывает сущности из Feed или БД и добавляет в возвращаемый список
   /// <br> Вернет список сущностей
   /// <br> Если сущностей не найдено, вернет пустой список
-  Future<T> getEntitiesFromStringList(String listInString, {String decimal = ','});
+  Future<T> getEntitiesFromStringList(List<String> listInString);
 }

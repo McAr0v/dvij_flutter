@@ -202,7 +202,8 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
     }
 
     if (widget.promoInfo.placeId != '') {
-      chosenPlace = await Place.getPlaceById(widget.promoInfo.placeId);
+      //chosenPlace = await Place.getPlaceById(widget.promoInfo.placeId);
+      chosenPlace = await chosenPlace.getEntityByIdFromDb(widget.promoInfo.placeId);
       inPlace = true;
     } else {
       inPlace = false;

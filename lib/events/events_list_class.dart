@@ -288,18 +288,16 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
   }
 
   @override
-  Future<EventsList> getEntitiesFromStringList(String listInString, {String decimal = ','}) async {
+  Future<EventsList> getEntitiesFromStringList(List<String> listInString) async {
     EventsList eventsList = EventsList();
 
-    List<String> splintedString = listInString.split(decimal);
-
-    for (int i = 0; i < splintedString.length; i++){
-      EventCustom tempEvent = eventsList.getEntityFromFeedListById(splintedString[i]);
+    for (int i = 0; i < listInString.length; i++){
+      EventCustom tempEvent = eventsList.getEntityFromFeedListById(listInString[i]);
 
       if (tempEvent.id != ''){
         eventsList.eventsList.add(tempEvent);
       } else {
-        tempEvent = await tempEvent.getEntityByIdFromDb(splintedString[i]);
+        tempEvent = await tempEvent.getEntityByIdFromDb(listInString[i]);
         if (tempEvent.id != ''){
           eventsList.eventsList.add(tempEvent);
         }

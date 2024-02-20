@@ -88,18 +88,16 @@ class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
   }
 
   @override
-  Future<PlaceList> getEntitiesFromStringList(String listInString, {String decimal = ','}) async {
+  Future<PlaceList> getEntitiesFromStringList(List<String> listInString) async {
     PlaceList placeList = PlaceList();
 
-    List<String> splintedString = listInString.split(decimal);
-
-    for (int i = 0; i < splintedString.length; i++){
-      Place tempPlace = placeList.getEntityFromFeedListById(splintedString[i]);
+    for (int i = 0; i < listInString.length; i++){
+      Place tempPlace = placeList.getEntityFromFeedListById(listInString[i]);
 
       if (tempPlace.id != ''){
         placeList.placeList.add(tempPlace);
       } else {
-        tempPlace = await tempPlace.getEntityByIdFromDb(splintedString[i]);
+        tempPlace = await tempPlace.getEntityByIdFromDb(listInString[i]);
         if (tempPlace.id != ''){
           placeList.placeList.add(tempPlace);
         }

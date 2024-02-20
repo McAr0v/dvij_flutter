@@ -1,3 +1,4 @@
+import 'package:dvij_flutter/dates/date_mixin.dart';
 import 'package:dvij_flutter/events/event_class.dart';
 import 'package:dvij_flutter/events/events_list_class.dart';
 import 'package:dvij_flutter/promos/promo_class.dart';
@@ -64,7 +65,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
   bool loading = true;
   bool deleting = false;
-  String inFav = 'false';
+  bool inFav = false;
   int favCounter = 0;
 
   bool events = true;
@@ -91,6 +92,8 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
       //place = await Place.getPlaceById(widget.placeId);
 
       place = place.getEntityFromFeedList(widget.placeId);
+
+      favCounter = place.addedToFavouritesCount!;
 
       if (place.name != ''){
 
@@ -127,7 +130,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
       }
 
-      if (place.promosList != null && place.promosList != ''){
+      if (place.promosList != null && place.promosList!.isNotEmpty){
 
         promosInThatPlace = await promosInThatPlace.getEntitiesFromStringList(place.promosList!);
 
@@ -258,16 +261,22 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
                             else {
 
-                              if (inFav == 'true')
+                              if (inFav)
                               {
 
-                                String resDel = await Place.deletePlaceFromFav(place.id);
+                                //String resDel = await Place.deletePlaceFromFav(place.id);
+                                String resDel = await place.deleteFromFav();
 
                                 if (resDel == 'success'){
                                   setState(() {
-                                    inFav = 'false';
+                                    inFav = false;
                                     favCounter --;
-                                    Place.updateCurrentPlaceListFavInformation(place.id, favCounter.toString(), inFav);
+                                    place.inFav = inFav;
+                                    place.addedToFavouritesCount = favCounter;
+
+                                    place.updateCurrentListFavInformation();
+
+                                    //Place.updateCurrentPlaceListFavInformation(place.id, favCounter.toString(), inFav);
                                   });
 
                                   showSnackBar(context, 'Удалено из избранных', AppColors.attentionRed, 1);
@@ -280,13 +289,17 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
                               }
                               else {
-                                String res = await Place.addPlaceToFav(place.id);
+                                //String res = await Place.addPlaceToFav(place.id);
+                                String res = await place.addToFav();
                                 if (res == 'success') {
 
                                   setState(() {
-                                    inFav = 'true';
+                                    inFav = true;
                                     favCounter ++;
-                                    Place.updateCurrentPlaceListFavInformation(place.id, favCounter.toString(), inFav);
+                                    place.inFav = inFav;
+                                    place.addedToFavouritesCount = favCounter;
+                                    place.updateCurrentListFavInformation();
+                                    //Place.updateCurrentPlaceListFavInformation(place.id, favCounter.toString(), inFav);
                                   });
 
                                   showSnackBar(context, 'Добавлено в избранные', Colors.green, 1);
@@ -382,7 +395,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
                       const SizedBox(height: 5.0),
 
-                      NowIsWorkWidget(isTrue: isOpen),
+                      NowIsWorkWidget(isTrue: place.nowIsOpen!),
 
                       const SizedBox(height: 16.0),
 
@@ -400,7 +413,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
                       const SizedBox(height: 16.0),
 
-                      if (place.createDate != '') HeadlineAndDesc(headline: place.createDate, description: 'Создано в движе', ),
+                      if (place.createDate != DateTime(2100)) HeadlineAndDesc(headline: DateMixin.getHumanDateFromDateTime(place.createDate), description: 'Создано в движе', ),
 
                       // TODO - Сделать ограничение на редактирование
                       const SizedBox(height: 30.0),
@@ -444,10 +457,10 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                       if (events) const SizedBox(height: 16.0),
 
                       if (events && eventsInThatPlace.eventsList.isEmpty) Container(
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: AppColors.greyOnBackground
                         ),
-                        child: Padding(
+                        child: const Padding(
                           padding: EdgeInsets.all(20),
                           child: Center(
                             child: Text(
@@ -571,10 +584,10 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                       if (!events) const SizedBox(height: 16.0),
 
                       if (!events && promosInThatPlace.promosList.isEmpty) Container(
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                             color: AppColors.greyOnBackground
                         ),
-                        child: Padding(
+                        child: const Padding(
                           padding: EdgeInsets.all(20),
                           child: Center(
                             child: Text(
@@ -776,11 +789,14 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                                 deleting = true;
                               });
 
-                              String delete = await Place.deletePlace(widget.placeId, users, place.creatorId);
+                              //String delete = await Place.deletePlace(widget.placeId, users, place.creatorId);
+                              String delete = await place.deleteFromDb();
 
                               if (delete == 'success'){
 
-                                Place.deletePlaceFormCurrentPlaceLists(widget.placeId);
+                                place.deleteEntityFromCurrentEntityLists();
+
+                                //Place.deletePlaceFormCurrentPlaceLists(widget.placeId);
 
                                 showSnackBar(context, 'Место успешно удалено', Colors.green, 2);
                                 navigateToPlaces();

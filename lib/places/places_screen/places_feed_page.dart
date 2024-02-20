@@ -1,8 +1,9 @@
 import 'package:dvij_flutter/cities/city_class.dart';
 import 'package:dvij_flutter/classes/pair.dart';
 import 'package:dvij_flutter/places/place_category_class.dart';
-import 'package:dvij_flutter/places/place_class.dart';
 import 'package:dvij_flutter/elements/text_and_icons_widgets/headline_and_desc.dart';
+import 'package:dvij_flutter/places/place_list_class.dart';
+import 'package:dvij_flutter/places/place_list_manager.dart';
 import 'package:dvij_flutter/places/places_screen/place_view_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
@@ -22,11 +23,11 @@ class PlacesFeedPage extends StatefulWidget {
   const PlacesFeedPage({Key? key}) : super(key: key);
 
   @override
-  _PlacesFeedPageState createState() => _PlacesFeedPageState();
+  PlacesFeedPageState createState() => PlacesFeedPageState();
 }
 
-class _PlacesFeedPageState extends State<PlacesFeedPage> {
-  late List<Place> placesList; // Список мест
+class PlacesFeedPageState extends State<PlacesFeedPage> {
+  late PlaceList placesList; // Список мест
   late List<PlaceCategory> placeCategoriesList; // Список категорий мест
 
   // --- Переменные фильтра по умолчанию ----
@@ -100,26 +101,41 @@ class _PlacesFeedPageState extends State<PlacesFeedPage> {
     // ----- Работаем со списком заведений -----
 
     // ---- Если список пуст ----
-    if (Place.currentFeedPlaceList.isEmpty){
+    if (PlaceListManager.currentFeedPlacesList.placeList.isEmpty){
 
       // ---- Считываем с БД заведения -----
-      List<Place> tempPlacesList = await Place.getAllPlaces();
+      //List<Place> tempPlacesList = await Place.getAllPlaces();
+      placesList = await placesList.getListFromDb();
 
       // --- Фильтруем список -----
       setState(() {
-        placesList = Place.filterPlaces(placeCategoryFromFilter, cityFromFilter, nowIsOpenFromFilter, haveEventsFromFilter, havePromosFromFilter, tempPlacesList);
+        placesList.filterLists(
+            placesList.generateMapForFilter(
+                placeCategoryFromFilter,
+                cityFromFilter,
+                haveEventsFromFilter,
+                nowIsOpenFromFilter,
+                havePromosFromFilter
+            )
+        );
       });
 
     } else {
       // --- Если список не пустой ----
       // --- Подгружаем готовый список ----
-      List<Place> tempList = [];
-      tempList = Place.currentFeedPlaceList;
+      placesList = PlaceListManager.currentFeedPlacesList;
 
-      // --- Фильтруем список ----
+      // --- Фильтруем список -----
       setState(() {
-        placesList = Place.filterPlaces(placeCategoryFromFilter, cityFromFilter, nowIsOpenFromFilter, haveEventsFromFilter, havePromosFromFilter, tempList);
-
+        placesList.filterLists(
+            placesList.generateMapForFilter(
+                placeCategoryFromFilter,
+                cityFromFilter,
+                haveEventsFromFilter,
+                nowIsOpenFromFilter,
+                havePromosFromFilter
+            )
+        );
       });
     }
 
@@ -131,7 +147,7 @@ class _PlacesFeedPageState extends State<PlacesFeedPage> {
     adIndexesList = AdUser.getAdIndexesList(adList, adStep, firstIndexOfAd);
 
     setState(() {
-      allElementsList = AdUser.generateIndexedList(adIndexesList, placesList.length);
+      allElementsList = AdUser.generateIndexedList(adIndexesList, placesList.placeList.length);
     });
 
     setState(() {
@@ -160,13 +176,25 @@ class _PlacesFeedPageState extends State<PlacesFeedPage> {
               refresh = true;
             });
 
-            placesList = [];
+            placesList = PlaceList();
 
-            List<Place> tempPlacesList = await Place.getAllPlaces();
+            //List<Place> tempPlacesList = await Place.getAllPlaces();
+            placesList = await placesList.getListFromDb();
 
+            // --- Фильтруем список -----
             setState(() {
-              placesList = Place.filterPlaces(placeCategoryFromFilter, cityFromFilter, nowIsOpenFromFilter, haveEventsFromFilter, havePromosFromFilter, tempPlacesList);
-              allElementsList = AdUser.generateIndexedList(adIndexesList, placesList.length);
+              placesList.filterLists(
+                  placesList.generateMapForFilter(
+                      placeCategoryFromFilter,
+                      cityFromFilter,
+                      haveEventsFromFilter,
+                      nowIsOpenFromFilter,
+                      havePromosFromFilter
+                  )
+              );
+
+              allElementsList = AdUser.generateIndexedList(adIndexesList, placesList.placeList.length);
+
             });
 
             setState(() {
@@ -230,7 +258,8 @@ class _PlacesFeedPageState extends State<PlacesFeedPage> {
                                 onChanged: (PlaceSortingOption? newValue) {
                                   setState(() {
                                     _selectedSortingOption = newValue!;
-                                    Place.sortPlaces(_selectedSortingOption, placesList);
+                                    placesList.sortEntitiesList(_selectedSortingOption);
+                                    //Place.sortPlaces(_selectedSortingOption, placesList);
                                   });
                                 },
                                 items: const [
@@ -275,7 +304,7 @@ class _PlacesFeedPageState extends State<PlacesFeedPage> {
 
                     // ---- Если список заведений пустой -----
 
-                    if (placesList.isEmpty) Expanded(
+                    if (placesList.placeList.isEmpty) Expanded(
                         child: ListView.builder(
                             padding: const EdgeInsets.all(15.0),
                             itemCount: 1,
@@ -293,7 +322,7 @@ class _PlacesFeedPageState extends State<PlacesFeedPage> {
 
                     // ---- Если список заведений не пустой -----
 
-                    if (placesList.isNotEmpty) Expanded(
+                    if (placesList.placeList.isNotEmpty) Expanded(
 
                         child: ListView.builder(
                             padding: const EdgeInsets.all(15.0),
@@ -312,21 +341,21 @@ class _PlacesFeedPageState extends State<PlacesFeedPage> {
 
                                 return PlaceCardWidget(
 
-                                place: placesList[indexWithAddCountCorrection],
+                                place: placesList.placeList[indexWithAddCountCorrection],
 
                                 onTap: () async {
 
                                   final results = await Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => PlaceViewScreen(placeId: placesList[indexWithAddCountCorrection].id),
+                                      builder: (context) => PlaceViewScreen(placeId: placesList.placeList[indexWithAddCountCorrection].id),
                                     ),
                                   );
 
                                   if (results != null) {
                                     setState(() {
-                                      placesList[indexWithAddCountCorrection].inFav = results[0].toString();
-                                      placesList[indexWithAddCountCorrection].addedToFavouritesCount = results[1].toString();
+                                      placesList.placeList[indexWithAddCountCorrection].inFav = results[0];
+                                      placesList.placeList[indexWithAddCountCorrection].addedToFavouritesCount = results[1];
                                     });
                                   }
 
@@ -346,22 +375,25 @@ class _PlacesFeedPageState extends State<PlacesFeedPage> {
                                   else {
 
                                     // --- Если уже в избранном ----
-                                    if (placesList[indexWithAddCountCorrection].inFav == 'true')
+                                    if (placesList.placeList[indexWithAddCountCorrection].inFav!)
                                     {
                                       // --- Удаляем из избранных ---
-                                      String resDel = await Place.deletePlaceFromFav(placesList[indexWithAddCountCorrection].id);
+                                      //String resDel = await Place.deletePlaceFromFav(placesList[indexWithAddCountCorrection].id);
+                                      String resDel = await placesList.placeList[indexWithAddCountCorrection].deleteFromFav();
                                       // ---- Инициализируем счетчик -----
-                                      int favCounter = int.parse(placesList[indexWithAddCountCorrection].addedToFavouritesCount!);
+                                      int favCounter = placesList.placeList[indexWithAddCountCorrection].addedToFavouritesCount!;
 
                                       if (resDel == 'success'){
                                         // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
                                         setState(() {
                                           // Обновляем текущий список
-                                          placesList[indexWithAddCountCorrection].inFav = 'false';
+                                          placesList.placeList[indexWithAddCountCorrection].inFav = false;
                                           favCounter --;
-                                          placesList[indexWithAddCountCorrection].addedToFavouritesCount = favCounter.toString();
+                                          placesList.placeList[indexWithAddCountCorrection].addedToFavouritesCount = favCounter;
+
                                           // Обновляем общий список из БД
-                                          Place.updateCurrentPlaceListFavInformation(placesList[indexWithAddCountCorrection].id, favCounter.toString(), 'false');
+                                          //Place.updateCurrentPlaceListFavInformation(placesList[indexWithAddCountCorrection].id, favCounter.toString(), 'false');
+                                          placesList.placeList[indexWithAddCountCorrection].updateCurrentListFavInformation();
 
                                         });
                                         showSnackBar('Удалено из избранных', AppColors.attentionRed, 1);
@@ -374,19 +406,21 @@ class _PlacesFeedPageState extends State<PlacesFeedPage> {
                                       // --- Если заведение не в избранном ----
 
                                       // -- Добавляем в избранное ----
-                                      String res = await Place.addPlaceToFav(placesList[indexWithAddCountCorrection].id);
+                                      //String res = await Place.addPlaceToFav(placesList[indexWithAddCountCorrection].id);
+                                      String res = await placesList.placeList[indexWithAddCountCorrection].addToFav();
                                       // ---- Инициализируем счетчик добавивших в избранное
-                                      int favCounter = int.parse(placesList[indexWithAddCountCorrection].addedToFavouritesCount!);
+                                      int favCounter = placesList.placeList[indexWithAddCountCorrection].addedToFavouritesCount!;
 
                                       if (res == 'success') {
                                         // --- Если добавилось успешно, так же обновляем текущий список и список из БД
                                         setState(() {
                                           // Обновляем текущий список
-                                          placesList[indexWithAddCountCorrection].inFav = 'true';
+                                          placesList.placeList[indexWithAddCountCorrection].inFav = true;
                                           favCounter ++;
-                                          placesList[indexWithAddCountCorrection].addedToFavouritesCount = favCounter.toString();
+                                          placesList.placeList[indexWithAddCountCorrection].addedToFavouritesCount = favCounter;
                                           // Обновляем список из БД
-                                          Place.updateCurrentPlaceListFavInformation(placesList[indexWithAddCountCorrection].id, favCounter.toString(), 'true');
+                                          placesList.placeList[indexWithAddCountCorrection].updateCurrentListFavInformation();
+                                          //Place.updateCurrentPlaceListFavInformation(placesList[indexWithAddCountCorrection].id, favCounter.toString(), 'true');
                                         });
 
                                         showSnackBar('Добавлено в избранные', Colors.green, 1);
@@ -460,7 +494,7 @@ class _PlacesFeedPageState extends State<PlacesFeedPage> {
         nowIsOpenFromFilter = results [2];
         haveEventsFromFilter = results [3];
         havePromosFromFilter = results [4];
-        placesList = [];
+        placesList = PlaceList();
 
         // ---- Обновляем счетчик выбранных настроек ----
         _setFiltersCount(placeCategoryFromFilter, cityFromFilter, nowIsOpenFromFilter, haveEventsFromFilter, havePromosFromFilter);
@@ -468,13 +502,23 @@ class _PlacesFeedPageState extends State<PlacesFeedPage> {
       });
 
       // --- Заново подгружаем список из БД ---
-      List<Place> tempList = [];
-      tempList = Place.currentFeedPlaceList;
+
+      placesList = PlaceListManager.currentFeedPlacesList;
 
       // --- Фильтруем список согласно новым выбранным данным из фильтра ----
       setState(() {
-        placesList = Place.filterPlaces(placeCategoryFromFilter, cityFromFilter, nowIsOpenFromFilter, haveEventsFromFilter, havePromosFromFilter, tempList);
-        allElementsList = AdUser.generateIndexedList(adIndexesList, placesList.length);
+        placesList.filterLists(
+            placesList.generateMapForFilter(
+                placeCategoryFromFilter,
+                cityFromFilter,
+                haveEventsFromFilter,
+                nowIsOpenFromFilter,
+                havePromosFromFilter
+            )
+        );
+
+        allElementsList = AdUser.generateIndexedList(adIndexesList, placesList.placeList.length);
+
       });
 
       setState(() {

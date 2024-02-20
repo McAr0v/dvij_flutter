@@ -1,10 +1,12 @@
 import 'package:dvij_flutter/cities/city_class.dart';
 import 'package:dvij_flutter/places/place_category_class.dart';
 import 'package:dvij_flutter/places/place_class.dart';
+import 'package:dvij_flutter/places/place_list_class.dart';
 import 'package:dvij_flutter/places/places_screen/place_view_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../place_list_manager.dart';
 import '../place_sorting_options.dart';
 import '../../classes/user_class.dart';
 import '../../elements/custom_snack_bar.dart';
@@ -20,13 +22,13 @@ class PlacesMyPage extends StatefulWidget {
   const PlacesMyPage({Key? key}) : super(key: key);
 
   @override
-  _PlacesMyPageState createState() => _PlacesMyPageState();
+  PlacesMyPageState createState() => PlacesMyPageState();
 }
 
 
 
-class _PlacesMyPageState extends State<PlacesMyPage> {
-  late List<Place> placesMyList; // Список мест
+class PlacesMyPageState extends State<PlacesMyPage> {
+  late PlaceList placesMyList; // Список мест
   late List<PlaceCategory> placeCategoriesList; // Список категорий мест
 
   // --- Переменные фильтра по умолчанию ----
@@ -38,7 +40,7 @@ class _PlacesMyPageState extends State<PlacesMyPage> {
   bool havePromosFromFilter = false;
 
 
-  Place placeEmpty = Place.empty();
+  Place placeEmpty = Place.emptyPlace;
 
   // --- Переменная сортировки по умолчанию ----
 
@@ -86,15 +88,24 @@ class _PlacesMyPageState extends State<PlacesMyPage> {
     // ----- Работаем со списком заведений -----
 
     // ---- Если список пуст ----
-    if (Place.currentMyPlaceList.isEmpty){
+    if (PlaceListManager.currentMyPlacesList.placeList.isEmpty){
 
       // ---- Считываем с БД заведения -----
       if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
-        List<Place> tempPlacesList = await Place.getMyPlaces(UserCustom.currentUser!.uid);
+        //placesFavList = await Place.getFavPlaces(UserCustom.currentUser!.uid);
+        placesMyList = await placesMyList.getMyListFromDb(UserCustom.currentUser!.uid);
 
         // --- Фильтруем список -----
         setState(() {
-          placesMyList = Place.filterPlaces(placeCategoryFromFilter, cityFromFilter, nowIsOpenFromFilter, haveEventsFromFilter, havePromosFromFilter, tempPlacesList);
+          placesMyList.filterLists(
+              placesMyList.generateMapForFilter(
+                  placeCategoryFromFilter,
+                  cityFromFilter,
+                  haveEventsFromFilter,
+                  nowIsOpenFromFilter,
+                  havePromosFromFilter
+              )
+          );
         });
       }
 
@@ -102,12 +113,19 @@ class _PlacesMyPageState extends State<PlacesMyPage> {
     } else {
       // --- Если список не пустой ----
       // --- Подгружаем готовый список ----
-      List<Place> tempList = [];
-      tempList = Place.currentMyPlaceList;
+      placesMyList = PlaceListManager.currentMyPlacesList;
 
       // --- Фильтруем список ----
       setState(() {
-        placesMyList = Place.filterPlaces(placeCategoryFromFilter, cityFromFilter, nowIsOpenFromFilter, haveEventsFromFilter, havePromosFromFilter, tempList);
+        placesMyList.filterLists(
+            placesMyList.generateMapForFilter(
+                placeCategoryFromFilter,
+                cityFromFilter,
+                haveEventsFromFilter,
+                nowIsOpenFromFilter,
+                havePromosFromFilter
+            )
+        );
       });
     }
 
@@ -140,14 +158,23 @@ class _PlacesMyPageState extends State<PlacesMyPage> {
               refresh = true;
             });
 
-            placesMyList = [];
+            placesMyList = PlaceList();
 
             if (UserCustom.currentUser?.uid != null || UserCustom.currentUser?.uid != ''){
 
-              List<Place> tempPlacesList = await Place.getMyPlaces(UserCustom.currentUser!.uid);
+              //List<Place> tempPlacesList = await Place.getFavPlaces(UserCustom.currentUser!.uid);
+              placesMyList.getMyListFromDb(UserCustom.currentUser!.uid);
 
               setState(() {
-                placesMyList = Place.filterPlaces(placeCategoryFromFilter, cityFromFilter, nowIsOpenFromFilter, haveEventsFromFilter, havePromosFromFilter, tempPlacesList);
+                placesMyList.filterLists(
+                    placesMyList.generateMapForFilter(
+                        placeCategoryFromFilter,
+                        cityFromFilter,
+                        haveEventsFromFilter,
+                        nowIsOpenFromFilter,
+                        havePromosFromFilter
+                    )
+                );
               });
 
             }
@@ -220,7 +247,8 @@ class _PlacesMyPageState extends State<PlacesMyPage> {
                                   onChanged: (PlaceSortingOption? newValue) {
                                     setState(() {
                                       _selectedSortingOption = newValue!;
-                                      Place.sortPlaces(_selectedSortingOption, placesMyList);
+                                      placesMyList.sortEntitiesList(_selectedSortingOption);
+                                      //Place.sortPlaces(_selectedSortingOption, placesMyList);
                                     });
                                   },
                                   items: const [
@@ -265,7 +293,7 @@ class _PlacesMyPageState extends State<PlacesMyPage> {
 
                       // ---- Если список заведений пустой -----
 
-                      if (placesMyList.isEmpty) Expanded(
+                      if (placesMyList.placeList.isEmpty) Expanded(
                           child: ListView.builder(
                               padding: const EdgeInsets.all(15.0),
                               itemCount: 1,
@@ -283,28 +311,28 @@ class _PlacesMyPageState extends State<PlacesMyPage> {
 
                       // ---- Если список заведений не пустой -----
 
-                      if (placesMyList.isNotEmpty) Expanded(
+                      if (placesMyList.placeList.isNotEmpty) Expanded(
                           child: ListView.builder(
                               padding: const EdgeInsets.all(15.0),
-                              itemCount: placesMyList.length,
+                              itemCount: placesMyList.placeList.length,
                               itemBuilder: (context, index) {
                                 return PlaceCardWidget(
                                   // TODO Сделать обновление иконки избранного и счетчика при возврате из экрана просмотра заведения
-                                  place: placesMyList[index],
+                                  place: placesMyList.placeList[index],
 
                                   onTap: () async {
 
                                     final results = await Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => PlaceViewScreen(placeId: placesMyList[index].id),
+                                        builder: (context) => PlaceViewScreen(placeId: placesMyList.placeList[index].id),
                                       ),
                                     );
 
                                     if (results != null) {
                                       setState(() {
-                                        placesMyList[index].inFav = results[0].toString();
-                                        placesMyList[index].addedToFavouritesCount = results[1].toString();
+                                        placesMyList.placeList[index].inFav = results[0];
+                                        placesMyList.placeList[index].addedToFavouritesCount = results[1];
                                       });
                                     }
 
@@ -326,22 +354,24 @@ class _PlacesMyPageState extends State<PlacesMyPage> {
                                     else {
 
                                       // --- Если уже в избранном ----
-                                      if (placesMyList[index].inFav == 'true')
+                                      if (placesMyList.placeList[index].inFav!)
                                       {
                                         // --- Удаляем из избранных ---
-                                        String resDel = await Place.deletePlaceFromFav(placesMyList[index].id);
+                                        //String resDel = await Place.deletePlaceFromFav(placesMyList[index].id);
+                                        String resDel = await placesMyList.placeList[index].deleteFromFav();
                                         // ---- Инициализируем счетчик -----
-                                        int favCounter = int.parse(placesMyList[index].addedToFavouritesCount!);
+                                        int favCounter = placesMyList.placeList[index].addedToFavouritesCount!;
 
                                         if (resDel == 'success'){
                                           // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
                                           setState(() {
                                             // Обновляем текущий список
-                                            placesMyList[index].inFav = 'false';
+                                            placesMyList.placeList[index].inFav = false;
                                             favCounter --;
-                                            placesMyList[index].addedToFavouritesCount = favCounter.toString();
+                                            placesMyList.placeList[index].addedToFavouritesCount = favCounter;
                                             // Обновляем списки из БД
-                                            Place.updateCurrentPlaceListFavInformation(placesMyList[index].id, favCounter.toString(), 'false');
+                                            placesMyList.placeList[index].updateCurrentListFavInformation();
+                                            //Place.updateCurrentPlaceListFavInformation(placesMyList[index].id, favCounter.toString(), 'false');
 
                                           });
                                           showSnackBar('Удалено из избранных', AppColors.attentionRed, 1);
@@ -354,19 +384,21 @@ class _PlacesMyPageState extends State<PlacesMyPage> {
                                         // --- Если заведение не в избранном ----
 
                                         // -- Добавляем в избранное ----
-                                        String res = await Place.addPlaceToFav(placesMyList[index].id);
+                                        //String res = await Place.addPlaceToFav(placesMyList[index].id);
+                                        String res = await placesMyList.placeList[index].addToFav();
                                         // ---- Инициализируем счетчик добавивших в избранное
-                                        int favCounter = int.parse(placesMyList[index].addedToFavouritesCount!);
+                                        int favCounter = placesMyList.placeList[index].addedToFavouritesCount!;
 
                                         if (res == 'success') {
                                           // --- Если добавилось успешно, так же обновляем текущий список и список из БД
                                           setState(() {
                                             // Обновляем текущий список
-                                            placesMyList[index].inFav = 'true';
+                                            placesMyList.placeList[index].inFav = true;
                                             favCounter ++;
-                                            placesMyList[index].addedToFavouritesCount = favCounter.toString();
+                                            placesMyList.placeList[index].addedToFavouritesCount = favCounter;
                                             // Обновляем списки из БД
-                                            Place.updateCurrentPlaceListFavInformation(placesMyList[index].id, favCounter.toString(), 'true');
+                                            placesMyList.placeList[index].updateCurrentListFavInformation();
+                                            //Place.updateCurrentPlaceListFavInformation(placesMyList[index].id, favCounter.toString(), 'true');
                                           });
 
                                           showSnackBar('Добавлено в избранные', Colors.green, 1);
@@ -456,20 +488,27 @@ class _PlacesMyPageState extends State<PlacesMyPage> {
         nowIsOpenFromFilter = results [2];
         haveEventsFromFilter = results [3];
         havePromosFromFilter = results [4];
-        placesMyList = [];
+        placesMyList = PlaceList();
 
         // ---- Обновляем счетчик выбранных настроек ----
         _setFiltersCount(placeCategoryFromFilter, cityFromFilter, nowIsOpenFromFilter, haveEventsFromFilter, havePromosFromFilter);
 
       });
 
-      // --- Заново подгружаем список из БД ---
-      List<Place> tempList = [];
-      tempList = Place.currentMyPlaceList;
+      placesMyList.placeList = PlaceListManager.currentMyPlacesList.placeList;
 
       // --- Фильтруем список согласно новым выбранным данным из фильтра ----
+      // --- Фильтруем список ----
       setState(() {
-        placesMyList = Place.filterPlaces(placeCategoryFromFilter, cityFromFilter, nowIsOpenFromFilter, haveEventsFromFilter, havePromosFromFilter, tempList);
+        placesMyList.filterLists(
+            placesMyList.generateMapForFilter(
+                placeCategoryFromFilter,
+                cityFromFilter,
+                haveEventsFromFilter,
+                nowIsOpenFromFilter,
+                havePromosFromFilter
+            )
+        );
       });
 
       setState(() {
