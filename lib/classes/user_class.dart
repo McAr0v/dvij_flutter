@@ -2,7 +2,6 @@ import 'package:dvij_flutter/events/events_list_class.dart';
 import 'package:dvij_flutter/events/events_list_manager.dart';
 import 'package:dvij_flutter/places/place_list_class.dart';
 import 'package:dvij_flutter/places/place_list_manager.dart';
-import 'package:dvij_flutter/places/place_role_class.dart';
 import 'package:dvij_flutter/classes/role_in_app.dart';
 import 'package:dvij_flutter/promos/promos_list_class.dart';
 import 'package:dvij_flutter/promos/promos_list_manager.dart';
@@ -615,7 +614,7 @@ class UserCustom {
     return users;
   }
 
-  static Future<PlaceRole> getPlaceRoleInUserById(String placeId, String userId) async {
+  /*static Future<PlaceRole> getPlaceRoleInUserById(String placeId, String userId) async {
 
     PlaceRole result = PlaceRole(name: '', id: '', desc: '', controlLevel: '');
 
@@ -646,6 +645,6 @@ class UserCustom {
 
     // Возвращаем список
     return result;
-  }
+  }*/
 
 }

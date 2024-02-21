@@ -174,9 +174,7 @@ class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
 
         Place place = Place.emptyPlace;
 
-        String placeId = placeIdsFolder.child('place_info').child('id').value.toString();
-
-        place = await place.getEntityByIdFromDb(placeId);
+        place = place.getEntityFromSnapshot(placeIdsFolder);
 
         PlaceListManager.currentFeedPlacesList.placeList.add(place);
         places.placeList.add(place);

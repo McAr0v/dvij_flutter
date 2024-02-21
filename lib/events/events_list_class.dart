@@ -36,12 +36,9 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
     DataSnapshot? eventsSnapshot = await MixinDatabase.getInfoFromDB('events');
 
     if (eventsSnapshot != null) {
-      for (var eventIdsFolder in eventsSnapshot.children) {
+      for (DataSnapshot eventIdsFolder in eventsSnapshot.children) {
 
-        EventCustom event = EventCustom.fromSnapshot(eventIdsFolder.child('event_info'));
-
-        event.inFav = await event.addedInFavOrNot();
-        event.addedToFavouritesCount = await event.getFavCount();
+        EventCustom event = EventCustom.emptyEvent.getEntityFromSnapshot(eventIdsFolder);
 
         EventListsManager.currentFeedEventsList.eventsList.add(event);
         events.eventsList.add(event);
@@ -229,9 +226,9 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
 
       case EventSortingOption.nameDesc: eventsList.sort((a, b) => b.headline.compareTo(a.headline)); break;
 
-      case EventSortingOption.favCountAsc: eventsList.sort((a, b) => a.addedToFavouritesCount!.compareTo(b.addedToFavouritesCount!)); break;
+      case EventSortingOption.favCountAsc: eventsList.sort((a, b) => a.addedToFavouritesCount.compareTo(b.addedToFavouritesCount)); break;
 
-      case EventSortingOption.favCountDesc: eventsList.sort((a, b) => b.addedToFavouritesCount!.compareTo(a.addedToFavouritesCount!)); break;
+      case EventSortingOption.favCountDesc: eventsList.sort((a, b) => b.addedToFavouritesCount.compareTo(a.addedToFavouritesCount)); break;
 
     }
   }
@@ -311,6 +308,6 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
   void addEntityFromCurrentEntitiesLists(EventCustom entity) {
     EventListsManager.currentFeedEventsList.eventsList.add(entity);
     EventListsManager.currentMyEventsList.eventsList.add(entity);
-    if(entity.inFav != null && entity.inFav!) EventListsManager.currentFavEventsList.eventsList.add(entity);
+    if(entity.inFav) EventListsManager.currentFavEventsList.eventsList.add(entity);
   }
 }

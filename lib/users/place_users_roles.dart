@@ -1,4 +1,6 @@
 import 'package:dvij_flutter/database/database_mixin.dart';
+import 'package:dvij_flutter/users/place_admins_item_class.dart';
+import 'package:dvij_flutter/users/place_user_class.dart';
 
 enum PlaceUserRoleEnum {
   admin,
@@ -16,7 +18,7 @@ class PlaceUserRole with MixinDatabase {
   PlaceUserRole({String? title, PlaceUserRoleEnum? roleInPlace, String? desc, int? controlLevel}){
     this.title = title ?? this.title;
     this.roleInPlace = roleInPlace ?? this.roleInPlace;
-    this.desc = title ?? this.desc;
+    this.desc = desc ?? this.desc;
     this.controlLevel = controlLevel ?? this.controlLevel;
   }
 
@@ -29,6 +31,14 @@ class PlaceUserRole with MixinDatabase {
       default: return PlaceUserRoleEnum.reader;
     }
 
+  }
+
+  List<PlaceUserRole> getPlaceUserRoleList(){
+    List<PlaceUserRole> tempList = [];
+    tempList.add(getPlaceUserRole(PlaceUserRoleEnum.admin));
+    tempList.add(getPlaceUserRole(PlaceUserRoleEnum.reader));
+    tempList.add(getPlaceUserRole(PlaceUserRoleEnum.org));
+    return tempList;
   }
 
   String generatePlaceRoleEnumForPlaceUser(PlaceUserRoleEnum placeRole) {
@@ -91,6 +101,17 @@ class PlaceUserRole with MixinDatabase {
         );
       }
     }
+  }
+
+  PlaceUserRole searchPlaceUserRoleInAdminsList (List<PlaceAdminsListItem> admins, PlaceUser currentUser){
+    PlaceUserRole role = PlaceUserRole();
+    role = role.getPlaceUserRole(PlaceUserRoleEnum.reader);
+    for (PlaceAdminsListItem user in admins){
+      if (user.userId == currentUser.uid){
+        return user.placeRole;
+      }
+    }
+    return role;
   }
 
 }

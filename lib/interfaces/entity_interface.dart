@@ -1,3 +1,5 @@
+import 'package:firebase_database/firebase_database.dart';
+
 abstract class IEntity <T> {
 
   /// ФУНКЦИЯ ГЕНЕРАЦИИ СЛОВАРЯ СУЩНОСТИ ДЛЯ ВЫГРУЗКИ В БД
@@ -88,17 +90,25 @@ abstract class IEntity <T> {
   /// <br> Если сущность не найдена, вернет пустую сущность
   Future<T> getEntityByIdFromDb(String eventId);
 
+  /// ФУНКЦИЯ ЧТЕНИЯ СУЩНОСТИ ИЗ СЛЕПКА ИЗ БД
+  /// <br><br>
+  /// Принимает [DataSnapshot], из которого будет брать данные
+  /// сущности
+  /// <br> Вернет сущность
+  /// <br> Если сущность не найдена, вернет пустую сущность
+  T getEntityFromSnapshot(DataSnapshot snapshot);
+
   /// ФУНКЦИЯ ПОЛУЧЕНИЯ СЧЕТЧИКА ДОБАВИВШИХ В ИЗБРАННОЕ
   /// <br><br>
   /// Считывает количество ID пользователей, добавивших в избранное сущность
   /// <br> Вернет [int]
-  Future<int> getFavCount();
+  int getFavCount(DataSnapshot snapshot);
 
   /// ФУНКЦИЯ ПРОВЕРКИ - ИЗБРАННАЯ СУЩНОСТЬ ИЛИ НЕТ
   /// <br><br>
   /// Проверяет ID текущего пользователя в списке добавивших в избранное
   /// <br> Вернет [bool] - В избранном или нет
-  Future<bool> addedInFavOrNot();
+  bool addedInFavOrNot(DataSnapshot snapshot);
 
   /// ФУНКЦИЯ ДОБАВЛЕНИЯ СУЩНОСТИ В ИЗБРАННОЕ
   /// <br><br>

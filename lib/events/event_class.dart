@@ -38,9 +38,9 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
   LongDate longDays;
   RegularDate regularDays;
   IrregularDate irregularDays;
-  int? addedToFavouritesCount;
-  bool? inFav;
-  bool? today;
+  int addedToFavouritesCount;
+  bool inFav;
+  bool today;
 
   EventCustom({
     required this.id,
@@ -65,9 +65,9 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
     required this.irregularDays,
     required this.priceType,
     required this.price,
-    this.addedToFavouritesCount,
-    this.inFav,
-    this.today,
+    required this.addedToFavouritesCount,
+    required this.inFav,
+    required this.today,
 
   });
 
@@ -82,31 +82,34 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
   /// Возвращает [EventCustom]
   factory EventCustom.fromSnapshot(DataSnapshot snapshot) {
 
+    DataSnapshot snapshotInfoFolder = snapshot.child('event_info');
+    DataSnapshot snapshotFavFolder = snapshot.child('addedToFavourites');
+    EventCustom tempEvent = EventCustom.emptyEvent;
 
     // --- ИНИЦИАЛИЗИРУЕМ ПЕРЕМЕННЫЕ ----
 
     DateTypeEnumClass dateTypeClass = DateTypeEnumClass();
-    EventCategory eventCategory = EventCategory(name: '', id: snapshot.child('category').value.toString());
-    City city = City(name: '', id: snapshot.child('city').value.toString());
+    EventCategory eventCategory = EventCategory(name: '', id: snapshotInfoFolder.child('category').value.toString());
+    City city = City(name: '', id: snapshotInfoFolder.child('city').value.toString());
     PriceTypeEnumClass priceType = PriceTypeEnumClass();
 
     OnceDate onceDate = OnceDate();
-    String onceDayString = snapshot.child('onceDay').value.toString();
+    String onceDayString = snapshotInfoFolder.child('onceDay').value.toString();
 
     LongDate longDate = LongDate();
-    String longDaysString = snapshot.child('longDays').value.toString();
+    String longDaysString = snapshotInfoFolder.child('longDays').value.toString();
 
     RegularDate regularDate = RegularDate();
-    String regularDateString = snapshot.child('regularDays').value.toString();
+    String regularDateString = snapshotInfoFolder.child('regularDays').value.toString();
 
     IrregularDate irregularDate = IrregularDate();
-    String irregularDaysString = snapshot.child('irregularDays').value.toString();
+    String irregularDaysString = snapshotInfoFolder.child('irregularDays').value.toString();
 
 
     // ---- РАБОТА С ДАТАМИ -----
     // ---- СЧИТЫВАЕМ И ГЕНЕРИРУЕМ ДАТЫ -----
 
-    DateTypeEnum dateType = dateTypeClass.getEnumFromString(snapshot.child('eventType').value.toString());
+    DateTypeEnum dateType = dateTypeClass.getEnumFromString(snapshotInfoFolder.child('eventType').value.toString());
 
     if (onceDayString != ''){
       onceDate = onceDate.getFromJson(onceDayString);
@@ -131,29 +134,31 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
     // ---- ВОЗВРАЩАЕМ ЗАПОЛНЕННУЮ СУЩНОСТЬ -----
 
     return EventCustom(
-        id: snapshot.child('id').value.toString(),
+        id: snapshotInfoFolder.child('id').value.toString(),
         dateType: dateType,
-        headline: snapshot.child('headline').value.toString(),
-        desc: snapshot.child('desc').value.toString(),
-        creatorId: snapshot.child('creatorId').value.toString(),
-        createDate: DateMixin.getDateFromString(snapshot.child('createDate').value.toString()),
-        category: eventCategory.getEntityByIdFromList(snapshot.child('category').value.toString()),
-        city: city.getEntityByIdFromList(snapshot.child('city').value.toString()),
-        street: snapshot.child('street').value.toString(),
-        house: snapshot.child('house').value.toString(),
-        phone: snapshot.child('phone').value.toString(),
-        whatsapp: snapshot.child('whatsapp').value.toString(),
-        telegram: snapshot.child('telegram').value.toString(),
-        instagram: snapshot.child('instagram').value.toString(),
-        imageUrl: snapshot.child('imageUrl').value.toString(),
-        placeId: snapshot.child('placeId').value.toString(),
-        price: snapshot.child('price').value.toString(),
-        priceType: priceType.getEnumFromString(snapshot.child('priceType').value.toString()),
+        headline: snapshotInfoFolder.child('headline').value.toString(),
+        desc: snapshotInfoFolder.child('desc').value.toString(),
+        creatorId: snapshotInfoFolder.child('creatorId').value.toString(),
+        createDate: DateMixin.getDateFromString(snapshotInfoFolder.child('createDate').value.toString()),
+        category: eventCategory.getEntityByIdFromList(snapshotInfoFolder.child('category').value.toString()),
+        city: city.getEntityByIdFromList(snapshotInfoFolder.child('city').value.toString()),
+        street: snapshotInfoFolder.child('street').value.toString(),
+        house: snapshotInfoFolder.child('house').value.toString(),
+        phone: snapshotInfoFolder.child('phone').value.toString(),
+        whatsapp: snapshotInfoFolder.child('whatsapp').value.toString(),
+        telegram: snapshotInfoFolder.child('telegram').value.toString(),
+        instagram: snapshotInfoFolder.child('instagram').value.toString(),
+        imageUrl: snapshotInfoFolder.child('imageUrl').value.toString(),
+        placeId: snapshotInfoFolder.child('placeId').value.toString(),
+        price: snapshotInfoFolder.child('price').value.toString(),
+        priceType: priceType.getEnumFromString(snapshotInfoFolder.child('priceType').value.toString()),
         onceDay: onceDate,
         longDays: longDate,
         regularDays: regularDate,
         irregularDays: irregularDate,
         today: today,
+        inFav: tempEvent.addedInFavOrNot(snapshotFavFolder),
+        addedToFavouritesCount: tempEvent.getFavCount(snapshotFavFolder)
     );
   }
 
@@ -180,7 +185,10 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
       regularDays: RegularDate(),
       irregularDays: IrregularDate(),
       priceType: PriceTypeOption.free,
-      price: ''
+      price: '',
+    addedToFavouritesCount: 0,
+    inFav: false,
+    today: false
   );
 
 
@@ -240,10 +248,8 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
       placeDeleteResult = await MixinDatabase.deleteFromDb(placePath);
     }
 
-    if (inFav != null){
-      if (inFav!){
-        inFavListDeleteResult = await MixinDatabase.deleteFromDb(inFavPath);
-      }
+    if (inFav){
+      inFavListDeleteResult = await MixinDatabase.deleteFromDb(inFavPath);
     }
 
     return checkSuccessFromDb(entityDeleteResult, creatorDeleteResult, placeDeleteResult, inFavListDeleteResult);
@@ -310,17 +316,12 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
   Future<EventCustom> getEntityByIdFromDb(String eventId) async {
     EventCustom returnedEvent = EventCustom.emptyEvent;
 
-    String path = 'events/$eventId/event_info';
+    String path = 'events/$eventId';
 
     DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB(path);
 
     if (snapshot != null){
-      EventCustom event = EventCustom.fromSnapshot(snapshot);
-
-      event.inFav = await event.addedInFavOrNot();
-      event.addedToFavouritesCount = await event.getFavCount();
-
-      returnedEvent = event;
+      return EventCustom.fromSnapshot(snapshot);
     }
     // Возвращаем список
     return returnedEvent;
@@ -378,48 +379,20 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
   @override
   void updateCurrentListFavInformation() {
     EventsList eventsList = EventsList();
-    eventsList.updateCurrentListFavInformation(id, addedToFavouritesCount!, inFav!);
+    eventsList.updateCurrentListFavInformation(id, addedToFavouritesCount, inFav);
   }
 
   @override
-  Future<bool> addedInFavOrNot() async {
+  bool addedInFavOrNot(DataSnapshot snapshot) {
     if (UserCustom.currentUser?.uid != null)
     {
-      DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB('events/$id/addedToFavourites/${UserCustom.currentUser?.uid}');
-
-      if (snapshot != null){
-        for (var childSnapshot in snapshot.children) {
-          if (childSnapshot.value == UserCustom.currentUser?.uid) return true;
-        }
-      }
+      String value = snapshot.child(UserCustom.currentUser!.uid).child('userId').value.toString();
+      if (value == UserCustom.currentUser!.uid) return true;
     }
 
     return false;
   }
 
-  /*/// ФУНКЦИЯ ГЕНЕРАЦИИ СЛОВАРЯ ФИЛЬТРА ДЛЯ ПЕРЕДАЧИ В ФУНКЦИЮ
-  /// <br><br>
-  /// Автоматически делает словарь из данных фильтра, по которым
-  /// будет производиться фильтрация сущности
-  Map<String, dynamic> generateMapForFilter(
-      EventCategory eventCategoryFromFilter,
-      City cityFromFilter,
-      bool freePrice,
-      bool today,
-      bool onlyFromPlaceEvents,
-      DateTime selectedStartDatePeriod,
-      DateTime selectedEndDatePeriod,
-      ) {
-    return {
-      'eventCategoryFromFilter': eventCategoryFromFilter,
-      'cityFromFilter': cityFromFilter,
-      'freePrice': freePrice,
-      'today': today,
-      'onlyFromPlaceEvents': onlyFromPlaceEvents,
-      'selectedStartDatePeriod': selectedStartDatePeriod,
-      'selectedEndDatePeriod': selectedEndDatePeriod,
-    };
-  }*/
 
   @override
   bool checkFilter(Map<String, dynamic> mapOfArguments) {
@@ -438,7 +411,7 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
     bool category = eventCategoryFromFilter.id == '' || eventCategoryFromFilter.id == categoryFromEvent.id;
     bool city = cityFromFilter.id == '' || cityFromFilter.id == cityFromEvent.id;
     bool checkFreePrice = freePrice == false || price == '';
-    bool checkToday = today == false || this.today! == true;
+    bool checkToday = today == false || this.today == true;
     bool checkFromPlaceEvent = onlyFromPlaceEvents == false || placeId != '';
     bool checkDate = selectedStartDatePeriod == DateTime(2100) || FilterMixin.checkEventDatesForFilter(this, selectedStartDatePeriod, selectedEndDatePeriod);
 
@@ -458,13 +431,23 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
   }
 
   @override
-  Future<int> getFavCount() async {
-    DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB('events/$id/addedToFavourites');
+  int getFavCount(DataSnapshot snapshot) {
 
-    if (snapshot != null) {
+    if (snapshot.exists) {
       return snapshot.children.length;
     } else {
       return 0;
     }
+  }
+
+  @override
+  EventCustom getEntityFromSnapshot(DataSnapshot snapshot) {
+    EventCustom returnedEvent = EventCustom.emptyEvent;
+
+    if (snapshot.exists){
+      return EventCustom.fromSnapshot(snapshot);
+    }
+    // Возвращаем список
+    return returnedEvent;
   }
 }

@@ -1,30 +1,23 @@
 import 'package:dvij_flutter/events/event_category_class.dart';
 import 'package:dvij_flutter/places/place_category_class.dart';
-import 'package:dvij_flutter/places/place_role_class.dart';
 import 'package:dvij_flutter/promos/promo_category_class.dart';
 import 'package:dvij_flutter/classes/role_in_app.dart';
 import 'package:dvij_flutter/screens/otherPages/privacy_policy_page.dart';
 import 'package:dvij_flutter/screens/profile/reset_password_page.dart';
-import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:intl/date_symbol_data_file.dart';
 import 'package:provider/provider.dart';
 import 'ads/ad_user_class.dart';
 import 'app_state/appstate.dart';
 import 'cities/cities_screens/cities_list_screen.dart';
 import 'cities/city_class.dart';
 import 'classes/gender_class.dart';
-import 'elements/icons_elements/svg_icon.dart';
 import 'themes/dark_theme.dart';
 import 'navigation/custom_nav_containter.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import '../../classes/user_class.dart' as local_user;
-import 'package:firebase_auth/firebase_auth.dart' as firebase_user;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

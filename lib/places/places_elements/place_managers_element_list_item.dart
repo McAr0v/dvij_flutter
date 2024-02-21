@@ -1,9 +1,8 @@
-import 'package:dvij_flutter/classes/user_class.dart';
+import 'package:dvij_flutter/users/place_user_class.dart';
 import 'package:flutter/material.dart';
-import '../../places/place_role_class.dart';
 
 class PlaceManagersElementListItem extends StatelessWidget {
-  final UserCustom user;
+  final PlaceUser user;
   final VoidCallback onTapMethod;
   final bool showButton;
 
@@ -66,14 +65,14 @@ class PlaceManagersElementListItem extends StatelessWidget {
                   const SizedBox(height: 5.0),
 
                   Text(
-                    user.roleInPlace != null ? PlaceRole.getPlaceRoleName(user.roleInPlace!) : 'Роль не выбрана',
+                    user.roleInPlace.title,
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
 
                   const SizedBox(height: 5.0),
 
                   Text(
-                    user.roleInPlace != null ? PlaceRole.getPlaceRoleDesc(user.roleInPlace!) : '',
+                    user.roleInPlace.desc,
                     style: Theme.of(context).textTheme.labelMedium,
                   ),
                 ],
@@ -84,7 +83,7 @@ class PlaceManagersElementListItem extends StatelessWidget {
 
             // ---- Редактирование ----
 
-            if (showButton && user.roleInPlace != '-NngrYovmKAw_cp0pYfJ') IconButton(
+            if (user.roleInPlace.controlLevel >= 90 && showButton) IconButton(
               icon: const Icon(Icons.edit),
               // --- Уходим на экран редактирования -----
               onPressed: onTapMethod,

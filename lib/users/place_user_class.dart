@@ -1,3 +1,5 @@
+import 'package:dvij_flutter/classes/user_class.dart';
+import 'package:dvij_flutter/users/place_admins_item_class.dart';
 import 'package:dvij_flutter/users/place_users_roles.dart';
 import 'package:firebase_database/firebase_database.dart';
 
@@ -40,7 +42,7 @@ class PlaceUser {
   /// И [String] placeRole пользователя, по которому назначит роль
   /// <br><br>
   /// Вернет заполненного пользователя
-  Future<PlaceUser> getPlaceUserFromDb(String uid, String placeRole) async {
+  Future<PlaceUser> getPlaceUserFromDb(String uid, PlaceUserRoleEnum placeRole) async {
 
     PlaceUser returnedUser = PlaceUser();
     PlaceUserRole placeUserRole = PlaceUserRole();
@@ -52,11 +54,76 @@ class PlaceUser {
       // Читаем имя, фамилию, аватарку пользователя
       returnedUser = PlaceUser.fromSnapshot(userSnapshot);
       // Заполняем роль пользователя
-      returnedUser.roleInPlace = placeUserRole.getPlaceUserRole(placeUserRole.getPlaceUserEnumFromString(placeRole));
+      returnedUser.roleInPlace = placeUserRole.getPlaceUserRole(placeRole);
     }
     return returnedUser;
   }
 
+  Future<List<PlaceUser>> getAdminsInfoFromDb(List<PlaceAdminsListItem> adminsList) async {
+    List<PlaceUser> admins = [];
 
+    for (PlaceAdminsListItem admin in adminsList){
+
+      PlaceUser tempUser = PlaceUser();
+      tempUser = await tempUser.getPlaceUserFromDb(admin.userId, admin.placeRole.roleInPlace);
+      if (tempUser != PlaceUser()){
+        admins.add(tempUser);
+      }
+    }
+    return admins;
+  }
+
+  PlaceUser getCurrentUserRoleInPlace(UserCustom currentUser, List<PlaceUser> admins){
+    PlaceUserRole role = PlaceUserRole();
+
+    PlaceUser user = PlaceUser(
+      uid: currentUser.uid,
+      email: currentUser.email,
+      name: currentUser.name,
+      lastname: currentUser.lastname,
+      avatar: currentUser.avatar,
+      roleInPlace: role.getPlaceUserRole(PlaceUserRoleEnum.reader)
+    );
+
+    for(PlaceUser admin in admins){
+      if (admin.uid == user.uid) {
+        user.roleInPlace = admin.roleInPlace;
+        break;
+      }
+    }
+
+    return user;
+  }
+
+  Future<PlaceUser> getPlaceUserByEmail(String email) async {
+
+    PlaceUser user = PlaceUser();
+
+    DataSnapshot? usersSnapshot = await MixinDatabase.getInfoFromDB('users');
+    
+    if (usersSnapshot != null){
+      
+      for (var idFolders in usersSnapshot.children){
+        String tempEmail = idFolders.child('user_info').child('email').value.toString();
+        if (tempEmail == email){
+          return PlaceUser.fromSnapshot(idFolders.child('user_info'));
+        }
+      }
+      
+    }
+
+    return user;
+
+  }
+
+  PlaceUser generatePlaceUserFromUserCustom (UserCustom user) {
+    return PlaceUser(
+      uid: user.uid,
+      email: user.email,
+      name: user.name,
+      lastname: user.lastname,
+      avatar: user.avatar
+    );
+  }
 
 }

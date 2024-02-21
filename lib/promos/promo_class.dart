@@ -13,7 +13,6 @@ import 'package:dvij_flutter/interfaces/entity_interface.dart';
 import 'package:dvij_flutter/promos/promo_category_class.dart';
 import 'package:dvij_flutter/promos/promos_list_class.dart';
 import 'package:firebase_database/firebase_database.dart';
-import '../methods/date_functions.dart';
 
 class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
   String id;
@@ -36,9 +35,9 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
   LongDate longDays;
   RegularDate regularDays;
   IrregularDate irregularDays;
-  int? addedToFavouritesCount;
-  bool? inFav;
-  bool? today;
+  int addedToFavouritesCount;
+  bool inFav;
+  bool today;
 
   PromoCustom({
     required this.id,
@@ -61,9 +60,9 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
     required this.longDays,
     required this.regularDays,
     required this.irregularDays,
-    this.addedToFavouritesCount,
-    this.inFav,
-    this.today,
+    required this.addedToFavouritesCount,
+    required this.inFav,
+    required this.today,
 
   });
 
@@ -78,30 +77,32 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
   /// Возвращает [EventCustom]
   factory PromoCustom.fromSnapshot(DataSnapshot snapshot) {
 
-
+    DataSnapshot infoSnapshot = snapshot.child('promo_info');
+    DataSnapshot favSnapshot = snapshot.child('addedToFavourites');
+    PromoCustom promoTemp = PromoCustom.emptyPromo;
     // --- ИНИЦИАЛИЗИРУЕМ ПЕРЕМЕННЫЕ ----
 
     DateTypeEnumClass dateTypeClass = DateTypeEnumClass();
-    PromoCategory promoCategory = PromoCategory(name: '', id: snapshot.child('category').value.toString());
-    City city = City(name: '', id: snapshot.child('city').value.toString());
+    PromoCategory promoCategory = PromoCategory(name: '', id: infoSnapshot.child('category').value.toString());
+    City city = City(name: '', id: infoSnapshot.child('city').value.toString());
 
     OnceDate onceDate = OnceDate();
-    String onceDayString = snapshot.child('onceDay').value.toString();
+    String onceDayString = infoSnapshot.child('onceDay').value.toString();
 
     LongDate longDate = LongDate();
-    String longDaysString = snapshot.child('longDays').value.toString();
+    String longDaysString = infoSnapshot.child('longDays').value.toString();
 
     RegularDate regularDate = RegularDate();
-    String regularDateString = snapshot.child('regularDays').value.toString();
+    String regularDateString = infoSnapshot.child('regularDays').value.toString();
 
     IrregularDate irregularDate = IrregularDate();
-    String irregularDaysString = snapshot.child('irregularDays').value.toString();
+    String irregularDaysString = infoSnapshot.child('irregularDays').value.toString();
 
 
     // ---- РАБОТА С ДАТАМИ -----
     // ---- СЧИТЫВАЕМ И ГЕНЕРИРУЕМ ДАТЫ -----
 
-    DateTypeEnum dateType = dateTypeClass.getEnumFromString(snapshot.child('promoType').value.toString());
+    DateTypeEnum dateType = dateTypeClass.getEnumFromString(infoSnapshot.child('promoType').value.toString());
 
     if (onceDayString != ''){
       onceDate = onceDate.getFromJson(onceDayString);
@@ -126,27 +127,29 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
     // ---- ВОЗВРАЩАЕМ ЗАПОЛНЕННУЮ СУЩНОСТЬ -----
 
     return PromoCustom(
-      id: snapshot.child('id').value.toString(),
+      id: infoSnapshot.child('id').value.toString(),
       dateType: dateType,
-      headline: snapshot.child('headline').value.toString(),
-      desc: snapshot.child('desc').value.toString(),
-      creatorId: snapshot.child('creatorId').value.toString(),
-      createDate: DateMixin.getDateFromString(snapshot.child('createDate').value.toString()),
-      category: promoCategory.getEntityByIdFromList(snapshot.child('category').value.toString()),
-      city: city.getEntityByIdFromList(snapshot.child('city').value.toString()),
-      street: snapshot.child('street').value.toString(),
-      house: snapshot.child('house').value.toString(),
-      phone: snapshot.child('phone').value.toString(),
-      whatsapp: snapshot.child('whatsapp').value.toString(),
-      telegram: snapshot.child('telegram').value.toString(),
-      instagram: snapshot.child('instagram').value.toString(),
-      imageUrl: snapshot.child('imageUrl').value.toString(),
-      placeId: snapshot.child('placeId').value.toString(),
+      headline: infoSnapshot.child('headline').value.toString(),
+      desc: infoSnapshot.child('desc').value.toString(),
+      creatorId: infoSnapshot.child('creatorId').value.toString(),
+      createDate: DateMixin.getDateFromString(infoSnapshot.child('createDate').value.toString()),
+      category: promoCategory.getEntityByIdFromList(infoSnapshot.child('category').value.toString()),
+      city: city.getEntityByIdFromList(infoSnapshot.child('city').value.toString()),
+      street: infoSnapshot.child('street').value.toString(),
+      house: infoSnapshot.child('house').value.toString(),
+      phone: infoSnapshot.child('phone').value.toString(),
+      whatsapp: infoSnapshot.child('whatsapp').value.toString(),
+      telegram: infoSnapshot.child('telegram').value.toString(),
+      instagram: infoSnapshot.child('instagram').value.toString(),
+      imageUrl: infoSnapshot.child('imageUrl').value.toString(),
+      placeId: infoSnapshot.child('placeId').value.toString(),
       onceDay: onceDate,
       longDays: longDate,
       regularDays: regularDate,
       irregularDays: irregularDate,
       today: today,
+        inFav: promoTemp.addedInFavOrNot(favSnapshot),
+        addedToFavouritesCount: promoTemp.getFavCount(favSnapshot)
     );
   }
 
@@ -172,6 +175,9 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
       longDays: LongDate(),
       regularDays: RegularDate(),
       irregularDays: IrregularDate(),
+    inFav: false,
+    addedToFavouritesCount: 0,
+    today: false
   );
 
 
@@ -231,10 +237,8 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
       placeDeleteResult = await MixinDatabase.deleteFromDb(placePath);
     }
 
-    if (inFav != null){
-      if (inFav!){
-        inFavListDeleteResult = await MixinDatabase.deleteFromDb(inFavPath);
-      }
+    if (inFav){
+      inFavListDeleteResult = await MixinDatabase.deleteFromDb(inFavPath);
     }
 
     return checkSuccessFromDb(entityDeleteResult, creatorDeleteResult, placeDeleteResult, inFavListDeleteResult);
@@ -298,15 +302,12 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
   Future<PromoCustom> getEntityByIdFromDb(String promoId) async {
     PromoCustom returnedPromo = PromoCustom.emptyPromo;
 
-    String path = 'promos/$promoId/promo_info';
+    String path = 'promos/$promoId';
 
     DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB(path);
 
     if (snapshot != null){
       PromoCustom promo = PromoCustom.fromSnapshot(snapshot);
-
-      promo.inFav = await promo.addedInFavOrNot();
-      promo.addedToFavouritesCount = await promo.getFavCount();
 
       returnedPromo = promo;
     }
@@ -366,22 +367,19 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
   @override
   void updateCurrentListFavInformation() {
     PromoList promosList = PromoList();
-    promosList.updateCurrentListFavInformation(id, addedToFavouritesCount!, inFav!);
+    promosList.updateCurrentListFavInformation(id, addedToFavouritesCount, inFav);
   }
 
   @override
-  Future<bool> addedInFavOrNot() async {
+  bool addedInFavOrNot(DataSnapshot? snapshot) {
     if (UserCustom.currentUser?.uid != null)
     {
-      DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB('promos/$id/addedToFavourites/${UserCustom.currentUser?.uid}');
-
+      //DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB('promos/$id/addedToFavourites/${UserCustom.currentUser?.uid}');
       if (snapshot != null){
-        for (var childSnapshot in snapshot.children) {
-          if (childSnapshot.value == UserCustom.currentUser?.uid) return true;
-        }
+        DataSnapshot userIdSnapshot = snapshot.child(UserCustom.currentUser!.uid).child('userId');
+        if (userIdSnapshot.value == UserCustom.currentUser?.uid) return true;
       }
     }
-
     return false;
   }
 
@@ -422,7 +420,7 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
 
     bool category = promoCategoryFromFilter.id == '' || promoCategoryFromFilter.id == categoryFromPromo.id;
     bool city = cityFromFilter.id == '' || cityFromFilter.id == cityFromEvent.id;
-    bool checkToday = today == false || this.today! == true;
+    bool checkToday = today == false || this.today == true;
     bool checkFromPlacePromo = onlyFromPlacePromos == false || placeId != '';
     bool checkDate = selectedStartDatePeriod == DateTime(2100) || FilterMixin.checkPromoDatesForFilter(this, selectedStartDatePeriod, selectedEndDatePeriod);
 
@@ -442,13 +440,24 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
   }
 
   @override
-  Future<int> getFavCount() async {
-    DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB('promos/$id/addedToFavourites');
-
-    if (snapshot != null) {
+  int getFavCount(DataSnapshot snapshot) {
+    if (snapshot.exists) {
       return snapshot.children.length;
     } else {
       return 0;
     }
+  }
+
+  @override
+  PromoCustom getEntityFromSnapshot(DataSnapshot snapshot) {
+    PromoCustom returnedPromo = PromoCustom.emptyPromo;
+
+    if (snapshot.exists){
+      PromoCustom promo = PromoCustom.fromSnapshot(snapshot);
+
+      returnedPromo = promo;
+    }
+    // Возвращаем список
+    return returnedPromo;
   }
 }

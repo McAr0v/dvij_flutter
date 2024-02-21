@@ -31,7 +31,7 @@ class ImagePickerService {
     final rawImage = img.decodeImage(imageFile.readAsBytesSync());
 
     // Переменная максимального размера изображения по бОльшей стороне
-    int targetSize = 1000;
+    int targetSize = 500;
 
     // Определение ориентации изображения
     bool isVertical = rawImage!.height > rawImage.width;

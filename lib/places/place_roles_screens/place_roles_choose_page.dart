@@ -1,12 +1,11 @@
-import 'package:dvij_flutter/places/place_role_class.dart';
+import 'package:dvij_flutter/users/place_users_roles.dart';
 import 'package:flutter/material.dart';
-import '../../cities/city_class.dart';
 import '../../themes/app_colors.dart';
 
 class PlaceRolesChoosePage extends StatefulWidget {
-  final List<PlaceRole> roles;
 
-  PlaceRolesChoosePage({required this.roles});
+
+  PlaceRolesChoosePage();
 
   @override
   _PlaceRolesChoosePageState createState() => _PlaceRolesChoosePageState();
@@ -14,19 +13,20 @@ class PlaceRolesChoosePage extends StatefulWidget {
 
 class _PlaceRolesChoosePageState extends State<PlaceRolesChoosePage> {
   TextEditingController searchController = TextEditingController();
-  List<PlaceRole> filteredRoles = [];
+  PlaceUserRole placeRole = PlaceUserRole();
+  List<PlaceUserRole> filteredRoles = [];
 
   @override
   void initState() {
     super.initState();
-    filteredRoles = List.from(widget.roles);
+    filteredRoles = placeRole.getPlaceUserRoleList();
   }
 
   void updateFilteredRoles(String query) {
     setState(() {
-      filteredRoles = widget.roles
+      filteredRoles = filteredRoles
           .where((role) =>
-          role.name.toLowerCase().contains(query.toLowerCase()))
+          role.title.toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
   }
@@ -90,7 +90,7 @@ class _PlaceRolesChoosePageState extends State<PlaceRolesChoosePage> {
                     child: SingleChildScrollView(
                       //padding: EdgeInsets.all(15),
                       child: ListBody(
-                        children: filteredRoles.map((PlaceRole role) {
+                        children: filteredRoles.map((PlaceUserRole role) {
                           return GestureDetector(
                             onTap: () {
                               Navigator.of(context).pop(role);
@@ -100,8 +100,9 @@ class _PlaceRolesChoosePageState extends State<PlaceRolesChoosePage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(role.name, style: Theme.of(context).textTheme.bodyMedium,),
-                                  Text(role.desc, style: Theme.of(context).textTheme.labelMedium)
+                                  Text(role.title, style: Theme.of(context).textTheme.bodyMedium,),
+                                  Text(role.desc, style: Theme.of(context).textTheme.labelMedium),
+                                  Text(role.controlLevel.toString(), style: Theme.of(context).textTheme.labelMedium)
                                 ],
                               ),
                             ),

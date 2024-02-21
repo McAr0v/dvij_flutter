@@ -1,8 +1,10 @@
-import 'package:dvij_flutter/places/place_role_class.dart';
 import 'package:dvij_flutter/classes/user_class.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/elements/loading_screen.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
+import 'package:dvij_flutter/users/place_admins_item_class.dart';
+import 'package:dvij_flutter/users/place_user_class.dart';
+import 'package:dvij_flutter/users/place_users_roles.dart';
 import 'package:flutter/material.dart';
 import '../place_class.dart';
 import '../../elements/custom_snack_bar.dart';
@@ -13,17 +15,17 @@ import '../places_screen/place_view_screen.dart';
 
 class PlaceManagerAddScreen extends StatefulWidget {
   final String placeId;
-  final String placeCreator;
+  final String placeCreatorUid;
+  final List<PlaceAdminsListItem> admins;
   final bool isEdit;
-  final PlaceRole? placeRole;
-  final UserCustom? user;
+  final PlaceUser? user;
 
   const PlaceManagerAddScreen({
     Key? key,
     required this.placeId,
-    required this.placeCreator,
+    required this.placeCreatorUid,
     required this.isEdit,
-    this.placeRole,
+    required this.admins,
     this.user
   }) : super(key: key);
 
@@ -48,10 +50,9 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
   bool deleting = false;
   bool showEditButton = true;
 
-  UserCustom? user;
+  PlaceUser user = PlaceUser();
   bool showNotFound = false;
-  late PlaceRole chosenRole = PlaceRole(name: '', id: '', desc: '', controlLevel: '');
-  List<PlaceRole> _roles = [];
+  PlaceUserRole chosenRole = PlaceUserRole();
 
   // --- Инициализируем состояние ----
 
@@ -66,21 +67,19 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
     setState(() {
       loading = true;
     });
-    // Получаем список городов
-    //_getCitiesFromDatabase();
 
-    //_roles = PlaceRole.currentPlaceRoleListWithoutCreator;
-    _roles = PlaceRole.currentPlaceRoleListWithoutCreator;
+    if (widget.user != null) {
+      user = widget.user!;
+    }
+
 
     if (widget.isEdit){
       //chosenRole = PlaceRole.getPlaceRoleFromListById(user!.roleInPlace!);
 
-      chosenRole = widget.placeRole!;
+      chosenRole = widget.user!.roleInPlace;
     }
 
-    if (widget.user != null) {
-      user = widget.user;
-    }
+
 
     setState(() {
       loading = false;
@@ -174,38 +173,30 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
 
                             setState(() {
                               loading = true;
-                              user = null;
+                              user = PlaceUser();
                               showNotFound = false;
                               showEditButton = true;
                             });
 
+                            PlaceUser foundUser = await user.getPlaceUserByEmail(_emailSearchController.text);
 
-                            UserCustom? result = await UserCustom.getUserByEmail(_emailSearchController.text);
-
-                            if (result != null)
-                            {
-                              if (result.uid == widget.placeCreator){
-                                result.roleInPlace = '-NngrYovmKAw_cp0pYfJ';
-                                chosenRole = PlaceRole.getPlaceRoleFromListById(result.roleInPlace!);
+                            if (foundUser.uid != ''){
+                              if (foundUser.uid == widget.placeCreatorUid){
                                 setState(() {
+                                  chosenRole = chosenRole.getPlaceUserRole(PlaceUserRoleEnum.creator);
                                   showEditButton = false;
+                                  foundUser.roleInPlace = chosenRole;
                                 });
-                              } else {
-
-                                PlaceRole resultRole = await UserCustom.getPlaceRoleInUserById(widget.placeId, result.uid);
-
-                                if (resultRole.name != ''){
-                                  setState(() {
-                                    chosenRole = resultRole;
-                                  });
-                                  result.roleInPlace = resultRole.id;
-                                }
-
+                              } else{
+                                setState(() {
+                                  chosenRole = chosenRole.searchPlaceUserRoleInAdminsList(widget.admins, foundUser);
+                                  foundUser.roleInPlace = chosenRole;
+                                });
                               }
 
                               setState(() {
                                 showNotFound = false;
-                                user = result;
+                                user = foundUser;
                                 _emailSearchController.text = '';
                               });
                             } else {
@@ -221,20 +212,20 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
                         }
                     ),
 
-                    if (user != null && !widget.isEdit) const SizedBox(height: 40.0),
+                    if (user.uid != '' && !widget.isEdit) const SizedBox(height: 40.0),
 
-                    if (user != null) Text(
+                    if (user.uid != '') Text(
                       widget.isEdit ? 'Выбранный пользователь:' : 'Найденный пользователь:',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
 
-                    if (user != null) const SizedBox(height: 10.0),
+                    if (user.uid != '') const SizedBox(height: 10.0),
 
-                    if (user != null) PlaceManagersElementListItem(user: user!, showButton: false),
+                    if (user.uid != '') PlaceManagersElementListItem(user: user, showButton: false),
 
-                    if (user != null) const SizedBox(height: 20.0),
+                    if (user.uid != '') const SizedBox(height: 20.0),
 
-                    if (user != null && showEditButton) Text(
+                    if (user.uid != '' && showEditButton) Text(
                       'Роль:',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
@@ -244,18 +235,10 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
 
-                    if (user != null) const SizedBox(height: 10.0),
+                    if (user.uid != '') const SizedBox(height: 10.0),
 
-                    if (chosenRole.id == '' && user != null) PlaceRoleElementInChooseDialog(
-                      onActionPressed: () {
-                        //_showCityPickerDialog();
-                        _showRolePickerDialog();
-                      },
-                      roleName: '',
-                    ),
-
-                    if (chosenRole.id != '' && user != null && showEditButton) PlaceRoleElementInChooseDialog(
-                      roleName: chosenRole.name,
+                    if (user.uid != '' && showEditButton) PlaceRoleElementInChooseDialog(
+                      roleName: chosenRole.title,
                       onActionPressed: () {
                         //_showCityPickerDialog();
                         _showRolePickerDialog();
@@ -267,7 +250,7 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
 
                     const SizedBox(height: 40.0),
 
-                    if (user != null && showEditButton) CustomButton(
+                    if (user.uid != '' && showEditButton) CustomButton(
                         state: 'success',
                         buttonText: "Сохранить изменения",
                         onTapMethod: () async {
@@ -276,17 +259,17 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
                             saving = true;
                           });
 
-                          String? resultUploadUser = await UserCustom.writeUserPlaceRole(user!.uid, widget.placeId, chosenRole.id);
+                          String? resultUploadUser = await UserCustom.writeUserPlaceRole(user.uid, widget.placeId, chosenRole.generatePlaceRoleEnumForPlaceUser(chosenRole.roleInPlace));
                           if (resultUploadUser == 'success'){
-                            String? resultUploadPlace = await Place.writeUserRoleInPlace(widget.placeId, user!.uid, chosenRole.id);
+                            String? resultUploadPlace = await Place.writeUserRoleInPlace(widget.placeId, user.uid, chosenRole.generatePlaceRoleEnumForPlaceUser(chosenRole.roleInPlace));
                             if (resultUploadPlace == 'success'){
                               setState(() {
                                 if (widget.isEdit == false){
-                                  user = null;
+                                  user = PlaceUser();
                                   showNotFound = false;
                                   showEditButton = true;
                                 } else {
-                                  user?.roleInPlace = chosenRole.id;
+                                  user.roleInPlace = chosenRole;
                                 }
                                 saving = false;
                                 //loading = true;
@@ -310,10 +293,10 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
                         }
                     ),
 
-                    if (user != null && showEditButton) const SizedBox(height: 10.0),
+                    if (user.uid != '' && showEditButton) const SizedBox(height: 10.0),
                     // -- Кнопка отменить ----
 
-                    if (user != null) CustomButton(
+                    if (user.uid != '') CustomButton(
                         state: 'secondary',
                         buttonText: "Отменить",
                         onTapMethod: () {
@@ -322,9 +305,9 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
                         }
                     ),
 
-                    if (user != null) const SizedBox(height: 50.0),
+                    if (user.uid != '') const SizedBox(height: 50.0),
 
-                    if (user != null && widget.isEdit) CustomButton(
+                    if (user.uid != '' && widget.isEdit) CustomButton(
                         state: 'error',
                         buttonText: "Удалить пользователя из управляющих",
                         onTapMethod: () async {
@@ -333,18 +316,18 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
                             deleting = true;
                           });
 
-                          String? resultDeleteUser = await UserCustom.deleteUserPlaceRole(user!.uid, widget.placeId);
+                          String? resultDeleteUser = await UserCustom.deleteUserPlaceRole(user.uid, widget.placeId);
 
                           if (resultDeleteUser == 'success') {
 
-                            String? resultDeletePlace = await Place.deleteUserRoleInPlace(widget.placeId, user!.uid);
+                            String? resultDeletePlace = await Place.deleteUserRoleInPlace(widget.placeId, user.uid);
 
                             if (resultDeletePlace == 'success'){
                               setState(() {
                                 deleting = false;
                               });
 
-                              user = null;
+                              user = PlaceUser();
                               showNotFound = false;
                               showEditButton = true;
 
@@ -379,22 +362,21 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
   }
 
   void _showRolePickerDialog() async {
-    final selectedRole = await Navigator.of(context).push(_createPopup(_roles));
+    final selectedRole = await Navigator.of(context).push(_createPopup());
 
     if (selectedRole != null) {
       setState(() {
         chosenRole = selectedRole;
       });
-      print("Selected city: ${selectedRole.name}, ID: ${selectedRole.id}");
     }
   }
 
-  Route _createPopup(List<PlaceRole> roles) {
+  Route _createPopup() {
     return PageRouteBuilder(
 
       pageBuilder: (context, animation, secondaryAnimation) {
 
-        return PlaceRolesChoosePage(roles: roles);
+        return PlaceRolesChoosePage();
       },
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const begin = Offset(0.0, 1.0);

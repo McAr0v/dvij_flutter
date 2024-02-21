@@ -811,7 +811,10 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
                               // сделать функционал
                               price: PriceTypeEnumClass.getPriceString(priceType, fixedPriceController.text, startPriceController.text, endPriceController.text), // сделать функционал
-                              priceType: priceType
+                              priceType: priceType,
+                            inFav: false,
+                            today: false,
+                            addedToFavouritesCount: 0
                           );
 
                           String? editInDatabase = await event.publishToDb();

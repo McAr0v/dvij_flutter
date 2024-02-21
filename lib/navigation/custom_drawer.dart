@@ -12,7 +12,6 @@ import 'package:dvij_flutter/classes/user_class.dart' as local_user;
 import '../cities/cities_screens/cities_list_screen.dart';
 import '../events/event_categories_screens/event_categories_list_screen.dart';
 import '../places/place_categories_screens/place_categories_list_screen.dart';
-import '../places/place_roles_screens/place_roles_list_screen.dart';
 import '../promos/promo_categories_screen/promo_categories_list_screen.dart';
 import '../screens/genders_screens/genders_list_screen.dart';
 
@@ -198,19 +197,6 @@ class CustomDrawer extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                       builder: (context) => const PromoCategoriesListScreen()),
-                );
-              },
-            ),
-
-            if (local_user.UserCustom.accessLevel >= 90) ListTile(
-              leading: const Icon(Icons.lock),
-              title: const Text('Список ролей для мест'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const PlaceRolesListScreen()),
                 );
               },
             ),

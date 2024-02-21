@@ -1,3 +1,5 @@
+import 'dart:core';
+
 import 'package:dvij_flutter/dates/date_mixin.dart';
 import 'package:dvij_flutter/events/event_class.dart';
 import 'package:dvij_flutter/events/events_list_class.dart';
@@ -5,7 +7,8 @@ import 'package:dvij_flutter/promos/promo_class.dart';
 import 'package:dvij_flutter/elements/text_and_icons_widgets/headline_and_desc.dart';
 import 'package:dvij_flutter/elements/social_elements/social_buttons_widget.dart';
 import 'package:dvij_flutter/promos/promos_list_class.dart';
-import 'package:dvij_flutter/users/PlaceUser.dart';
+import 'package:dvij_flutter/users/place_user_class.dart';
+import 'package:dvij_flutter/users/place_users_roles.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
@@ -14,7 +17,6 @@ import '../../promos/promos_elements/promo_card_widget.dart';
 import '../../promos/promotions/promo_view_page.dart';
 import '../place_category_class.dart';
 import '../place_class.dart';
-import '../place_role_class.dart';
 import '../../classes/user_class.dart';
 import '../../elements/exit_dialog/exit_dialog.dart';
 import '../../elements/snack_bar.dart';
@@ -44,10 +46,10 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
   // ---- Инициализируем пустые переменные ----
 
-  List<Map<String, String>> usersFromDb = [];
-  List<PlaceUser> users = [];
+  List<PlaceUser> admins = [];
   PlaceUser creator = PlaceUser();
   PlaceUser currentPlaceUser = PlaceUser();
+
 
   Place place = Place.emptyPlace;
   City city = City.emptyCity;
@@ -85,40 +87,22 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
       favCounter = place.addedToFavouritesCount!;
 
-      if (place.name != ''){
+      admins = await creator.getAdminsInfoFromDb(place.admins!);
 
-        if (UserCustom.currentUser != null){
+      if (UserCustom.currentUser != null){
 
-          currentPlaceUser = PlaceUser(
-            uid: UserCustom.currentUser!.uid,
-            email: UserCustom.currentUser!.email,
-            name: UserCustom.currentUser!.name,
-            lastname: UserCustom.currentUser!.lastname,
-            avatar: UserCustom.currentUser!.avatar
-          );
-
-          /////// ТУТ ЗАКОНЧИЛ
-          usersFromDb = await place.getPlaceAdmins();
-          currentUserPlaceRole = await UserCustom.getPlaceRoleInUserById(widget.placeId, userInfo.uid);
-
-          creator = (await UserCustom.readUserData(place.creatorId))!;
-          //users.add(creator);
-          creatorPlaceRole = PlaceRole.getPlaceRoleFromListById('-NngrYovmKAw_cp0pYfJ');
-
-          creator.roleInPlace = creatorPlaceRole.id;
-
-          if (creator.uid == userInfo.uid) {
-            currentUserPlaceRole = creatorPlaceRole;
-          }
-
-          if (int.parse(currentUserPlaceRole.controlLevel) >= 90){
-            users = await UserCustom.getPlaceAdminsUsers(widget.placeId);
-          }
-
+        if (place.creatorId == UserCustom.currentUser!.uid){
+          PlaceUserRole role = PlaceUserRole();
+          creator = creator.generatePlaceUserFromUserCustom(UserCustom.currentUser!);
+          creator.roleInPlace = role.getPlaceUserRole(PlaceUserRoleEnum.creator);
+          currentPlaceUser = creator;
+        } else {
+          currentPlaceUser = currentPlaceUser.getCurrentUserRoleInPlace(UserCustom.currentUser!, admins);
+          creator = await creator.getPlaceUserFromDb(place.creatorId, PlaceUserRoleEnum.creator);
         }
-        else {
-          userInfo = UserCustom.empty('', '');
-        }
+
+      } else {
+        creator = await creator.getPlaceUserFromDb(place.creatorId, PlaceUserRoleEnum.creator);
       }
 
       city = place.city;
@@ -161,7 +145,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
   void navigateToAddManager() async {
     final result = await Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => PlaceManagerAddScreen(placeId: widget.placeId, isEdit: false, placeCreator: place.creatorId))
+        MaterialPageRoute(builder: (context) => PlaceManagerAddScreen(placeId: widget.placeId, isEdit: false, placeCreatorUid: place.creatorId, admins: place.admins!))
     );
 
     // Проверяем результат и вызываем функцию fetchAndSetData
@@ -171,16 +155,16 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
   }
 
-  void navigateToEditManager(UserCustom user) async {
+  void navigateToEditManager(PlaceUser user) async {
     final result = await Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (context) => PlaceManagerAddScreen(
           placeId: widget.placeId,
           isEdit: true,
-          placeRole: PlaceRole.getPlaceRoleFromListById(user.roleInPlace!),
           user: user,
-          placeCreator: place.creatorId,
+          placeCreatorUid: place.creatorId,
+          admins: place.admins!,
         ),
       ),
     );
@@ -371,7 +355,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
                           // TODO - сделать скрытие кнопки редактирования места если нет доступа к редактированию
                           // --- Кнопка редактирования ----
-                          if (currentUserPlaceRole.controlLevel != '' && int.parse(currentUserPlaceRole.controlLevel) >= 90) IconButton(
+                          if (currentPlaceUser.roleInPlace.controlLevel >= 90) IconButton(
                             icon: Icon(
                               Icons.edit,
                               color: Theme.of(context).colorScheme.background,
@@ -703,7 +687,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
                       const SizedBox(height: 30.0),
 
-                      if (currentUserPlaceRole.controlLevel != '' && int.parse(currentUserPlaceRole.controlLevel) >= 90) Container(
+                      if (currentPlaceUser.roleInPlace.controlLevel >= 90) Container(
                         padding: const EdgeInsets.fromLTRB(20, 10, 20, 0), // Отступы
                         decoration: BoxDecoration(
                           color: AppColors.greyOnBackground, // Цвет фона
@@ -758,9 +742,9 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                               },
                             ),
 
-                            if (users.isNotEmpty) Column(
+                            if (admins.isNotEmpty) Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: users.map((user) {
+                              children: admins.map((user) {
                                 return Padding(
                                   padding: const EdgeInsets.all(0.0),
                                   child: PlaceManagersElementListItem(
@@ -779,8 +763,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                       const SizedBox(height: 30.0),
 
                       if (
-                      currentUserPlaceRole.controlLevel != ''
-                          && int.parse(currentUserPlaceRole.controlLevel) == 100
+                      currentPlaceUser.roleInPlace.controlLevel == 100
                       ) CustomButton(
                           buttonText: 'Удалить заведение',
                           onTapMethod: () async {

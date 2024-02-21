@@ -4,11 +4,12 @@ import 'package:dvij_flutter/places/place_category_class.dart';
 import 'package:dvij_flutter/places/place_list_class.dart';
 import 'package:dvij_flutter/classes/user_class.dart';
 import 'package:firebase_database/firebase_database.dart';
-
 import '../database/database_mixin.dart';
 import '../dates/date_mixin.dart';
 import '../dates/time_mixin.dart';
 import '../interfaces/entity_interface.dart';
+import '../users/place_admins_item_class.dart';
+import '../users/place_users_roles.dart';
 
 class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
   String id;
@@ -29,11 +30,11 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
   int? addedToFavouritesCount;
   int? eventsCount;
   int? promoCount;
-  bool? canEdit;
   bool? inFav;
   bool? nowIsOpen;
   List<String>? eventsList;
   List<String>? promosList;
+  List<PlaceAdminsListItem>? admins;
 
   Place({
     required this.id,
@@ -52,45 +53,72 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
     required this.imageUrl,
     required this.openingHours,
     this.addedToFavouritesCount,
-    this.canEdit,
     this.eventsCount,
     this.inFav,
     this.promoCount,
     this.nowIsOpen,
     this.eventsList,
-    this.promosList
+    this.promosList,
+    this.admins
 
   });
 
   factory Place.fromSnapshot(DataSnapshot snapshot) {
-    PlaceCategory placeCategory = PlaceCategory(name: '', id: snapshot.child('category').value.toString());
-    City city = City(name: '', id: snapshot.child('city').value.toString());
+    DataSnapshot infoSnapshot = snapshot.child('place_info');
+    DataSnapshot favSnapshot = snapshot.child('addedToFavourites');
+    DataSnapshot eventsSnapshot = snapshot.child('events');
+    DataSnapshot promosSnapshot = snapshot.child('promos');
+    DataSnapshot managersSnapshot = snapshot.child('managers');
+
+
+    PlaceCategory placeCategory = PlaceCategory(name: '', id: infoSnapshot.child('category').value.toString());
+    City city = City(name: '', id: infoSnapshot.child('city').value.toString());
     RegularDate openingHours = RegularDate();
-    String openingHoursString = snapshot.child('openingHours').value.toString();
+    String openingHoursString = infoSnapshot.child('openingHours').value.toString();
     bool nowIsOpen = false;
+
+    List<String> events = emptyPlace.getNeededIdsFromSnapshot(eventsSnapshot, 'eventId');
+    List<String> promos = emptyPlace.getNeededIdsFromSnapshot(promosSnapshot, 'promoId');
+    List<PlaceAdminsListItem> adminsList = [];
 
     if (openingHoursString != ''){
       openingHours = openingHours.getFromJson(openingHoursString);
       nowIsOpen = openingHours.todayOrNot();
     }
 
+    for (var idFolder in managersSnapshot.children){
+      PlaceAdminsListItem tempAdmin = PlaceAdminsListItem();
+      PlaceUserRole tempRole = PlaceUserRole();
+      tempAdmin.userId = idFolder.child('userId').value.toString();
+      tempAdmin.placeRole = tempRole.getPlaceUserRole(tempRole.getPlaceUserEnumFromString(idFolder.child('roleId').value.toString()));
+      adminsList.add(tempAdmin);
+    }
+
     return Place(
-      id: snapshot.child('id').value.toString(),
-      name: snapshot.child('name').value.toString(),
-      desc: snapshot.child('desc').value.toString(),
-      creatorId: snapshot.child('creatorId').value.toString(),
-      createDate: DateMixin.getDateFromString(snapshot.child('createDate').value.toString()),
-      category: placeCategory.getEntityByIdFromList(snapshot.child('category').value.toString()),
-      city: city.getEntityByIdFromList(snapshot.child('city').value.toString()),
-      street: snapshot.child('street').value.toString(),
-      house: snapshot.child('house').value.toString(),
-      phone: snapshot.child('phone').value.toString(),
-      whatsapp: snapshot.child('whatsapp').value.toString(),
-      telegram: snapshot.child('telegram').value.toString(),
-      instagram: snapshot.child('instagram').value.toString(),
-      imageUrl: snapshot.child('imageUrl').value.toString(),
+      id: infoSnapshot.child('id').value.toString(),
+      name: infoSnapshot.child('name').value.toString(),
+      desc: infoSnapshot.child('desc').value.toString(),
+      creatorId: infoSnapshot.child('creatorId').value.toString(),
+      createDate: DateMixin.getDateFromString(infoSnapshot.child('createDate').value.toString()),
+      category: placeCategory.getEntityByIdFromList(infoSnapshot.child('category').value.toString()),
+      city: city.getEntityByIdFromList(infoSnapshot.child('city').value.toString()),
+      street: infoSnapshot.child('street').value.toString(),
+      house: infoSnapshot.child('house').value.toString(),
+      phone: infoSnapshot.child('phone').value.toString(),
+      whatsapp: infoSnapshot.child('whatsapp').value.toString(),
+      telegram: infoSnapshot.child('telegram').value.toString(),
+      instagram: infoSnapshot.child('instagram').value.toString(),
+      imageUrl: infoSnapshot.child('imageUrl').value.toString(),
       openingHours: openingHours,
-      nowIsOpen: nowIsOpen
+      nowIsOpen: nowIsOpen,
+      inFav: emptyPlace.addedInFavOrNot(favSnapshot),
+      addedToFavouritesCount: emptyPlace.getFavCount(favSnapshot),
+      eventsList: events,
+      promosList: promos,
+      eventsCount: events.length,
+      promoCount: promos.length,
+      admins: adminsList
+
     );
   }
 
@@ -161,6 +189,22 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
 
   }
 
+  List<String> getNeededIdsFromSnapshot(DataSnapshot? snapshot, String fieldName) {
+    List<String> list = [];
+
+    if (snapshot != null){
+      for (var neededFolder in snapshot.children){
+        if (neededFolder.exists){
+          String entity = neededFolder.child(fieldName).value.toString();
+          list.add(entity);
+        }
+      }
+    }
+
+    return list;
+
+  }
+
   @override
   Future<String> deleteFromDb() async {
     // Путь самого заведения
@@ -168,8 +212,6 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
     // Путь создателя заведения
     String creatorPath = 'users/$creatorId/myPromos/$id';
 
-    // Получаем списки админов заведения
-    List<String> adminsList = await getNeededIds('places/$id/managers', 'userId');
     // Получаем списки добавивших заведение в избранное
     // TODO - сделать такое же удаление добавивших в изрбанное, как в заведениях, в мероприятиях и акциях
     List<String> favUsersList = await getNeededIds('places/$id/addedToFavourites', 'userId');
@@ -182,8 +224,8 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
     String creatorDeleteResult = await MixinDatabase.deleteFromDb(creatorPath);
 
     // Удаляем записи у админов
-    for (String admin in adminsList){
-      String adminPath = 'users/$admin/myPlaces/$id';
+    for (PlaceAdminsListItem admin in admins!){
+      String adminPath = 'users/${admin.userId}/myPlaces/$id';
       String deleteAdminResult = await MixinDatabase.deleteFromDb(adminPath);
     }
 
@@ -219,23 +261,13 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
   Future<Place> getEntityByIdFromDb(String entityId) async {
     Place returnedPlace = Place.emptyPlace;
 
-    String path = 'places/$entityId/place_info';
+    String path = 'places/$entityId';
 
-    DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB(path);
+    DataSnapshot? entitySnapshot = await MixinDatabase.getInfoFromDB(path);
 
-    if (snapshot != null){
-      Place place = Place.fromSnapshot(snapshot);
-      place.inFav = await place.addedInFavOrNot();
-      place.addedToFavouritesCount = await place.getFavCount();
-      place.eventsList = await place.getNeededIds('places/${place.id}/events/', 'eventId');
-      place.promosList = await place.getNeededIds('places/${place.id}/promos/', 'promoId');
-      place.eventsCount = place.eventsList?.length;
-      place.promoCount = place.promosList?.length;
-      // TODO - разработать функционал CanEdit для заведений
-
-      returnedPlace = place;
+    if (entitySnapshot != null){
+      return Place.fromSnapshot(entitySnapshot);
     }
-    // Возвращаем список
     return returnedPlace;
   }
 
@@ -295,68 +327,6 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
     }
   }
 
-  /*static void deletePlaceFromCurrentFavList(String placeId){
-
-    currentFavPlaceList.removeWhere((place) => place.id == placeId);
-
-  }
-
-  static void addPlaceToCurrentFavList(String placeId){
-
-    for (var place in currentFeedPlaceList){
-      if (place.id == placeId){
-        currentFavPlaceList.add(place);
-        break;
-      }
-    }
-  }*/
-
-
-  /*static void updateCurrentPlaceListFavInformation(String placeId, String favCounter, String inFav){
-    // ---- Функция обновления списка из БД при добавлении или удалении из избранного
-
-    for (int i = 0; i<currentFeedPlaceList.length; i++){
-      // Если ID совпадает
-      if (currentFeedPlaceList[i].id == placeId){
-        // Обновляем данные об состоянии этого заведения как избранного
-        currentFeedPlaceList[i].addedToFavouritesCount = favCounter;
-        currentFeedPlaceList[i].inFav = inFav;
-        break;
-      }
-    }
-
-    for (int i = 0; i<currentFavPlaceList.length; i++){
-      // Если ID совпадает
-      if (currentFavPlaceList[i].id == placeId){
-        // Обновляем данные об состоянии этого заведения как избранного
-        currentFavPlaceList[i].addedToFavouritesCount = favCounter;
-        currentFavPlaceList[i].inFav = inFav;
-        break;
-      }
-    }
-
-    for (int i = 0; i<currentMyPlaceList.length; i++){
-      // Если ID совпадает
-      if (currentMyPlaceList[i].id == placeId){
-        // Обновляем данные об состоянии этого заведения как избранного
-        currentMyPlaceList[i].addedToFavouritesCount = favCounter;
-        currentMyPlaceList[i].inFav = inFav;
-        break;
-      }
-    }
-
-  }*/
-
-  /*static void deletePlaceFormCurrentPlaceLists(String placeId){
-    // ---- Функция обновления списка из БД при добавлении или удалении из избранного
-
-    currentFeedPlaceList.removeWhere((place) => place.id == placeId);
-    currentFavPlaceList.removeWhere((place) => place.id == placeId);
-    currentMyPlaceList.removeWhere((place) => place.id == placeId);
-  }*/
-
-
-
   // --- ФУНКЦИЯ ЗАПИСИ ДАННЫХ Места -----
   static Future<String?> writeUserRoleInPlace(String placeId, String userId, String roleId) async {
 
@@ -381,9 +351,6 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
       return 'success';
 
     } catch (e) {
-      // Если ошибки
-      // TODO Сделать обработку ошибок. Наверняка есть какие то, которые можно различать и писать что случилось
-      print('Error writing user data: $e');
       return 'Failed to write user data. Error: $e';
     }
   }
@@ -403,30 +370,9 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
       return 'success';
 
     } catch (e) {
-      // Если ошибки
-      // TODO Сделать обработку ошибок. Наверняка есть какие то, которые можно различать и писать что случилось
-      print('Error writing user data: $e');
       return 'Failed to write user data. Error: $e';
     }
   }
-
-  /*static Future<Place> getPlaceFromList(String placeId) async {
-    Place tempPlace = Place.emptyPlace;
-
-    if (currentFeedPlaceList.isNotEmpty){
-      for (Place place in currentFeedPlaceList){
-        if (place.id == placeId){
-          tempPlace = place;
-          break;
-        }
-      }
-    } else {
-      tempPlace = await getPlaceById(placeId);
-    }
-    return tempPlace;
-  }*/
-
-
 
   @override
   Future<String> deleteEntityIdFromPlace(String placeId) {
@@ -483,14 +429,13 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
   }
 
   @override
-  Future<bool> addedInFavOrNot() async {
+  bool addedInFavOrNot(DataSnapshot? snapshot) {
     if (UserCustom.currentUser?.uid != null)
     {
-      DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB('places/$id/addedToFavourites/${UserCustom.currentUser?.uid}');
-
-      if (snapshot != null){
-        for (var childSnapshot in snapshot.children) {
-          if (childSnapshot.value == UserCustom.currentUser?.uid) return true;
+      if (snapshot != null) {
+        DataSnapshot idSnapshot = snapshot.child(UserCustom.currentUser!.uid).child('userId');
+        if (idSnapshot.exists){
+          if (idSnapshot.value.toString() == UserCustom.currentUser!.uid) return true;
         }
       }
     }
@@ -499,34 +444,22 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
   }
 
   @override
-  Future<int> getFavCount() async {
-    DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB('places/$id/addedToFavourites');
-
-    if (snapshot != null) {
+  int getFavCount(DataSnapshot snapshot) {
+    if (snapshot.exists) {
       return snapshot.children.length;
     } else {
       return 0;
     }
   }
 
-  Future<List<Map<String, String>>> getPlaceAdmins() async {
+  @override
+  Place getEntityFromSnapshot(DataSnapshot snapshot) {
+    Place returnedPlace = Place.emptyPlace;
 
-    List<Map<String, String>> adminsList = [];
-
-    String placePath = 'places/$id/managers/';
-    DataSnapshot? managersSnapshot = await MixinDatabase.getInfoFromDB(placePath);
-
-    if (managersSnapshot != null){
-      for(var idFolders in managersSnapshot.children){
-        Map<String, String> temp = {
-          'userId': idFolders.child('userId').value.toString(),
-          'roleId': idFolders.child('roleId').value.toString(),
-        };
-        adminsList.add(temp);
-      }
+    if (snapshot.exists){
+      return Place.fromSnapshot(snapshot);
     }
-
-    return adminsList;
+    return returnedPlace;
   }
 
 }

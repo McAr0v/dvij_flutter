@@ -738,6 +738,9 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
                                         chosenIrregularEndTime
                                     )
                                 ),
+                              addedToFavouritesCount: 0,
+                              inFav: false,
+                              today: false,
                             );
 
                             String? editInDatabase = await promo.publishToDb();

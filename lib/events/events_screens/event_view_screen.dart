@@ -5,15 +5,15 @@ import 'package:dvij_flutter/elements/shedule_elements/shedule_once_and_long_wid
 import 'package:dvij_flutter/elements/social_elements/social_buttons_widget.dart';
 import 'package:dvij_flutter/elements/user_element_widget.dart';
 import 'package:dvij_flutter/places/place_list_manager.dart';
+import 'package:dvij_flutter/users/place_user_class.dart';
+import 'package:dvij_flutter/users/place_users_roles.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
-import '../../cities/city_class.dart';
 import '../../places/places_elements/place_widget_in_view_screen_in_event_and_promo.dart';
 import '../../places/places_screen/place_view_screen.dart';
 import '../../dates/date_type_enum.dart';
 import '../../places/place_class.dart';
-import '../../places/place_role_class.dart';
 import '../../classes/priceTypeOptions.dart';
 import '../../classes/user_class.dart';
 import '../../elements/exit_dialog/exit_dialog.dart';
@@ -42,13 +42,14 @@ class EventViewScreenState extends State<EventViewScreen> {
   bool today = false;
 
   UserCustom creator = UserCustom.empty('', '');
-  PlaceRole currentUserPlaceRole = PlaceRole(name: '', id: '', desc: '', controlLevel: '');
+  PlaceUserRole currentUserPlaceRole = PlaceUserRole();
 
   EventCustom event = EventCustom.emptyEvent;
 
   DateTime currentDate = DateTime.now();
 
   Place place = Place.emptyPlace;
+  PlaceUser currentPlaceUser = PlaceUser();
 
   String price = '';
   int favCounter = 0;
@@ -77,6 +78,10 @@ class EventViewScreenState extends State<EventViewScreen> {
 
       price = PriceTypeEnumClass.getFormattedPriceString(event.priceType, event.price);
 
+      if (UserCustom.currentUser != null){
+        currentPlaceUser = currentPlaceUser.generatePlaceUserFromUserCustom(UserCustom.currentUser!);
+      }
+
       if (event.placeId != '') {
 
         if (PlaceListManager.currentFeedPlacesList.placeList.isNotEmpty){
@@ -88,21 +93,27 @@ class EventViewScreenState extends State<EventViewScreen> {
 
       // Выдаем права на редактирование мероприятия
       // Если наш пользователь создатель
-    if (UserCustom.currentUser != null && UserCustom.currentUser!.uid == event.creatorId){
+      if (UserCustom.currentUser != null && UserCustom.currentUser!.uid == event.creatorId){
 
-      // Отдаем права создателя
-      currentUserPlaceRole = PlaceRole.getPlaceRoleFromListById('-NngrYovmKAw_cp0pYfJ');
+        // Отдаем права создателя
+        currentUserPlaceRole = currentUserPlaceRole.getPlaceUserRole(PlaceUserRoleEnum.creator);
+        currentPlaceUser.roleInPlace = currentUserPlaceRole;
+        // Ставим нас как создателя
+        creator = UserCustom.currentUser!;
 
-    } else if (UserCustom.currentUser != null && UserCustom.currentUser!.uid != event.creatorId){
-      if (event.placeId != '') {
-        // Если не создатель, то пытаемся понять, может он админ заведения
-        currentUserPlaceRole = await UserCustom.getPlaceRoleInUserById(place.id, UserCustom.currentUser!.uid);
+      } else if (UserCustom.currentUser != null && UserCustom.currentUser!.uid != event.creatorId){
+
+        // Если создатель не я
+        // Читаем нашу роль
+        currentUserPlaceRole = currentUserPlaceRole.searchPlaceUserRoleInAdminsList(place.admins!, currentPlaceUser);
+        currentPlaceUser.roleInPlace = currentUserPlaceRole;
+        // Грузим создателя из БД
+        creator = await UserCustom.getUserById(event.creatorId);
+
+      } else {
+        creator = await UserCustom.getUserById(event.creatorId);
       }
 
-    }
-
-    // TODO - Сделать проверку - если создатель это текущий пользователь, то подгрузить его данные
-    creator = await UserCustom.getUserById(event.creatorId);
       inFav = event.inFav!;
       favCounter = event.addedToFavouritesCount!;
 
@@ -294,7 +305,7 @@ class EventViewScreenState extends State<EventViewScreen> {
 
                             // TODO - сделать скрытие кнопки редактирования места если нет доступа к редактированию
                             // --- Кнопка редактирования ----
-                            if (currentUserPlaceRole.controlLevel != '' && int.parse(currentUserPlaceRole.controlLevel) >= 90) IconButton(
+                            if (currentUserPlaceRole.controlLevel >= 90) IconButton(
                               icon: Icon(
                                 Icons.edit,
                                 color: Theme.of(context).colorScheme.background,
@@ -504,15 +515,14 @@ class EventViewScreenState extends State<EventViewScreen> {
                         ),
 
 
-                        if (event.createDate != DateTime(2100) && int.parse(currentUserPlaceRole.controlLevel) >= 90) const SizedBox(height: 30.0),
+                        if (event.createDate != DateTime(2100) && currentUserPlaceRole.controlLevel >= 90) const SizedBox(height: 30.0),
 
-                        if (event.createDate != DateTime(2100) && int.parse(currentUserPlaceRole.controlLevel) >= 90) HeadlineAndDesc(headline: DateMixin.getHumanDateFromDateTime(event.createDate), description: 'Создано в движе', ),
+                        if (event.createDate != DateTime(2100) && currentUserPlaceRole.controlLevel >= 90) HeadlineAndDesc(headline: DateMixin.getHumanDateFromDateTime(event.createDate), description: 'Создано в движе', ),
 
                         const SizedBox(height: 30.0),
 
                         if (
-                        currentUserPlaceRole.controlLevel != ''
-                            && int.parse(currentUserPlaceRole.controlLevel) >= 90
+                        currentUserPlaceRole.controlLevel >= 90
                         ) CustomButton(
                           buttonText: 'Удалить мероприятие',
                           onTapMethod: () async {

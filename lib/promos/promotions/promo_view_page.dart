@@ -6,16 +6,17 @@ import 'package:dvij_flutter/elements/social_elements/social_buttons_widget.dart
 import 'package:dvij_flutter/elements/user_element_widget.dart';
 import 'package:dvij_flutter/promos/promo_class.dart';
 import 'package:dvij_flutter/promos/promotions/create_or_edit_promo_screen.dart';
+import 'package:dvij_flutter/users/place_users_roles.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import '../../cities/city_class.dart';
 import '../../events/events_elements/today_widget.dart';
+import '../../places/place_list_manager.dart';
 import '../../places/places_elements/place_widget_in_view_screen_in_event_and_promo.dart';
 import '../../places/places_screen/place_view_screen.dart';
 import '../../dates/date_type_enum.dart';
 import '../../places/place_class.dart';
-import '../../places/place_role_class.dart';
 import '../../classes/priceTypeOptions.dart';
 import '../../classes/user_class.dart';
 import '../../elements/exit_dialog/exit_dialog.dart';
@@ -23,6 +24,7 @@ import '../../elements/text_and_icons_widgets/for_cards_small_widget_with_icon_a
 import '../../elements/loading_screen.dart';
 import '../../elements/shedule_elements/schedule_regular_and_irregular_widget.dart';
 import '../../elements/snack_bar.dart';
+import '../../users/place_user_class.dart';
 
 
 // --- ЭКРАН ЗАЛОГИНЕВШЕГОСЯ ПОЛЬЗОВАТЕЛЯ -----
@@ -42,12 +44,13 @@ class PromoViewScreenState extends State<PromoViewScreen> {
   bool today = false;
 
   UserCustom creator = UserCustom.empty('', '');
-  PlaceRole currentUserPlaceRole = PlaceRole(name: '', id: '', desc: '', controlLevel: '');
+  PlaceUserRole currentUserPlaceRole = PlaceUserRole();
 
   PromoCustom promo = PromoCustom.emptyPromo;
 
   DateTime currentDate = DateTime.now();
 
+  PlaceUser currentPlaceUser = PlaceUser();
   Place place = Place.emptyPlace;
 
   int favCounter = 0;
@@ -76,10 +79,15 @@ class PromoViewScreenState extends State<PromoViewScreen> {
 
       if (promo.placeId != '') {
 
-        // TODO Считать заведение со списка, если список заведений прогружен
-        // Считываем информацию о заведении
-        place = await place.getEntityByIdFromDb(promo.placeId);
+        if (PlaceListManager.currentFeedPlacesList.placeList.isNotEmpty){
+          place = place.getEntityFromFeedList(promo.placeId);
+        } else {
+          place = await place.getEntityByIdFromDb(promo.placeId);
+        }
+      }
 
+      if (UserCustom.currentUser != null){
+        currentPlaceUser = currentPlaceUser.generatePlaceUserFromUserCustom(UserCustom.currentUser!);
       }
 
       // Выдаем права на редактирование мероприятия
@@ -87,20 +95,27 @@ class PromoViewScreenState extends State<PromoViewScreen> {
       if (UserCustom.currentUser != null && UserCustom.currentUser!.uid == promo.creatorId){
 
         // Отдаем права создателя
-        currentUserPlaceRole = PlaceRole.getPlaceRoleFromListById('-NngrYovmKAw_cp0pYfJ');
+        currentUserPlaceRole = currentUserPlaceRole.getPlaceUserRole(PlaceUserRoleEnum.creator);
+        currentPlaceUser.roleInPlace = currentUserPlaceRole;
+        // Ставим нас как создателя
+        creator = UserCustom.currentUser!;
 
       } else if (UserCustom.currentUser != null && UserCustom.currentUser!.uid != promo.creatorId){
-        if (promo.placeId != '') {
-          // Если не создатель, то пытаемся понять, может он админ заведения
-          currentUserPlaceRole = await UserCustom.getPlaceRoleInUserById(place.id, UserCustom.currentUser!.uid);
-        }
 
+        // Если создатель не я
+        // Читаем нашу роль
+        currentUserPlaceRole = currentUserPlaceRole.searchPlaceUserRoleInAdminsList(place.admins!, currentPlaceUser);
+        currentPlaceUser.roleInPlace = currentUserPlaceRole;
+        // Грузим создателя из БД
+        creator = await UserCustom.getUserById(promo.creatorId);
+
+      } else {
+        creator = await UserCustom.getUserById(promo.creatorId);
       }
 
-      // TODO - Сделать проверку - если создатель это текущий пользователь, то подгрузить его данные
-      creator = await UserCustom.getUserById(promo.creatorId);
-      inFav = promo.inFav!;
-      favCounter = promo.addedToFavouritesCount!;
+
+      inFav = promo.inFav;
+      favCounter = promo.addedToFavouritesCount;
 
       // ---- Убираем экран загрузки -----
       setState(() {
@@ -290,7 +305,7 @@ class PromoViewScreenState extends State<PromoViewScreen> {
 
                             // TODO - сделать скрытие кнопки редактирования места если нет доступа к редактированию
                             // --- Кнопка редактирования ----
-                            if (currentUserPlaceRole.controlLevel != '' && int.parse(currentUserPlaceRole.controlLevel) >= 90) IconButton(
+                            if (currentUserPlaceRole.controlLevel >= 90) IconButton(
                               icon: Icon(
                                 Icons.edit,
                                 color: Theme.of(context).colorScheme.background,
@@ -486,15 +501,15 @@ class PromoViewScreenState extends State<PromoViewScreen> {
                         ),
 
 
-                        if (promo.createDate != DateTime(2100) && int.parse(currentUserPlaceRole.controlLevel) >= 90) const SizedBox(height: 30.0),
+                        if (promo.createDate != DateTime(2100) && currentUserPlaceRole.controlLevel >= 90) const SizedBox(height: 30.0),
 
-                        if (promo.createDate != DateTime(2100) && int.parse(currentUserPlaceRole.controlLevel) >= 90) HeadlineAndDesc(headline: DateMixin.getHumanDateFromDateTime(promo.createDate), description: 'Создано в движе', ),
+                        if (promo.createDate != DateTime(2100) && currentUserPlaceRole.controlLevel >= 90) HeadlineAndDesc(headline: DateMixin.getHumanDateFromDateTime(promo.createDate), description: 'Создано в движе', ),
 
                         const SizedBox(height: 30.0),
 
                         if (
                         currentUserPlaceRole.controlLevel != ''
-                            && int.parse(currentUserPlaceRole.controlLevel) >= 90
+                            && currentUserPlaceRole.controlLevel >= 90
                         ) CustomButton(
                           buttonText: 'Удалить акцию',
                           onTapMethod: () async {

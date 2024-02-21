@@ -37,10 +37,7 @@ class PromoList implements ILists<PromoList, PromoCustom, PromoSortingOption>{
     if (promosSnapshot != null) {
       for (var promoIdsFolder in promosSnapshot.children) {
 
-        PromoCustom promo = PromoCustom.fromSnapshot(promoIdsFolder.child('promo_info'));
-
-        promo.inFav = await promo.addedInFavOrNot();
-        promo.addedToFavouritesCount = await promo.getFavCount();
+        PromoCustom promo = PromoCustom.emptyPromo.getEntityFromSnapshot(promoIdsFolder);
 
         PromoListsManager.currentFeedPromosList.promosList.add(promo);
         promos.promosList.add(promo);
@@ -225,9 +222,9 @@ class PromoList implements ILists<PromoList, PromoCustom, PromoSortingOption>{
 
       case PromoSortingOption.nameDesc: promosList.sort((a, b) => b.headline.compareTo(a.headline)); break;
 
-      case PromoSortingOption.favCountAsc: promosList.sort((a, b) => a.addedToFavouritesCount!.compareTo(b.addedToFavouritesCount!)); break;
+      case PromoSortingOption.favCountAsc: promosList.sort((a, b) => a.addedToFavouritesCount.compareTo(b.addedToFavouritesCount)); break;
 
-      case PromoSortingOption.favCountDesc: promosList.sort((a, b) => b.addedToFavouritesCount!.compareTo(a.addedToFavouritesCount!)); break;
+      case PromoSortingOption.favCountDesc: promosList.sort((a, b) => b.addedToFavouritesCount.compareTo(a.addedToFavouritesCount)); break;
 
     }
   }
@@ -307,6 +304,6 @@ class PromoList implements ILists<PromoList, PromoCustom, PromoSortingOption>{
   void addEntityFromCurrentEntitiesLists(PromoCustom entity) {
     PromoListsManager.currentFeedPromosList.promosList.add(entity);
     PromoListsManager.currentMyPromoList.promosList.add(entity);
-    if(entity.inFav != null && entity.inFav!) PromoListsManager.currentFavPromoList.promosList.add(entity);
+    if(entity.inFav) PromoListsManager.currentFavPromoList.promosList.add(entity);
   }
 }
