@@ -165,12 +165,12 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
                               if (foundUser.uid == _place.creatorId){
                                 setState(() {
                                   chosenRole = chosenRole.getPlaceUserRole(PlaceUserRoleEnum.creator);
-                                  foundUser.roleInPlace = chosenRole;
+                                  foundUser.placeUserRole = chosenRole;
                                 });
                               } else{
                                 setState(() {
                                   chosenRole = chosenRole.searchPlaceUserRoleInAdminsList(admins, foundUser);
-                                  foundUser.roleInPlace = chosenRole;
+                                  foundUser.placeUserRole = chosenRole;
                                 });
                               }
 
@@ -230,15 +230,69 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
 
                     const SizedBox(height: 40.0),
 
-                    if (user.uid != '' && user.uid != _place.creatorId) CustomButton(
+                    if (user.uid != '' && user.uid != _place.creatorId && user.placeUserRole != chosenRole) CustomButton(
                         state: 'success',
                         buttonText: "Сохранить изменения",
                         onTapMethod: () async {
-                          /*
 
                           setState(() {
                             saving = true;
                           });
+
+                          user.placeUserRole = chosenRole;
+
+                          if (chosenRole.roleInPlaceEnum != PlaceUserRoleEnum.reader){
+                            // Если выбранная роль не обычный пользователь
+
+                            String publishResult = await user.writePlaceRoleInManagerAndPlace(_place.id);
+
+                            if (publishResult == 'success'){
+                              admins.removeWhere((element) => element.userId == user.uid);
+
+                              admins.add(PlaceAdminsListItem(
+                                userId: user.uid, placeRole: user.placeUserRole.roleInPlaceEnum.name
+                              ));
+
+                              showSnackBar('Роль успешно изменена', Colors.green, 2);
+
+                              navigateBackWithResult();
+
+                            } else {
+                              showSnackBar(publishResult, AppColors.attentionRed, 2);
+                            }
+
+                            setState(() {
+                              saving = false;
+                            });
+
+                          } else {
+                            // Если выбранная роль читатель и отличается от старой роли
+                            setState(() {
+                              deleting = true;
+                            });
+
+                            String deleteResult = await user.deletePlaceRoleInManagerAndPlace(_place.id);
+
+                            if (deleteResult == 'success') {
+                              admins.removeWhere((element) => element.userId == user.uid);
+                              showSnackBar('Роль успешно изменена', Colors.green, 2);
+
+                            } else {
+                              showSnackBar(deleteResult, AppColors.attentionRed, 2);
+                            }
+
+                            setState(() {
+                              deleting = false;
+                            });
+                            navigateBackWithResult();
+                          }
+
+
+
+
+                          /*
+
+
 
                           String? resultUploadUser = await UserCustom.writeUserPlaceRole(user.uid, widget.placeId, chosenRole.generatePlaceRoleEnumForPlaceUser(chosenRole.roleInPlace));
                           if (resultUploadUser == 'success'){

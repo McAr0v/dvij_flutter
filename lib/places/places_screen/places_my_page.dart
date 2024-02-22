@@ -163,7 +163,7 @@ class PlacesMyPageState extends State<PlacesMyPage> {
             if (UserCustom.currentUser?.uid != null || UserCustom.currentUser?.uid != ''){
 
               //List<Place> tempPlacesList = await Place.getFavPlaces(UserCustom.currentUser!.uid);
-              placesMyList.getMyListFromDb(UserCustom.currentUser!.uid);
+              placesMyList = await placesMyList.getMyListFromDb(UserCustom.currentUser!.uid);
 
               setState(() {
                 placesMyList.filterLists(

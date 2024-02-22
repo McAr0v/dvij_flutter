@@ -96,7 +96,7 @@ class PromoViewScreenState extends State<PromoViewScreen> {
 
         // Отдаем права создателя
         currentUserPlaceRole = currentUserPlaceRole.getPlaceUserRole(PlaceUserRoleEnum.creator);
-        currentPlaceUser.roleInPlace = currentUserPlaceRole;
+        currentPlaceUser.placeUserRole = currentUserPlaceRole;
         // Ставим нас как создателя
         creator = UserCustom.currentUser!;
 
@@ -105,7 +105,7 @@ class PromoViewScreenState extends State<PromoViewScreen> {
         // Если создатель не я
         // Читаем нашу роль
         currentUserPlaceRole = currentUserPlaceRole.searchPlaceUserRoleInAdminsList(place.admins!, currentPlaceUser);
-        currentPlaceUser.roleInPlace = currentUserPlaceRole;
+        currentPlaceUser.placeUserRole = currentUserPlaceRole;
         // Грузим создателя из БД
         creator = await UserCustom.getUserById(promo.creatorId);
 

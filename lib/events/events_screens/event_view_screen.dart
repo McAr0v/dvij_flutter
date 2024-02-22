@@ -97,7 +97,7 @@ class EventViewScreenState extends State<EventViewScreen> {
 
         // Отдаем права создателя
         currentUserPlaceRole = currentUserPlaceRole.getPlaceUserRole(PlaceUserRoleEnum.creator);
-        currentPlaceUser.roleInPlace = currentUserPlaceRole;
+        currentPlaceUser.placeUserRole = currentUserPlaceRole;
         // Ставим нас как создателя
         creator = UserCustom.currentUser!;
 
@@ -106,7 +106,7 @@ class EventViewScreenState extends State<EventViewScreen> {
         // Если создатель не я
         // Читаем нашу роль
         currentUserPlaceRole = currentUserPlaceRole.searchPlaceUserRoleInAdminsList(place.admins!, currentPlaceUser);
-        currentPlaceUser.roleInPlace = currentUserPlaceRole;
+        currentPlaceUser.placeUserRole = currentUserPlaceRole;
         // Грузим создателя из БД
         creator = await UserCustom.getUserById(event.creatorId);
 

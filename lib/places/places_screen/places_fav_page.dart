@@ -158,7 +158,7 @@ class PlacesFavPageState extends State<PlacesFavPage> {
             if (UserCustom.currentUser?.uid != null || UserCustom.currentUser?.uid != ''){
 
               //List<Place> tempPlacesList = await Place.getFavPlaces(UserCustom.currentUser!.uid);
-              placesFavList.getFavListFromDb(UserCustom.currentUser!.uid);
+              placesFavList = await placesFavList.getFavListFromDb(UserCustom.currentUser!.uid, refresh: true);
 
               setState(() {
                 placesFavList.filterLists(

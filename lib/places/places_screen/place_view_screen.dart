@@ -96,7 +96,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
         if (place.creatorId == UserCustom.currentUser!.uid){
           PlaceUserRole role = PlaceUserRole();
           creator = creator.generatePlaceUserFromUserCustom(UserCustom.currentUser!);
-          creator.roleInPlace = role.getPlaceUserRole(PlaceUserRoleEnum.creator);
+          creator.placeUserRole = role.getPlaceUserRole(PlaceUserRoleEnum.creator);
           currentPlaceUser = creator;
         } else {
           currentPlaceUser = currentPlaceUser.getCurrentUserRoleInPlace(UserCustom.currentUser!, admins);
@@ -362,7 +362,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
                           // TODO - сделать скрытие кнопки редактирования места если нет доступа к редактированию
                           // --- Кнопка редактирования ----
-                          if (currentPlaceUser.roleInPlace.controlLevel >= 90) IconButton(
+                          if (currentPlaceUser.placeUserRole.controlLevel >= 90) IconButton(
                             icon: Icon(
                               Icons.edit,
                               color: Theme.of(context).colorScheme.background,
@@ -694,7 +694,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
                       const SizedBox(height: 30.0),
                       
-                      if (currentPlaceUser.roleInPlace.controlLevel >= 90) GestureDetector(
+                      if (currentPlaceUser.placeUserRole.controlLevel >= 90) GestureDetector(
                         onTap: navigateToManagersList,
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 20),
@@ -783,7 +783,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                       const SizedBox(height: 30.0),
 
                       if (
-                      currentPlaceUser.roleInPlace.controlLevel == 100
+                      currentPlaceUser.placeUserRole.controlLevel == 100
                       ) CustomButton(
                           buttonText: 'Удалить заведение',
                           onTapMethod: () async {

@@ -42,7 +42,7 @@ class PlaceAdminsScreenState extends State<PlaceAdminsScreen> {
       if (widget.place.creatorId == UserCustom.currentUser!.uid){
         PlaceUserRole role = PlaceUserRole();
         creator = creator.generatePlaceUserFromUserCustom(UserCustom.currentUser!);
-        creator.roleInPlace = role.getPlaceUserRole(PlaceUserRoleEnum.creator);
+        creator.placeUserRole = role.getPlaceUserRole(PlaceUserRoleEnum.creator);
       }
     } else {
       creator = await creator.getPlaceUserFromDb(widget.place.creatorId, PlaceUserRoleEnum.creator);
@@ -89,7 +89,7 @@ class PlaceAdminsScreenState extends State<PlaceAdminsScreen> {
         alignment: Alignment.topLeft,
         children: [
           if (loading) LoadingScreen(),
-          if (admins.isNotEmpty) Padding(
+          if (!loading) Padding(
               padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
             child: SingleChildScrollView(
               child: Column(
@@ -100,7 +100,7 @@ class PlaceAdminsScreenState extends State<PlaceAdminsScreen> {
                     onTapMethod: () async {
                     },
                   ),
-                  Column(
+                  if(admins.isNotEmpty) Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: admins.map((user) {
                       return Padding(

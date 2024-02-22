@@ -66,14 +66,14 @@ class PlaceManagersElementListItem extends StatelessWidget {
                   const SizedBox(height: 5.0),
 
                   Text(
-                    user.roleInPlace.title,
+                    user.placeUserRole.title,
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
 
                   const SizedBox(height: 5.0),
 
                   Text(
-                    user.roleInPlace.desc,
+                    user.placeUserRole.desc,
                     style: Theme.of(context).textTheme.labelMedium,
                   ),
                 ],
@@ -84,7 +84,7 @@ class PlaceManagersElementListItem extends StatelessWidget {
 
             // ---- Редактирование ----
 
-            if (user.roleInPlace.controlLevel >= 90 && showButton) Column(
+            if (user.placeUserRole.controlLevel >= 90 && showButton) Column(
               children: [
                 IconButton(
                   icon: const Icon(Icons.edit),

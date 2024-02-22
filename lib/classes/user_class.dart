@@ -525,7 +525,7 @@ class UserCustom {
     return user;
   }
 
-  static Future<String?> writeUserPlaceRole(String userId, String placeId, String roleId) async {
+  /*static Future<String?> writeUserPlaceRole(String userId, String placeId, String roleId) async {
 
     try {
       // Создаем путь для пользователя в базе данных
@@ -546,7 +546,7 @@ class UserCustom {
       print('Error writing user data: $e');
       return 'Failed to write user data. Error: $e';
     }
-  }
+  }*/
 
   static Future<String?> deleteUserPlaceRole(String userId, String placeId) async {
 

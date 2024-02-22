@@ -11,7 +11,7 @@ class PlaceUser {
   String name = '';
   String lastname = '';
   String avatar = '';
-  PlaceUserRole roleInPlace = PlaceUserRole();
+  PlaceUserRole placeUserRole = PlaceUserRole();
 
   PlaceUser({String? uid, String? email, String? name, String? lastname, String? avatar, PlaceUserRole? roleInPlace}){
     this.uid = uid ?? '';
@@ -19,7 +19,7 @@ class PlaceUser {
     this.name = name ?? '';
     this.lastname = lastname ?? '';
     this.avatar = avatar ?? 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2Fdvij_unknow_user.jpg?alt=media&token=b63ea5ef-7bdf-49e9-a3ef-1d34d676b6a7';
-    this.roleInPlace = roleInPlace ?? PlaceUserRole();
+    this.placeUserRole = roleInPlace ?? PlaceUserRole();
   }
 
   factory PlaceUser.fromSnapshot(DataSnapshot snapshot) {
@@ -54,7 +54,7 @@ class PlaceUser {
       // Читаем имя, фамилию, аватарку пользователя
       returnedUser = PlaceUser.fromSnapshot(userSnapshot);
       // Заполняем роль пользователя
-      returnedUser.roleInPlace = placeUserRole.getPlaceUserRole(placeRole);
+      returnedUser.placeUserRole = placeUserRole.getPlaceUserRole(placeRole);
     }
     return returnedUser;
   }
@@ -65,7 +65,7 @@ class PlaceUser {
     for (PlaceAdminsListItem admin in adminsList){
 
       PlaceUser tempUser = PlaceUser();
-      tempUser = await tempUser.getPlaceUserFromDb(admin.userId, admin.placeRole.roleInPlace);
+      tempUser = await tempUser.getPlaceUserFromDb(admin.userId, admin.placeRole.roleInPlaceEnum);
       if (tempUser != PlaceUser()){
         admins.add(tempUser);
       }
@@ -87,7 +87,7 @@ class PlaceUser {
 
     for(PlaceUser admin in admins){
       if (admin.uid == user.uid) {
-        user.roleInPlace = admin.roleInPlace;
+        user.placeUserRole = admin.placeUserRole;
         break;
       }
     }
@@ -124,6 +124,54 @@ class PlaceUser {
       lastname: user.lastname,
       avatar: user.avatar
     );
+  }
+
+  Future<String> writePlaceRoleInManagerAndPlace(String placeId) async {
+
+    String result = 'success';
+    String userPath = 'users/$uid/myPlaces/$placeId';
+    String placePath = 'places/$placeId/managers/$uid';
+
+    String publishInUser = await MixinDatabase.publishToDB(userPath, {
+      'placeId': placeId,
+      'roleId': placeUserRole.roleInPlaceEnum.name
+    });
+
+    String publishInPlace = await MixinDatabase.publishToDB(placePath, {
+      'userId': uid,
+      'roleId': placeUserRole.roleInPlaceEnum.name
+    });
+
+    if (publishInPlace != 'success'){
+      result = publishInPlace;
+    } else if (publishInUser != 'success') {
+      result = publishInUser;
+    }
+
+    return result;
+
+
+  }
+
+  Future<String> deletePlaceRoleInManagerAndPlace(String placeId) async {
+
+    String result = 'success';
+    String userPath = 'users/$uid/myPlaces/$placeId';
+    String placePath = 'places/$placeId/managers/$uid';
+
+    String publishInUser = await MixinDatabase.deleteFromDb(userPath);
+
+    String publishInPlace = await MixinDatabase.deleteFromDb(placePath);
+
+    if (publishInPlace != 'success'){
+      result = publishInPlace;
+    } else if (publishInUser != 'success') {
+      result = publishInUser;
+    }
+
+    return result;
+
+
   }
 
 }

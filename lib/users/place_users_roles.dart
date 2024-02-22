@@ -11,13 +11,13 @@ enum PlaceUserRoleEnum {
 
 class PlaceUserRole with MixinDatabase {
   String title = '';
-  PlaceUserRoleEnum roleInPlace = PlaceUserRoleEnum.reader;
+  PlaceUserRoleEnum roleInPlaceEnum = PlaceUserRoleEnum.reader;
   String desc = '';
   int controlLevel = 0;
 
   PlaceUserRole({String? title, PlaceUserRoleEnum? roleInPlace, String? desc, int? controlLevel}){
     this.title = title ?? this.title;
-    this.roleInPlace = roleInPlace ?? this.roleInPlace;
+    this.roleInPlaceEnum = roleInPlace ?? this.roleInPlaceEnum;
     this.desc = desc ?? this.desc;
     this.controlLevel = controlLevel ?? this.controlLevel;
   }
