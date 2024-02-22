@@ -1,3 +1,4 @@
+import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:dvij_flutter/users/place_user_class.dart';
 import 'package:flutter/material.dart';
 
@@ -83,11 +84,23 @@ class PlaceManagersElementListItem extends StatelessWidget {
 
             // ---- Редактирование ----
 
-            if (user.roleInPlace.controlLevel >= 90 && showButton) IconButton(
-              icon: const Icon(Icons.edit),
-              // --- Уходим на экран редактирования -----
-              onPressed: onTapMethod,
+            if (user.roleInPlace.controlLevel >= 90 && showButton) Column(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.edit),
+                  // --- Уходим на экран редактирования -----
+                  onPressed: onTapMethod,
+                ),
+                //const SizedBox(height: 15.0),
+                IconButton(
+                  icon: const Icon(Icons.delete, color: AppColors.attentionRed,),
+                  // --- Уходим на экран редактирования -----
+                  onPressed: onTapMethod,
+                ),
+              ],
             ),
+
+
           ],
         ),
         const SizedBox(height: 20,)

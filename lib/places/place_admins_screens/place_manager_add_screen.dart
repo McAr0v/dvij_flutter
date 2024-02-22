@@ -14,20 +14,11 @@ import '../places_elements/place_managers_element_list_item.dart';
 import '../places_screen/place_view_screen.dart';
 
 class PlaceManagerAddScreen extends StatefulWidget {
-  final String placeId;
-  final String placeCreatorUid;
-  final List<PlaceAdminsListItem> admins;
-  final bool isEdit;
-  final PlaceUser? user;
+  final Place place;
 
-  const PlaceManagerAddScreen({
-    Key? key,
-    required this.placeId,
-    required this.placeCreatorUid,
-    required this.isEdit,
-    required this.admins,
-    this.user
-  }) : super(key: key);
+  const PlaceManagerAddScreen({super.key,
+    required this.place
+  });
 
   @override
   PlaceManagerAddScreenState createState() => PlaceManagerAddScreenState();
@@ -48,11 +39,13 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
   bool loading = false;
   bool saving = false;
   bool deleting = false;
-  bool showEditButton = true;
 
   PlaceUser user = PlaceUser();
   bool showNotFound = false;
   PlaceUserRole chosenRole = PlaceUserRole();
+
+  Place _place = Place.emptyPlace;
+  List<PlaceAdminsListItem> admins = [];
 
   // --- Инициализируем состояние ----
 
@@ -68,18 +61,9 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
       loading = true;
     });
 
-    if (widget.user != null) {
-      user = widget.user!;
-    }
+    _place = widget.place;
 
-
-    if (widget.isEdit){
-      //chosenRole = PlaceRole.getPlaceRoleFromListById(user!.roleInPlace!);
-
-      chosenRole = widget.user!.roleInPlace;
-    }
-
-
+    admins = _place.admins!;
 
     setState(() {
       loading = false;
@@ -94,15 +78,14 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  void navigateToPlaceViewScreen() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => PlaceViewScreen(placeId: widget.placeId))
-    );
+  void navigateBackWithoutResult() {
+    Navigator.of(context).pop();
+    //Navigator.pop(context, 'Результат с Second Page');
   }
 
   void navigateBackWithResult() {
-    Navigator.pop(context, 'Результат с Second Page');
+    Navigator.of(context).pop(admins);
+    //Navigator.pop(context, 'Результат с Second Page');
   }
 
   @override
@@ -137,14 +120,14 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
 
-                    if (!widget.isEdit) Text(
+                    Text(
                       'Поиск пользователя',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
 
-                    if (!widget.isEdit) SizedBox(height: 20,),
+                    SizedBox(height: 20,),
 
-                    if (!widget.isEdit) TextField(
+                    TextField(
                       style: Theme.of(context).textTheme.bodyMedium,
                       keyboardType: TextInputType.emailAddress,
                       controller: _emailSearchController,
@@ -154,12 +137,11 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
                       ),
                     ),
 
-                    if (!widget.isEdit) const SizedBox(height: 20.0),
+                    const SizedBox(height: 20.0),
 
                     // ---- Кнопка опубликовать -----
 
-                    // TODO Пока публикуется сделать экран загрузки
-                    if (!widget.isEdit) CustomButton(
+                    CustomButton(
                         buttonText: 'Найти',
                         onTapMethod: () async {
                           if (_emailSearchController.text == ''){
@@ -175,21 +157,19 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
                               loading = true;
                               user = PlaceUser();
                               showNotFound = false;
-                              showEditButton = true;
                             });
 
                             PlaceUser foundUser = await user.getPlaceUserByEmail(_emailSearchController.text);
 
                             if (foundUser.uid != ''){
-                              if (foundUser.uid == widget.placeCreatorUid){
+                              if (foundUser.uid == _place.creatorId){
                                 setState(() {
                                   chosenRole = chosenRole.getPlaceUserRole(PlaceUserRoleEnum.creator);
-                                  showEditButton = false;
                                   foundUser.roleInPlace = chosenRole;
                                 });
                               } else{
                                 setState(() {
-                                  chosenRole = chosenRole.searchPlaceUserRoleInAdminsList(widget.admins, foundUser);
+                                  chosenRole = chosenRole.searchPlaceUserRoleInAdminsList(admins, foundUser);
                                   foundUser.roleInPlace = chosenRole;
                                 });
                               }
@@ -212,10 +192,10 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
                         }
                     ),
 
-                    if (user.uid != '' && !widget.isEdit) const SizedBox(height: 40.0),
+                    if (user.uid != '') const SizedBox(height: 40.0),
 
                     if (user.uid != '') Text(
-                      widget.isEdit ? 'Выбранный пользователь:' : 'Найденный пользователь:',
+                      'Найденный пользователь:',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
 
@@ -225,19 +205,19 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
 
                     if (user.uid != '') const SizedBox(height: 20.0),
 
-                    if (user.uid != '' && showEditButton) Text(
-                      'Роль:',
+                    if (user.uid != '') Text(
+                      'Сменить роль пользователя:',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
 
-                    if (!showEditButton) Text(
+                    if (user.uid == _place.creatorId) Text(
                       'Это создатель заведения. Его нельзя редактировать или добавить в место',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
 
                     if (user.uid != '') const SizedBox(height: 10.0),
 
-                    if (user.uid != '' && showEditButton) PlaceRoleElementInChooseDialog(
+                    if (user.uid != '' && user.uid != _place.creatorId) PlaceRoleElementInChooseDialog(
                       roleName: chosenRole.title,
                       onActionPressed: () {
                         //_showCityPickerDialog();
@@ -250,10 +230,11 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
 
                     const SizedBox(height: 40.0),
 
-                    if (user.uid != '' && showEditButton) CustomButton(
+                    if (user.uid != '' && user.uid != _place.creatorId) CustomButton(
                         state: 'success',
                         buttonText: "Сохранить изменения",
                         onTapMethod: () async {
+                          /*
 
                           setState(() {
                             saving = true;
@@ -264,6 +245,19 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
                             String? resultUploadPlace = await Place.writeUserRoleInPlace(widget.placeId, user.uid, chosenRole.generatePlaceRoleEnumForPlaceUser(chosenRole.roleInPlace));
                             if (resultUploadPlace == 'success'){
                               setState(() {
+                                if (admins.contains(PlaceAdminsListItem(
+                                    userId: user.uid,
+                                    placeRole: user.roleInPlace.roleInPlace.name
+                                ))) {
+                                  admins.removeWhere((element) => element.userId == user.uid);
+                                }
+
+                                admins.add(PlaceAdminsListItem(
+                                    userId: user.uid,
+                                    placeRole: user.roleInPlace.roleInPlace.name
+                                ));
+
+
                                 if (widget.isEdit == false){
                                   user = PlaceUser();
                                   showNotFound = false;
@@ -288,12 +282,12 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
                               saving = false;
                             });
                             showSnackBar('Произошла ошибка $resultUploadUser при добавлении данных в пользователя', AppColors.attentionRed, 2);
-                          }
+                          }*/
 
                         }
                     ),
 
-                    if (user.uid != '' && showEditButton) const SizedBox(height: 10.0),
+                    if (user.uid != '') const SizedBox(height: 10.0),
                     // -- Кнопка отменить ----
 
                     if (user.uid != '') CustomButton(
@@ -301,13 +295,13 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
                         buttonText: "Отменить",
                         onTapMethod: () {
                           //navigateToPlaceViewScreen();
-                          navigateBackWithResult();
+                          navigateBackWithoutResult();
                         }
                     ),
 
                     if (user.uid != '') const SizedBox(height: 50.0),
 
-                    if (user.uid != '' && widget.isEdit) CustomButton(
+                    /*if (user.uid != '' && widget.isEdit) CustomButton(
                         state: 'error',
                         buttonText: "Удалить пользователя из управляющих",
                         onTapMethod: () async {
@@ -331,7 +325,7 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
                               showNotFound = false;
                               showEditButton = true;
 
-                              navigateBackWithResult();
+                              navigateBackWithoutResult();
 
                               showSnackBar('Пользователь успешно удален', Colors.green, 2);
                             } else {
@@ -350,7 +344,7 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
 
                           }
                         }
-                    ),
+                    ),*/
 
                   ],
                 ),

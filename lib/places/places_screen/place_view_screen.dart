@@ -3,6 +3,7 @@ import 'dart:core';
 import 'package:dvij_flutter/dates/date_mixin.dart';
 import 'package:dvij_flutter/events/event_class.dart';
 import 'package:dvij_flutter/events/events_list_class.dart';
+import 'package:dvij_flutter/places/place_admins_screens/place_admins_screen.dart';
 import 'package:dvij_flutter/promos/promo_class.dart';
 import 'package:dvij_flutter/elements/text_and_icons_widgets/headline_and_desc.dart';
 import 'package:dvij_flutter/elements/social_elements/social_buttons_widget.dart';
@@ -12,6 +13,7 @@ import 'package:dvij_flutter/users/place_users_roles.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../cities/city_class.dart';
 import '../../promos/promos_elements/promo_card_widget.dart';
 import '../../promos/promotions/promo_view_page.dart';
@@ -142,20 +144,24 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
     );
   }
 
-  void navigateToAddManager() async {
+  void navigateToManagersList() async {
+
     final result = await Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => PlaceManagerAddScreen(placeId: widget.placeId, isEdit: false, placeCreatorUid: place.creatorId, admins: place.admins!))
+        MaterialPageRoute(builder: (context) => PlaceAdminsScreen(place: place))
     );
 
     // Проверяем результат и вызываем функцию fetchAndSetData
     if (result != null) {
+      setState(() {
+        place = result;
+      });
       fetchAndSetData();
     }
 
   }
 
-  void navigateToEditManager(PlaceUser user) async {
+  /*void navigateToEditManager(PlaceUser user) async {
     final result = await Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -171,10 +177,11 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
     // Проверяем результат и вызываем функцию fetchAndSetData
     if (result != null) {
+
       fetchAndSetData();
     }
 
-  }
+  }*/
 
 
 
@@ -686,8 +693,21 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                       ),
 
                       const SizedBox(height: 30.0),
+                      
+                      if (currentPlaceUser.roleInPlace.controlLevel >= 90) GestureDetector(
+                        onTap: navigateToManagersList,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          child: Row(
+                            children: [
+                              Expanded(child: Text('Управляющие заведением (${place.admins!.length + 1})', style: Theme.of(context).textTheme.titleMedium, softWrap: true,)),
+                              const Icon(FontAwesomeIcons.chevronRight, color: AppColors.white, size: 20,)
+                            ],
+                          ),
+                        ),
+                      ),
 
-                      if (currentPlaceUser.roleInPlace.controlLevel >= 90) Container(
+                      /*if (currentPlaceUser.roleInPlace.controlLevel >= 90) Container(
                         padding: const EdgeInsets.fromLTRB(20, 10, 20, 0), // Отступы
                         decoration: BoxDecoration(
                           color: AppColors.greyOnBackground, // Цвет фона
@@ -725,7 +745,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                                     backgroundColor: MaterialStateProperty.all(Colors.green),
                                   ),
                                   onPressed: () async {
-                                    navigateToAddManager();
+                                    navigateToManagersList();
                                   },
                                   // Действие при нажатии на кнопку редактирования
                                 ),
@@ -759,7 +779,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                             ),
                           ],
                         ),
-                      ),
+                      ),*/
                       const SizedBox(height: 30.0),
 
                       if (
