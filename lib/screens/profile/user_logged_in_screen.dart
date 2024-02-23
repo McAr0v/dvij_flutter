@@ -1,7 +1,8 @@
 import 'package:dvij_flutter/elements/exit_dialog/exit_dialog.dart';
-import 'package:dvij_flutter/elements/text_and_icons_widgets/headline_and_desc.dart';
+import 'package:dvij_flutter/widgets_global/text_widgets/headline_and_desc.dart';
 import 'package:dvij_flutter/methods/date_functions.dart';
 import 'package:dvij_flutter/screens/profile/edit_profile_screen.dart';
+import 'package:dvij_flutter/widgets_global/text_widgets/text_size_enum.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -169,7 +170,7 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
                           child: HeadlineAndDesc(
                             headline: '${userInfo.name} ${userInfo.lastname}',
                             description: 'Имя',
-                            textSize: 'big',
+                            textSize: TextSizeEnum.headlineMedium,
                           ),
                         ),
                         const SizedBox(width: 16.0),

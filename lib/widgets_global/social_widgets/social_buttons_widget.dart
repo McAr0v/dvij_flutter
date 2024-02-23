@@ -1,4 +1,6 @@
+import 'package:dvij_flutter/widgets_global/text_widgets/icon_and_text_widget.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
+import 'package:dvij_flutter/widgets_global/text_widgets/text_size_enum.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../url_methods/open_url_class.dart';
@@ -21,14 +23,12 @@ class SocialButtonsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      //color: AppColors.greyOnBackground, // Цвет фона
-      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8), // Отступы
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8), // Отступы
       decoration: BoxDecoration(
         color: AppColors.greyOnBackground,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
-        //mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           if (phoneNumber != null && phoneNumber != '')
@@ -36,28 +36,20 @@ class SocialButtonsWidget extends StatelessWidget {
                 onTap: () => OpenUrlClass.openUrl(phoneNumber!, UrlPathEnum.phone),
                 child: Card(
                   color: AppColors.brandColor,
-                  margin: EdgeInsets.all(0),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: const FaIcon(
-                          FontAwesomeIcons.phone,
-                          size: 20,
-                          color: AppColors.greyOnBackground,
-                        ),
-                        onPressed: () => OpenUrlClass.openUrl(phoneNumber!, UrlPathEnum.phone),
-                      ),
-                      Text(
-                        phoneNumber!,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.greyOnBackground),
-                      ),
-                      SizedBox(width: 15,)
-                    ],
+                  margin: const EdgeInsets.all(0),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
+                    child: IconAndTextWidget(
+                      icon: FontAwesomeIcons.phone,
+                      text: phoneNumber!,
+                      textColor: AppColors.greyOnBackground,
+                      iconColor: AppColors.greyOnBackground,
+                      padding: 15,
+                      textSize: TextSizeEnum.bodyMedium,
+                    ),
                   ),
                 )
             ),
-
-          //if (phoneNumber != null && phoneNumber != '') const SizedBox(width: 15,),
 
           if (instagramUsername != null && instagramUsername != '')
             IconButton(
@@ -68,8 +60,6 @@ class SocialButtonsWidget extends StatelessWidget {
               onPressed: () => OpenUrlClass.openUrl(instagramUsername!, UrlPathEnum.instagram),
             ),
 
-          //if (instagramUsername != null && instagramUsername != '') const SizedBox(width: 15,),
-
           if (telegramUsername != null && telegramUsername != '')
             IconButton(
               icon: const FaIcon(
@@ -78,8 +68,6 @@ class SocialButtonsWidget extends StatelessWidget {
               ),
               onPressed: () => OpenUrlClass.openUrl(telegramUsername!, UrlPathEnum.telegram),
             ),
-
-          //if (telegramUsername != null && telegramUsername != '') const SizedBox(width: 15,),
 
           if (whatsappUsername != null && whatsappUsername != '')
             IconButton(

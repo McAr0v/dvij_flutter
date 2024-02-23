@@ -8,7 +8,7 @@ import '../../dates/date_type_enum.dart';
 import '../../dates/date_mixin.dart';
 import '../../methods/date_class.dart';
 import '../../themes/app_colors.dart';
-import '../text_and_icons_widgets/headline_and_desc.dart';
+import '../../widgets_global/text_widgets/headline_and_desc.dart';
 
 class ScheduleOnceAndLongWidget extends StatelessWidget {
   final double horizontalPadding;

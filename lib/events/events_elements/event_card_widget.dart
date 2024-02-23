@@ -2,12 +2,13 @@ import 'package:dvij_flutter/classes/priceTypeOptions.dart';
 import 'package:dvij_flutter/dates/time_mixin.dart';
 import 'package:dvij_flutter/events/event_class.dart';
 import 'package:dvij_flutter/dates/date_type_enum.dart';
-import 'package:dvij_flutter/elements/text_and_icons_widgets/for_cards_small_widget_with_icon_and_text.dart';
-import 'package:dvij_flutter/elements/text_and_icons_widgets/icon_and_text_widget.dart';
+import 'package:dvij_flutter/widgets_global/text_widgets/for_cards_small_widget_with_icon_and_text.dart';
+import 'package:dvij_flutter/widgets_global/text_widgets/icon_and_text_widget.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../dates/date_mixin.dart';
+import '../../widgets_global/text_widgets/text_size_enum.dart';
 
 class EventCardWidget extends StatelessWidget {
   final EventCustom event;
@@ -58,7 +59,7 @@ class EventCardWidget extends StatelessWidget {
                 Positioned(
                   top: 10.0,
                   right: 10.0,
-                  child: SmallWidgetForCardsWithIconAndText(
+                  child: IconAndTextInTransparentSurfaceWidget(
                     icon: Icons.bookmark,
                     text: '${event.addedToFavouritesCount}',
                     iconColor: event.inFav! ? AppColors.brandColor : AppColors.white,
@@ -71,7 +72,7 @@ class EventCardWidget extends StatelessWidget {
                 Positioned(
                   top: 10.0,
                   left: 10.0,
-                  child: SmallWidgetForCardsWithIconAndText(
+                  child: IconAndTextInTransparentSurfaceWidget(
                     //icon: Icons.visibility,
                       text: event.category.name,
                       iconColor: AppColors.white,
@@ -147,7 +148,7 @@ class EventCardWidget extends StatelessWidget {
                           IconAndTextWidget(
                             icon: FontAwesomeIcons.calendar,
                             text: DateMixin.getHumanDateFromDateTime(event.onceDay.startDate, needYear: false),
-                            textSize: 'bodySmall',
+                            textSize: TextSizeEnum.bodySmall,
                             padding: 10,
                           ),
 
@@ -156,7 +157,7 @@ class EventCardWidget extends StatelessWidget {
                           IconAndTextWidget(
                             icon: FontAwesomeIcons.clock,
                             text: TimeMixin.getTimeRange(event.onceDay.startDate, event.onceDay.endDate),
-                            textSize: 'bodySmall',
+                            textSize: TextSizeEnum.bodySmall,
                             padding: 10,
                           ),
                         ],
@@ -167,7 +168,7 @@ class EventCardWidget extends StatelessWidget {
                           IconAndTextWidget(
                               icon: FontAwesomeIcons.calendar,
                               text: '${DateMixin.getHumanDateFromDateTime(event.longDays.startStartDate, needYear: false)} - ${DateMixin.getHumanDateFromDateTime(event.longDays.endStartDate, needYear: false)}',
-                              textSize: 'label',
+                              textSize: TextSizeEnum.labelMedium,
                               padding: 10,
                           ),
 
@@ -176,7 +177,7 @@ class EventCardWidget extends StatelessWidget {
                           IconAndTextWidget(
                             icon: FontAwesomeIcons.clock,
                             text: TimeMixin.getTimeRange(event.longDays.startStartDate, event.longDays.endEndDate),
-                            textSize: 'label',
+                            textSize: TextSizeEnum.labelMedium,
                             padding: 10,
                           ),
                         ],
@@ -292,7 +293,7 @@ class EventCardWidget extends StatelessWidget {
                       IconAndTextWidget(
                         icon: FontAwesomeIcons.dollarSign,
                         text: PriceTypeEnumClass.getFormattedPriceString(event.priceType, event.price),
-                        textSize: 'bodySmall',
+                        textSize: TextSizeEnum.bodySmall,
                         padding: 10,
                       ),
 

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-
 import '../../themes/app_colors.dart';
 
-class SmallWidgetForCardsWithIconAndText extends StatelessWidget {
+class IconAndTextInTransparentSurfaceWidget extends StatelessWidget {
   final IconData? icon;
   final String text;
   final Color iconColor;
@@ -11,7 +10,7 @@ class SmallWidgetForCardsWithIconAndText extends StatelessWidget {
   final bool side;
   final VoidCallback? onPressed; // Добавлено для обработки нажатия
 
-  const SmallWidgetForCardsWithIconAndText({
+  const IconAndTextInTransparentSurfaceWidget({
     Key? key,
     this.icon,
     required this.text,
@@ -19,15 +18,15 @@ class SmallWidgetForCardsWithIconAndText extends StatelessWidget {
     this.textColor = AppColors.white,
     this.backgroundColor = AppColors.greyOnBackground,
     this.side = true,
-    this.onPressed, // Добавлено для обработки нажатия
+    this.onPressed,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onPressed, // Добавлено для обработки нажатия
+      onTap: onPressed,
       child: Container(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(8.0),
@@ -40,12 +39,12 @@ class SmallWidgetForCardsWithIconAndText extends StatelessWidget {
               color: iconColor,
               size: 24.0,
             ),
-            if (side && icon != null) SizedBox(width: 10),
+            if (side && icon != null) const SizedBox(width: 10),
             Text(
               text,
               style: Theme.of(context).textTheme.labelMedium?.copyWith(color: textColor),
             ),
-            if (!side && icon != null) SizedBox(width: 10),
+            if (!side && icon != null) const SizedBox(width: 10),
             if (!side && icon != null) Icon(
               icon,
               color: iconColor,

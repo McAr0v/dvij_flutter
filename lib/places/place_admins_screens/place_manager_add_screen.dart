@@ -1,4 +1,3 @@
-import 'package:dvij_flutter/classes/user_class.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/elements/loading_screen.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
@@ -6,18 +5,20 @@ import 'package:dvij_flutter/users/place_admins_item_class.dart';
 import 'package:dvij_flutter/users/place_user_class.dart';
 import 'package:dvij_flutter/users/place_users_roles.dart';
 import 'package:flutter/material.dart';
+import '../../elements/exit_dialog/exit_dialog.dart';
 import '../place_class.dart';
 import '../../elements/custom_snack_bar.dart';
 import '../place_roles_elements/place_role_element_in_choose_dialog.dart';
 import '../place_roles_screens/place_roles_choose_page.dart';
-import '../places_elements/place_managers_element_list_item.dart';
-import '../places_screen/place_view_screen.dart';
+import '../places_widgets/place_managers_element_list_item.dart';
 
 class PlaceManagerAddScreen extends StatefulWidget {
   final Place place;
+  final PlaceUser? placeUser;
 
   const PlaceManagerAddScreen({super.key,
-    required this.place
+    required this.place,
+    this.placeUser
   });
 
   @override
@@ -40,6 +41,8 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
   bool saving = false;
   bool deleting = false;
 
+  bool edit = false;
+
   PlaceUser user = PlaceUser();
   bool showNotFound = false;
   PlaceUserRole chosenRole = PlaceUserRole();
@@ -61,6 +64,12 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
       loading = true;
     });
 
+    if (widget.placeUser != null){
+      edit = true;
+      user = widget.placeUser!;
+      chosenRole = user.placeUserRole;
+    }
+
     _place = widget.place;
 
     admins = _place.admins!;
@@ -78,21 +87,19 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  void navigateBackWithoutResult() {
+  void _navigateBackWithoutResult() {
     Navigator.of(context).pop();
-    //Navigator.pop(context, 'Результат с Second Page');
   }
 
-  void navigateBackWithResult() {
+  void _navigateBackWithResult() {
     Navigator.of(context).pop(admins);
-    //Navigator.pop(context, 'Результат с Second Page');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Добавление управляющего'),
+          title: Text(!edit ? 'Добавление пользователя' : 'Редактирование пользователя'),
 
           // Задаем особый выход на кнопку назад
           // Чтобы не плодились экраны назад с разным списком городов
@@ -100,8 +107,7 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
           leading: IconButton(
             icon: const Icon(Icons.chevron_left),
             onPressed: () {
-              //navigateToPlaceViewScreen();
-              navigateBackWithResult();
+              _navigateBackWithResult();
             },
           ),
         ),
@@ -120,14 +126,14 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
 
-                    Text(
+                    if (!edit) Text(
                       'Поиск пользователя',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
 
-                    SizedBox(height: 20,),
+                    if (!edit) const SizedBox(height: 20,),
 
-                    TextField(
+                    if (!edit) TextField(
                       style: Theme.of(context).textTheme.bodyMedium,
                       keyboardType: TextInputType.emailAddress,
                       controller: _emailSearchController,
@@ -137,69 +143,25 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 20.0),
+                    if (!edit) const SizedBox(height: 20.0),
 
                     // ---- Кнопка опубликовать -----
 
-                    CustomButton(
+                    if (!edit) CustomButton(
                         buttonText: 'Найти',
                         onTapMethod: () async {
-                          if (_emailSearchController.text == ''){
-                            showSnackBar(
-                                'Ты не ввел Email( Как нам искать?',
-                                AppColors.attentionRed,
-                                2
-                            );
-                          } else {
-                            //_publishPlaceCategory();
-
-                            setState(() {
-                              loading = true;
-                              user = PlaceUser();
-                              showNotFound = false;
-                            });
-
-                            PlaceUser foundUser = await user.getPlaceUserByEmail(_emailSearchController.text);
-
-                            if (foundUser.uid != ''){
-                              if (foundUser.uid == _place.creatorId){
-                                setState(() {
-                                  chosenRole = chosenRole.getPlaceUserRole(PlaceUserRoleEnum.creator);
-                                  foundUser.placeUserRole = chosenRole;
-                                });
-                              } else{
-                                setState(() {
-                                  chosenRole = chosenRole.searchPlaceUserRoleInAdminsList(admins, foundUser);
-                                  foundUser.placeUserRole = chosenRole;
-                                });
-                              }
-
-                              setState(() {
-                                showNotFound = false;
-                                user = foundUser;
-                                _emailSearchController.text = '';
-                              });
-                            } else {
-                              setState(() {
-                                showNotFound = true;
-                              });
-                            }
-
-                            setState(() {
-                              loading = false;
-                            });
-                          }
+                          _findAdmin();
                         }
                     ),
 
-                    if (user.uid != '') const SizedBox(height: 40.0),
+                    if (user.uid != '' && !edit) const SizedBox(height: 40.0),
 
                     if (user.uid != '') Text(
-                      'Найденный пользователь:',
+                      !edit ? 'Найденный пользователь:' : 'Выбранный пользователь:',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
 
-                    if (user.uid != '') const SizedBox(height: 10.0),
+                    if (user.uid != '') const SizedBox(height: 30.0),
 
                     if (user.uid != '') PlaceManagersElementListItem(user: user, showButton: false),
 
@@ -220,7 +182,6 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
                     if (user.uid != '' && user.uid != _place.creatorId) PlaceRoleElementInChooseDialog(
                       roleName: chosenRole.title,
                       onActionPressed: () {
-                        //_showCityPickerDialog();
                         _showRolePickerDialog();
                       },
                     ),
@@ -228,178 +189,38 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
                     if (showNotFound) const SizedBox(height: 40.0),
                     if (showNotFound) const Text('Пользователь не найден'),
 
-                    const SizedBox(height: 40.0),
+                    const SizedBox(height: 20.0),
 
-                    if (user.uid != '' && user.uid != _place.creatorId && user.placeUserRole != chosenRole) CustomButton(
+                    if (user.uid != '' && user.uid != _place.creatorId && user.placeUserRole.roleInPlaceEnum != chosenRole.roleInPlaceEnum) CustomButton(
                         state: 'success',
                         buttonText: "Сохранить изменения",
                         onTapMethod: () async {
-
-                          setState(() {
-                            saving = true;
-                          });
-
-                          user.placeUserRole = chosenRole;
-
-                          if (chosenRole.roleInPlaceEnum != PlaceUserRoleEnum.reader){
-                            // Если выбранная роль не обычный пользователь
-
-                            String publishResult = await user.writePlaceRoleInManagerAndPlace(_place.id);
-
-                            if (publishResult == 'success'){
-                              admins.removeWhere((element) => element.userId == user.uid);
-
-                              admins.add(PlaceAdminsListItem(
-                                userId: user.uid, placeRole: user.placeUserRole.roleInPlaceEnum.name
-                              ));
-
-                              showSnackBar('Роль успешно изменена', Colors.green, 2);
-
-                              navigateBackWithResult();
-
-                            } else {
-                              showSnackBar(publishResult, AppColors.attentionRed, 2);
-                            }
-
-                            setState(() {
-                              saving = false;
-                            });
-
-                          } else {
-                            // Если выбранная роль читатель и отличается от старой роли
-                            setState(() {
-                              deleting = true;
-                            });
-
-                            String deleteResult = await user.deletePlaceRoleInManagerAndPlace(_place.id);
-
-                            if (deleteResult == 'success') {
-                              admins.removeWhere((element) => element.userId == user.uid);
-                              showSnackBar('Роль успешно изменена', Colors.green, 2);
-
-                            } else {
-                              showSnackBar(deleteResult, AppColors.attentionRed, 2);
-                            }
-
-                            setState(() {
-                              deleting = false;
-                            });
-                            navigateBackWithResult();
-                          }
-
-
-
-
-                          /*
-
-
-
-                          String? resultUploadUser = await UserCustom.writeUserPlaceRole(user.uid, widget.placeId, chosenRole.generatePlaceRoleEnumForPlaceUser(chosenRole.roleInPlace));
-                          if (resultUploadUser == 'success'){
-                            String? resultUploadPlace = await Place.writeUserRoleInPlace(widget.placeId, user.uid, chosenRole.generatePlaceRoleEnumForPlaceUser(chosenRole.roleInPlace));
-                            if (resultUploadPlace == 'success'){
-                              setState(() {
-                                if (admins.contains(PlaceAdminsListItem(
-                                    userId: user.uid,
-                                    placeRole: user.roleInPlace.roleInPlace.name
-                                ))) {
-                                  admins.removeWhere((element) => element.userId == user.uid);
-                                }
-
-                                admins.add(PlaceAdminsListItem(
-                                    userId: user.uid,
-                                    placeRole: user.roleInPlace.roleInPlace.name
-                                ));
-
-
-                                if (widget.isEdit == false){
-                                  user = PlaceUser();
-                                  showNotFound = false;
-                                  showEditButton = true;
-                                } else {
-                                  user.roleInPlace = chosenRole;
-                                }
-                                saving = false;
-                                //loading = true;
-
-                              });
-                              //navigateToPlaceViewScreen();
-                              showSnackBar('Пользователь успешно добавлен', Colors.green, 2);
-                            } else {
-                              setState(() {
-                                saving = false;
-                              });
-                              showSnackBar('Произошла ошибка $resultUploadPlace при добавлении данных в место', AppColors.attentionRed, 2);
-                            }
-                          } else {
-                            setState(() {
-                              saving = false;
-                            });
-                            showSnackBar('Произошла ошибка $resultUploadUser при добавлении данных в пользователя', AppColors.attentionRed, 2);
-                          }*/
-
+                          _saveAdmin();
                         }
                     ),
 
                     if (user.uid != '') const SizedBox(height: 10.0),
-                    // -- Кнопка отменить ----
 
                     if (user.uid != '') CustomButton(
                         state: 'secondary',
                         buttonText: "Отменить",
                         onTapMethod: () {
-                          //navigateToPlaceViewScreen();
-                          navigateBackWithoutResult();
+                          _navigateBackWithoutResult();
                         }
                     ),
 
-                    if (user.uid != '') const SizedBox(height: 50.0),
+                    if (user.uid != '' && user.uid != _place.creatorId && user.placeUserRole.roleInPlaceEnum != PlaceUserRoleEnum.reader) const SizedBox(height: 20.0),
 
-                    /*if (user.uid != '' && widget.isEdit) CustomButton(
+                    if (user.uid != '' && user.uid != _place.creatorId && user.placeUserRole.roleInPlaceEnum != PlaceUserRoleEnum.reader) CustomButton(
                         state: 'error',
-                        buttonText: "Удалить пользователя из управляющих",
+                        buttonText: "Удалить пользователя",
                         onTapMethod: () async {
-
-                          setState(() {
-                            deleting = true;
-                          });
-
-                          String? resultDeleteUser = await UserCustom.deleteUserPlaceRole(user.uid, widget.placeId);
-
-                          if (resultDeleteUser == 'success') {
-
-                            String? resultDeletePlace = await Place.deleteUserRoleInPlace(widget.placeId, user.uid);
-
-                            if (resultDeletePlace == 'success'){
-                              setState(() {
-                                deleting = false;
-                              });
-
-                              user = PlaceUser();
-                              showNotFound = false;
-                              showEditButton = true;
-
-                              navigateBackWithoutResult();
-
-                              showSnackBar('Пользователь успешно удален', Colors.green, 2);
-                            } else {
-                              setState(() {
-                                saving = false;
-                              });
-                              showSnackBar('Произошла ошибка $resultDeletePlace при удалении пользователя из места', AppColors.attentionRed, 2);
-                            }
-
-                          } else {
-
-                            setState(() {
-                              saving = false;
-                            });
-                            showSnackBar('Произошла ошибка $resultDeleteUser при удаления данных о месте из пользователя', AppColors.attentionRed, 2);
-
+                          bool? confirmed = await exitDialog(context, "Ты правда хочешь удалить пользователя?" , 'Да', 'Нет', 'Удаление пользователя');
+                          if (confirmed != null && confirmed){
+                            _deleteAdmin();
                           }
                         }
-                    ),*/
-
+                    ),
                   ],
                 ),
               ),
@@ -429,14 +250,119 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const begin = Offset(0.0, 1.0);
         const end = Offset.zero;
-        const curve = Curves.easeInOut;
+        const curve = Curves.easeInQuad;
         var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
         var offsetAnimation = animation.drive(tween);
         return SlideTransition(position: offsetAnimation, child: child);
       },
-      transitionDuration: Duration(milliseconds: 100),
+      transitionDuration: const Duration(milliseconds: 200),
 
     );
+  }
+
+  Future<void> _deleteAdmin() async {
+    // Если выбранная роль читатель и отличается от старой роли
+    setState(() {
+      deleting = true;
+    });
+
+    String deleteResult = await user.deletePlaceRoleInManagerAndPlace(_place.id);
+
+    if (deleteResult == 'success') {
+      admins.removeWhere((element) => element.userId == user.uid);
+      showSnackBar('Роль успешно изменена', Colors.green, 2);
+
+    } else {
+      showSnackBar(deleteResult, AppColors.attentionRed, 2);
+    }
+
+    setState(() {
+      deleting = false;
+    });
+    _navigateBackWithResult();
+  }
+
+  Future<void> _saveAdmin() async {
+    setState(() {
+      saving = true;
+    });
+
+    user.placeUserRole = chosenRole;
+
+    if (chosenRole.roleInPlaceEnum != PlaceUserRoleEnum.reader){
+      // Если выбранная роль не обычный пользователь
+
+      String publishResult = await user.writePlaceRoleInManagerAndPlace(_place.id);
+
+      if (publishResult == 'success'){
+        admins.removeWhere((element) => element.userId == user.uid);
+
+        admins.add(PlaceAdminsListItem(
+            userId: user.uid, placeRole: user.placeUserRole.roleInPlaceEnum.name
+        ));
+
+        showSnackBar('Роль успешно изменена', Colors.green, 2);
+
+        _navigateBackWithResult();
+
+      } else {
+        showSnackBar(publishResult, AppColors.attentionRed, 2);
+      }
+
+      setState(() {
+        saving = false;
+      });
+
+    } else {
+      _deleteAdmin();
+    }
+  }
+
+  Future<void> _findAdmin() async {
+    if (_emailSearchController.text == ''){
+      showSnackBar(
+          'Ты не ввел Email( Как нам искать?',
+          AppColors.attentionRed,
+          2
+      );
+    } else {
+
+      setState(() {
+        loading = true;
+        user = PlaceUser();
+        showNotFound = false;
+      });
+
+      PlaceUser foundUser = await user.getPlaceUserByEmail(_emailSearchController.text);
+
+      if (foundUser.uid != ''){
+        if (foundUser.uid == _place.creatorId){
+          setState(() {
+            chosenRole = chosenRole.getPlaceUserRole(PlaceUserRoleEnum.creator);
+            foundUser.placeUserRole = chosenRole;
+          });
+        } else{
+          setState(() {
+            chosenRole = chosenRole.searchPlaceUserRoleInAdminsList(admins, foundUser);
+            foundUser.placeUserRole = chosenRole;
+          });
+        }
+
+        setState(() {
+          showNotFound = false;
+          user = foundUser;
+          _emailSearchController.text = '';
+        });
+      } else {
+        setState(() {
+          showNotFound = true;
+        });
+      }
+
+      setState(() {
+        loading = false;
+      });
+    }
   }
 
 }

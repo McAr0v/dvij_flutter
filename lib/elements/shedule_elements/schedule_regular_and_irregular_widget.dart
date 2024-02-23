@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import '../../dates/date_type_enum.dart';
 import '../../dates/date_mixin.dart';
 import '../../themes/app_colors.dart';
-import '../text_and_icons_widgets/headline_and_desc.dart';
+import '../../widgets_global/text_widgets/headline_and_desc.dart';
 
 class ScheduleRegularAndIrregularWidget extends StatelessWidget {
   final double horizontalPadding;
@@ -18,9 +18,10 @@ class ScheduleRegularAndIrregularWidget extends StatelessWidget {
   final Color backgroundColor;
   final DateTypeEnum dateTypeEnum;
   final RegularDate? regularTimes; // Передаваемая переменная
+  final bool isPlace; // Передаваемая переменная
 
 
-  ScheduleRegularAndIrregularWidget({
+  const ScheduleRegularAndIrregularWidget({super.key,
     this.horizontalPadding = 30,
     this.verticalPadding = 20,
     required this.headline,
@@ -29,6 +30,7 @@ class ScheduleRegularAndIrregularWidget extends StatelessWidget {
     required this.dateTypeEnum,
     this.regularTimes,
     this.irregularDays,
+    this.isPlace = false,
   });
 
 
@@ -70,6 +72,12 @@ class ScheduleRegularAndIrregularWidget extends StatelessWidget {
                                 regularTimes!.getDayFromIndex(index).startTime.toString() != 'Не выбрано'
                                     && regularTimes!.getDayFromIndex(index).startTime.toString() != regularTimes!.getDayFromIndex(index).endTime.toString())
                                   const SizedBox(height: 10,),
+
+                                if (regularTimes!.getDayFromIndex(index).startTime.toString() == 'Не выбрано' && isPlace)
+                                  HeadlineAndDesc(headline: DateMixin.getHumanWeekday(index+1, false), description: 'День недели'),
+                                if (regularTimes!.getDayFromIndex(index).startTime.toString() == 'Не выбрано' && isPlace)
+                                  const SizedBox(height: 10,),
+
                               ],
                             );
                           }),
@@ -104,11 +112,20 @@ class ScheduleRegularAndIrregularWidget extends StatelessWidget {
                                     && regularTimes!.getDayFromIndex(index).startTime.toString() != regularTimes!.getDayFromIndex(index).endTime.toString())
                                   HeadlineAndDesc(
                                     headline: 'с ${regularTimes!.getDayFromIndex(index).startTime.toString()} до ${regularTimes!.getDayFromIndex(index).endTime.toString()}',
-                                    description: 'Время проведения'
+                                    description: !isPlace ? 'Время проведения' : 'Время работы'
                                 ),
+                                if (
+                                regularTimes!.getDayFromIndex(index).startTime.toString() == 'Не выбрано' && isPlace)
+                                  const HeadlineAndDesc(
+                                      headline: 'Выходной',
+                                      description: 'Время работы'
+                                  ),
                                 if (
                                 regularTimes!.getDayFromIndex(index).startTime.toString() != 'Не выбрано'
                                     && regularTimes!.getDayFromIndex(index).startTime.toString() != regularTimes!.getDayFromIndex(index).endTime.toString())
+                                  const SizedBox(height: 10,),
+                                if (
+                                regularTimes!.getDayFromIndex(index).startTime.toString() == 'Не выбрано' && isPlace)
                                   const SizedBox(height: 10,),
                               ],
                             );

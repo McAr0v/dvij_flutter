@@ -3,7 +3,7 @@ import 'package:dvij_flutter/classes/gender_class.dart';
 import 'package:dvij_flutter/elements/date_elements/data_picker.dart';
 import 'package:dvij_flutter/elements/genders_elements/gender_element_in_edit_screen.dart';
 import 'package:dvij_flutter/elements/genders_elements/gender_picker_page.dart';
-import 'package:dvij_flutter/elements/text_and_icons_widgets/headline_and_desc.dart';
+import 'package:dvij_flutter/widgets_global/text_widgets/headline_and_desc.dart';
 import 'package:dvij_flutter/elements/role_in_app_elements/role_in_app_element_in_edit_screen.dart';
 import 'package:dvij_flutter/elements/role_in_app_elements/role_in_app_picker_page.dart';
 import 'package:dvij_flutter/methods/date_functions.dart';

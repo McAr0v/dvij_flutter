@@ -1,8 +1,8 @@
 import 'package:dvij_flutter/dates/date_mixin.dart';
 import 'package:dvij_flutter/events/event_class.dart';
-import 'package:dvij_flutter/elements/text_and_icons_widgets/headline_and_desc.dart';
+import 'package:dvij_flutter/widgets_global/text_widgets/headline_and_desc.dart';
 import 'package:dvij_flutter/elements/shedule_elements/shedule_once_and_long_widget.dart';
-import 'package:dvij_flutter/elements/social_elements/social_buttons_widget.dart';
+import 'package:dvij_flutter/widgets_global/social_widgets/social_buttons_widget.dart';
 import 'package:dvij_flutter/elements/user_element_widget.dart';
 import 'package:dvij_flutter/places/place_list_manager.dart';
 import 'package:dvij_flutter/users/place_user_class.dart';
@@ -17,7 +17,7 @@ import '../../places/place_class.dart';
 import '../../classes/priceTypeOptions.dart';
 import '../../classes/user_class.dart';
 import '../../elements/exit_dialog/exit_dialog.dart';
-import '../../elements/text_and_icons_widgets/for_cards_small_widget_with_icon_and_text.dart';
+import '../../widgets_global/text_widgets/for_cards_small_widget_with_icon_and_text.dart';
 import '../../elements/loading_screen.dart';
 import '../../elements/shedule_elements/schedule_regular_and_irregular_widget.dart';
 import '../../elements/snack_bar.dart';
@@ -181,7 +181,7 @@ class EventViewScreenState extends State<EventViewScreen> {
                         Positioned(
                           top: 10.0,
                           right: 10.0,
-                          child: SmallWidgetForCardsWithIconAndText(
+                          child: IconAndTextInTransparentSurfaceWidget(
                             icon: Icons.bookmark,
                             text: '$favCounter',
                             iconColor: inFav ? AppColors.brandColor : AppColors.white,
@@ -257,7 +257,7 @@ class EventViewScreenState extends State<EventViewScreen> {
                         Positioned(
                           top: 10.0,
                           left: 10.0,
-                          child: SmallWidgetForCardsWithIconAndText(
+                          child: IconAndTextInTransparentSurfaceWidget(
                             //icon: Icons.visibility,
                               text: event.category.name,
                               iconColor: AppColors.white,

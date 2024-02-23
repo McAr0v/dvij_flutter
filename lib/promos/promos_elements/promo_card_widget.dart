@@ -1,12 +1,13 @@
 import 'package:dvij_flutter/dates/time_mixin.dart';
 import 'package:dvij_flutter/dates/date_type_enum.dart';
-import 'package:dvij_flutter/elements/text_and_icons_widgets/for_cards_small_widget_with_icon_and_text.dart';
-import 'package:dvij_flutter/elements/text_and_icons_widgets/icon_and_text_widget.dart';
+import 'package:dvij_flutter/widgets_global/text_widgets/for_cards_small_widget_with_icon_and_text.dart';
+import 'package:dvij_flutter/widgets_global/text_widgets/icon_and_text_widget.dart';
 import 'package:dvij_flutter/promos/promo_class.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../dates/date_mixin.dart';
+import '../../widgets_global/text_widgets/text_size_enum.dart';
 
 class PromoCardWidget extends StatelessWidget {
   final PromoCustom promo;
@@ -57,7 +58,7 @@ class PromoCardWidget extends StatelessWidget {
                 Positioned(
                   top: 10.0,
                   right: 10.0,
-                  child: SmallWidgetForCardsWithIconAndText(
+                  child: IconAndTextInTransparentSurfaceWidget(
                     icon: Icons.bookmark,
                     text: '${promo.addedToFavouritesCount}',
                     iconColor: promo.inFav! ? AppColors.brandColor : AppColors.white,
@@ -70,7 +71,7 @@ class PromoCardWidget extends StatelessWidget {
                 Positioned(
                   top: 10.0,
                   left: 10.0,
-                  child: SmallWidgetForCardsWithIconAndText(
+                  child: IconAndTextInTransparentSurfaceWidget(
                     //icon: Icons.visibility,
                       text: promo.category.name,
                       iconColor: AppColors.white,
@@ -146,7 +147,7 @@ class PromoCardWidget extends StatelessWidget {
                           IconAndTextWidget(
                             icon: FontAwesomeIcons.calendar,
                             text: DateMixin.getHumanDateFromDateTime(promo.onceDay.startDate, needYear: false),
-                            textSize: 'bodySmall',
+                            textSize: TextSizeEnum.bodySmall,
                             padding: 10,
                           ),
 
@@ -155,7 +156,7 @@ class PromoCardWidget extends StatelessWidget {
                           IconAndTextWidget(
                             icon: FontAwesomeIcons.clock,
                             text: TimeMixin.getTimeRange(promo.onceDay.startDate, promo.onceDay.endDate),
-                            textSize: 'bodySmall',
+                            textSize: TextSizeEnum.bodySmall,
                             padding: 10,
                           ),
                         ],
@@ -166,7 +167,7 @@ class PromoCardWidget extends StatelessWidget {
                           IconAndTextWidget(
                             icon: FontAwesomeIcons.calendar,
                             text: '${DateMixin.getHumanDateFromDateTime(promo.longDays.startStartDate, needYear: false)} - ${DateMixin.getHumanDateFromDateTime(promo.longDays.endStartDate, needYear: false)}',
-                            textSize: 'label',
+                            textSize: TextSizeEnum.labelMedium,
                             padding: 10,
                           ),
 
@@ -175,7 +176,7 @@ class PromoCardWidget extends StatelessWidget {
                           IconAndTextWidget(
                             icon: FontAwesomeIcons.clock,
                             text: TimeMixin.getTimeRange(promo.longDays.startStartDate, promo.longDays.endEndDate),
-                            textSize: 'label',
+                            textSize: TextSizeEnum.labelMedium,
                             padding: 10,
                           ),
                         ],

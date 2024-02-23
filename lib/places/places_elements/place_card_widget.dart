@@ -1,10 +1,10 @@
 import 'package:dvij_flutter/cities/city_class.dart';
 import 'package:dvij_flutter/places/place_category_class.dart';
-import 'package:dvij_flutter/elements/text_and_icons_widgets/for_cards_small_widget_with_icon_and_text.dart';
+import 'package:dvij_flutter/widgets_global/text_widgets/for_cards_small_widget_with_icon_and_text.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/places/place_class.dart';
-import 'now_is_work_widget.dart';
+import '../../widgets_global/text_widgets/now_is_work_widget.dart';
 
 class PlaceCardWidget extends StatelessWidget {
   final Place place;
@@ -51,7 +51,7 @@ class PlaceCardWidget extends StatelessWidget {
                 Positioned(
                   top: 10.0,
                   right: 10.0,
-                  child: SmallWidgetForCardsWithIconAndText(
+                  child: IconAndTextInTransparentSurfaceWidget(
                     icon: Icons.bookmark,
                     text: '${place.addedToFavouritesCount}',
                     iconColor: place.inFav! ? AppColors.brandColor : AppColors.white,
@@ -64,7 +64,7 @@ class PlaceCardWidget extends StatelessWidget {
                 Positioned(
                   top: 10.0,
                   left: 10.0,
-                  child: SmallWidgetForCardsWithIconAndText(
+                  child: IconAndTextInTransparentSurfaceWidget(
                     //icon: Icons.visibility,
                       text: place.category.name,
                       iconColor: AppColors.white,
@@ -95,7 +95,7 @@ class PlaceCardWidget extends StatelessWidget {
                   ),
                   SizedBox(height: 10.0),
 
-                  NowIsWorkWidget(isTrue: place.nowIsOpen!),
+                  TextOnBoolResultWidget(isTrue: place.nowIsOpen!, trueText: 'Сейчас открыто', falseText: 'Сейчас закрыто',),
 
                   const SizedBox(height: 10.0),
 
@@ -126,7 +126,7 @@ class PlaceCardWidget extends StatelessWidget {
 
                   Row(
                     children: [
-                      SmallWidgetForCardsWithIconAndText(
+                      IconAndTextInTransparentSurfaceWidget(
                         icon: Icons.event,
                         text: 'Мероприятий: ${place.eventsCount}',
                         side: true,
@@ -136,7 +136,7 @@ class PlaceCardWidget extends StatelessWidget {
 
                       SizedBox(width: 10.0),
 
-                      SmallWidgetForCardsWithIconAndText(
+                      IconAndTextInTransparentSurfaceWidget(
                         icon: Icons.event,
                         text: 'Акций: ${place.promoCount}',
                         side: true,

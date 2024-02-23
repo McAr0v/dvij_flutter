@@ -7,12 +7,12 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../classes/user_class.dart';
 import '../../users/place_user_class.dart';
 import '../../users/place_users_roles.dart';
-import '../places_elements/place_managers_element_list_item.dart';
+import '../places_widgets/place_managers_element_list_item.dart';
 
 class PlaceAdminsScreen extends StatefulWidget {
   final Place place;
 
-  PlaceAdminsScreen({Key? key, required this.place}) : super(key: key);
+  const PlaceAdminsScreen({Key? key, required this.place}) : super(key: key);
 
   @override
   PlaceAdminsScreenState createState() => PlaceAdminsScreenState();
@@ -20,10 +20,15 @@ class PlaceAdminsScreen extends StatefulWidget {
 
 class PlaceAdminsScreenState extends State<PlaceAdminsScreen> {
 
+  // Список админов
   List<PlaceUser> admins = [];
+  // Данные создателя
   PlaceUser creator = PlaceUser();
-  bool loading = true;
+
+  // Переменная для внесений изменений
   Place currentPlace = Place.emptyPlace;
+
+  bool loading = true;
 
   @override
   void initState() {
@@ -35,16 +40,25 @@ class PlaceAdminsScreenState extends State<PlaceAdminsScreen> {
     setState(() {
       loading = true;
     });
+
     currentPlace = widget.place;
+    // Получаем информацию об админах из списка ролей и UID админов в заведении
     admins = await creator.getAdminsInfoFromDb(widget.place.admins!);
 
     if (UserCustom.currentUser != null){
+      // Если пользователь - создатель
       if (widget.place.creatorId == UserCustom.currentUser!.uid){
         PlaceUserRole role = PlaceUserRole();
+        // Записываем данные пользователя в формат placeUser из данных обычного пользователя
+        // Чтобы не грузить данные из БД
         creator = creator.generatePlaceUserFromUserCustom(UserCustom.currentUser!);
+        // Устанавливаем роль создателя, так как функция автоматического заполнения
+        // пользователя не заполняет роль
         creator.placeUserRole = role.getPlaceUserRole(PlaceUserRoleEnum.creator);
       }
     } else {
+      // Если текущий пользователь не создатель
+      // Грузим создателя из БД
       creator = await creator.getPlaceUserFromDb(widget.place.creatorId, PlaceUserRoleEnum.creator);
     }
 
@@ -59,7 +73,7 @@ class PlaceAdminsScreenState extends State<PlaceAdminsScreen> {
     return Scaffold(
       appBar: AppBar(
 
-        title: Text('Менеджеры ${currentPlace.name} ${currentPlace.admins?.length}', style: Theme.of(context).textTheme.displayMedium, softWrap: true,),
+        title: Text('Менеджеры в ${currentPlace.name}', style: Theme.of(context).textTheme.displayMedium, softWrap: true,),
 
         // Задаем особый выход на кнопку назад
         // Чтобы не плодились экраны назад
@@ -67,17 +81,20 @@ class PlaceAdminsScreenState extends State<PlaceAdminsScreen> {
         leading: IconButton(
           icon: const Icon(FontAwesomeIcons.chevronLeft, size: 18,),
           onPressed: () {
+            // Возвращаемся на экран заведения с результатом
+            // Результат - измененное место
             navigateBackWithResult();
           },
         ),
         actions: [
+          // Кнопка добавления нового менеджера
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
             child: IconButton(
               color: AppColors.brandColor,
               icon: const Icon(FontAwesomeIcons.plus, size: 20, color: AppColors.white),
-              // --- Уходим на экран редактирования -----
               onPressed: (){
+                // --- Уходим на экран редактирования -----
                 navigateToAddManager();
               },
             ),
@@ -88,17 +105,15 @@ class PlaceAdminsScreenState extends State<PlaceAdminsScreen> {
       body: Stack(
         alignment: Alignment.topLeft,
         children: [
-          if (loading) LoadingScreen(),
+          if (loading) const LoadingScreen(),
           if (!loading) Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
             child: SingleChildScrollView(
               child: Column(
                 children: [
                   if (creator.name != '') PlaceManagersElementListItem(
                     user: creator,
-                    showButton: false,
-                    onTapMethod: () async {
-                    },
+                    showButton: false
                   ),
                   if(admins.isNotEmpty) Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -109,7 +124,8 @@ class PlaceAdminsScreenState extends State<PlaceAdminsScreen> {
                           user: user,
                           showButton: true,
                           onTapMethod: () async {
-                            //navigateToEditManager(user);
+                            // Переходим на экран редактирования
+                            navigateToAddManager(user: user);
                           },
                         ),
                       );
@@ -119,26 +135,22 @@ class PlaceAdminsScreenState extends State<PlaceAdminsScreen> {
               ),
             ),
           ),
-
         ],
       )
-
     );
 
   }
 
   void navigateBackWithResult() {
     Navigator.of(context).pop(currentPlace);
-    //Navigator.pop(context, 'Результат с Second Page');
   }
 
-  void navigateToAddManager() async {
+  void navigateToAddManager({PlaceUser? user}) async {
     final result = await Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => PlaceManagerAddScreen(place: currentPlace))
+        MaterialPageRoute(builder: (context) => PlaceManagerAddScreen(place: currentPlace, placeUser: user,))
     );
 
-    // Проверяем результат и вызываем функцию fetchAndSetData
     if (result != null) {
       setState(() {
         currentPlace.admins = result;
@@ -146,7 +158,6 @@ class PlaceAdminsScreenState extends State<PlaceAdminsScreen> {
       });
       fetchAndSetData();
     }
-
   }
 
 }

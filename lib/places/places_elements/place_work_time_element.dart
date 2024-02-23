@@ -1,10 +1,12 @@
+import 'package:dvij_flutter/dates/date_type_enum.dart';
 import 'package:dvij_flutter/methods/days_functions.dart';
 import 'package:dvij_flutter/places/places_elements/work_time_text_widget.dart';
 import 'package:flutter/material.dart';
+import '../../elements/shedule_elements/schedule_regular_and_irregular_widget.dart';
 import '../../places/place_class.dart';
 import '../../themes/app_colors.dart';
 
-class PlaceWorkTimeCard extends StatelessWidget {
+/*class PlaceWorkTimeCard extends StatelessWidget {
   final Place place;
 
   const PlaceWorkTimeCard({super.key,
@@ -26,14 +28,12 @@ class PlaceWorkTimeCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.max,
         children: [
-          const Text(
+
+
+
+          Text(
             'Режим работы:',
-            style: TextStyle(
-              color: AppColors.white,
-              fontSize: 20,
-              fontFamily: 'SfProDisplay',
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 10.0),
           WorkTimeTextWidget(dayName: 'ПН', startTime: place.openingHours.monday.startTime.toString(), endTime: place.openingHours.monday.endTime.toString(), isBig: currentDayOfWeek(1)),
@@ -47,4 +47,4 @@ class PlaceWorkTimeCard extends StatelessWidget {
       ),
     );
   }
-}
+}*/

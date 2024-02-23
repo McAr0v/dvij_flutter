@@ -14,6 +14,7 @@ import '../events/event_categories_screens/event_categories_list_screen.dart';
 import '../places/place_categories_screens/place_categories_list_screen.dart';
 import '../promos/promo_categories_screen/promo_categories_list_screen.dart';
 import '../screens/genders_screens/genders_list_screen.dart';
+import '../test_screen.dart';
 
 // --- КАСТОМНАЯ БОКОВАЯ ШТОРКА -----
 
@@ -200,6 +201,20 @@ class CustomDrawer extends StatelessWidget {
                 );
               },
             ),
+
+            if (local_user.UserCustom.accessLevel >= 80) ListTile(
+              leading: const Icon(Icons.category),
+              title: const Text('ТЕСТОВАЯ СТРАНИЦА'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => VerticalHorizontalScrollScreen()),
+                );
+              },
+            ),
+
           ],
         ),
       ),

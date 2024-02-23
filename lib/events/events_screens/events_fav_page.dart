@@ -10,7 +10,7 @@ import '../../classes/pair.dart';
 import '../../classes/user_class.dart';
 import '../../elements/loading_screen.dart';
 import '../../elements/snack_bar.dart';
-import '../../elements/text_and_icons_widgets/headline_and_desc.dart';
+import '../../widgets_global/text_widgets/headline_and_desc.dart';
 import '../events_elements/event_card_widget.dart';
 import '../events_elements/event_filter_page.dart';
 import '../events_list_manager.dart';
