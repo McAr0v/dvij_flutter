@@ -115,6 +115,8 @@ class PlacesMyPageState extends State<PlacesMyPage> {
       // --- Подгружаем готовый список ----
       placesMyList = PlaceListManager.currentMyPlacesList;
 
+
+
       // --- Фильтруем список ----
       setState(() {
         placesMyList.filterLists(
@@ -163,7 +165,7 @@ class PlacesMyPageState extends State<PlacesMyPage> {
             if (UserCustom.currentUser?.uid != null || UserCustom.currentUser?.uid != ''){
 
               //List<Place> tempPlacesList = await Place.getFavPlaces(UserCustom.currentUser!.uid);
-              placesMyList = await placesMyList.getMyListFromDb(UserCustom.currentUser!.uid);
+              placesMyList = await placesMyList.getMyListFromDb(UserCustom.currentUser!.uid, refresh: true);
 
               setState(() {
                 placesMyList.filterLists(

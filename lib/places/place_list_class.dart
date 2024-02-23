@@ -7,6 +7,7 @@ import 'package:firebase_database/firebase_database.dart';
 import '../cities/city_class.dart';
 import '../database/database_mixin.dart';
 import '../interfaces/lists_interface.dart';
+import '../users/place_admins_item_class.dart';
 
 class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
   List<Place> placeList = [];
@@ -187,7 +188,7 @@ class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
   @override
   Future<PlaceList> getMyListFromDb(String userId, {bool refresh = false}) async {
     PlaceList places = PlaceList();
-    PlaceListManager.currentFeedPlacesList = PlaceList();
+    PlaceListManager.currentMyPlacesList = PlaceList();
     List<String> placesId = [];
 
     String myPath = 'users/$userId/myPlaces/';
@@ -278,6 +279,29 @@ class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
       if (place.id == entityId){
         place.addedToFavouritesCount = favCounter;
         place.inFav = inFav;
+        break;
+      }
+    }
+  }
+
+  void updateCurrentListAdminsInformation(String entityId, List<PlaceAdminsListItem> admins) {
+    for (Place place in PlaceListManager.currentFeedPlacesList.placeList){
+      if (place.id == entityId){
+        place.admins = admins;
+        break;
+      }
+    }
+
+    for (Place place in PlaceListManager.currentFavPlacesList.placeList){
+      if (place.id == entityId){
+        place.admins = admins;
+        break;
+      }
+    }
+
+    for (Place place in PlaceListManager.currentMyPlacesList.placeList){
+      if (place.id == entityId){
+        place.admins = admins;
         break;
       }
     }

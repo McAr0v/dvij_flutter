@@ -4,6 +4,7 @@ import 'package:dvij_flutter/dates/date_mixin.dart';
 import 'package:dvij_flutter/events/event_class.dart';
 import 'package:dvij_flutter/events/events_list_class.dart';
 import 'package:dvij_flutter/places/place_admins_screens/place_admins_screen.dart';
+import 'package:dvij_flutter/places/place_list_class.dart';
 import 'package:dvij_flutter/promos/promo_class.dart';
 import 'package:dvij_flutter/elements/text_and_icons_widgets/headline_and_desc.dart';
 import 'package:dvij_flutter/elements/social_elements/social_buttons_widget.dart';
@@ -84,12 +85,15 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
   Future<void> fetchAndSetData() async {
     try {
-
       place = place.getEntityFromFeedList(widget.placeId);
 
       favCounter = place.addedToFavouritesCount!;
 
+
+
       admins = await creator.getAdminsInfoFromDb(place.admins!);
+
+
 
       if (UserCustom.currentUser != null){
 
@@ -154,7 +158,9 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
     // Проверяем результат и вызываем функцию fetchAndSetData
     if (result != null) {
       setState(() {
+        PlaceList placeList = PlaceList();
         place = result;
+        placeList.updateCurrentListAdminsInformation(place.id, place.admins!);
       });
       fetchAndSetData();
     }
