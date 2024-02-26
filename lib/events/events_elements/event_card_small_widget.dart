@@ -27,7 +27,7 @@ class EventSmallCardWidget extends StatelessWidget {
     List<int> irregularTodayIndexes = event.irregularDays.getIrregularTodayIndexes();
 
     return Padding(
-      padding: const EdgeInsets.only(right: 10, left: 10),
+      padding: const EdgeInsets.only(right: 5),
       child: GestureDetector(
         onTap: onTap,
         child: Card(
@@ -36,7 +36,7 @@ class EventSmallCardWidget extends StatelessWidget {
           ),
           child: Container(
             height: 200,
-            width: 350,
+            width: 330,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15), // настройте радиус скругления углов для контейнера
               image: DecorationImage(
@@ -55,10 +55,10 @@ class EventSmallCardWidget extends StatelessWidget {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        Colors.transparent, // Здесь можете использовать любой другой цвет или полную прозрачность
-                        Colors.black.withOpacity(0.2), // Начальный цвет (черный с прозрачностью)
+                        //Colors.transparent, // Здесь можете использовать любой другой цвет или полную прозрачность
+                        //Colors.black.withOpacity(0.6), // Начальный цвет (черный с прозрачностью)
                         Colors.black.withOpacity(0.4), // Начальный цвет (черный с прозрачностью)
-                        Colors.black.withOpacity(0.8), // Начальный цвет (черный с прозрачностью)
+                        Colors.black.withOpacity(0.9), // Начальный цвет (черный с прозрачностью)
                       ],
                     ), // Здесь можно настроить уровень прозрачности и цвет фона
                     borderRadius: BorderRadius.circular(15), // настройте радиус скругления углов для фона
@@ -70,7 +70,7 @@ class EventSmallCardWidget extends StatelessWidget {
                   child: IconAndTextInTransparentSurfaceWidget(
                     icon: Icons.bookmark,
                     text: '${event.addedToFavouritesCount}',
-                    iconColor: event.inFav! ? AppColors.brandColor : AppColors.white,
+                    iconColor: event.inFav ? AppColors.brandColor : AppColors.white,
                     side: false,
                     backgroundColor: AppColors.greyBackground.withOpacity(0.8),
                     onPressed: onFavoriteIconPressed,
@@ -81,7 +81,7 @@ class EventSmallCardWidget extends StatelessWidget {
                   top: 10.0,
                   left: 10.0,
                   child: IconAndTextInTransparentSurfaceWidget(
-                      icon: FontAwesomeIcons.hashtag,
+                      //icon: FontAwesomeIcons.hashtag,
                       text: event.category.name,
                       iconColor: AppColors.white,
                       side: true,
@@ -97,8 +97,19 @@ class EventSmallCardWidget extends StatelessWidget {
                     children: [
 
                       if (event.today) TodayWidget(isTrue: event.today),
-                      Text(event.headline, style: Theme.of(context).textTheme.titleMedium, softWrap: true,),
-                      Text('${event.city.name}, ${event.street} ${event.house}', style: Theme.of(context).textTheme.labelSmall, softWrap: true,),
+                      if (event.today) SizedBox(height: 3),
+
+                      Text.rich(
+                        TextSpan(
+                          text: event.headline,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        maxLines: 2, // Установите желаемое количество строк
+                        overflow: TextOverflow.ellipsis, // Определяет, что делать с текстом, который не помещается в виджет
+                      ),
+
+                      SizedBox(height: 3,),
+                      Text('${event.city.name}, ${event.street} ${event.house}', style: Theme.of(context).textTheme.labelMedium!.copyWith(color: AppColors.greyText), softWrap: true,),
                       SizedBox(height: 15,),
 
                       if (event.dateType == DateTypeEnum.once)  Row(
@@ -152,11 +163,11 @@ class EventSmallCardWidget extends StatelessWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
+                                  /*Text(
                                     'Проводится по расписанию каждую неделю',
-                                    style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.greyText),
+                                    style: Theme.of(context).textTheme.labelSmall,
                                     softWrap: true,
-                                  ),
+                                  ),*/
 
                                   if(
                                   event.regularDays.getDayFromIndex(currentWeekDayNumber-1).startTime.toString() != 'Не выбрано'
@@ -165,7 +176,7 @@ class EventSmallCardWidget extends StatelessWidget {
                                     '${DateMixin.getHumanWeekday(currentWeekDayNumber, false)}: '
                                         'c ${event.regularDays.getDayFromIndex(currentWeekDayNumber-1).startTime.toString()} '
                                         'до ${event.regularDays.getDayFromIndex(currentWeekDayNumber-1).endTime.toString()}',
-                                    style: Theme.of(context).textTheme.labelMedium,
+                                    style: Theme.of(context).textTheme.labelSmall,
                                     softWrap: true,
                                   ),
 
@@ -174,7 +185,7 @@ class EventSmallCardWidget extends StatelessWidget {
                                       && event.regularDays.getDayFromIndex(currentWeekDayNumber-1).endTime.toString() == 'Не выбрано'
                                   ) Text(
                                     'Сегодня не проводится. Смотри расписание на другие дни',
-                                    style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.attentionRed),
+                                    style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.attentionRed),
                                     softWrap: true,
                                   ),
 
@@ -196,23 +207,23 @@ class EventSmallCardWidget extends StatelessWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
+                                  /*Text(
                                     'Проводится по расписанию в разные дни',
-                                    style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.greyText),
+                                    style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.greyText),
                                     softWrap: true,
-                                  ),
+                                  ),*/
 
                                   if (irregularTodayIndexes.isNotEmpty) const SizedBox(height: 5,),
 
                                   if (irregularTodayIndexes.isEmpty) Text(
                                     'Сегодня мероприятие не проводится. Смотри другие даты в полном расписании в карточке',
-                                    style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.attentionRed),
+                                    style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.attentionRed),
                                     softWrap: true,
                                   ),
 
                                   if (irregularTodayIndexes.isNotEmpty) Text(
                                     'Расписание на сегодня:',
-                                    style: Theme.of(context).textTheme.labelMedium,
+                                    style: Theme.of(context).textTheme.labelSmall,
                                     softWrap: true,
                                   ),
 
@@ -226,7 +237,7 @@ class EventSmallCardWidget extends StatelessWidget {
                                                   event.irregularDays.dates[indexInIndexesList].startDate,
                                                   event.irregularDays.dates[indexInIndexesList].endDate
                                               ),
-                                              style: Theme.of(context).textTheme.labelMedium,
+                                              style: Theme.of(context).textTheme.labelSmall,
                                               softWrap: true,
                                             ),
 
@@ -237,12 +248,21 @@ class EventSmallCardWidget extends StatelessWidget {
                                     ),
                                   ),
 
+
+
                                 ],
                               )
                           )
                         ],
                       ),
-                      SizedBox(height: 15,),
+                      const SizedBox(height: 15),
+                      IconAndTextWidget(
+                        icon: FontAwesomeIcons.circleDollarToSlot,
+                        text: PriceTypeEnumClass.getFormattedPriceString(event.priceType, event.price),
+                        textSize: TextSizeEnum.labelSmall,
+                        padding: 10,
+                      ),
+                      /*SizedBox(height: 15,),
                       Text.rich(
                         TextSpan(
                           text: event.desc,
@@ -250,7 +270,7 @@ class EventSmallCardWidget extends StatelessWidget {
                         ),
                         maxLines: 2, // Установите желаемое количество строк
                         overflow: TextOverflow.ellipsis, // Определяет, что делать с текстом, который не помещается в виджет
-                      ),
+                      ),*/
 
                     ],
                   ),

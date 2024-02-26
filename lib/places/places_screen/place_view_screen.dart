@@ -100,7 +100,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
     inFav = place.inFav!;
     favCounter = place.addedToFavouritesCount!;
-    eventsInThatPlace.eventsList.add(EventCustom.emptyEvent);
+    //eventsInThatPlace.eventsList.add(EventCustom.emptyEvent);
 
     setState(() {
       loading = false;
