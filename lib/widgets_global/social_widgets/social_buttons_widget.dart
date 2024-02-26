@@ -13,12 +13,11 @@ class SocialButtonsWidget extends StatelessWidget {
   final String? phoneNumber;
 
   const SocialButtonsWidget({
-    Key? key,
     this.instagramUsername,
     this.telegramUsername,
     this.whatsappUsername,
     this.phoneNumber,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -1,5 +1,7 @@
 import 'dart:core';
 import 'package:dvij_flutter/dates/date_mixin.dart';
+import 'package:dvij_flutter/events/event_class.dart';
+import 'package:dvij_flutter/events/events_elements/event_card_small_widget.dart';
 import 'package:dvij_flutter/events/events_list_class.dart';
 import 'package:dvij_flutter/places/place_admins_screens/place_admins_screen.dart';
 import 'package:dvij_flutter/places/place_list_class.dart';
@@ -90,6 +92,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
     // Подгружаем акции и мероприятия заведения
     if (place.eventsList != null && place.eventsList!.isNotEmpty){
       eventsInThatPlace = await eventsInThatPlace.getEntitiesFromStringList(place.eventsList!);
+
     }
     if (place.promosList != null && place.promosList!.isNotEmpty){
       promosInThatPlace = await promosInThatPlace.getEntitiesFromStringList(place.promosList!);
@@ -97,6 +100,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
     inFav = place.inFav!;
     favCounter = place.addedToFavouritesCount!;
+    eventsInThatPlace.eventsList.add(EventCustom.emptyEvent);
 
     setState(() {
       loading = false;
@@ -165,6 +169,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                   Padding(
                       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
@@ -239,36 +244,87 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                 ],
               ),
             ),
-            SliverToBoxAdapter(
-              child: Container(
-                height: 200,
-                margin: EdgeInsets.symmetric(vertical: 10),
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: <Widget>[
-                    Container(
-                      width: 200.0,
-                      color: Colors.red,
-                      margin: EdgeInsets.symmetric(horizontal: 5),
-                      child: Center(child: Text('Horizontal Item 1')),
-                    ),
-                    Container(
-                      width: 200.0,
-                      color: Colors.blue,
-                      margin: EdgeInsets.symmetric(horizontal: 5),
-                      child: Center(child: Text('Horizontal Item 2')),
-                    ),
-                    Container(
-                      width: 200.0,
-                      color: Colors.green,
-                      margin: EdgeInsets.symmetric(horizontal: 5),
-                      child: Center(child: Text('Horizontal Item 3')),
-                    ),
-                  ],
-                ),
+
+            _buildHorizontalBlock(title: 'Заголовок', eventsList: eventsInThatPlace),
+            SliverList(
+              delegate: SliverChildListDelegate(
+                [
+                  const SizedBox(height: 30.0),
+
+                ],
               ),
             ),
+            _buildHorizontalBlock(title: 'Заголовок', eventsList: eventsInThatPlace),
+
             SliverList(
+              delegate: SliverChildListDelegate(
+                [
+                  const SizedBox(height: 30.0),
+                  const SizedBox(height: 30.0),
+
+                  if (currentPlaceUser.placeUserRole.controlLevel >= 90) GestureDetector(
+                    onTap: navigateToManagersList,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      child: Row(
+                        children: [
+                          Expanded(child: Text('Управляющие заведением (${place.admins!.length + 1})', style: Theme.of(context).textTheme.titleMedium, softWrap: true,)),
+                          const Icon(FontAwesomeIcons.chevronRight, color: AppColors.white, size: 20,)
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 30.0),
+                  if (
+                  currentPlaceUser.placeUserRole.controlLevel == 100
+                  ) CustomButton(
+                    buttonText: 'Удалить заведение',
+                    onTapMethod: () async {
+                      bool? confirmed = await exitDialog(context, "Ты правда хочешь удалить заведение? Ты не сможешь восстановить данные" , 'Да', 'Нет', 'Удаление заведения');
+
+                      if (confirmed != null && confirmed){
+
+                        setState(() {
+                          deleting = true;
+                        });
+
+                        //String delete = await Place.deletePlace(widget.placeId, users, place.creatorId);
+                        String delete = await place.deleteFromDb();
+
+                        if (delete == 'success'){
+
+                          place.deleteEntityFromCurrentEntityLists();
+
+                          //Place.deletePlaceFormCurrentPlaceLists(widget.placeId);
+
+                          showSnackBar(context, 'Место успешно удалено', Colors.green, 2);
+                          navigateToPlaces();
+
+                          setState(() {
+                            deleting = false;
+                          });
+                        } else {
+                          showSnackBar(context, 'Место не было удалено по ошибке: $delete', AppColors.attentionRed, 2);
+                          setState(() {
+                            deleting = false;
+                          });
+                        }
+
+                      }
+
+                    },
+                    state: 'error',
+                  )
+
+
+                ],
+              ),
+            ),
+
+
+
+            /*SliverList(
               delegate: SliverChildListDelegate(
                 [
                   ListTile(title: Text('Item 1')),
@@ -277,37 +333,9 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                   ListTile(title: Text('Item 4')),
                 ],
               ),
-            ),
-            SliverToBoxAdapter(
-              child: Container(
-                height: 200,
-                margin: EdgeInsets.symmetric(vertical: 10),
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: <Widget>[
-                    Container(
-                      width: 200.0,
-                      color: Colors.red,
-                      margin: EdgeInsets.symmetric(horizontal: 5),
-                      child: Center(child: Text('Horizontal Item 1')),
-                    ),
-                    Container(
-                      width: 200.0,
-                      color: Colors.blue,
-                      margin: EdgeInsets.symmetric(horizontal: 5),
-                      child: Center(child: Text('Horizontal Item 2')),
-                    ),
-                    Container(
-                      width: 200.0,
-                      color: Colors.green,
-                      margin: EdgeInsets.symmetric(horizontal: 5),
-                      child: Center(child: Text('Horizontal Item 3')),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SliverGrid(
+            ),*/
+
+            /*SliverGrid(
               gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                 maxCrossAxisExtent: 200.0,
                 mainAxisSpacing: 10.0,
@@ -324,9 +352,125 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                 },
                 childCount: 20,
               ),
-            ),
+            ),*/
           ],
         ),
+    );
+  }
+
+  SliverToBoxAdapter _buildHorizontalBlock({required String title, required EventsList eventsList}) {
+    return SliverToBoxAdapter(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+            child: Text(
+              title,
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ),
+          SizedBox(
+            height: 450,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: eventsList.eventsList.length,
+              itemBuilder: (context, index) {
+                return EventSmallCardWidget(
+                  event: eventsList.eventsList[index],
+                  onTap: () async {
+
+                    // TODO - переделать на мероприятия
+                    final results = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EventViewScreen(eventId: eventsList.eventsList[index].id),
+                      ),
+                    );
+
+                    if (results != null) {
+                      setState(() {
+                        eventsList.eventsList[index].inFav = results[0];
+                        eventsList.eventsList[index].addedToFavouritesCount = results[1];
+                      });
+                    }
+                  },
+
+                  // --- Функция на нажатие на карточке кнопки ИЗБРАННОЕ ---
+                  onFavoriteIconPressed: () async {
+
+                    // TODO Сделать проверку на подтвержденный Email
+                    // ---- Если не зарегистрирован или не вошел ----
+                    if (UserCustom.currentUser?.uid == '' || UserCustom.currentUser?.uid == null)
+                    {
+                      showSnackBar(context, 'Чтобы добавлять в избранное, нужно зарегистрироваться!', AppColors.attentionRed, 2);
+                    }
+
+                    // --- Если пользователь залогинен -----
+                    else {
+
+                      // --- Если уже в избранном ----
+                      if (eventsList.eventsList[index].inFav == true)
+                      {
+                        // --- Удаляем из избранных ---
+                        String resDel = await eventsList.eventsList[index].deleteFromFav();
+                        // ---- Инициализируем счетчик -----
+                        int favCounter = eventsList.eventsList[index].addedToFavouritesCount!;
+
+                        if (resDel == 'success'){
+                          // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
+                          setState(() {
+                            // Обновляем текущий список
+                            eventsList.eventsList[index].inFav = false;
+                            favCounter --;
+                            eventsList.eventsList[index].addedToFavouritesCount = favCounter;
+                            // Обновляем общий список из БД
+                            eventsList.eventsList[index].updateCurrentListFavInformation();
+                            //EventCustom.updateCurrentEventListFavInformation(eventsList[indexWithAddCountCorrection].id, favCounter, false);
+
+                          });
+                          showSnackBar(context, 'Удалено из избранных', AppColors.attentionRed, 1);
+                        } else {
+                          // Если удаление из избранных не прошло, показываем сообщение
+                          showSnackBar(context, resDel, AppColors.attentionRed, 1);
+                        }
+                      }
+                      else {
+                        // --- Если заведение не в избранном ----
+
+                        // -- Добавляем в избранное ----
+                        String res = await eventsList.eventsList[index].addToFav();
+
+                        // ---- Инициализируем счетчик добавивших в избранное
+                        int favCounter = eventsList.eventsList[index].addedToFavouritesCount!;
+
+                        if (res == 'success') {
+                          // --- Если добавилось успешно, так же обновляем текущий список и список из БД
+                          setState(() {
+                            // Обновляем текущий список
+                            eventsList.eventsList[index].inFav = true;
+                            favCounter ++;
+                            eventsList.eventsList[index].addedToFavouritesCount = favCounter;
+                            // Обновляем список из БД
+                            eventsList.eventsList[index].updateCurrentListFavInformation();
+                            //EventCustom.updateCurrentEventListFavInformation(eventsList[indexWithAddCountCorrection].id, favCounter, true);
+                          });
+
+                          showSnackBar(context, 'Добавлено в избранные', Colors.green, 1);
+
+                        } else {
+                          // Если добавление прошло неудачно, отображаем всплывающее окно
+                          showSnackBar(context , res, AppColors.attentionRed, 1);
+                        }
+                      }
+                    }
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 

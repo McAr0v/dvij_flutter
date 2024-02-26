@@ -219,7 +219,7 @@ class CustomTheme {
             fontSize: 40,
             fontFamily: 'SfProDisplay',
             fontWeight: FontWeight.w900,
-            height: 1.1
+            height: 1
           ),
 
           titleMedium: TextStyle(
@@ -227,6 +227,7 @@ class CustomTheme {
             fontSize: 20,
             fontFamily: 'SfProDisplay',
             fontWeight: FontWeight.bold,
+            height: 1
           ),
 
           titleSmall: TextStyle(
@@ -249,7 +250,7 @@ class CustomTheme {
             fontSize: 16,
             fontFamily: 'SfProDisplay',
             fontWeight: FontWeight.normal,
-            height: 1.3
+            height: 1.2
           ),
 
           bodySmall: TextStyle(
