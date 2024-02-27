@@ -110,8 +110,6 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
     inFav = place.inFav!;
     favCounter = place.addedToFavouritesCount!;
-    //eventsInThatPlace.eventsList.add(EventCustom.emptyEvent);
-    print(place.id);
 
     setState(() {
       loading = false;
@@ -263,95 +261,21 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
 
-                            /*if (currentPlaceUser.placeUserRole.controlLevel >= 90) const SizedBox(height: 10.0),
-
-                            if (currentPlaceUser.placeUserRole.controlLevel >= 90) Row(
-                              children: [
-                                Expanded(
-                                    child: CustomButton(
-                                        buttonText: 'Редактировать',
-                                        onTapMethod: () async {
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(builder: (context) => CreateOrEditPlaceScreen(placeInfo: place))
-                                          );
-                                        }
-                                    ),
-                                ),
-
-                                if (currentPlaceUser.placeUserRole.controlLevel == 100) SizedBox(width: 20,),
-
-                                if (currentPlaceUser.placeUserRole.controlLevel == 100) CustomButton(
-                                    buttonText: 'Удалить',
-                                    state: 'error',
-                                    onTapMethod: () async {
-                                      bool? confirmed = await exitDialog(context, "Ты правда хочешь удалить заведение? Ты не сможешь восстановить данные" , 'Да', 'Нет', 'Удаление заведения');
-
-                                      if (confirmed != null && confirmed){
-
-                                        setState(() {
-                                          deleting = true;
-                                        });
-
-                                        //String delete = await Place.deletePlace(widget.placeId, users, place.creatorId);
-                                        String delete = await place.deleteFromDb();
-
-                                        if (delete == 'success'){
-
-                                          place.deleteEntityFromCurrentEntityLists();
-
-                                          //Place.deletePlaceFormCurrentPlaceLists(widget.placeId);
-
-                                          showSnackBar(context, 'Место успешно удалено', Colors.green, 2);
-                                          navigateToPlaces();
-
-                                          setState(() {
-                                            deleting = false;
-                                          });
-                                        } else {
-                                          showSnackBar(context, 'Место не было удалено по ошибке: $delete', AppColors.attentionRed, 2);
-                                          setState(() {
-                                            deleting = false;
-                                          });
-                                        }
-
-                                      }
-
-                                    }
-                                ),
-
-                              ],
+                            if (currentPlaceUser.placeUserRole.controlLevel >= 90) AddManagersWidget(
+                                headline: 'Менеджеры (${place.admins!.length + 1})',
+                                desc: 'Ты можешь добавить менеджеров к этому заведению, чтобы они управляли им вместе с тобой. У каждого менеджера свой уровень доступа',
+                              onTapMethod: (){
+                                navigateToManagersList();
+                              },
                             ),
 
-                            if (currentPlaceUser.placeUserRole.controlLevel >= 90) const SizedBox(height: 20.0),*/
+                            if (currentPlaceUser.placeUserRole.controlLevel >= 90) const SizedBox(height: 16.0),
 
-                            AddManagersWidget(headline: headline, desc: desc, regularDate: regularDate),
-
-                            if (currentPlaceUser.placeUserRole.controlLevel >= 90) GestureDetector(
-                              onTap: navigateToManagersList,
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 20),
-                                child: Row(
-                                  children: [
-                                    const Icon(FontAwesomeIcons.edit, color: AppColors.white, size: 20,),
-                                    const SizedBox(width: 20.0),
-                                    Expanded(child: Text('Назначить управляющих (${place.admins!.length + 1})', style: Theme.of(context).textTheme.titleMedium, softWrap: true,)),
-                                    const Icon(FontAwesomeIcons.chevronRight, color: AppColors.white, size: 20,)
-                                  ],
-                                ),
-                              ),
-                            ),
-
-                            if (currentPlaceUser.placeUserRole.controlLevel >= 90) const SizedBox(height: 20.0),
-
-
-
-
-                            if (place.desc != '') HeadlineAndDesc(headline: place.desc, description: 'Описание места', padding: 5, textSize: TextSizeEnum.bodyMedium,),
+                            SocialButtonsWidget(telegramUsername: place.telegram, instagramUsername: place.instagram, whatsappUsername: place.whatsapp, phoneNumber: place.phone,),
 
                             const SizedBox(height: 16.0),
 
-                            SocialButtonsWidget(telegramUsername: place.telegram, instagramUsername: place.instagram, whatsappUsername: place.whatsapp, phoneNumber: place.phone,),
+                            if (place.desc != '') HeadlineAndDesc(headline: place.desc, description: 'Описание места', padding: 5, textSize: TextSizeEnum.bodyMedium,),
 
                             const SizedBox(height: 16.0),
 
@@ -361,13 +285,6 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                                 regularDate: place.openingHours,
                               isPlace: true
                             ),
-
-                            //const SizedBox(height: 16.0),
-
-                            //if (place.createDate != DateTime(2100)) HeadlineAndDesc(headline: DateMixin.getHumanDateFromDateTime(place.createDate), description: 'Создано в движе', ),
-
-                            //const SizedBox(height: 30.0),
-
                           ],
                         ),
                       )
@@ -376,113 +293,25 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                 ),
 
                 _buildHorizontalBlock(title: 'Мероприятия в "${place.name}"', eventsList: eventsInThatPlace),
-                SliverList(
-                  delegate: SliverChildListDelegate(
-                    [
-                      //const SizedBox(height: 30.0),
 
-                    ],
-                  ),
-                ),
                 _buildHorizontalBlock(title: 'Заголовок', eventsList: eventsInThatPlace),
-
                 SliverList(
                   delegate: SliverChildListDelegate(
                     [
-                      const SizedBox(height: 30.0),
-                      const SizedBox(height: 30.0),
-
-                      if (currentPlaceUser.placeUserRole.controlLevel >= 90) GestureDetector(
-                        onTap: navigateToManagersList,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 20),
-                          child: Row(
-                            children: [
-                              Expanded(child: Text('Управляющие заведением (${place.admins!.length + 1})', style: Theme.of(context).textTheme.titleMedium, softWrap: true,)),
-                              const Icon(FontAwesomeIcons.chevronRight, color: AppColors.white, size: 20,)
-                            ],
-                          ),
+                      if (place.createDate != DateTime(2100)) Padding(
+                          padding: EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(DateMixin.getHumanDateFromDateTime(place.createDate), style: Theme.of(context).textTheme.bodySmall,),
+                            Text('Создано в движе', style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.greyText),),
+                          ],
                         ),
                       ),
-
-                      const SizedBox(height: 30.0),
-                      if (
-                      currentPlaceUser.placeUserRole.controlLevel == 100
-                      ) CustomButton(
-                        buttonText: 'Удалить заведение',
-                        onTapMethod: () async {
-                          bool? confirmed = await exitDialog(context, "Ты правда хочешь удалить заведение? Ты не сможешь восстановить данные" , 'Да', 'Нет', 'Удаление заведения');
-
-                          if (confirmed != null && confirmed){
-
-                            setState(() {
-                              deleting = true;
-                            });
-
-                            //String delete = await Place.deletePlace(widget.placeId, users, place.creatorId);
-                            String delete = await place.deleteFromDb();
-
-                            if (delete == 'success'){
-
-                              place.deleteEntityFromCurrentEntityLists();
-
-                              //Place.deletePlaceFormCurrentPlaceLists(widget.placeId);
-
-                              showSnackBar(context, 'Место успешно удалено', Colors.green, 2);
-                              navigateToPlaces();
-
-                              setState(() {
-                                deleting = false;
-                              });
-                            } else {
-                              showSnackBar(context, 'Место не было удалено по ошибке: $delete', AppColors.attentionRed, 2);
-                              setState(() {
-                                deleting = false;
-                              });
-                            }
-
-                          }
-
-                        },
-                        state: 'error',
-                      )
-
-
                     ],
                   ),
                 ),
-
-
-
-                /*SliverList(
-              delegate: SliverChildListDelegate(
-                [
-                  ListTile(title: Text('Item 1')),
-                  ListTile(title: Text('Item 2')),
-                  ListTile(title: Text('Item 3')),
-                  ListTile(title: Text('Item 4')),
-                ],
-              ),
-            ),*/
-
-                /*SliverGrid(
-              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 200.0,
-                mainAxisSpacing: 10.0,
-                crossAxisSpacing: 10.0,
-                childAspectRatio: 1.0,
-              ),
-              delegate: SliverChildBuilderDelegate(
-                    (BuildContext context, int index) {
-                  return Container(
-                    alignment: Alignment.center,
-                    color: Colors.teal[100 * (index % 9)],
-                    child: Text('Grid Item $index'),
-                  );
-                },
-                childCount: 20,
-              ),
-            ),*/
               ],
             ),
           ],
