@@ -29,6 +29,7 @@ import '../../elements/loading_screen.dart';
 import '../../events/events_elements/event_card_widget.dart';
 import '../../events/events_screens/event_view_screen.dart';
 import '../../widgets_global/text_widgets/now_is_work_widget.dart';
+import '../place_list_manager.dart';
 import 'create_or_edit_place_screen.dart';
 
 class PlaceViewScreen extends StatefulWidget {
@@ -69,7 +70,14 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
   Future<void> fetchAndSetData() async {
 
-    place = place.getEntityFromFeedList(widget.placeId);
+    if (PlaceListManager.currentFeedPlacesList.placeList.isNotEmpty){
+      place = place.getEntityFromFeedList(widget.placeId);
+    } else {
+      place = await place.getEntityByIdFromDb(widget.placeId);
+
+    }
+
+    //place = place.getEntityFromFeedList(widget.placeId);
 
     favCounter = place.addedToFavouritesCount!;
 
@@ -101,6 +109,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
     inFav = place.inFav!;
     favCounter = place.addedToFavouritesCount!;
     //eventsInThatPlace.eventsList.add(EventCustom.emptyEvent);
+    print(place.id);
 
     setState(() {
       loading = false;
@@ -125,206 +134,310 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
           ),
         ),
 
-        body: CustomScrollView(
-          slivers: <Widget>[
-            SliverList(
-              delegate: SliverChildListDelegate(
-                [
-                  Stack(
-                    alignment: Alignment.topRight,
-                    children: [
-                      ImageWithPlaceHolderWidget(imagePath: place.imageUrl),
+        body: Stack(
+          children: [
+            if (loading) LoadingScreen(),
+            if (deleting) const LoadingScreen(loadingText: 'Подожди, идет удаление заведения',),
+            if (place.name != '') CustomScrollView(
+              slivers: <Widget>[
+                SliverList(
+                  delegate: SliverChildListDelegate(
+                    [
+                      Stack(
+                        alignment: Alignment.topRight,
+                        children: [
 
-                      // Виджет ИЗБРАННОЕ
 
-                      Positioned(
-                        top: 10.0,
-                        right: 10.0,
-                        child: IconAndTextInTransparentSurfaceWidget(
-                          icon: Icons.bookmark,
-                          text: '$favCounter',
-                          iconColor: inFav ? AppColors.brandColor : AppColors.white,
-                          side: false,
-                          backgroundColor: AppColors.greyBackground.withOpacity(0.8),
-                          onPressed: () async {
-                            addOrDeleteFromFav();
-                          },
-                        ),
-                      ),
 
-                      // Виджет КАТЕГОРИЯ
+                          ImageWithPlaceHolderWidget(imagePath: place.imageUrl),
 
-                      Positioned(
-                        top: 10.0,
-                        left: 10.0,
-                        child: IconAndTextInTransparentSurfaceWidget(
-                            text: place.category.name,
-                            iconColor: AppColors.white,
-                            side: true,
-                            backgroundColor: AppColors.greyBackground.withOpacity(0.8)
-                        ),
-                      ),
-                    ],
-                  ),
-                  Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
 
-                            // БЛОК Название/адрес
 
-                            Expanded(
-                              child: HeadlineAndDesc(
-                                headline: place.name,
-                                description: '${place.city.name}, ${place.street}, ${place.house}',
-                                textSize: TextSizeEnum.headlineMedium,
-                                descSize: TextSizeEnum.bodySmall,
-                                descColor: AppColors.white,
-                              ),
-                            ),
+                          // Виджет ИЗБРАННОЕ
 
-                            const SizedBox(width: 16.0),
-
-                            // --- Кнопка редактирования ----
-
-                            if (currentPlaceUser.placeUserRole.controlLevel >= 90) IconButton(
-                              icon: Icon(
-                                Icons.edit,
-                                color: Theme.of(context).colorScheme.background,
-                              ),
-                              style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(AppColors.brandColor),
-                              ),
+                          Positioned(
+                            top: 10.0,
+                            right: 10.0,
+                            child: IconAndTextInTransparentSurfaceWidget(
+                              icon: Icons.bookmark,
+                              text: '$favCounter',
+                              iconColor: inFav ? AppColors.brandColor : AppColors.white,
+                              side: false,
+                              backgroundColor: AppColors.greyBackground.withOpacity(0.8),
                               onPressed: () async {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => CreateOrEditPlaceScreen(placeInfo: place))
-                                );
+                                addOrDeleteFromFav();
                               },
                             ),
-                          ],
-                        ),
+                          ),
 
-                        // ---- Остальные данные пользователя ----
+                          // Виджет КАТЕГОРИЯ
 
-                        const SizedBox(height: 5.0),
+                          Positioned(
+                            top: 10.0,
+                            left: 10.0,
+                            child: IconAndTextInTransparentSurfaceWidget(
+                                text: place.category.name,
+                                iconColor: AppColors.white,
+                                side: true,
+                                backgroundColor: AppColors.greyBackground.withOpacity(0.8)
+                            ),
+                          ),
 
-                        TextOnBoolResultWidget(isTrue: place.nowIsOpen!, trueText: 'Сейчас открыто', falseText: 'Сейчас закрыто'),
+                          Positioned(
+                            bottom: 20.0,
+                            left: 20.0,
+                            child: SizedBox(
+                              width: MediaQuery.of(context).size.width,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  HeadlineAndDesc(
+                                    headline: place.name,
+                                    description: '${place.city.name}, ${place.street}, ${place.house}',
+                                    textSize: TextSizeEnum.headlineLarge,
+                                    descSize: TextSizeEnum.bodySmall,
+                                    descColor: AppColors.white,
+                                    padding: 5,
+                                  ),
 
-                        const SizedBox(height: 16.0),
+                                  const SizedBox(height: 5,),
 
-                        SocialButtonsWidget(telegramUsername: place.telegram, instagramUsername: place.instagram, whatsappUsername: place.whatsapp, phoneNumber: place.phone,),
+                                  TextOnBoolResultWidget(isTrue: place.nowIsOpen!, trueText: 'Сейчас открыто', falseText: 'Сейчас закрыто'),
 
-                        const SizedBox(height: 16.0),
 
-                        if (place.desc != '') HeadlineAndDesc(headline: place.desc, description: 'Описание места', padding: 5),
+                                ],
+                              ),
+                            ),
+                          ),
 
-                        const SizedBox(height: 16.0),
 
-                        ScheduleRegularAndIrregularWidget(
-                          dateTypeEnum: DateTypeEnum.regular,
-                          regularTimes: place.openingHours,
-                          headline: 'Режим работы',
-                          desc: 'Посмотри, когда ${place.name} открыто и готово к приему гостей)',
-                          isPlace: true,
-                        ),
-
-                        const SizedBox(height: 16.0),
-
-                        if (place.createDate != DateTime(2100)) HeadlineAndDesc(headline: DateMixin.getHumanDateFromDateTime(place.createDate), description: 'Создано в движе', ),
-
-                        const SizedBox(height: 30.0),
-
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            ),
-
-            _buildHorizontalBlock(title: 'Заголовок', eventsList: eventsInThatPlace),
-            SliverList(
-              delegate: SliverChildListDelegate(
-                [
-                  const SizedBox(height: 30.0),
-
-                ],
-              ),
-            ),
-            _buildHorizontalBlock(title: 'Заголовок', eventsList: eventsInThatPlace),
-
-            SliverList(
-              delegate: SliverChildListDelegate(
-                [
-                  const SizedBox(height: 30.0),
-                  const SizedBox(height: 30.0),
-
-                  if (currentPlaceUser.placeUserRole.controlLevel >= 90) GestureDetector(
-                    onTap: navigateToManagersList,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                      child: Row(
-                        children: [
-                          Expanded(child: Text('Управляющие заведением (${place.admins!.length + 1})', style: Theme.of(context).textTheme.titleMedium, softWrap: true,)),
-                          const Icon(FontAwesomeIcons.chevronRight, color: AppColors.white, size: 20,)
                         ],
                       ),
-                    ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            /*Row(
+                              children: [
+
+                                // БЛОК Название/адрес
+
+                                Expanded(
+                                  child: HeadlineAndDesc(
+                                    headline: place.name,
+                                    description: '${place.city.name}, ${place.street}, ${place.house}',
+                                    textSize: TextSizeEnum.headlineMedium,
+                                    descSize: TextSizeEnum.bodySmall,
+                                    descColor: AppColors.white,
+                                  ),
+                                ),
+
+                                const SizedBox(width: 16.0),
+
+                                // --- Кнопка редактирования ----
+
+                                if (currentPlaceUser.placeUserRole.controlLevel >= 90) IconButton(
+                                  icon: Icon(
+                                    Icons.edit,
+                                    color: Theme.of(context).colorScheme.background,
+                                  ),
+                                  style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all(AppColors.brandColor),
+                                  ),
+                                  onPressed: () async {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => CreateOrEditPlaceScreen(placeInfo: place))
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),*/
+
+                            // ---- Остальные данные пользователя ----
+
+                            //const SizedBox(height: 5.0),
+
+
+
+                            //TextOnBoolResultWidget(isTrue: place.nowIsOpen!, trueText: 'Сейчас открыто', falseText: 'Сейчас закрыто'),
+
+                            //const SizedBox(height: 16.0),
+
+                            if (currentPlaceUser.placeUserRole.controlLevel >= 90) const SizedBox(height: 10.0),
+
+                            if (currentPlaceUser.placeUserRole.controlLevel >= 90) Row(
+                              children: [
+                                Expanded(
+                                    child: CustomButton(
+                                        buttonText: 'Редактировать',
+                                        onTapMethod: () async {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(builder: (context) => CreateOrEditPlaceScreen(placeInfo: place))
+                                          );
+                                        }
+                                    ),
+                                ),
+
+                                if (currentPlaceUser.placeUserRole.controlLevel == 100) SizedBox(width: 20,),
+
+                                if (currentPlaceUser.placeUserRole.controlLevel == 100) CustomButton(
+                                    buttonText: 'Удалить',
+                                    state: 'error',
+                                    onTapMethod: () async {
+                                      bool? confirmed = await exitDialog(context, "Ты правда хочешь удалить заведение? Ты не сможешь восстановить данные" , 'Да', 'Нет', 'Удаление заведения');
+
+                                      if (confirmed != null && confirmed){
+
+                                        setState(() {
+                                          deleting = true;
+                                        });
+
+                                        //String delete = await Place.deletePlace(widget.placeId, users, place.creatorId);
+                                        String delete = await place.deleteFromDb();
+
+                                        if (delete == 'success'){
+
+                                          place.deleteEntityFromCurrentEntityLists();
+
+                                          //Place.deletePlaceFormCurrentPlaceLists(widget.placeId);
+
+                                          showSnackBar(context, 'Место успешно удалено', Colors.green, 2);
+                                          navigateToPlaces();
+
+                                          setState(() {
+                                            deleting = false;
+                                          });
+                                        } else {
+                                          showSnackBar(context, 'Место не было удалено по ошибке: $delete', AppColors.attentionRed, 2);
+                                          setState(() {
+                                            deleting = false;
+                                          });
+                                        }
+
+                                      }
+
+                                    }
+                                ),
+
+                              ],
+                            ),
+
+
+
+                            if (currentPlaceUser.placeUserRole.controlLevel >= 90) const SizedBox(height: 30.0),
+
+                            if (place.desc != '') HeadlineAndDesc(headline: place.desc, description: 'Описание места', padding: 5, textSize: TextSizeEnum.bodyMedium,),
+
+                            const SizedBox(height: 16.0),
+
+                            SocialButtonsWidget(telegramUsername: place.telegram, instagramUsername: place.instagram, whatsappUsername: place.whatsapp, phoneNumber: place.phone,),
+
+                            const SizedBox(height: 16.0),
+
+                            ScheduleRegularAndIrregularWidget(
+                              dateTypeEnum: DateTypeEnum.regular,
+                              regularTimes: place.openingHours,
+                              headline: 'Режим работы',
+                              desc: 'Посмотри, когда ${place.name} открыто и готово к приему гостей)',
+                              isPlace: true,
+                            ),
+
+                            //const SizedBox(height: 16.0),
+
+                            //if (place.createDate != DateTime(2100)) HeadlineAndDesc(headline: DateMixin.getHumanDateFromDateTime(place.createDate), description: 'Создано в движе', ),
+
+                            //const SizedBox(height: 30.0),
+
+                          ],
+                        ),
+                      )
+                    ],
                   ),
+                ),
 
-                  const SizedBox(height: 30.0),
-                  if (
-                  currentPlaceUser.placeUserRole.controlLevel == 100
-                  ) CustomButton(
-                    buttonText: 'Удалить заведение',
-                    onTapMethod: () async {
-                      bool? confirmed = await exitDialog(context, "Ты правда хочешь удалить заведение? Ты не сможешь восстановить данные" , 'Да', 'Нет', 'Удаление заведения');
+                _buildHorizontalBlock(title: 'Мероприятия в "${place.name}"', eventsList: eventsInThatPlace),
+                SliverList(
+                  delegate: SliverChildListDelegate(
+                    [
+                      //const SizedBox(height: 30.0),
 
-                      if (confirmed != null && confirmed){
+                    ],
+                  ),
+                ),
+                _buildHorizontalBlock(title: 'Заголовок', eventsList: eventsInThatPlace),
 
-                        setState(() {
-                          deleting = true;
-                        });
+                SliverList(
+                  delegate: SliverChildListDelegate(
+                    [
+                      const SizedBox(height: 30.0),
+                      const SizedBox(height: 30.0),
 
-                        //String delete = await Place.deletePlace(widget.placeId, users, place.creatorId);
-                        String delete = await place.deleteFromDb();
+                      if (currentPlaceUser.placeUserRole.controlLevel >= 90) GestureDetector(
+                        onTap: navigateToManagersList,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          child: Row(
+                            children: [
+                              Expanded(child: Text('Управляющие заведением (${place.admins!.length + 1})', style: Theme.of(context).textTheme.titleMedium, softWrap: true,)),
+                              const Icon(FontAwesomeIcons.chevronRight, color: AppColors.white, size: 20,)
+                            ],
+                          ),
+                        ),
+                      ),
 
-                        if (delete == 'success'){
+                      const SizedBox(height: 30.0),
+                      if (
+                      currentPlaceUser.placeUserRole.controlLevel == 100
+                      ) CustomButton(
+                        buttonText: 'Удалить заведение',
+                        onTapMethod: () async {
+                          bool? confirmed = await exitDialog(context, "Ты правда хочешь удалить заведение? Ты не сможешь восстановить данные" , 'Да', 'Нет', 'Удаление заведения');
 
-                          place.deleteEntityFromCurrentEntityLists();
+                          if (confirmed != null && confirmed){
 
-                          //Place.deletePlaceFormCurrentPlaceLists(widget.placeId);
+                            setState(() {
+                              deleting = true;
+                            });
 
-                          showSnackBar(context, 'Место успешно удалено', Colors.green, 2);
-                          navigateToPlaces();
+                            //String delete = await Place.deletePlace(widget.placeId, users, place.creatorId);
+                            String delete = await place.deleteFromDb();
 
-                          setState(() {
-                            deleting = false;
-                          });
-                        } else {
-                          showSnackBar(context, 'Место не было удалено по ошибке: $delete', AppColors.attentionRed, 2);
-                          setState(() {
-                            deleting = false;
-                          });
-                        }
+                            if (delete == 'success'){
 
-                      }
+                              place.deleteEntityFromCurrentEntityLists();
 
-                    },
-                    state: 'error',
-                  )
+                              //Place.deletePlaceFormCurrentPlaceLists(widget.placeId);
+
+                              showSnackBar(context, 'Место успешно удалено', Colors.green, 2);
+                              navigateToPlaces();
+
+                              setState(() {
+                                deleting = false;
+                              });
+                            } else {
+                              showSnackBar(context, 'Место не было удалено по ошибке: $delete', AppColors.attentionRed, 2);
+                              setState(() {
+                                deleting = false;
+                              });
+                            }
+
+                          }
+
+                        },
+                        state: 'error',
+                      )
 
 
-                ],
-              ),
-            ),
+                    ],
+                  ),
+                ),
 
 
 
-            /*SliverList(
+                /*SliverList(
               delegate: SliverChildListDelegate(
                 [
                   ListTile(title: Text('Item 1')),
@@ -335,7 +448,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
               ),
             ),*/
 
-            /*SliverGrid(
+                /*SliverGrid(
               gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                 maxCrossAxisExtent: 200.0,
                 mainAxisSpacing: 10.0,
@@ -353,8 +466,10 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                 childCount: 20,
               ),
             ),*/
+              ],
+            ),
           ],
-        ),
+        )
     );
   }
 
@@ -365,9 +480,19 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
         children: [
           Padding(
             padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-            child: Text(
-              title,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                SizedBox(height: 5,),
+                Text(
+                  'Любишь это место? Проведи здесь весело время вместе с ближайшими мероприятиями!',
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.greyText),
+                )
+              ],
             ),
           ),
           SizedBox(

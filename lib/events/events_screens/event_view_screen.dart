@@ -88,6 +88,7 @@ class EventViewScreenState extends State<EventViewScreen> {
           place = place.getEntityFromFeedList(event.placeId);
         } else {
           place = await place.getEntityByIdFromDb(event.placeId);
+
         }
       }
 

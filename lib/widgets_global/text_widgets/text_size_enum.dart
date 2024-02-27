@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 enum TextSizeEnum {
+  headlineLarge,
   headlineMedium,
   headlineSmall,
   bodyMedium,
@@ -24,6 +25,7 @@ class TextSizeClass {
       case TextSizeEnum.labelSmall: return Theme.of(context).textTheme.labelSmall!;
       case TextSizeEnum.headlineMedium: return Theme.of(context).textTheme.titleMedium!;
       case TextSizeEnum.headlineSmall: return Theme.of(context).textTheme.titleSmall!;
+      case TextSizeEnum.headlineLarge: return Theme.of(context).textTheme.titleLarge!;
     }
   }
 
@@ -35,6 +37,7 @@ class TextSizeClass {
       case TextSizeEnum.labelSmall: return Theme.of(context).textTheme.labelSmall!.copyWith(color: color);
       case TextSizeEnum.headlineMedium: return Theme.of(context).textTheme.titleMedium!.copyWith(color: color);
       case TextSizeEnum.headlineSmall: return Theme.of(context).textTheme.titleSmall!.copyWith(color: color);
+      case TextSizeEnum.headlineLarge: return Theme.of(context).textTheme.titleLarge!.copyWith(color: color);
     }
   }
 

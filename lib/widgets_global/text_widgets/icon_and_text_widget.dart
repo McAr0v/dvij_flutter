@@ -38,6 +38,7 @@ class IconAndTextWidget extends StatelessWidget {
       case TextSizeEnum.labelSmall: style = Theme.of(context).textTheme.labelSmall?.copyWith(color: textColor);
       case TextSizeEnum.headlineMedium: style = Theme.of(context).textTheme.titleMedium?.copyWith(color: textColor);
       case TextSizeEnum.headlineSmall: style = Theme.of(context).textTheme.titleSmall?.copyWith(color: textColor);
+      case TextSizeEnum.headlineLarge: style = Theme.of(context).textTheme.titleLarge?.copyWith(color: textColor);
     }
 
     return Row(

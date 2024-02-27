@@ -31,6 +31,7 @@ class EventSmallCardWidget extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: Card(
+          margin: EdgeInsets.only(left: 20),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15), // настройте необходимый радиус скругления углов
           ),
