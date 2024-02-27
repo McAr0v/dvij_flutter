@@ -22,6 +22,7 @@ class EventSmallCardWidget extends StatelessWidget {
   final PromoCustom? promo;
   final Function() onFavoriteIconPressed; // Добавьте функцию обратного вызова
   final Function() onTap; // Добавьте функцию обратного вызова
+  final double? height;
 
   const EventSmallCardWidget(
       {
@@ -29,7 +30,8 @@ class EventSmallCardWidget extends StatelessWidget {
         this.event,
         this.promo,
         required this.onFavoriteIconPressed,
-        required this.onTap
+        required this.onTap,
+        this.height
       }
       );
 
@@ -92,16 +94,16 @@ class EventSmallCardWidget extends StatelessWidget {
     List<int> irregularTodayIndexes = irregularDate.getIrregularTodayIndexes();
 
     return Padding(
-      padding: const EdgeInsets.only(right: 5),
+      padding: const EdgeInsets.only(right: 5, bottom: 10, top: 10),
       child: GestureDetector(
         onTap: onTap,
         child: Card(
-          margin: EdgeInsets.only(left: 20),
+          margin: const EdgeInsets.only(left: 5),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15), // настройте необходимый радиус скругления углов
           ),
           child: Container(
-            height: 200,
+            height: height ?? 400,
             width: 330,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15), // настройте радиус скругления углов для контейнера

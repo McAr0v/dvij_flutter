@@ -72,6 +72,11 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
   Future<void> fetchAndSetData() async {
 
+    setState(() {
+      loading = true;
+    });
+
+
     if (PlaceListManager.currentFeedPlacesList.placeList.isNotEmpty){
       place = place.getEntityFromFeedList(widget.placeId);
     } else {
@@ -188,7 +193,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
           children: [
             if (loading) LoadingScreen(),
             if (deleting) const LoadingScreen(loadingText: 'Подожди, идет удаление заведения',),
-            if (place.name != '') CustomScrollView(
+            if (!loading && !deleting) CustomScrollView(
               slivers: <Widget>[
                 SliverList(
                   delegate: SliverChildListDelegate(

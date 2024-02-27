@@ -74,63 +74,62 @@ class PromoViewScreenState extends State<PromoViewScreen> {
   // --- Функция получения и ввода данных ---
 
   Future<void> fetchAndSetData() async {
-    try {
+    setState(() {
+      loading = true;
+    });
 
-      if (PromoListsManager.currentFeedPromosList.promosList.isNotEmpty){
-        promo = promo.getEntityFromFeedList(widget.promoId);
-      } else {
-        promo = await promo.getEntityByIdFromDb(widget.promoId);
-      }
-
-
-
-      if (promo.placeId != '') {
-
-        if (PlaceListManager.currentFeedPlacesList.placeList.isNotEmpty){
-          place = place.getEntityFromFeedList(promo.placeId);
-        } else {
-          place = await place.getEntityByIdFromDb(promo.placeId);
-        }
-      }
-
-      if (UserCustom.currentUser != null){
-        currentPlaceUser = currentPlaceUser.generatePlaceUserFromUserCustom(UserCustom.currentUser!);
-      }
-
-      // Выдаем права на редактирование мероприятия
-      // Если наш пользователь создатель
-      if (UserCustom.currentUser != null && UserCustom.currentUser!.uid == promo.creatorId){
-
-        // Отдаем права создателя
-        currentUserPlaceRole = currentUserPlaceRole.getPlaceUserRole(PlaceUserRoleEnum.creator);
-        currentPlaceUser.placeUserRole = currentUserPlaceRole;
-        // Ставим нас как создателя
-        creator = UserCustom.currentUser!;
-
-      } else if (UserCustom.currentUser != null && UserCustom.currentUser!.uid != promo.creatorId){
-
-        // Если создатель не я
-        // Читаем нашу роль
-        currentUserPlaceRole = currentUserPlaceRole.searchPlaceUserRoleInAdminsList(place.admins!, currentPlaceUser);
-        currentPlaceUser.placeUserRole = currentUserPlaceRole;
-        // Грузим создателя из БД
-        creator = await UserCustom.getUserById(promo.creatorId);
-
-      } else {
-        creator = await UserCustom.getUserById(promo.creatorId);
-      }
-
-
-      inFav = promo.inFav;
-      favCounter = promo.addedToFavouritesCount;
-
-      // ---- Убираем экран загрузки -----
-      setState(() {
-        loading = false;
-      });
-    } catch (e) {
-      // TODO Сделать обработку ошибок, если не получилось считать данные
+    if (PromoListsManager.currentFeedPromosList.promosList.isNotEmpty){
+      promo = promo.getEntityFromFeedList(widget.promoId);
+    } else {
+      promo = await promo.getEntityByIdFromDb(widget.promoId);
     }
+
+
+
+    if (promo.placeId != '') {
+
+      if (PlaceListManager.currentFeedPlacesList.placeList.isNotEmpty){
+        place = place.getEntityFromFeedList(promo.placeId);
+      } else {
+        place = await place.getEntityByIdFromDb(promo.placeId);
+      }
+    }
+
+    if (UserCustom.currentUser != null){
+      currentPlaceUser = currentPlaceUser.generatePlaceUserFromUserCustom(UserCustom.currentUser!);
+    }
+
+    // Выдаем права на редактирование мероприятия
+    // Если наш пользователь создатель
+    if (UserCustom.currentUser != null && UserCustom.currentUser!.uid == promo.creatorId){
+
+      // Отдаем права создателя
+      currentUserPlaceRole = currentUserPlaceRole.getPlaceUserRole(PlaceUserRoleEnum.creator);
+      currentPlaceUser.placeUserRole = currentUserPlaceRole;
+      // Ставим нас как создателя
+      creator = UserCustom.currentUser!;
+
+    } else if (UserCustom.currentUser != null && UserCustom.currentUser!.uid != promo.creatorId){
+
+      // Если создатель не я
+      // Читаем нашу роль
+      currentUserPlaceRole = currentUserPlaceRole.searchPlaceUserRoleInAdminsList(place.admins!, currentPlaceUser);
+      currentPlaceUser.placeUserRole = currentUserPlaceRole;
+      // Грузим создателя из БД
+      creator = await UserCustom.getUserById(promo.creatorId);
+
+    } else {
+      creator = await UserCustom.getUserById(promo.creatorId);
+    }
+
+
+    inFav = promo.inFav;
+    favCounter = promo.addedToFavouritesCount;
+
+    // ---- Убираем экран загрузки -----
+    setState(() {
+      loading = false;
+    });
   }
 
   // ---- Функция перехода в профиль ----

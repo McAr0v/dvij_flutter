@@ -1,4 +1,5 @@
 import 'package:dvij_flutter/cities/city_class.dart';
+import 'package:dvij_flutter/events/events_elements/event_card_small_widget.dart';
 import 'package:dvij_flutter/promos/promo_category_class.dart';
 import 'package:dvij_flutter/promos/promo_sorting_options.dart';
 import 'package:dvij_flutter/promos/promos_elements/promo_card_widget.dart';
@@ -323,7 +324,8 @@ class PromotionsFeedPageState extends State<PromotionsFeedPage> {
                                 );
                               } else {
                                 int indexWithAddCountCorrection = allElementsList[index].second;
-                                return PromoCardWidget(
+                                return EventSmallCardWidget(
+                                  height: 450,
                                   promo: promosList.promosList[indexWithAddCountCorrection],
                                   onTap: () async {
 
