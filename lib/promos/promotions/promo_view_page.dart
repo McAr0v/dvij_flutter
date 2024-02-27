@@ -1,5 +1,6 @@
 import 'package:dvij_flutter/dates/date_mixin.dart';
 import 'package:dvij_flutter/events/event_class.dart';
+import 'package:dvij_flutter/promos/promos_list_manager.dart';
 import 'package:dvij_flutter/widgets_global/text_widgets/headline_and_desc.dart';
 import 'package:dvij_flutter/elements/shedule_elements/shedule_once_and_long_widget.dart';
 import 'package:dvij_flutter/widgets_global/social_widgets/social_buttons_widget.dart';
@@ -75,7 +76,13 @@ class PromoViewScreenState extends State<PromoViewScreen> {
   Future<void> fetchAndSetData() async {
     try {
 
-      promo = promo.getEntityFromFeedList(widget.promoId);
+      if (PromoListsManager.currentFeedPromosList.promosList.isNotEmpty){
+        promo = promo.getEntityFromFeedList(widget.promoId);
+      } else {
+        promo = await promo.getEntityByIdFromDb(widget.promoId);
+      }
+
+
 
       if (promo.placeId != '') {
 

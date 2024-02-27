@@ -292,9 +292,18 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                   ),
                 ),
 
-                _buildHorizontalBlock(title: 'Мероприятия в "${place.name}"', eventsList: eventsInThatPlace),
+                _eventsHorizontalScroll(title: 'Мероприятия в "${place.name}"', desc: 'Любишь это место? Проведи здесь весело время вместе с ближайшими мероприятиями!', eventsList: eventsInThatPlace),
 
-                _buildHorizontalBlock(title: 'Заголовок', eventsList: eventsInThatPlace),
+                SliverList(
+                  delegate: SliverChildListDelegate(
+                    [
+                      SizedBox(height: 20,)
+                    ],
+                  ),
+                ),
+
+                _promosHorizontalScroll(title: 'Акции в "${place.name}"', desc: 'Любишь это место? Проведи здесь весело время вместе с ближайшими мероприятиями!', promosList: promosInThatPlace),
+
                 SliverList(
                   delegate: SliverChildListDelegate(
                     [
@@ -319,7 +328,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
     );
   }
 
-  SliverToBoxAdapter _buildHorizontalBlock({required String title, required EventsList eventsList}) {
+  SliverToBoxAdapter _eventsHorizontalScroll({required String title, required String desc, required EventsList eventsList}) {
     return SliverToBoxAdapter(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -335,7 +344,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                 ),
                 SizedBox(height: 5,),
                 Text(
-                  'Любишь это место? Проведи здесь весело время вместе с ближайшими мероприятиями!',
+                  desc,
                   style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.greyText),
                 )
               ],
@@ -424,6 +433,132 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                             eventsList.eventsList[index].addedToFavouritesCount = favCounter;
                             // Обновляем список из БД
                             eventsList.eventsList[index].updateCurrentListFavInformation();
+                            //EventCustom.updateCurrentEventListFavInformation(eventsList[indexWithAddCountCorrection].id, favCounter, true);
+                          });
+
+                          showSnackBar(context, 'Добавлено в избранные', Colors.green, 1);
+
+                        } else {
+                          // Если добавление прошло неудачно, отображаем всплывающее окно
+                          showSnackBar(context , res, AppColors.attentionRed, 1);
+                        }
+                      }
+                    }
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  SliverToBoxAdapter _promosHorizontalScroll({required String title, required String desc, required PromoList promosList}) {
+    return SliverToBoxAdapter(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                SizedBox(height: 5,),
+                Text(
+                  desc,
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.greyText),
+                )
+              ],
+            ),
+          ),
+          SizedBox(
+            height: 450,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: promosList.promosList.length,
+              itemBuilder: (context, index) {
+                return EventSmallCardWidget(
+                  promo: promosList.promosList[index],
+                  onTap: () async {
+
+                    // TODO - переделать на мероприятия
+                    final results = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PromoViewScreen(promoId: promosList.promosList[index].id),
+                      ),
+                    );
+
+                    if (results != null) {
+                      setState(() {
+                        promosList.promosList[index].inFav = results[0];
+                        promosList.promosList[index].addedToFavouritesCount = results[1];
+                      });
+                    }
+                  },
+
+                  // --- Функция на нажатие на карточке кнопки ИЗБРАННОЕ ---
+                  onFavoriteIconPressed: () async {
+
+                    // TODO Сделать проверку на подтвержденный Email
+                    // ---- Если не зарегистрирован или не вошел ----
+                    if (UserCustom.currentUser?.uid == '' || UserCustom.currentUser?.uid == null)
+                    {
+                      showSnackBar(context, 'Чтобы добавлять в избранное, нужно зарегистрироваться!', AppColors.attentionRed, 2);
+                    }
+
+                    // --- Если пользователь залогинен -----
+                    else {
+
+                      // --- Если уже в избранном ----
+                      if (promosList.promosList[index].inFav == true)
+                      {
+                        // --- Удаляем из избранных ---
+                        String resDel = await promosList.promosList[index].deleteFromFav();
+                        // ---- Инициализируем счетчик -----
+                        int favCounter = promosList.promosList[index].addedToFavouritesCount!;
+
+                        if (resDel == 'success'){
+                          // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
+                          setState(() {
+                            // Обновляем текущий список
+                            promosList.promosList[index].inFav = false;
+                            favCounter --;
+                            promosList.promosList[index].addedToFavouritesCount = favCounter;
+                            // Обновляем общий список из БД
+                            promosList.promosList[index].updateCurrentListFavInformation();
+                            //EventCustom.updateCurrentEventListFavInformation(eventsList[indexWithAddCountCorrection].id, favCounter, false);
+
+                          });
+                          showSnackBar(context, 'Удалено из избранных', AppColors.attentionRed, 1);
+                        } else {
+                          // Если удаление из избранных не прошло, показываем сообщение
+                          showSnackBar(context, resDel, AppColors.attentionRed, 1);
+                        }
+                      }
+                      else {
+                        // --- Если заведение не в избранном ----
+
+                        // -- Добавляем в избранное ----
+                        String res = await promosList.promosList[index].addToFav();
+
+                        // ---- Инициализируем счетчик добавивших в избранное
+                        int favCounter = promosList.promosList[index].addedToFavouritesCount!;
+
+                        if (res == 'success') {
+                          // --- Если добавилось успешно, так же обновляем текущий список и список из БД
+                          setState(() {
+                            // Обновляем текущий список
+                            promosList.promosList[index].inFav = true;
+                            favCounter ++;
+                            promosList.promosList[index].addedToFavouritesCount = favCounter;
+                            // Обновляем список из БД
+                            promosList.promosList[index].updateCurrentListFavInformation();
                             //EventCustom.updateCurrentEventListFavInformation(eventsList[indexWithAddCountCorrection].id, favCounter, true);
                           });
 
