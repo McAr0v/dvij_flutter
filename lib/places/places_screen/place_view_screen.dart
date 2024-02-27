@@ -5,6 +5,8 @@ import 'package:dvij_flutter/events/events_elements/event_card_small_widget.dart
 import 'package:dvij_flutter/events/events_list_class.dart';
 import 'package:dvij_flutter/places/place_admins_screens/place_admins_screen.dart';
 import 'package:dvij_flutter/places/place_list_class.dart';
+import 'package:dvij_flutter/places/places_elements/add_managers_widget.dart';
+import 'package:dvij_flutter/widgets_global/schedule_widgets/schedule_regular_widget.dart';
 import 'package:dvij_flutter/widgets_global/text_widgets/headline_and_desc.dart';
 import 'package:dvij_flutter/widgets_global/social_widgets/social_buttons_widget.dart';
 import 'package:dvij_flutter/promos/promos_list_class.dart';
@@ -132,6 +134,56 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
               Navigator.of(context).pop(result);
             },
           ),
+          actions: [
+            if (currentPlaceUser.placeUserRole.controlLevel >= 90) IconButton(
+                onPressed: () async {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => CreateOrEditPlaceScreen(placeInfo: place))
+                  );
+                },
+                icon: const Icon(Icons.edit)
+            ),
+
+            if (currentPlaceUser.placeUserRole.controlLevel == 100) IconButton(
+                onPressed: () async {
+                  bool? confirmed = await exitDialog(context, "Ты правда хочешь удалить заведение? Ты не сможешь восстановить данные" , 'Да', 'Нет', 'Удаление заведения');
+
+                  if (confirmed != null && confirmed){
+
+                    setState(() {
+                      deleting = true;
+                    });
+
+                    //String delete = await Place.deletePlace(widget.placeId, users, place.creatorId);
+                    String delete = await place.deleteFromDb();
+
+                    if (delete == 'success'){
+
+                      place.deleteEntityFromCurrentEntityLists();
+
+                      //Place.deletePlaceFormCurrentPlaceLists(widget.placeId);
+
+                      showSnackBar(context, 'Место успешно удалено', Colors.green, 2);
+                      navigateToPlaces();
+
+                      setState(() {
+                        deleting = false;
+                      });
+                    } else {
+                      showSnackBar(context, 'Место не было удалено по ошибке: $delete', AppColors.attentionRed, 2);
+                      setState(() {
+                        deleting = false;
+                      });
+                    }
+
+                  }
+
+                },
+                icon: const Icon(Icons.delete_forever, color: AppColors.attentionRed,)
+            ),
+
+          ],
         ),
 
         body: Stack(
@@ -146,12 +198,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                       Stack(
                         alignment: Alignment.topRight,
                         children: [
-
-
-
                           ImageWithPlaceHolderWidget(imagePath: place.imageUrl),
-
-
 
                           // Виджет ИЗБРАННОЕ
 
@@ -204,13 +251,10 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
                                   TextOnBoolResultWidget(isTrue: place.nowIsOpen!, trueText: 'Сейчас открыто', falseText: 'Сейчас закрыто'),
 
-
                                 ],
                               ),
                             ),
                           ),
-
-
                         ],
                       ),
                       Padding(
@@ -218,54 +262,8 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            /*Row(
-                              children: [
 
-                                // БЛОК Название/адрес
-
-                                Expanded(
-                                  child: HeadlineAndDesc(
-                                    headline: place.name,
-                                    description: '${place.city.name}, ${place.street}, ${place.house}',
-                                    textSize: TextSizeEnum.headlineMedium,
-                                    descSize: TextSizeEnum.bodySmall,
-                                    descColor: AppColors.white,
-                                  ),
-                                ),
-
-                                const SizedBox(width: 16.0),
-
-                                // --- Кнопка редактирования ----
-
-                                if (currentPlaceUser.placeUserRole.controlLevel >= 90) IconButton(
-                                  icon: Icon(
-                                    Icons.edit,
-                                    color: Theme.of(context).colorScheme.background,
-                                  ),
-                                  style: ButtonStyle(
-                                    backgroundColor: MaterialStateProperty.all(AppColors.brandColor),
-                                  ),
-                                  onPressed: () async {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(builder: (context) => CreateOrEditPlaceScreen(placeInfo: place))
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),*/
-
-                            // ---- Остальные данные пользователя ----
-
-                            //const SizedBox(height: 5.0),
-
-
-
-                            //TextOnBoolResultWidget(isTrue: place.nowIsOpen!, trueText: 'Сейчас открыто', falseText: 'Сейчас закрыто'),
-
-                            //const SizedBox(height: 16.0),
-
-                            if (currentPlaceUser.placeUserRole.controlLevel >= 90) const SizedBox(height: 10.0),
+                            /*if (currentPlaceUser.placeUserRole.controlLevel >= 90) const SizedBox(height: 10.0),
 
                             if (currentPlaceUser.placeUserRole.controlLevel >= 90) Row(
                               children: [
@@ -325,9 +323,29 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                               ],
                             ),
 
+                            if (currentPlaceUser.placeUserRole.controlLevel >= 90) const SizedBox(height: 20.0),*/
+
+                            AddManagersWidget(headline: headline, desc: desc, regularDate: regularDate),
+
+                            if (currentPlaceUser.placeUserRole.controlLevel >= 90) GestureDetector(
+                              onTap: navigateToManagersList,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 20),
+                                child: Row(
+                                  children: [
+                                    const Icon(FontAwesomeIcons.edit, color: AppColors.white, size: 20,),
+                                    const SizedBox(width: 20.0),
+                                    Expanded(child: Text('Назначить управляющих (${place.admins!.length + 1})', style: Theme.of(context).textTheme.titleMedium, softWrap: true,)),
+                                    const Icon(FontAwesomeIcons.chevronRight, color: AppColors.white, size: 20,)
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                            if (currentPlaceUser.placeUserRole.controlLevel >= 90) const SizedBox(height: 20.0),
 
 
-                            if (currentPlaceUser.placeUserRole.controlLevel >= 90) const SizedBox(height: 30.0),
+
 
                             if (place.desc != '') HeadlineAndDesc(headline: place.desc, description: 'Описание места', padding: 5, textSize: TextSizeEnum.bodyMedium,),
 
@@ -337,12 +355,11 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
                             const SizedBox(height: 16.0),
 
-                            ScheduleRegularAndIrregularWidget(
-                              dateTypeEnum: DateTypeEnum.regular,
-                              regularTimes: place.openingHours,
-                              headline: 'Режим работы',
-                              desc: 'Посмотри, когда ${place.name} открыто и готово к приему гостей)',
-                              isPlace: true,
+                            ScheduleRegularWidget(
+                                headline: 'Режим работы',
+                                desc: 'Посмотри, когда ${place.name} открыто и готово к приему гостей)',
+                                regularDate: place.openingHours,
+                              isPlace: true
                             ),
 
                             //const SizedBox(height: 16.0),
