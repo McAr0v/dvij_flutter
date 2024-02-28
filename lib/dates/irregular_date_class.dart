@@ -130,7 +130,7 @@ class IrregularDate with DateMixin implements IDates<IrregularDate> {
 
         OnceDate tempDay = dates[i];
 
-        if (tempDay.startDate.day == timeNow.day && tempDay.startDate.month == timeNow.month){
+        if (tempDay.startDate.day == timeNow.day && tempDay.startDate.month == timeNow.month && tempDay.startDate.year == timeNow.year){
           tempList.add(i);
         }
       }

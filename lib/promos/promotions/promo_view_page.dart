@@ -12,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import '../../cities/city_class.dart';
-import '../../events/events_elements/today_widget.dart';
 import '../../places/place_list_manager.dart';
 import '../../places/places_elements/place_widget_in_view_screen_in_event_and_promo.dart';
 import '../../places/places_screen/place_view_screen.dart';
@@ -26,6 +25,7 @@ import '../../elements/loading_screen.dart';
 import '../../elements/shedule_elements/schedule_regular_and_irregular_widget.dart';
 import '../../elements/snack_bar.dart';
 import '../../users/place_user_class.dart';
+import '../../widgets_global/text_widgets/now_is_work_widget.dart';
 
 
 // --- ЭКРАН ЗАЛОГИНЕВШЕГОСЯ ПОЛЬЗОВАТЕЛЯ -----
@@ -336,7 +336,7 @@ class PromoViewScreenState extends State<PromoViewScreen> {
                         if (promo.today!) const SizedBox(height: 5.0),
 
                         // ПЕРЕДЕЛАТЬ ПОД СЕГОДНЯ
-                        if (promo.today!) TodayWidget(isTrue: promo.today!),
+                        if (promo.today!) TextOnBoolResultWidget(isTrue: promo.today, trueText: 'Сегодня', falseText: '',),
 
                         const SizedBox(height: 16.0),
 

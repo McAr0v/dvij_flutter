@@ -21,7 +21,7 @@ import '../../widgets_global/text_widgets/for_cards_small_widget_with_icon_and_t
 import '../../elements/loading_screen.dart';
 import '../../elements/shedule_elements/schedule_regular_and_irregular_widget.dart';
 import '../../elements/snack_bar.dart';
-import '../events_elements/today_widget.dart';
+import '../../widgets_global/text_widgets/now_is_work_widget.dart';
 import 'create_or_edit_event_screen.dart';
 
 
@@ -331,7 +331,7 @@ class EventViewScreenState extends State<EventViewScreen> {
                         if (event.today!) const SizedBox(height: 5.0),
 
                         // ПЕРЕДЕЛАТЬ ПОД СЕГОДНЯ
-                        if (event.today!) TodayWidget(isTrue: event.today!),
+                        if (event.today!) TextOnBoolResultWidget(isTrue: event.today, trueText: 'Сегодня', falseText: '',),
 
                         const SizedBox(height: 16.0),
 

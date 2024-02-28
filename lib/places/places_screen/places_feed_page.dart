@@ -11,6 +11,7 @@ import 'package:dvij_flutter/places/places_screen/place_view_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import '../../ads/ad_user_class.dart';
+import '../../widgets_global/cards_widgets/card_widget_for_event_and_promo.dart';
 import '../place_sorting_options.dart';
 import '../../classes/user_class.dart';
 import '../../elements/custom_snack_bar.dart';
@@ -227,9 +228,10 @@ class PlacesFeedPageState extends State<PlacesFeedPage> {
 
                                 int indexWithAddCountCorrection = allElementsList[index].second;
 
-                                return PlaceCardWidget(
+                                return CardWidgetForEventAndPromo(
 
                                 place: placesList.placeList[indexWithAddCountCorrection],
+                                height: 450,
 
                                 onTap: () async {
 

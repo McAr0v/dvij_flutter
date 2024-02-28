@@ -1,5 +1,3 @@
-import 'package:dvij_flutter/cities/city_class.dart';
-import 'package:dvij_flutter/places/place_category_class.dart';
 import 'package:dvij_flutter/widgets_global/text_widgets/for_cards_small_widget_with_icon_and_text.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:flutter/material.dart';
@@ -10,9 +8,9 @@ class PlaceCardWidget extends StatelessWidget {
   final Place place;
   final Function()? onFavoriteIconPressed; // Добавьте функцию обратного вызова
   final Function()? onTap; // Добавьте функцию обратного вызова
-  Color surfaceColor;
+  final Color surfaceColor;
 
-  PlaceCardWidget({super.key, required this.place, this.onFavoriteIconPressed, required this.onTap, this.surfaceColor = AppColors.greyOnBackground});
+  const PlaceCardWidget({super.key, required this.place, this.onFavoriteIconPressed, required this.onTap, this.surfaceColor = AppColors.greyOnBackground});
 
   @override
   Widget build(BuildContext context) {
