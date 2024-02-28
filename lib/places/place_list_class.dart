@@ -67,18 +67,13 @@ class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
 
   @override
   void filterLists(Map<String, dynamic> mapOfArguments) {
-    PlaceCategory placeCategoryFromFilter = mapOfArguments['placeCategoryFromFilter'];
-    City cityFromFilter = mapOfArguments['cityFromFilter'];
-    bool haveEventsFromFilter = mapOfArguments['haveEventsFromFilter'];
-    bool havePromosFromFilter = mapOfArguments['havePromosFromFilter'];
-    bool nowIsOpenFromFilter = mapOfArguments['nowIsOpenFromFilter'];
 
     PlaceList places = PlaceList();
 
     for (Place place in placeList){
 
       bool result = place.checkFilter(
-          generateMapForFilter(placeCategoryFromFilter, cityFromFilter, haveEventsFromFilter, havePromosFromFilter, nowIsOpenFromFilter)
+          mapOfArguments
       );
 
       if (result) {

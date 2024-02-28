@@ -1,13 +1,15 @@
 import 'package:dvij_flutter/cities/city_class.dart';
 import 'package:dvij_flutter/classes/pair.dart';
 import 'package:dvij_flutter/places/place_category_class.dart';
+import 'package:dvij_flutter/places/place_class.dart';
+import 'package:dvij_flutter/widgets_global/default_screens/empty_screen.dart';
+import 'package:dvij_flutter/widgets_global/filter_widgets/filter_widget.dart';
 import 'package:dvij_flutter/widgets_global/text_widgets/headline_and_desc.dart';
 import 'package:dvij_flutter/places/place_list_class.dart';
 import 'package:dvij_flutter/places/place_list_manager.dart';
 import 'package:dvij_flutter/places/places_screen/place_view_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../ads/ad_user_class.dart';
 import '../place_sorting_options.dart';
 import '../../classes/user_class.dart';
@@ -50,9 +52,6 @@ class PlacesFeedPageState extends State<PlacesFeedPage> {
 
   // Счетчик выбранных значений фильтра
   int filterCount = 0;
-
-  // Индекс для корректного отображения элементов ленты с учетом рекламной записи
-  //int indexWithAddCountCorrection = 0;
 
   // TODO - Сделать загрузку рекламы из БД
   // --- Рекламные переменные -----
@@ -104,7 +103,6 @@ class PlacesFeedPageState extends State<PlacesFeedPage> {
     if (PlaceListManager.currentFeedPlacesList.placeList.isEmpty){
 
       // ---- Считываем с БД заведения -----
-      //List<Place> tempPlacesList = await Place.getAllPlaces();
       placesList = await placesList.getListFromDb();
 
       // --- Фильтруем список -----
@@ -121,12 +119,9 @@ class PlacesFeedPageState extends State<PlacesFeedPage> {
           );
         });
       }
-
-
     } else {
       // --- Если список не пустой ----
       // --- Подгружаем готовый список ----
-
 
       // --- Фильтруем список -----
       setState(() {
@@ -175,135 +170,30 @@ class PlacesFeedPageState extends State<PlacesFeedPage> {
         // - Обновление списка, если тянуть экран вниз
         body: RefreshIndicator (
           onRefresh: () async {
-
-            setState(() {
-              refresh = true;
-            });
-
-            placesList = PlaceList();
-
-            //List<Place> tempPlacesList = await Place.getAllPlaces();
-            placesList = await placesList.getListFromDb();
-
-            // --- Фильтруем список -----
-            setState(() {
-              placesList.filterLists(
-                  placesList.generateMapForFilter(
-                      placeCategoryFromFilter,
-                      cityFromFilter,
-                      haveEventsFromFilter,
-                      nowIsOpenFromFilter,
-                      havePromosFromFilter
-                  )
-              );
-
-              allElementsList = AdUser.generateIndexedList(adIndexesList, placesList.placeList.length);
-
-            });
-
-            setState(() {
-              refresh = false;
-            });
-
+            _refreshFeed();
           },
           child: Stack (
             children: [
               if (loading) const LoadingScreen(loadingText: 'Подожди, идет загрузка мест')
-              else if (refresh) Center(
-                child: Text(
-                  'Подожди, идет загрузка мест',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              )
+              else if (refresh) const EmptyScreenWidget(messageText: 'Подожди, идет обновление',)
               else Column(
                   children: [
+
                     // ---- Фильтр и сортировка -----
-                    Container(
-                        padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-                        color: AppColors.greyOnBackground,
-                        child: Row (
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
 
-                            // ---- Фильтр -----
-
-                            GestureDetector(
-                              onTap: (){
-                                _showFilterDialog();
-                              },
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'Фильтр ${filterCount > 0 ? '($filterCount)' : ''}',
-                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: filterCount > 0 ? AppColors.brandColor : AppColors.white),
-                                  ),
-
-                                  const SizedBox(width: 20,),
-
-                                  Icon(
-                                    FontAwesomeIcons.filter,
-                                    size: 20,
-                                    color: filterCount > 0 ? AppColors.brandColor : AppColors.white ,
-                                  )
-                                ],
-                              ),
-                            ),
-
-                            // ------ Сортировка ------
-
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.5,
-                              child: DropdownButton<PlaceSortingOption>(
-                                style: Theme.of(context).textTheme.bodySmall,
-                                isExpanded: true,
-                                value: _selectedSortingOption,
-                                onChanged: (PlaceSortingOption? newValue) {
-                                  setState(() {
-                                    _selectedSortingOption = newValue!;
-                                    placesList.sortEntitiesList(_selectedSortingOption);
-                                    //Place.sortPlaces(_selectedSortingOption, placesList);
-                                  });
-                                },
-                                items: const [
-                                  DropdownMenuItem(
-                                    value: PlaceSortingOption.nameAsc,
-                                    child: Text('По имени: А-Я'),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: PlaceSortingOption.nameDesc,
-                                    child: Text('По имени: Я-А'),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: PlaceSortingOption.favCountAsc,
-                                    child: Text('В избранном: по возрастанию'),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: PlaceSortingOption.favCountDesc,
-                                    child: Text('В избранном: по убыванию'),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: PlaceSortingOption.promoCountAsc,
-                                    child: Text('Акции: по возрастанию'),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: PlaceSortingOption.promoCountDesc,
-                                    child: Text('Акции: по убыванию'),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: PlaceSortingOption.eventCountAsc,
-                                    child: Text('Мероприятия: по возрастанию'),
-                                  ),
-                                  DropdownMenuItem(
-                                    value: PlaceSortingOption.eventCountDesc,
-                                    child: Text('Мероприятия: по убыванию'),
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],
-                        )
+                    FilterWidget(
+                        onFilterTap: (){
+                          _showFilterDialog();
+                        },
+                        filterCount: filterCount,
+                        sortingValue: _selectedSortingOption,
+                        onSortingValueChanged: (PlaceSortingOption? newValue) {
+                          setState(() {
+                            _selectedSortingOption = newValue!;
+                            placesList.sortEntitiesList(_selectedSortingOption);
+                          });
+                        },
+                        sortingItems: Place.emptyPlace.getPlaceSortingOptionsList(),
                     ),
 
                     // ---- Если список заведений пустой -----
@@ -313,13 +203,7 @@ class PlacesFeedPageState extends State<PlacesFeedPage> {
                             padding: const EdgeInsets.all(15.0),
                             itemCount: 1,
                             itemBuilder: (context, index) {
-                              return const Column(
-                                  children: [
-                                    Center(
-                                      child: Text('Пусто'),
-                                    )
-                                  ]
-                              );
+                              return const EmptyScreenWidget();
                             }
                         )
                     ),
@@ -507,8 +391,6 @@ class PlacesFeedPageState extends State<PlacesFeedPage> {
 
       // --- Заново подгружаем список из БД ---
 
-      //placesList = PlaceListManager.currentFeedPlacesList;
-
       // --- Фильтруем список согласно новым выбранным данным из фильтра ----
       setState(() {
         placesList.placeList = PlaceListManager.currentFeedPlacesList.placeList;
@@ -560,5 +442,35 @@ class PlacesFeedPageState extends State<PlacesFeedPage> {
       transitionDuration: const Duration(milliseconds: 100),
 
     );
+  }
+
+  Future<void> _refreshFeed() async {
+    setState(() {
+      refresh = true;
+    });
+
+    placesList = PlaceList();
+
+    placesList = await placesList.getListFromDb();
+
+    // --- Фильтруем список -----
+    setState(() {
+      placesList.filterLists(
+          placesList.generateMapForFilter(
+              placeCategoryFromFilter,
+              cityFromFilter,
+              haveEventsFromFilter,
+              nowIsOpenFromFilter,
+              havePromosFromFilter
+          )
+      );
+
+      allElementsList = AdUser.generateIndexedList(adIndexesList, placesList.placeList.length);
+
+    });
+
+    setState(() {
+      refresh = false;
+    });
   }
 }

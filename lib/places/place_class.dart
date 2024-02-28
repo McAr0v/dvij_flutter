@@ -3,7 +3,9 @@ import 'package:dvij_flutter/dates/regular_date_class.dart';
 import 'package:dvij_flutter/places/place_category_class.dart';
 import 'package:dvij_flutter/places/place_list_class.dart';
 import 'package:dvij_flutter/classes/user_class.dart';
+import 'package:dvij_flutter/places/place_sorting_options.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/material.dart';
 import '../database/database_mixin.dart';
 import '../dates/date_mixin.dart';
 import '../dates/time_mixin.dart';
@@ -460,6 +462,43 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
       return Place.fromSnapshot(snapshot);
     }
     return returnedPlace;
+  }
+
+  List<DropdownMenuItem<PlaceSortingOption>> getPlaceSortingOptionsList(){
+    return [
+      const DropdownMenuItem(
+        value: PlaceSortingOption.nameAsc,
+        child: Text('По имени: А-Я'),
+      ),
+      const DropdownMenuItem(
+        value: PlaceSortingOption.nameDesc,
+        child: Text('По имени: Я-А'),
+      ),
+      const DropdownMenuItem(
+        value: PlaceSortingOption.favCountAsc,
+        child: Text('В избранном: по возрастанию'),
+      ),
+      const DropdownMenuItem(
+        value: PlaceSortingOption.favCountDesc,
+        child: Text('В избранном: по убыванию'),
+      ),
+      const DropdownMenuItem(
+        value: PlaceSortingOption.promoCountAsc,
+        child: Text('Акции: по возрастанию'),
+      ),
+      const DropdownMenuItem(
+        value: PlaceSortingOption.promoCountDesc,
+        child: Text('Акции: по убыванию'),
+      ),
+      const DropdownMenuItem(
+        value: PlaceSortingOption.eventCountAsc,
+        child: Text('Мероприятия: по возрастанию'),
+      ),
+      const DropdownMenuItem(
+        value: PlaceSortingOption.eventCountDesc,
+        child: Text('Мероприятия: по убыванию'),
+      ),
+    ];
   }
 
 }
