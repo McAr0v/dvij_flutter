@@ -15,16 +15,16 @@ import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../dates/date_mixin.dart';
-import '../../widgets_global/text_widgets/text_size_enum.dart';
+import '../text_widgets/text_size_enum.dart';
 
-class EventSmallCardWidget extends StatelessWidget {
+class CardWidgetForEventAndPromo extends StatelessWidget {
   final EventCustom? event;
   final PromoCustom? promo;
   final Function() onFavoriteIconPressed; // Добавьте функцию обратного вызова
   final Function() onTap; // Добавьте функцию обратного вызова
   final double? height;
 
-  const EventSmallCardWidget(
+  const CardWidgetForEventAndPromo(
       {
         super.key,
         this.event,
@@ -42,7 +42,6 @@ class EventSmallCardWidget extends StatelessWidget {
     String categoryName = '';
     DateTypeEnum dateType = DateTypeEnum.once;
     String imageUrl = '';
-    bool showTickets = false;
     int favCount = 0;
     String headline = '';
     bool inFav = false;
@@ -68,7 +67,6 @@ class EventSmallCardWidget extends StatelessWidget {
       inFav = event!.inFav;
       headline = event!.headline;
       favCount = event!.addedToFavouritesCount;
-      showTickets = true;
       imageUrl = event!.imageUrl;
       dateType = event!.dateType;
       categoryName = event!.category.name;
@@ -162,7 +160,7 @@ class EventSmallCardWidget extends StatelessWidget {
                     children: [
 
                       if (today) TodayWidget(isTrue: today),
-                      if (today) SizedBox(height: 3),
+                      if (today) const SizedBox(height: 3),
 
                       Text.rich(
                         TextSpan(
@@ -173,9 +171,9 @@ class EventSmallCardWidget extends StatelessWidget {
                         overflow: TextOverflow.ellipsis, // Определяет, что делать с текстом, который не помещается в виджет
                       ),
 
-                      SizedBox(height: 3,),
+                      const SizedBox(height: 3,),
                       Text('${city.name}, $street $house', style: Theme.of(context).textTheme.labelMedium!.copyWith(color: AppColors.greyText), softWrap: true,),
-                      SizedBox(height: 15,),
+                      const SizedBox(height: 15,),
 
                       if (dateType == DateTypeEnum.once)  Row(
 

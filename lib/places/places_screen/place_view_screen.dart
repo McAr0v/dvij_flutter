@@ -1,12 +1,12 @@
 import 'dart:core';
 import 'package:dvij_flutter/dates/date_mixin.dart';
-import 'package:dvij_flutter/events/event_class.dart';
-import 'package:dvij_flutter/events/events_elements/event_card_small_widget.dart';
+import 'package:dvij_flutter/widgets_global/cards_widgets/card_widget_for_event_and_promo.dart';
 import 'package:dvij_flutter/events/events_list_class.dart';
 import 'package:dvij_flutter/places/place_admins_screens/place_admins_screen.dart';
 import 'package:dvij_flutter/places/place_list_class.dart';
 import 'package:dvij_flutter/places/places_elements/add_managers_widget.dart';
 import 'package:dvij_flutter/widgets_global/schedule_widgets/schedule_regular_widget.dart';
+import 'package:dvij_flutter/widgets_global/text_widgets/expandable_text.dart';
 import 'package:dvij_flutter/widgets_global/text_widgets/headline_and_desc.dart';
 import 'package:dvij_flutter/widgets_global/social_widgets/social_buttons_widget.dart';
 import 'package:dvij_flutter/promos/promos_list_class.dart';
@@ -15,12 +15,7 @@ import 'package:dvij_flutter/users/place_users_roles.dart';
 import 'package:dvij_flutter/widgets_global/images/image_with_placeholder.dart';
 import 'package:dvij_flutter/widgets_global/text_widgets/text_size_enum.dart';
 import 'package:flutter/material.dart';
-import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../../dates/date_type_enum.dart';
-import '../../elements/shedule_elements/schedule_regular_and_irregular_widget.dart';
-import '../../promos/promos_elements/promo_card_widget.dart';
 import '../../promos/promotions/promo_view_page.dart';
 import '../place_class.dart';
 import '../../classes/user_class.dart';
@@ -28,7 +23,6 @@ import '../../elements/exit_dialog/exit_dialog.dart';
 import '../../elements/snack_bar.dart';
 import '../../widgets_global/text_widgets/for_cards_small_widget_with_icon_and_text.dart';
 import '../../elements/loading_screen.dart';
-import '../../events/events_elements/event_card_widget.dart';
 import '../../events/events_screens/event_view_screen.dart';
 import '../../widgets_global/text_widgets/now_is_work_widget.dart';
 import '../place_list_manager.dart';
@@ -54,15 +48,10 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
   DateTime currentDate = DateTime.now();
 
-  // --- Переключатель показа экрана загрузки -----
-
   bool loading = true;
   bool deleting = false;
   bool inFav = false;
   int favCounter = 0;
-
-  // Активный переключатель - мероприятия или акции
-  bool events = true;
 
   @override
   void initState() {
@@ -76,7 +65,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
       loading = true;
     });
 
-
+    // Подгружаем данные заведения
     if (PlaceListManager.currentFeedPlacesList.placeList.isNotEmpty){
       place = place.getEntityFromFeedList(widget.placeId);
     } else {
@@ -84,10 +73,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
     }
 
-    //place = place.getEntityFromFeedList(widget.placeId);
-
-    favCounter = place.addedToFavouritesCount!;
-
+    // Подгружаем список администраторов
     admins = await currentPlaceUser.getAdminsInfoFromDb(place.admins!);
 
     // Устанавливаем роль текущему пользователю
@@ -137,7 +123,11 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
               Navigator.of(context).pop(result);
             },
           ),
+
           actions: [
+
+            // ---- Кнопка редактирования ---
+
             if (currentPlaceUser.placeUserRole.controlLevel >= 90) IconButton(
                 onPressed: () async {
                   Navigator.push(
@@ -147,6 +137,8 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                 },
                 icon: const Icon(Icons.edit)
             ),
+
+            // ---- Кнопка удаления ---
 
             if (currentPlaceUser.placeUserRole.controlLevel == 100) IconButton(
                 onPressed: () async {
@@ -158,23 +150,22 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                       deleting = true;
                     });
 
-                    //String delete = await Place.deletePlace(widget.placeId, users, place.creatorId);
                     String delete = await place.deleteFromDb();
 
                     if (delete == 'success'){
 
                       place.deleteEntityFromCurrentEntityLists();
 
-                      //Place.deletePlaceFormCurrentPlaceLists(widget.placeId);
+                      _showSnackBar('Место успешно удалено', Colors.green, 2);
 
-                      showSnackBar(context, 'Место успешно удалено', Colors.green, 2);
                       navigateToPlaces();
 
                       setState(() {
                         deleting = false;
                       });
                     } else {
-                      showSnackBar(context, 'Место не было удалено по ошибке: $delete', AppColors.attentionRed, 2);
+                      _showSnackBar('Место не было удалено по ошибке: $delete', AppColors.attentionRed, 2);
+
                       setState(() {
                         deleting = false;
                       });
@@ -191,8 +182,8 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
         body: Stack(
           children: [
-            if (loading) LoadingScreen(),
-            if (deleting) const LoadingScreen(loadingText: 'Подожди, идет удаление заведения',),
+            if (loading) const LoadingScreen(),
+            if (deleting) const LoadingScreen(loadingText: 'Подожди, идет удаление заведения'),
             if (!loading && !deleting) CustomScrollView(
               slivers: <Widget>[
                 SliverList(
@@ -201,6 +192,9 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                       Stack(
                         alignment: Alignment.topRight,
                         children: [
+
+                          // Картинка
+
                           ImageWithPlaceHolderWidget(imagePath: place.imageUrl),
 
                           // Виджет ИЗБРАННОЕ
@@ -241,6 +235,9 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+
+                                  // НАЗВАНИЕ И АДРЕС
+
                                   HeadlineAndDesc(
                                     headline: place.name,
                                     description: '${place.city.name}, ${place.street}, ${place.house}',
@@ -252,6 +249,8 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
                                   const SizedBox(height: 5,),
 
+                                  // ФЛАГ - СЕЙЧАС ОТКРЫТО / ЗАКРЫТО
+
                                   TextOnBoolResultWidget(isTrue: place.nowIsOpen!, trueText: 'Сейчас открыто', falseText: 'Сейчас закрыто'),
 
                                 ],
@@ -260,11 +259,18 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                           ),
                         ],
                       ),
+
+                      // ВИДЖЕТЫ ПОД КАРТИНКОЙ
+
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+
+                            const SizedBox(height: 20.0),
+
+                            // ВИДЖЕТ МЕНЕДЖЕРОВ
 
                             if (currentPlaceUser.placeUserRole.controlLevel >= 90) AddManagersWidget(
                                 headline: 'Менеджеры (${place.admins!.length + 1})',
@@ -276,13 +282,19 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
                             if (currentPlaceUser.placeUserRole.controlLevel >= 90) const SizedBox(height: 16.0),
 
+                            // ВИДЖЕТ ТЕЛЕФОНА И СОЦ СЕТЕЙ
+
                             SocialButtonsWidget(telegramUsername: place.telegram, instagramUsername: place.instagram, whatsappUsername: place.whatsapp, phoneNumber: place.phone,),
 
                             const SizedBox(height: 16.0),
 
-                            if (place.desc != '') HeadlineAndDesc(headline: place.desc, description: 'Описание места', padding: 5, textSize: TextSizeEnum.bodyMedium,),
+                            // РАСКРЫВАЮЩЕЕСЯ ОПИСАНИЕ
 
-                            const SizedBox(height: 16.0),
+                            if (place.desc != '') ExpandableText(text: place.desc),
+
+                            const SizedBox(height: 30.0),
+
+                            // ВИДЖЕТ РЕЖИМА РАБОТЫ
 
                             ScheduleRegularWidget(
                                 headline: 'Режим работы',
@@ -290,6 +302,9 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                                 regularDate: place.openingHours,
                               isPlace: true
                             ),
+
+                            const SizedBox(height: 10,)
+
                           ],
                         ),
                       )
@@ -297,29 +312,35 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                   ),
                 ),
 
+                // КАРУСЕЛЬ МЕРОПРИЯТИЙ
+
                 _eventsHorizontalScroll(title: 'Мероприятия в "${place.name}"', desc: 'Любишь это место? Проведи здесь весело время вместе с ближайшими мероприятиями!', eventsList: eventsInThatPlace),
 
                 SliverList(
                   delegate: SliverChildListDelegate(
                     [
-                      SizedBox(height: 20,)
+                      const SizedBox(height: 10,)
                     ],
                   ),
                 ),
 
-                _promosHorizontalScroll(title: 'Акции в "${place.name}"', desc: 'Любишь это место? Проведи здесь весело время вместе с ближайшими мероприятиями!', promosList: promosInThatPlace),
+                // КАРУСЕЛЬ АКЦИЙ
+
+                _promosHorizontalScroll(title: 'Акции в "${place.name}"', desc: 'Вся доступная халява этого заведения)', promosList: promosInThatPlace),
+
+                // ВИДЖЕТ ДАТЫ СОЗДАНИЯ
 
                 SliverList(
                   delegate: SliverChildListDelegate(
                     [
                       if (place.createDate != DateTime(2100)) Padding(
-                          padding: EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+                        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
+                            Text('В движе с', style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.greyText),),
                             Text(DateMixin.getHumanDateFromDateTime(place.createDate), style: Theme.of(context).textTheme.bodySmall,),
-                            Text('Создано в движе', style: Theme.of(context).textTheme.labelSmall!.copyWith(color: AppColors.greyText),),
                           ],
                         ),
                       ),
@@ -333,13 +354,15 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
     );
   }
 
+  // ВИДЖЕТ КАРУСЕЛИ МЕРОПРИЯТИЙ
+
   SliverToBoxAdapter _eventsHorizontalScroll({required String title, required String desc, required EventsList eventsList}) {
     return SliverToBoxAdapter(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -347,7 +370,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                   title,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
-                SizedBox(height: 5,),
+                const SizedBox(height: 5),
                 Text(
                   desc,
                   style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.greyText),
@@ -361,11 +384,10 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
               scrollDirection: Axis.horizontal,
               itemCount: eventsList.eventsList.length,
               itemBuilder: (context, index) {
-                return EventSmallCardWidget(
+                return CardWidgetForEventAndPromo(
                   event: eventsList.eventsList[index],
                   onTap: () async {
 
-                    // TODO - переделать на мероприятия
                     final results = await Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -380,19 +402,12 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                       });
                     }
                   },
-
-                  // --- Функция на нажатие на карточке кнопки ИЗБРАННОЕ ---
                   onFavoriteIconPressed: () async {
 
-                    // TODO Сделать проверку на подтвержденный Email
-                    // ---- Если не зарегистрирован или не вошел ----
                     if (UserCustom.currentUser?.uid == '' || UserCustom.currentUser?.uid == null)
                     {
-                      showSnackBar(context, 'Чтобы добавлять в избранное, нужно зарегистрироваться!', AppColors.attentionRed, 2);
-                    }
-
-                    // --- Если пользователь залогинен -----
-                    else {
+                      _showSnackBar('Чтобы добавлять в избранное, нужно зарегистрироваться!', AppColors.attentionRed, 2);
+                    } else {
 
                       // --- Если уже в избранном ----
                       if (eventsList.eventsList[index].inFav == true)
@@ -400,7 +415,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                         // --- Удаляем из избранных ---
                         String resDel = await eventsList.eventsList[index].deleteFromFav();
                         // ---- Инициализируем счетчик -----
-                        int favCounter = eventsList.eventsList[index].addedToFavouritesCount!;
+                        int favCounter = eventsList.eventsList[index].addedToFavouritesCount;
 
                         if (resDel == 'success'){
                           // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
@@ -411,13 +426,11 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                             eventsList.eventsList[index].addedToFavouritesCount = favCounter;
                             // Обновляем общий список из БД
                             eventsList.eventsList[index].updateCurrentListFavInformation();
-                            //EventCustom.updateCurrentEventListFavInformation(eventsList[indexWithAddCountCorrection].id, favCounter, false);
-
                           });
-                          showSnackBar(context, 'Удалено из избранных', AppColors.attentionRed, 1);
+                          _showSnackBar('Удалено из избранных', AppColors.attentionRed, 1);
                         } else {
                           // Если удаление из избранных не прошло, показываем сообщение
-                          showSnackBar(context, resDel, AppColors.attentionRed, 1);
+                          _showSnackBar(resDel, AppColors.attentionRed, 1);
                         }
                       }
                       else {
@@ -427,7 +440,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                         String res = await eventsList.eventsList[index].addToFav();
 
                         // ---- Инициализируем счетчик добавивших в избранное
-                        int favCounter = eventsList.eventsList[index].addedToFavouritesCount!;
+                        int favCounter = eventsList.eventsList[index].addedToFavouritesCount;
 
                         if (res == 'success') {
                           // --- Если добавилось успешно, так же обновляем текущий список и список из БД
@@ -438,14 +451,13 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                             eventsList.eventsList[index].addedToFavouritesCount = favCounter;
                             // Обновляем список из БД
                             eventsList.eventsList[index].updateCurrentListFavInformation();
-                            //EventCustom.updateCurrentEventListFavInformation(eventsList[indexWithAddCountCorrection].id, favCounter, true);
                           });
 
-                          showSnackBar(context, 'Добавлено в избранные', Colors.green, 1);
+                          _showSnackBar('Добавлено в избранные', Colors.green, 1);
 
                         } else {
                           // Если добавление прошло неудачно, отображаем всплывающее окно
-                          showSnackBar(context , res, AppColors.attentionRed, 1);
+                          _showSnackBar(res, AppColors.attentionRed, 1);
                         }
                       }
                     }
@@ -459,13 +471,15 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
     );
   }
 
+  // ВИДЖЕТ КАРУСЕЛИ АКЦИЙ
+
   SliverToBoxAdapter _promosHorizontalScroll({required String title, required String desc, required PromoList promosList}) {
     return SliverToBoxAdapter(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -473,7 +487,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                   title,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
-                SizedBox(height: 5,),
+                const SizedBox(height: 5),
                 Text(
                   desc,
                   style: Theme.of(context).textTheme.bodySmall!.copyWith(color: AppColors.greyText),
@@ -487,11 +501,9 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
               scrollDirection: Axis.horizontal,
               itemCount: promosList.promosList.length,
               itemBuilder: (context, index) {
-                return EventSmallCardWidget(
+                return CardWidgetForEventAndPromo(
                   promo: promosList.promosList[index],
                   onTap: () async {
-
-                    // TODO - переделать на мероприятия
                     final results = await Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -506,19 +518,12 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                       });
                     }
                   },
-
-                  // --- Функция на нажатие на карточке кнопки ИЗБРАННОЕ ---
                   onFavoriteIconPressed: () async {
 
-                    // TODO Сделать проверку на подтвержденный Email
-                    // ---- Если не зарегистрирован или не вошел ----
                     if (UserCustom.currentUser?.uid == '' || UserCustom.currentUser?.uid == null)
                     {
                       showSnackBar(context, 'Чтобы добавлять в избранное, нужно зарегистрироваться!', AppColors.attentionRed, 2);
-                    }
-
-                    // --- Если пользователь залогинен -----
-                    else {
+                    } else {
 
                       // --- Если уже в избранном ----
                       if (promosList.promosList[index].inFav == true)
@@ -526,7 +531,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                         // --- Удаляем из избранных ---
                         String resDel = await promosList.promosList[index].deleteFromFav();
                         // ---- Инициализируем счетчик -----
-                        int favCounter = promosList.promosList[index].addedToFavouritesCount!;
+                        int favCounter = promosList.promosList[index].addedToFavouritesCount;
 
                         if (resDel == 'success'){
                           // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
@@ -537,23 +542,21 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                             promosList.promosList[index].addedToFavouritesCount = favCounter;
                             // Обновляем общий список из БД
                             promosList.promosList[index].updateCurrentListFavInformation();
-                            //EventCustom.updateCurrentEventListFavInformation(eventsList[indexWithAddCountCorrection].id, favCounter, false);
 
                           });
-                          showSnackBar(context, 'Удалено из избранных', AppColors.attentionRed, 1);
+                          _showSnackBar('Удалено из избранных', AppColors.attentionRed, 1);
                         } else {
                           // Если удаление из избранных не прошло, показываем сообщение
-                          showSnackBar(context, resDel, AppColors.attentionRed, 1);
+                          _showSnackBar(resDel, AppColors.attentionRed, 1);
                         }
                       }
                       else {
-                        // --- Если заведение не в избранном ----
 
                         // -- Добавляем в избранное ----
                         String res = await promosList.promosList[index].addToFav();
 
                         // ---- Инициализируем счетчик добавивших в избранное
-                        int favCounter = promosList.promosList[index].addedToFavouritesCount!;
+                        int favCounter = promosList.promosList[index].addedToFavouritesCount;
 
                         if (res == 'success') {
                           // --- Если добавилось успешно, так же обновляем текущий список и список из БД
@@ -564,14 +567,13 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                             promosList.promosList[index].addedToFavouritesCount = favCounter;
                             // Обновляем список из БД
                             promosList.promosList[index].updateCurrentListFavInformation();
-                            //EventCustom.updateCurrentEventListFavInformation(eventsList[indexWithAddCountCorrection].id, favCounter, true);
                           });
 
-                          showSnackBar(context, 'Добавлено в избранные', Colors.green, 1);
+                          _showSnackBar('Добавлено в избранные', Colors.green, 1);
 
                         } else {
                           // Если добавление прошло неудачно, отображаем всплывающее окно
-                          showSnackBar(context , res, AppColors.attentionRed, 1);
+                          _showSnackBar(res, AppColors.attentionRed, 1);
                         }
                       }
                     }
@@ -612,46 +614,29 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
     }
   }
 
+  void _showSnackBar(String text, Color color, int time){
+    showSnackBar(context, text, color, time);
+  }
+
   Future<void> addOrDeleteFromFav() async {
-    // TODO Сделать проверку на подтвержденный Email
-    if (UserCustom.currentUser?.uid == '' || UserCustom.currentUser?.uid == null)
-    {
-
+    if (UserCustom.currentUser?.uid == '' || UserCustom.currentUser?.uid == null) {
       showSnackBar(context, 'Чтобы добавлять в избранное, нужно зарегистрироваться!', AppColors.attentionRed, 2);
-
-    }
-
-    else {
-
-      if (inFav)
-      {
-
-        //String resDel = await Place.deletePlaceFromFav(place.id);
+    } else {
+      if (inFav) {
         String resDel = await place.deleteFromFav();
-
         if (resDel == 'success'){
           setState(() {
             inFav = false;
             favCounter --;
             place.inFav = inFav;
             place.addedToFavouritesCount = favCounter;
-
             place.updateCurrentListFavInformation();
-
-            //Place.updateCurrentPlaceListFavInformation(place.id, favCounter.toString(), inFav);
           });
-
-          showSnackBar(context, 'Удалено из избранных', AppColors.attentionRed, 1);
+          _showSnackBar('Удалено из избранных', AppColors.attentionRed, 1);
         } else {
-
-          showSnackBar(context, resDel, AppColors.attentionRed, 1);
+          _showSnackBar(resDel, AppColors.attentionRed, 1);
         }
-
-
-
-      }
-      else {
-        //String res = await Place.addPlaceToFav(place.id);
+      } else {
         String res = await place.addToFav();
         if (res == 'success') {
 
@@ -661,20 +646,16 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
             place.inFav = inFav;
             place.addedToFavouritesCount = favCounter;
             place.updateCurrentListFavInformation();
-            //Place.updateCurrentPlaceListFavInformation(place.id, favCounter.toString(), inFav);
           });
 
-          showSnackBar(context, 'Добавлено в избранные', Colors.green, 1);
+          _showSnackBar('Добавлено в избранные', Colors.green, 1);
 
         } else {
 
-          showSnackBar(context, res, AppColors.attentionRed, 1);
+          _showSnackBar(res, AppColors.attentionRed, 1);
 
         }
-
       }
-
     }
   }
-
 }
