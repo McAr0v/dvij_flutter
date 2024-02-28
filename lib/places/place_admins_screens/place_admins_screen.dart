@@ -110,7 +110,14 @@ class PlaceAdminsScreenState extends State<PlaceAdminsScreen> {
             padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
             child: SingleChildScrollView(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+
+                  Text('Менеджеры', style: Theme.of(context).textTheme.titleLarge,),
+                  const SizedBox(height: 10,),
+                  Text('Ты можешь управлять менеджерами своего заведения. Организаторы могут добавлять мероприятия и акции от имени заведения, а администраторы - полноценно управлять заведением', style: Theme.of(context).textTheme.bodyMedium,),
+                  const SizedBox(height: 30,),
+
                   if (creator.name != '') PlaceManagersElementListItem(
                     user: creator,
                     showButton: false

@@ -5,15 +5,13 @@ import 'package:dvij_flutter/events/events_list_class.dart';
 import 'package:dvij_flutter/places/place_admins_screens/place_admins_screen.dart';
 import 'package:dvij_flutter/places/place_list_class.dart';
 import 'package:dvij_flutter/places/places_elements/add_managers_widget.dart';
+import 'package:dvij_flutter/widgets_global/images/image_for_view_screen.dart';
 import 'package:dvij_flutter/widgets_global/schedule_widgets/schedule_regular_widget.dart';
 import 'package:dvij_flutter/widgets_global/text_widgets/expandable_text.dart';
-import 'package:dvij_flutter/widgets_global/text_widgets/headline_and_desc.dart';
 import 'package:dvij_flutter/widgets_global/social_widgets/social_buttons_widget.dart';
 import 'package:dvij_flutter/promos/promos_list_class.dart';
 import 'package:dvij_flutter/users/place_user_class.dart';
 import 'package:dvij_flutter/users/place_users_roles.dart';
-import 'package:dvij_flutter/widgets_global/images/image_with_placeholder.dart';
-import 'package:dvij_flutter/widgets_global/text_widgets/text_size_enum.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import '../../promos/promotions/promo_view_page.dart';
@@ -21,10 +19,8 @@ import '../place_class.dart';
 import '../../classes/user_class.dart';
 import '../../elements/exit_dialog/exit_dialog.dart';
 import '../../elements/snack_bar.dart';
-import '../../widgets_global/text_widgets/for_cards_small_widget_with_icon_and_text.dart';
 import '../../elements/loading_screen.dart';
 import '../../events/events_screens/event_view_screen.dart';
-import '../../widgets_global/text_widgets/now_is_work_widget.dart';
 import '../place_list_manager.dart';
 import 'create_or_edit_place_screen.dart';
 
@@ -142,37 +138,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
             if (currentPlaceUser.placeUserRole.controlLevel == 100) IconButton(
                 onPressed: () async {
-                  bool? confirmed = await exitDialog(context, "Ты правда хочешь удалить заведение? Ты не сможешь восстановить данные" , 'Да', 'Нет', 'Удаление заведения');
-
-                  if (confirmed != null && confirmed){
-
-                    setState(() {
-                      deleting = true;
-                    });
-
-                    String delete = await place.deleteFromDb();
-
-                    if (delete == 'success'){
-
-                      place.deleteEntityFromCurrentEntityLists();
-
-                      _showSnackBar('Место успешно удалено', Colors.green, 2);
-
-                      navigateToPlaces();
-
-                      setState(() {
-                        deleting = false;
-                      });
-                    } else {
-                      _showSnackBar('Место не было удалено по ошибке: $delete', AppColors.attentionRed, 2);
-
-                      setState(() {
-                        deleting = false;
-                      });
-                    }
-
-                  }
-
+                  deletePlace();
                 },
                 icon: const Icon(Icons.delete_forever, color: AppColors.attentionRed,)
             ),
@@ -189,75 +155,20 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                 SliverList(
                   delegate: SliverChildListDelegate(
                     [
-                      Stack(
-                        alignment: Alignment.topRight,
-                        children: [
 
-                          // Картинка
-
-                          ImageWithPlaceHolderWidget(imagePath: place.imageUrl),
-
-                          // Виджет ИЗБРАННОЕ
-
-                          Positioned(
-                            top: 10.0,
-                            right: 10.0,
-                            child: IconAndTextInTransparentSurfaceWidget(
-                              icon: Icons.bookmark,
-                              text: '$favCounter',
-                              iconColor: inFav ? AppColors.brandColor : AppColors.white,
-                              side: false,
-                              backgroundColor: AppColors.greyBackground.withOpacity(0.8),
-                              onPressed: () async {
-                                addOrDeleteFromFav();
-                              },
-                            ),
-                          ),
-
-                          // Виджет КАТЕГОРИЯ
-
-                          Positioned(
-                            top: 10.0,
-                            left: 10.0,
-                            child: IconAndTextInTransparentSurfaceWidget(
-                                text: place.category.name,
-                                iconColor: AppColors.white,
-                                side: true,
-                                backgroundColor: AppColors.greyBackground.withOpacity(0.8)
-                            ),
-                          ),
-
-                          Positioned(
-                            bottom: 20.0,
-                            left: 20.0,
-                            child: SizedBox(
-                              width: MediaQuery.of(context).size.width,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-
-                                  // НАЗВАНИЕ И АДРЕС
-
-                                  HeadlineAndDesc(
-                                    headline: place.name,
-                                    description: '${place.city.name}, ${place.street}, ${place.house}',
-                                    textSize: TextSizeEnum.headlineLarge,
-                                    descSize: TextSizeEnum.bodySmall,
-                                    descColor: AppColors.white,
-                                    padding: 5,
-                                  ),
-
-                                  const SizedBox(height: 5,),
-
-                                  // ФЛАГ - СЕЙЧАС ОТКРЫТО / ЗАКРЫТО
-
-                                  TextOnBoolResultWidget(isTrue: place.nowIsOpen!, trueText: 'Сейчас открыто', falseText: 'Сейчас закрыто'),
-
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
+                      ImageForViewScreen(
+                          imagePath: place.imageUrl,
+                          favCounter: favCounter,
+                          inFav: inFav,
+                          onTap: () async {
+                            addOrDeleteFromFav();
+                          },
+                          categoryName: place.category.name,
+                          headline: place.name,
+                          desc: '${place.city.name}, ${place.street}, ${place.house}',
+                          openOrToday: place.nowIsOpen!,
+                          trueText: 'Сейчас открыто',
+                          falseText: 'Сейчас закрыто'
                       ),
 
                       // ВИДЖЕТЫ ПОД КАРТИНКОЙ
@@ -593,6 +504,39 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
       '/Places',
           (route) => false,
     );
+  }
+
+  void deletePlace() async {
+    bool? confirmed = await exitDialog(context, "Ты правда хочешь удалить заведение? Ты не сможешь восстановить данные" , 'Да', 'Нет', 'Удаление заведения');
+
+    if (confirmed != null && confirmed){
+
+      setState(() {
+        deleting = true;
+      });
+
+      String delete = await place.deleteFromDb();
+
+      if (delete == 'success'){
+
+        place.deleteEntityFromCurrentEntityLists();
+
+        _showSnackBar('Место успешно удалено', Colors.green, 2);
+
+        navigateToPlaces();
+
+        setState(() {
+          deleting = false;
+        });
+      } else {
+        _showSnackBar('Место не было удалено по ошибке: $delete', AppColors.attentionRed, 2);
+
+        setState(() {
+          deleting = false;
+        });
+      }
+
+    }
   }
 
   void navigateToManagersList() async {
