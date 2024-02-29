@@ -1,7 +1,6 @@
 import 'package:dvij_flutter/places/place_class.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:flutter/material.dart';
-import '../../cities/city_class.dart';
 
 class PlaceWidgetInCreateEventScreen extends StatelessWidget {
   final Place place;
@@ -71,13 +70,6 @@ class PlaceWidgetInCreateEventScreen extends StatelessWidget {
                     '${place.city.name}, ул. ${place.street} - ${place.house}',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
-
-                  /*const SizedBox(height: 5.0),
-
-                  Text(
-                    place.roleInPlace != null ? PlaceRole.getPlaceRoleDesc(place.roleInPlace!) : '',
-                    style: Theme.of(context).textTheme.labelMedium,
-                  ),*/
                 ],
               ),
             ),
@@ -91,25 +83,20 @@ class PlaceWidgetInCreateEventScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 IconButton(
-                  icon: Icon(Icons.edit),
+                  icon: const Icon(Icons.edit),
                   // --- Уходим на экран редактирования -----
                   onPressed: onTapMethod,
                 ),
 
-                //const SizedBox(width: 10.0),
-
                 // ---- Редактирование ----
 
                 IconButton(
-                  icon: Icon(Icons.delete, color: AppColors.attentionRed,),
+                  icon: const Icon(Icons.delete, color: AppColors.attentionRed,),
                   // --- Уходим на экран редактирования -----
                   onPressed: onDeleteMethod,
                 ),
               ],
             )
-
-
-
           ],
         ),
         //const SizedBox(height: 20,)

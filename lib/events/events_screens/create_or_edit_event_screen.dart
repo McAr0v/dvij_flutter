@@ -16,7 +16,6 @@ import 'package:dvij_flutter/elements/types_of_date_time_pickers/long_type_date_
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/once_type_date_time_picker_widget.dart';
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/regular_two_type_date_time_picker_widget.dart';
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/type_of_date_widget.dart';
-import 'package:dvij_flutter/methods/days_functions.dart';
 import 'package:dvij_flutter/places/place_list_class.dart';
 import 'package:dvij_flutter/places/place_list_manager.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +28,7 @@ import '../../classes/role_in_app.dart';
 import '../../classes/user_class.dart';
 import '../../elements/choose_dialogs/city_choose_dialog.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../elements/image_in_edit_screen.dart';
+import '../../widgets_global/images/image_in_edit_screen.dart';
 import '../../elements/loading_screen.dart';
 import '../../image_Uploader/image_uploader.dart';
 import '../../image_uploader/image_picker.dart';

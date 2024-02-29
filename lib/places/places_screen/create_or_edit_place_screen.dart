@@ -14,7 +14,7 @@ import '../../dates/regular_date_class.dart';
 import '../../elements/choose_dialogs/city_choose_dialog.dart';
 import '../../elements/custom_snack_bar.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../elements/image_in_edit_screen.dart';
+import '../../widgets_global/images/image_in_edit_screen.dart';
 import '../../elements/loading_screen.dart';
 import '../../elements/types_of_date_time_pickers/regular_two_type_date_time_picker_widget.dart';
 import '../../image_Uploader/image_uploader.dart';
@@ -25,8 +25,6 @@ class CreateOrEditPlaceScreen extends StatefulWidget {
   final Place placeInfo;
 
   const CreateOrEditPlaceScreen({Key? key, required this.placeInfo}) : super(key: key);
-
-
 
   @override
   CreateOrEditPlaceScreenState createState() => CreateOrEditPlaceScreenState();
@@ -65,7 +63,6 @@ class CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
 
   late DateTime selectedDate;
   late RoleInApp chosenRoleInApp;
-  late int accessLevel;
 
   // ПЕРЕМЕННЫЕ ВРЕМЕНИ РАБОТЫ?
 
@@ -115,28 +112,21 @@ class CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
     loading = true;
     _categories = PlaceCategory.currentPlaceCategoryList;
 
-    accessLevel = UserCustom.accessLevel;
-
+    // Получаем или генерируем ключ
     if (widget.placeInfo.id == '') {
-
       placeId = MixinDatabase.generateKey()!;
-
     } else {
-
       placeId = widget.placeInfo.id;
-
     }
 
+    // Получаем Id создателя
     if (widget.placeInfo.creatorId == '') {
-
       creatorId = UserCustom.currentUser!.uid;
-
     } else {
-
       creatorId = widget.placeInfo.creatorId;
-
     }
 
+    // Устанавливаем дату создания
     if (widget.placeInfo.createDate == DateTime(2100)){
       createdTime = DateTime.now();
     }
@@ -145,58 +135,34 @@ class CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
     }
 
     // Подгружаем в контроллеры содержимое из БД.
-    Future.delayed(Duration.zero, () async {
 
-      //category = '';
-      nameController = TextEditingController(text: widget.placeInfo.name);
-      descController = TextEditingController(text: widget.placeInfo.desc);
+    nameController = TextEditingController(text: widget.placeInfo.name);
+    descController = TextEditingController(text: widget.placeInfo.desc);
 
-      phoneController = TextEditingController(text: widget.placeInfo.phone);
-      whatsappController = TextEditingController(text: widget.placeInfo.whatsapp);
-      telegramController = TextEditingController(text: widget.placeInfo.telegram);
-      instagramController = TextEditingController(text: widget.placeInfo.instagram);
-      cityController = TextEditingController(text: widget.placeInfo.city.name);
-      streetController = TextEditingController(text: widget.placeInfo.street);
-      houseController = TextEditingController(text: widget.placeInfo.house);
+    phoneController = TextEditingController(text: widget.placeInfo.phone);
+    whatsappController = TextEditingController(text: widget.placeInfo.whatsapp);
+    telegramController = TextEditingController(text: widget.placeInfo.telegram);
+    instagramController = TextEditingController(text: widget.placeInfo.instagram);
+    cityController = TextEditingController(text: widget.placeInfo.city.name);
+    streetController = TextEditingController(text: widget.placeInfo.street);
+    houseController = TextEditingController(text: widget.placeInfo.house);
 
-      imageController = TextEditingController(text: widget.placeInfo.imageUrl);
+    imageController = TextEditingController(text: widget.placeInfo.imageUrl);
 
-      _cities = City.currentCityList;
-      _categories = PlaceCategory.currentPlaceCategoryList;
+    _cities = City.currentCityList;
+    _categories = PlaceCategory.currentPlaceCategoryList;
 
-      chosenCategory = widget.placeInfo.category;
+    chosenCategory = widget.placeInfo.category;
 
-      chosenCity = widget.placeInfo.city;
+    chosenCity = widget.placeInfo.city;
 
-      _fillRegularList();
+    _fillRegularList();
 
-      setState(() {
-        loading = false;
-      });
+    setState(() {
+      loading = false;
     });
+
   }
-
-  /*Widget _buildTimeDropdown(
-      String label, String selectedTime, void Function(String?) onChanged) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        DropdownButton<String>(
-          value: selectedTime,
-          onChanged: onChanged,
-          items: _timeList.map((String time) {
-            return DropdownMenuItem<String>(
-              value: time,
-              child: Text(time),
-            );
-          }).toList(),
-        ),
-        Text(label, style: Theme.of(context).textTheme.labelMedium,),
-      ],
-    );
-  }*/
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -257,38 +223,18 @@ class CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
 
                     const SizedBox(height: 16.0),
 
-                    if (chosenCity.id == '') CityElementInEditScreen(
-                      cityName: 'Город не выбран',
+                    CityElementInEditScreen(
+                      cityName: chosenCity.id == ''? 'Город не выбран' : chosenCity.name,
                       onActionPressed: () {
-                        //_showCityPickerDialog();
-                        _showCityPickerDialog();
-                      },
-                    ),
-
-                    if (chosenCity.id != "") CityElementInEditScreen(
-                      cityName: chosenCity.name,
-                      onActionPressed: () {
-                        //_showCityPickerDialog();
                         _showCityPickerDialog();
                       },
                     ),
 
                     const SizedBox(height: 16.0),
 
-                    // ---- ВОТ ТУТ ДЕЛАЮ ----
-
-                    if (chosenCategory.id == '') CategoryElementInEditScreen(
-                      categoryName: 'Категория не выбрана',
+                    CategoryElementInEditScreen(
+                      categoryName: chosenCategory.id == ''? 'Категория не выбрана': chosenCategory.name,
                       onActionPressed: () {
-                        //_showCityPickerDialog();
-                        _showCategoryPickerDialog();
-                      },
-                    ),
-
-                    if (chosenCategory.id != "") CategoryElementInEditScreen(
-                      categoryName: chosenCategory.name,
-                      onActionPressed: () {
-                        //_showCityPickerDialog();
                         _showCategoryPickerDialog();
                       },
                     ),
@@ -404,17 +350,9 @@ class CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
                           // Сжимаем изображение
                           final compressedImage = await imagePickerService.compressImage(_imageFile!);
 
-
-
                           // Выгружаем изображение в БД и получаем URL картинки
                           avatarURL = await ImageUploader.uploadImageInPlace(placeId, compressedImage);
 
-                          // Если URL аватарки есть
-                          if (avatarURL != null) {
-                            // TODO: Сделать вывод какой-то, что картинка загружена
-                          } else {
-                            // TODO: Сделать обработку ошибок, если не удалось загрузить картинку в базу данных пользователя
-                          }
                         }
 
                         Place place = Place(
@@ -438,7 +376,6 @@ class CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
                         );
 
                         // Выгружаем пользователя в БД
-                        //String? editInDatabase = await Place.createOrEditPlace(place);
                         String? editInDatabase = await place.publishToDb();
 
                         // Если выгрузка успешна

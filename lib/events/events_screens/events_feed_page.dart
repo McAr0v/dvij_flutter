@@ -12,7 +12,7 @@ import '../../classes/user_class.dart';
 import '../../elements/loading_screen.dart';
 import '../../elements/snack_bar.dart';
 import '../../widgets_global/text_widgets/headline_and_desc.dart';
-import '../../widgets_global/cards_widgets/card_widget_for_event_and_promo.dart';
+import '../../widgets_global/cards_widgets/card_widget_for_event_promo_places.dart';
 import '../events_elements/event_card_widget.dart';
 import '../events_elements/event_filter_page.dart';
 import '../events_list_manager.dart';
@@ -329,7 +329,7 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
                                 );
                               } else {
                                 int indexWithAddCountCorrection = allElementsList[index].second;
-                                return CardWidgetForEventAndPromo(
+                                return CardWidgetForEventPromoPlaces(
                                   height: 450,
                                   event: eventsList.eventsList[indexWithAddCountCorrection],
                                   onTap: () async {

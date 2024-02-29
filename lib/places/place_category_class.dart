@@ -3,8 +3,6 @@ import 'package:dvij_flutter/interfaces/app_services_interface.dart';
 import 'package:dvij_flutter/places/place_extensions.dart';
 import 'package:firebase_database/firebase_database.dart';
 
-import '../dates/date_mixin.dart';
-
 class PlaceCategory with MixinDatabase implements IAppServices<PlaceCategory> {
   late String id; // Идентификатор города
   late String name; // Название города

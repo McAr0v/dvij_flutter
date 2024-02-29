@@ -18,7 +18,7 @@ import '../../places/place_class.dart';
 import '../text_widgets/now_is_work_widget.dart';
 import '../text_widgets/text_size_enum.dart';
 
-class CardWidgetForEventAndPromo extends StatelessWidget {
+class CardWidgetForEventPromoPlaces extends StatelessWidget {
   final EventCustom? event;
   final PromoCustom? promo;
   final Place? place;
@@ -26,7 +26,7 @@ class CardWidgetForEventAndPromo extends StatelessWidget {
   final Function() onTap; // Добавьте функцию обратного вызова
   final double? height;
 
-  const CardWidgetForEventAndPromo(
+  const CardWidgetForEventPromoPlaces(
       {
         super.key,
         this.event,

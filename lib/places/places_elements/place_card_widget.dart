@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:dvij_flutter/places/place_class.dart';
 import '../../widgets_global/text_widgets/now_is_work_widget.dart';
 
-class PlaceCardWidget extends StatelessWidget {
+/*class PlaceCardWidget extends StatelessWidget {
   final Place place;
   final Function()? onFavoriteIconPressed; // Добавьте функцию обратного вызова
   final Function()? onTap; // Добавьте функцию обратного вызова
@@ -169,4 +169,4 @@ class PlaceCardWidget extends StatelessWidget {
       ),
     );
   }
-}
+}*/

@@ -12,13 +12,13 @@ import '../../themes/app_colors.dart';
 
 class PlaceFilterPage extends StatefulWidget {
   final List<PlaceCategory> categories;
-  PlaceCategory chosenCategory;
-  City chosenCity;
-  bool nowIsOpen;
-  bool haveEvents;
-  bool havePromos;
+  final PlaceCategory chosenCategory;
+  final City chosenCity;
+  final bool nowIsOpen;
+  final bool haveEvents;
+  final bool havePromos;
 
-  PlaceFilterPage({super.key,
+  const PlaceFilterPage({super.key,
     required this.categories,
     required this.chosenCategory,
     required this.chosenCity,
@@ -98,7 +98,7 @@ class PlaceFilterPageState extends State<PlaceFilterPage> {
                               'Фильтр и сортировка:',
                               style: Theme.of(context).textTheme.displayMedium,
                             ),
-                            SizedBox(height: 5,),
+                            const SizedBox(height: 5,),
                             Text(
                               'Для наиболее точного поиска укажи все возможные элементы фильтра',
                               style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.greyText),
@@ -120,14 +120,14 @@ class PlaceFilterPageState extends State<PlaceFilterPage> {
                 ],
               ),
 
-              SizedBox(height: 8.0),
+              const SizedBox(height: 8.0),
 
               // --- Содержимое фильтра ----
 
               Expanded(
                   child: SingleChildScrollView (
                     child: Container (
-                      padding: EdgeInsets.all(15),
+                      padding: const EdgeInsets.all(15),
                       decoration: BoxDecoration(
                         color: AppColors.greyBackground,
                         borderRadius: BorderRadius.circular(8.0),
@@ -207,7 +207,7 @@ class PlaceFilterPageState extends State<PlaceFilterPage> {
                             verticalPadding: 10,
                           ),
 
-                          SizedBox(height: 50,),
+                          const SizedBox(height: 50,),
 
                           CustomButton(
                             buttonText: 'Очистить фильтр',
@@ -305,7 +305,7 @@ class PlaceFilterPageState extends State<PlaceFilterPage> {
         var offsetAnimation = animation.drive(tween);
         return SlideTransition(position: offsetAnimation, child: child);
       },
-      transitionDuration: Duration(milliseconds: 100),
+      transitionDuration: const Duration(milliseconds: 100),
 
     );
   }
@@ -317,7 +317,6 @@ class PlaceFilterPageState extends State<PlaceFilterPage> {
       setState(() {
         chosenCity = selectedCity;
       });
-      print("Selected city: ${selectedCity.name}, ID: ${selectedCity.id}");
     }
   }
 
@@ -336,7 +335,7 @@ class PlaceFilterPageState extends State<PlaceFilterPage> {
         var offsetAnimation = animation.drive(tween);
         return SlideTransition(position: offsetAnimation, child: child);
       },
-      transitionDuration: Duration(milliseconds: 100),
+      transitionDuration: const Duration(milliseconds: 100),
 
     );
   }

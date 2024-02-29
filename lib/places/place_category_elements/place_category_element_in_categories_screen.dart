@@ -1,6 +1,5 @@
 import 'package:dvij_flutter/places/place_category_class.dart';
 import 'package:flutter/material.dart';
-
 import '../place_categories_screens/place_category_add_or_edit_screen.dart';
 
 class PlaceCategoryElementInCategoriesScreen extends StatelessWidget {

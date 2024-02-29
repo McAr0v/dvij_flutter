@@ -1,18 +1,17 @@
 import 'package:dvij_flutter/places/place_category_class.dart';
 import 'package:flutter/material.dart';
-import '../../cities/city_class.dart';
 import '../../themes/app_colors.dart';
 
 class PlaceCategoryPickerPage extends StatefulWidget {
   final List<PlaceCategory> categories;
 
-  PlaceCategoryPickerPage({required this.categories});
+  const PlaceCategoryPickerPage({super.key, required this.categories});
 
   @override
-  _PlaceCategoryPickerPageState createState() => _PlaceCategoryPickerPageState();
+  PlaceCategoryPickerPageState createState() => PlaceCategoryPickerPageState();
 }
 
-class _PlaceCategoryPickerPageState extends State<PlaceCategoryPickerPage> {
+class PlaceCategoryPickerPageState extends State<PlaceCategoryPickerPage> {
   TextEditingController searchController = TextEditingController();
   List<PlaceCategory> filteredCategories = [];
 

@@ -1,6 +1,6 @@
 import 'dart:core';
 import 'package:dvij_flutter/dates/date_mixin.dart';
-import 'package:dvij_flutter/widgets_global/cards_widgets/card_widget_for_event_and_promo.dart';
+import 'package:dvij_flutter/widgets_global/cards_widgets/card_widget_for_event_promo_places.dart';
 import 'package:dvij_flutter/events/events_list_class.dart';
 import 'package:dvij_flutter/places/place_admins_screens/place_admins_screen.dart';
 import 'package:dvij_flutter/places/place_list_class.dart';
@@ -295,7 +295,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
               scrollDirection: Axis.horizontal,
               itemCount: eventsList.eventsList.length,
               itemBuilder: (context, index) {
-                return CardWidgetForEventAndPromo(
+                return CardWidgetForEventPromoPlaces(
                   event: eventsList.eventsList[index],
                   onTap: () async {
 
@@ -412,7 +412,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
               scrollDirection: Axis.horizontal,
               itemCount: promosList.promosList.length,
               itemBuilder: (context, index) {
-                return CardWidgetForEventAndPromo(
+                return CardWidgetForEventPromoPlaces(
                   promo: promosList.promosList[index],
                   onTap: () async {
                     final results = await Navigator.push(

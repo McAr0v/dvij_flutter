@@ -1,21 +1,18 @@
-import 'package:dvij_flutter/events/event_category_class.dart';
-import 'package:dvij_flutter/places/place_category_class.dart';
 import 'package:dvij_flutter/places/place_list_class.dart';
 import 'package:flutter/material.dart';
-import '../../cities/city_class.dart';
 import '../../places/place_class.dart';
 import '../../themes/app_colors.dart';
 
 class PlacePickerPage extends StatefulWidget {
   final PlaceList places;
 
-  PlacePickerPage({required this.places});
+  const PlacePickerPage({super.key, required this.places});
 
   @override
-  _PlacePickerPageState createState() => _PlacePickerPageState();
+  PlacePickerPageState createState() => PlacePickerPageState();
 }
 
-class _PlacePickerPageState extends State<PlacePickerPage> {
+class PlacePickerPageState extends State<PlacePickerPage> {
   TextEditingController searchController = TextEditingController();
   List<Place> filteredPlaces = [];
 
@@ -62,7 +59,7 @@ class _PlacePickerPageState extends State<PlacePickerPage> {
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.close),
+                    icon: const Icon(Icons.close),
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
@@ -73,7 +70,7 @@ class _PlacePickerPageState extends State<PlacePickerPage> {
                 padding: const EdgeInsets.all(8.0),
                 child: TextField(
                   controller: searchController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: 'Поиск заведения...',
                   ),
                   onChanged: (value) {
@@ -81,12 +78,11 @@ class _PlacePickerPageState extends State<PlacePickerPage> {
                   },
                 ),
               ),
-              SizedBox(height: 8.0),
+              const SizedBox(height: 8.0),
 
               if (widget.places.placeList.isEmpty) Expanded(
                   child: Container (
-                    padding: EdgeInsets.all(15),
-                    //color: AppColors.greyOnBackground,
+                    padding: const EdgeInsets.all(15),
                     decoration: BoxDecoration(
                       color: AppColors.greyOnBackground,
                       borderRadius: BorderRadius.circular(8.0),
@@ -101,14 +97,12 @@ class _PlacePickerPageState extends State<PlacePickerPage> {
 
               if (widget.places.placeList.isNotEmpty) Expanded(
                   child: Container (
-                    padding: EdgeInsets.all(15),
-                    //color: AppColors.greyOnBackground,
+                    padding: const EdgeInsets.all(15),
                     decoration: BoxDecoration(
                       color: AppColors.greyOnBackground,
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     child: SingleChildScrollView(
-                      //padding: EdgeInsets.all(15),
                       child: ListBody(
                         children: filteredPlaces.map((Place place) {
                           return GestureDetector(
@@ -116,7 +110,7 @@ class _PlacePickerPageState extends State<PlacePickerPage> {
                               Navigator.of(context).pop(place);
                             },
                             child: Padding(
-                              padding: EdgeInsets.all(8.0),
+                              padding: const EdgeInsets.all(8.0),
                               child: Text(place.name),
                             ),
                           );

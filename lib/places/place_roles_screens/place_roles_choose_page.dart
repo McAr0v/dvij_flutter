@@ -3,15 +3,13 @@ import 'package:flutter/material.dart';
 import '../../themes/app_colors.dart';
 
 class PlaceRolesChoosePage extends StatefulWidget {
-
-
-  PlaceRolesChoosePage();
+  const PlaceRolesChoosePage({super.key});
 
   @override
-  _PlaceRolesChoosePageState createState() => _PlaceRolesChoosePageState();
+  PlaceRolesChoosePageState createState() => PlaceRolesChoosePageState();
 }
 
-class _PlaceRolesChoosePageState extends State<PlaceRolesChoosePage> {
+class PlaceRolesChoosePageState extends State<PlaceRolesChoosePage> {
   TextEditingController searchController = TextEditingController();
   PlaceUserRole placeRole = PlaceUserRole();
   List<PlaceUserRole> filteredRoles = [];
@@ -59,7 +57,7 @@ class _PlaceRolesChoosePageState extends State<PlaceRolesChoosePage> {
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.close),
+                    icon: const Icon(Icons.close),
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
@@ -70,7 +68,7 @@ class _PlaceRolesChoosePageState extends State<PlaceRolesChoosePage> {
                 padding: const EdgeInsets.all(8.0),
                 child: TextField(
                   controller: searchController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: 'Поиск роли...',
                   ),
                   onChanged: (value) {
@@ -78,17 +76,15 @@ class _PlaceRolesChoosePageState extends State<PlaceRolesChoosePage> {
                   },
                 ),
               ),
-              SizedBox(height: 8.0),
+              const SizedBox(height: 8.0),
               Expanded(
                   child: Container (
-                    padding: EdgeInsets.all(15),
-                    //color: AppColors.greyOnBackground,
+                    padding: const EdgeInsets.all(15),
                     decoration: BoxDecoration(
                       color: AppColors.greyOnBackground,
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     child: SingleChildScrollView(
-                      //padding: EdgeInsets.all(15),
                       child: ListBody(
                         children: filteredRoles.map((PlaceUserRole role) {
                           return GestureDetector(
@@ -96,7 +92,7 @@ class _PlaceRolesChoosePageState extends State<PlaceRolesChoosePage> {
                               Navigator.of(context).pop(role);
                             },
                             child: Padding(
-                              padding: EdgeInsets.all(8.0),
+                              padding: const EdgeInsets.all(8.0),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [

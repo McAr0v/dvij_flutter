@@ -7,7 +7,7 @@ class ImageInEditScreen extends StatelessWidget {
   final File? backgroundImageFile;
   final VoidCallback onEditPressed;
 
-  ImageInEditScreen({Key? key, this.backgroundImageUrl, this.backgroundImageFile, required this.onEditPressed}) : super(key: key);
+  const ImageInEditScreen({Key? key, this.backgroundImageUrl, this.backgroundImageFile, required this.onEditPressed}) : super(key: key);
 
   // ---- ВИДЖЕТ ИЗОБРАЖЕНИЯ НА ЭКРАНАХ РЕДАКТИРОВАНИЯ -----
 
@@ -51,7 +51,7 @@ class ImageInEditScreen extends StatelessWidget {
                 // КНОПКА РЕДАКТИРОВАТЬ ФОТО
 
                 Positioned(
-                  bottom: 16.0, // Задайте желаемый отступ внизу
+                  bottom: 16.0,
                   right: 16.0,
                   child: CustomButton(
                       buttonText: 'Изменить фото',

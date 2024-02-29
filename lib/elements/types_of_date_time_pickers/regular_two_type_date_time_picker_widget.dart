@@ -1,13 +1,7 @@
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import '../../methods/date_functions.dart';
-import '../../themes/app_colors.dart';
-import '../date_elements/data_picker.dart';
 
 class RegularTwoTypeDateTimePickerWidget extends StatelessWidget {
-  //final String title;
   final String startTimeLabelText;
   final String endTimeLabelText;
   final String startTime;
@@ -16,8 +10,7 @@ class RegularTwoTypeDateTimePickerWidget extends StatelessWidget {
   final Function(String?) onStartTimeChanged;
   final Function(String?) onEndTimeChanged;
 
-  RegularTwoTypeDateTimePickerWidget({
-    //required this.title,
+  RegularTwoTypeDateTimePickerWidget({super.key,
     required this.startTimeLabelText,
     required this.endTimeLabelText,
     required this.startTime,
@@ -31,10 +24,9 @@ class RegularTwoTypeDateTimePickerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      //mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         Text(getHumanWeekday(index, true), style: Theme.of(context).textTheme.bodyMedium,),
-        SizedBox(width: 20.0),
+        const SizedBox(width: 20.0),
         _buildTimeDropdown(
             startTimeLabelText,
             startTime,

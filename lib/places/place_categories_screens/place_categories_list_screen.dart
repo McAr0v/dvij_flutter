@@ -34,8 +34,6 @@ class PlaceCategoriesListScreenState extends State<PlaceCategoriesListScreen> {
 
     // Влючаем экран загрузки
     loading = true;
-    // Получаем список городов
-    //_getCitiesFromDatabase();
 
     if (PlaceCategory.currentPlaceCategoryList.isNotEmpty)
     {

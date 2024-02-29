@@ -17,7 +17,7 @@ import '../../classes/user_class.dart';
 import '../../elements/choose_dialogs/city_choose_dialog.dart';
 import '../../elements/custom_snack_bar.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../elements/image_in_edit_screen.dart';
+import '../../widgets_global/images/image_in_edit_screen.dart';
 import '../../elements/loading_screen.dart';
 import '../../image_Uploader/image_uploader.dart';
 import '../../image_uploader/image_picker.dart';

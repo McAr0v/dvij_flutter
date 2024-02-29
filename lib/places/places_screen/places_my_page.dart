@@ -6,6 +6,8 @@ import 'package:dvij_flutter/places/places_screen/place_view_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../../widgets_global/cards_widgets/card_widget_for_event_promo_places.dart';
+import '../../widgets_global/filter_widgets/filter_widget.dart';
 import '../place_list_manager.dart';
 import '../place_sorting_options.dart';
 import '../../classes/user_class.dart';
@@ -28,8 +30,9 @@ class PlacesMyPage extends StatefulWidget {
 
 
 class PlacesMyPageState extends State<PlacesMyPage> {
-  PlaceList placesMyList = PlaceList(); // Список мест
-  late List<PlaceCategory> placeCategoriesList; // Список категорий мест
+
+  PlaceList placesMyList = PlaceList();
+  late List<PlaceCategory> placeCategoriesList;
 
   // --- Переменные фильтра по умолчанию ----
 
@@ -38,7 +41,6 @@ class PlacesMyPageState extends State<PlacesMyPage> {
   bool nowIsOpenFromFilter = false;
   bool haveEventsFromFilter = false;
   bool havePromosFromFilter = false;
-
 
   Place placeEmpty = Place.emptyPlace;
 
@@ -70,17 +72,6 @@ class PlacesMyPageState extends State<PlacesMyPage> {
       loading = true;
     });
 
-    /*
-    // ---- Подгружаем город в фильтр из данных пользователя ---
-    if (UserCustom.currentUser != null){
-      if (UserCustom.currentUser!.city != ''){
-        City usersCity = City.getCityByIdFromList(UserCustom.currentUser!.city);
-        setState(() {
-          cityFromFilter = usersCity;
-        });
-      }
-    }*/
-
     // ---- Устанавливаем счетчик выбранных в фильтре настроек ----
 
     _setFiltersCount(placeCategoryFromFilter, cityFromFilter, nowIsOpenFromFilter, haveEventsFromFilter, havePromosFromFilter);
@@ -92,7 +83,7 @@ class PlacesMyPageState extends State<PlacesMyPage> {
 
       // ---- Считываем с БД заведения -----
       if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
-        //placesFavList = await Place.getFavPlaces(UserCustom.currentUser!.uid);
+
         placesMyList = await placesMyList.getMyListFromDb(UserCustom.currentUser!.uid);
 
         // --- Фильтруем список -----
@@ -109,13 +100,10 @@ class PlacesMyPageState extends State<PlacesMyPage> {
         });
       }
 
-
     } else {
       // --- Если список не пустой ----
       // --- Подгружаем готовый список ----
       placesMyList = PlaceListManager.currentMyPlacesList;
-
-
 
       // --- Фильтруем список ----
       setState(() {
@@ -164,7 +152,6 @@ class PlacesMyPageState extends State<PlacesMyPage> {
 
             if (UserCustom.currentUser?.uid != null || UserCustom.currentUser?.uid != ''){
 
-              //List<Place> tempPlacesList = await Place.getFavPlaces(UserCustom.currentUser!.uid);
               placesMyList = await placesMyList.getMyListFromDb(UserCustom.currentUser!.uid, refresh: true);
 
               setState(() {
@@ -204,93 +191,22 @@ class PlacesMyPageState extends State<PlacesMyPage> {
                 )
                 else Column(
                     children: [
+
                       // ---- Фильтр и сортировка -----
-                      Container(
-                          padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-                          color: AppColors.greyOnBackground,
-                          child: Row (
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
 
-                              // ---- Фильтр -----
-
-                              GestureDetector(
-                                onTap: (){
-                                  _showFilterDialog();
-                                },
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'Фильтр ${filterCount > 0 ? '($filterCount)' : ''}',
-                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: filterCount > 0 ? AppColors.brandColor : AppColors.white),
-                                    ),
-
-                                    const SizedBox(width: 20,),
-
-                                    Icon(
-                                      FontAwesomeIcons.filter,
-                                      size: 20,
-                                      color: filterCount > 0 ? AppColors.brandColor : AppColors.white ,
-                                    )
-                                  ],
-                                ),
-                              ),
-
-                              // ------ Сортировка ------
-
-                              SizedBox(
-                                width: MediaQuery.of(context).size.width * 0.5,
-                                child: DropdownButton<PlaceSortingOption>(
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                  isExpanded: true,
-                                  value: _selectedSortingOption,
-                                  onChanged: (PlaceSortingOption? newValue) {
-                                    setState(() {
-                                      _selectedSortingOption = newValue!;
-                                      placesMyList.sortEntitiesList(_selectedSortingOption);
-                                      //Place.sortPlaces(_selectedSortingOption, placesMyList);
-                                    });
-                                  },
-                                  items: const [
-                                    DropdownMenuItem(
-                                      value: PlaceSortingOption.nameAsc,
-                                      child: Text('По имени: А-Я'),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: PlaceSortingOption.nameDesc,
-                                      child: Text('По имени: Я-А'),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: PlaceSortingOption.favCountAsc,
-                                      child: Text('В избранном: по возрастанию'),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: PlaceSortingOption.favCountDesc,
-                                      child: Text('В избранном: по убыванию'),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: PlaceSortingOption.promoCountAsc,
-                                      child: Text('Акции: по возрастанию'),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: PlaceSortingOption.promoCountDesc,
-                                      child: Text('Акции: по убыванию'),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: PlaceSortingOption.eventCountAsc,
-                                      child: Text('Мероприятия: по возрастанию'),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: PlaceSortingOption.eventCountDesc,
-                                      child: Text('Мероприятия: по убыванию'),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            ],
-                          )
+                      FilterWidget(
+                        onFilterTap: (){
+                          _showFilterDialog();
+                        },
+                        filterCount: filterCount,
+                        sortingValue: _selectedSortingOption,
+                        onSortingValueChanged: (PlaceSortingOption? newValue) {
+                          setState(() {
+                            _selectedSortingOption = newValue!;
+                            placesMyList.sortEntitiesList(_selectedSortingOption);
+                          });
+                        },
+                        sortingItems: Place.emptyPlace.getPlaceSortingOptionsList(),
                       ),
 
                       // ---- Если список заведений пустой -----
@@ -318,9 +234,10 @@ class PlacesMyPageState extends State<PlacesMyPage> {
                               padding: const EdgeInsets.all(15.0),
                               itemCount: placesMyList.placeList.length,
                               itemBuilder: (context, index) {
-                                return PlaceCardWidget(
+                                return CardWidgetForEventPromoPlaces(
                                   // TODO Сделать обновление иконки избранного и счетчика при возврате из экрана просмотра заведения
                                   place: placesMyList.placeList[index],
+                                  height: 450,
 
                                   onTap: () async {
 
@@ -337,9 +254,6 @@ class PlacesMyPageState extends State<PlacesMyPage> {
                                         placesMyList.placeList[index].addedToFavouritesCount = results[1];
                                       });
                                     }
-
-                                    //final results = await Navigator.of(context).push(_createPopupFilter(placeCategoriesList));
-
                                   },
 
                                   // --- Функция на нажатие на карточке кнопки ИЗБРАННОЕ ---
@@ -359,7 +273,6 @@ class PlacesMyPageState extends State<PlacesMyPage> {
                                       if (placesMyList.placeList[index].inFav!)
                                       {
                                         // --- Удаляем из избранных ---
-                                        //String resDel = await Place.deletePlaceFromFav(placesMyList[index].id);
                                         String resDel = await placesMyList.placeList[index].deleteFromFav();
                                         // ---- Инициализируем счетчик -----
                                         int favCounter = placesMyList.placeList[index].addedToFavouritesCount!;
@@ -373,7 +286,6 @@ class PlacesMyPageState extends State<PlacesMyPage> {
                                             placesMyList.placeList[index].addedToFavouritesCount = favCounter;
                                             // Обновляем списки из БД
                                             placesMyList.placeList[index].updateCurrentListFavInformation();
-                                            //Place.updateCurrentPlaceListFavInformation(placesMyList[index].id, favCounter.toString(), 'false');
 
                                           });
                                           showSnackBar('Удалено из избранных', AppColors.attentionRed, 1);
@@ -386,7 +298,6 @@ class PlacesMyPageState extends State<PlacesMyPage> {
                                         // --- Если заведение не в избранном ----
 
                                         // -- Добавляем в избранное ----
-                                        //String res = await Place.addPlaceToFav(placesMyList[index].id);
                                         String res = await placesMyList.placeList[index].addToFav();
                                         // ---- Инициализируем счетчик добавивших в избранное
                                         int favCounter = placesMyList.placeList[index].addedToFavouritesCount!;

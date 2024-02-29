@@ -16,7 +16,6 @@ class PlacesPage extends StatelessWidget {
         backgroundColor: AppColors.greyOnBackground,
         body: Column(
           children: [
-            //const SizedBox(height: 24), // Добавьте отступ, если нужно
             TabBar(
               tabs: [
                 Tab(text: 'Все'),

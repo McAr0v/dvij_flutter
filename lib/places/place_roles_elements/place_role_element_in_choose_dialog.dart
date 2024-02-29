@@ -1,15 +1,11 @@
-import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:flutter/material.dart';
-
 import '../../themes/app_colors.dart';
 
 class PlaceRoleElementInChooseDialog extends StatelessWidget {
   final String? roleName;
   final VoidCallback onActionPressed;
 
-  PlaceRoleElementInChooseDialog({super.key, required this.onActionPressed, this.roleName});
-
-
+  const PlaceRoleElementInChooseDialog({super.key, required this.onActionPressed, this.roleName});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +18,6 @@ class PlaceRoleElementInChooseDialog extends StatelessWidget {
               children: [
                 TextFormField(
                   controller: TextEditingController(text: roleName?.isNotEmpty ?? true ? roleName! : 'Роль не выбрана'),
-                  //initialValue: cityName?.isNotEmpty ?? true ? cityName! : 'Город не выбран',
                   style: Theme.of(context).textTheme.bodyMedium,
                   enabled: false,
                   decoration: const InputDecoration(
@@ -34,13 +29,12 @@ class PlaceRoleElementInChooseDialog extends StatelessWidget {
                       fontWeight: FontWeight.normal,
                     ),
                     border: InputBorder.none,
-                    //contentPadding: EdgeInsets.zero,
                   ),
                 ),
               ],
             )
         ),
-        SizedBox(width: 8.0),
+        const SizedBox(width: 8.0),
 
         Card(
           color: AppColors.brandColor,
