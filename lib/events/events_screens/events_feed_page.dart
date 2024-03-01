@@ -317,7 +317,7 @@ class _EventsFeedPageState extends State<EventsFeedPage> {
 
                     if (eventsList.eventsList.isNotEmpty) Expanded(
                         child: ListView.builder(
-                            padding: const EdgeInsets.all(15.0),
+                            padding: const EdgeInsets.all(10.0),
                             itemCount: allElementsList.length,
                             itemBuilder: (context, index) {
                               if (allElementsList[index].first == 'ad')  {

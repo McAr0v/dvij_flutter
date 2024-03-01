@@ -20,7 +20,7 @@ class ScheduleOnceAndLongWidget extends StatefulWidget {
 
 
   const ScheduleOnceAndLongWidget({super.key,
-    this.horizontalPadding = 30,
+    this.horizontalPadding = 20,
     this.verticalPadding = 20,
     required this.dateHeadline,
     required this.dateDesc,

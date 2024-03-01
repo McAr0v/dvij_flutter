@@ -16,7 +16,6 @@ import '../place_sorting_options.dart';
 import '../../classes/user_class.dart';
 import '../../elements/custom_snack_bar.dart';
 import '../../elements/loading_screen.dart';
-import '../places_elements/place_card_widget.dart';
 import '../places_elements/place_filter_page.dart';
 
 
@@ -214,7 +213,7 @@ class PlacesFeedPageState extends State<PlacesFeedPage> {
                     if (placesList.placeList.isNotEmpty) Expanded(
 
                         child: ListView.builder(
-                            padding: const EdgeInsets.all(15.0),
+                            padding: const EdgeInsets.all(10.0),
                             itemCount: allElementsList.length,
                             itemBuilder: (context, index) {
                               if (allElementsList[index].first == 'ad')  {

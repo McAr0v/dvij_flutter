@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../promos/promotions/promo_view_page.dart';
+import '../../widgets_global/social_widgets/callback_widget.dart';
 import '../place_class.dart';
 import '../../classes/user_class.dart';
 import '../../elements/exit_dialog/exit_dialog.dart';
@@ -196,7 +197,12 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
                             // ВИДЖЕТ ТЕЛЕФОНА И СОЦ СЕТЕЙ
 
-                            SocialButtonsWidget(telegramUsername: place.telegram, instagramUsername: place.instagram, whatsappUsername: place.whatsapp, phoneNumber: place.phone,),
+                            CallbackWidget(
+                              telegram: place.telegram,
+                              whatsapp: place.whatsapp,
+                              phone: place.phone,
+                              instagram: place.instagram,
+                            ),
 
                             const SizedBox(height: 16.0),
 

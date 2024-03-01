@@ -11,18 +11,22 @@ class SocialButtonsWidget extends StatelessWidget {
   final String? telegramUsername;
   final String? whatsappUsername;
   final String? phoneNumber;
+  final double horizontalPadding;
+  final double verticalPadding;
 
   const SocialButtonsWidget({super.key,
     this.instagramUsername,
     this.telegramUsername,
     this.whatsappUsername,
     this.phoneNumber,
+    this.horizontalPadding = 15,
+    this.verticalPadding = 8
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8), // Отступы
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: verticalPadding), // Отступы
       decoration: BoxDecoration(
         color: AppColors.greyOnBackground,
         borderRadius: BorderRadius.circular(20),

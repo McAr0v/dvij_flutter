@@ -224,7 +224,7 @@ class PlacesFavPageState extends State<PlacesFavPage> {
 
                     if (placesFavList.placeList.isNotEmpty) Expanded(
                         child: ListView.builder(
-                            padding: const EdgeInsets.all(15.0),
+                            padding: const EdgeInsets.all(10.0),
                             itemCount: placesFavList.placeList.length,
                             itemBuilder: (context, index) {
                               return CardWidgetForEventPromoPlaces(

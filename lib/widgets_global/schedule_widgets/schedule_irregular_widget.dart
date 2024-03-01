@@ -18,7 +18,7 @@ class ScheduleIrregularWidget extends StatefulWidget {
 
 
   const ScheduleIrregularWidget({super.key,
-    this.horizontalPadding = 30,
+    this.horizontalPadding = 20,
     this.verticalPadding = 20,
     required this.headline,
     required this.desc,

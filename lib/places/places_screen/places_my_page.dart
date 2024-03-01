@@ -5,7 +5,6 @@ import 'package:dvij_flutter/places/place_list_class.dart';
 import 'package:dvij_flutter/places/places_screen/place_view_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../widgets_global/cards_widgets/card_widget_for_event_promo_places.dart';
 import '../../widgets_global/filter_widgets/filter_widget.dart';
 import '../place_list_manager.dart';
@@ -13,7 +12,6 @@ import '../place_sorting_options.dart';
 import '../../classes/user_class.dart';
 import '../../elements/custom_snack_bar.dart';
 import '../../elements/loading_screen.dart';
-import '../places_elements/place_card_widget.dart';
 import '../places_elements/place_filter_page.dart';
 import 'create_or_edit_place_screen.dart';
 
@@ -231,7 +229,7 @@ class PlacesMyPageState extends State<PlacesMyPage> {
 
                       if (placesMyList.placeList.isNotEmpty) Expanded(
                           child: ListView.builder(
-                              padding: const EdgeInsets.all(15.0),
+                              padding: const EdgeInsets.all(10.0),
                               itemCount: placesMyList.placeList.length,
                               itemBuilder: (context, index) {
                                 return CardWidgetForEventPromoPlaces(

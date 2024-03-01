@@ -72,6 +72,7 @@ class UserElementWidget extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 20,),
+
         SocialButtonsMiniWidget(telegramUsername: user.telegram, instagramUsername: user.instagram, whatsappUsername: user.whatsapp, phoneNumber: user.phone,),
 
       ],

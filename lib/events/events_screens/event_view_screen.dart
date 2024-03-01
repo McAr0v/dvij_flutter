@@ -1,17 +1,15 @@
 import 'package:dvij_flutter/events/event_class.dart';
 import 'package:dvij_flutter/events/events_list_manager.dart';
+import 'package:dvij_flutter/widgets_global/place_or_location_widgets/place_or_location_widget.dart';
 import 'package:dvij_flutter/widgets_global/schedule_widgets/schedule_widget.dart';
-import 'package:dvij_flutter/widgets_global/text_widgets/headline_and_desc.dart';
-import 'package:dvij_flutter/widgets_global/social_widgets/social_buttons_widget.dart';
-import 'package:dvij_flutter/elements/user_element_widget.dart';
+import 'package:dvij_flutter/widgets_global/social_widgets/callback_widget.dart';
 import 'package:dvij_flutter/places/place_list_manager.dart';
 import 'package:dvij_flutter/users/place_user_class.dart';
 import 'package:dvij_flutter/users/place_users_roles.dart';
+import 'package:dvij_flutter/widgets_global/users_widgets/creator_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../../places/places_elements/place_widget_in_view_screen_in_event_and_promo.dart';
-import '../../places/places_screen/place_view_screen.dart';
 import '../../places/place_class.dart';
 import '../../classes/priceTypeOptions.dart';
 import '../../classes/user_class.dart';
@@ -244,141 +242,41 @@ class EventViewScreenState extends State<EventViewScreen> {
 
                               const SizedBox(height: 20.0),
 
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: AppColors.greyOnBackground,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(event.priceType == PriceTypeOption.free ? 'Подтвердить участие' : 'Заказать билеты', style: Theme.of(context).textTheme.titleMedium,),
-                                          Text('По контактам ниже вы можете связаться с организатором', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.greyText),),
-                                          const SizedBox(height: 15.0),
-                                          HeadlineAndDesc(headline: price, description: 'Стоимость билетов'),
+                              // ВИДЖЕТ ЦЕНЫ И ОБРАТНОЙ СВЯЗИ
 
-                                        ],
-                                      ),
-                                    ),
-
-                                    SocialButtonsWidget(telegramUsername: event.telegram, instagramUsername: event.instagram, whatsappUsername: event.whatsapp, phoneNumber: event.phone,),
-                                    const SizedBox(height: 20.0),
-                                  ],
-                                ),
+                              CallbackWidget(
+                                priceType: event.priceType,
+                                telegram: event.telegram,
+                                whatsapp: event.whatsapp,
+                                phone: event.phone,
+                                instagram: event.instagram,
+                                price: price,
                               ),
 
                               const SizedBox(height: 16.0),
 
                               // ВИДЖЕТ РАСПИСАНИЯ
+
                               ScheduleWidget(event: event),
 
                               const SizedBox(height: 16.0),
 
-                              Column(
-                                mainAxisSize: MainAxisSize.max,
-                                children: [
-                                  Container(
-                                    margin: EdgeInsets.zero,
-                                    decoration: BoxDecoration(
-                                      color: AppColors.greyOnBackground,
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Padding (
-                                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                                      child: Column (
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Row (
-                                            children: [
-                                              Expanded(
-                                                  child: Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    children: [
-                                                      Text(
-                                                        'Место проведения: ${place.name}',
-                                                        style: Theme.of(context).textTheme.titleMedium,
-                                                      ),
-                                                      Text(
-                                                        place.id != '' ? 'Ты можешь перейти в заведение и ознакомиться с ним подробнее' : 'Адрес, где будет проводится мероприятие',
-                                                        style: Theme.of(context).textTheme.labelMedium!.copyWith(color: AppColors.greyText),
-                                                      ),
-                                                    ],
-                                                  )
-                                              ),
-                                            ],
-                                          ),
-
-                                          const SizedBox(height: 20,),
-
-                                          if (event.street != '' && place.id == '') HeadlineAndDesc(
-                                              headline: '${event.city.name}, ${event.street} ${event.house} ',
-                                              description: 'Место проведения'
-                                          ),
-
-                                          if (place.id != '')PlaceWidgetInViewScreenInEventAndPromoScreen(
-                                            // TODO Сделать обновление иконки избранного и счетчика при возврате из экрана просмотра заведения
-                                            place: place,
-                                            onTapMethod: () async {
-                                              await Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) => PlaceViewScreen(placeId: place.id),
-                                                ),
-                                              );
-                                            },
-                                          ),
-
-
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-
-
-                                ],
+                              PlaceOrLocationWidget(
+                                  city: event.city,
+                                  desc: event.placeId != '' ? 'Ты можешь перейти в заведение и ознакомиться с ним подробнее' : 'Адрес, где будет проводится мероприятие',
+                                  headline: event.placeId != '' ? 'Место проведения: ${place.name}' : 'Место проведения',
+                                  house: event.house,
+                                  street: event.street,
+                                place: place,
                               ),
 
-                              const SizedBox(height: 16.0),
+                              if (creator.uid != '') const SizedBox(height: 16.0),
 
-                              Card(
-                                margin: EdgeInsets.zero,
-                                surfaceTintColor: Colors.transparent,
-                                color: AppColors.greyOnBackground,
-                                child: Padding (
-                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                                  child: Column (
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Создатель мероприятия',
-                                        style: Theme.of(context).textTheme.titleMedium,
-                                      ),
-
-                                      Text(
-                                        'Ты можешь написать создателю и задать вопросы',
-                                        style: Theme.of(context).textTheme.labelMedium!.copyWith(color: AppColors.greyText),
-                                      ),
-
-                                      const SizedBox(height: 16.0),
-
-                                      if (creator.uid != '') UserElementWidget(user: creator),
-
-                                    ],
-                                  ),
-                                ),
-                              ),
+                              if (creator.uid != '') CreatorWidget(headline: 'Создатель мероприятия', desc: 'Ты можешь написать создателю и задать вопросы', user: creator),
 
                             ],
                           ),
                         )
-
-
-
                       ]
                     )
                   )

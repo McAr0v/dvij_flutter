@@ -20,14 +20,17 @@ import '../../places/place_class.dart';
 import '../../classes/priceTypeOptions.dart';
 import '../../classes/user_class.dart';
 import '../../elements/exit_dialog/exit_dialog.dart';
+import '../../widgets_global/place_or_location_widgets/place_or_location_widget.dart';
 import '../../widgets_global/schedule_widgets/schedule_regular_widget.dart';
 import '../../widgets_global/schedule_widgets/schedule_widget.dart';
+import '../../widgets_global/social_widgets/callback_widget.dart';
 import '../../widgets_global/text_widgets/for_cards_small_widget_with_icon_and_text.dart';
 import '../../elements/loading_screen.dart';
 import '../../widgets_global/schedule_widgets/schedule_irregular_widget.dart';
 import '../../elements/snack_bar.dart';
 import '../../users/place_user_class.dart';
 import '../../widgets_global/text_widgets/now_is_work_widget.dart';
+import '../../widgets_global/users_widgets/creator_widget.dart';
 
 
 // --- ЭКРАН ЗАЛОГИНЕВШЕГОСЯ ПОЛЬЗОВАТЕЛЯ -----
@@ -342,36 +345,11 @@ class PromoViewScreenState extends State<PromoViewScreen> {
 
                         const SizedBox(height: 16.0),
 
-                        Container(
-                          decoration: BoxDecoration(
-                            //color: backgroundColor,
-                            color: AppColors.greyOnBackground,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              //const SizedBox(height: 16.0),
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(20, 20, 20, 10),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    //const SizedBox(height: 20,),
-                                    Text('Контакты для справок', style: Theme.of(context).textTheme.titleMedium,),
-                                    Text('По контактам ниже вы можете связаться с организатором', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.greyText),),
-
-
-                                  ],
-                                ),
-                              ),
-
-                              //const SizedBox(height: 16.0),
-
-                              SocialButtonsWidget(telegramUsername: promo.telegram, instagramUsername: promo.instagram, whatsappUsername: promo.whatsapp, phoneNumber: promo.phone,),
-                              const SizedBox(height: 20.0),
-                            ],
-                          ),
+                        CallbackWidget(
+                          telegram: promo.telegram,
+                          whatsapp: promo.whatsapp,
+                          phone: promo.phone,
+                          instagram: promo.instagram,
                         ),
 
                         const SizedBox(height: 16.0),
@@ -384,102 +362,19 @@ class PromoViewScreenState extends State<PromoViewScreen> {
 
                         const SizedBox(height: 16.0),
 
-                        Column(
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            Container(
-                              margin: EdgeInsets.zero,
-                              decoration: BoxDecoration(
-                                color: AppColors.greyOnBackground,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              //surfaceTintColor: Colors.transparent,
-                              //color: AppColors.greyOnBackground,
-                              child: Padding (
-                                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                                child: Column (
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row (
-                                      children: [
-                                        Expanded(
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  'Место проведения: ${place.name}',
-                                                  style: Theme.of(context).textTheme.titleMedium,
-                                                ),
-                                                Text(
-                                                  place.id != '' ? 'Ты можешь перейти в заведение и ознакомиться с ним подробнее' : 'Адрес, где будет проводится мероприятие',
-                                                  style: Theme.of(context).textTheme.labelMedium!.copyWith(color: AppColors.greyText),
-                                                ),
-                                              ],
-                                            )
-                                        ),
-                                      ],
-                                    ),
-
-                                    SizedBox(height: 20,),
-
-                                    if (promo.street != '' && place.id == '') HeadlineAndDesc(
-                                        headline: '${promo.city.name}, ${promo.street} ${promo.house} ',
-                                        description: 'Место проведения'
-                                    ),
-
-                                    if (place.id != '')PlaceWidgetInViewScreenInEventAndPromoScreen(
-                                      // TODO Сделать обновление иконки избранного и счетчика при возврате из экрана просмотра заведения
-                                      place: place,
-                                      onTapMethod: () async {
-                                        await Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => PlaceViewScreen(placeId: place.id),
-                                          ),
-                                        );
-                                      },
-                                    ),
-
-
-                                  ],
-                                ),
-                              ),
-                            ),
-
-
-                          ],
+                        PlaceOrLocationWidget(
+                          city: promo.city,
+                          desc: promo.placeId != '' ? 'Ты можешь перейти в заведение и ознакомиться с ним подробнее' : 'Адрес, где будет проводится акция',
+                          headline: promo.placeId != '' ? 'Место проведения: ${place.name}' : 'Место проведения',
+                          house: promo.house,
+                          street: promo.street,
+                          place: place,
                         ),
 
-                        const SizedBox(height: 16.0),
 
-                        Card(
-                          margin: EdgeInsets.zero,
-                          surfaceTintColor: Colors.transparent,
-                          color: AppColors.greyOnBackground,
-                          child: Padding (
-                            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                            child: Column (
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Создатель акции',
-                                  style: Theme.of(context).textTheme.titleMedium,
-                                ),
+                        if (creator.uid != '') const SizedBox(height: 16.0),
 
-                                Text(
-                                  'Ты можешь написать создателю и задать вопросы',
-                                  style: Theme.of(context).textTheme.labelMedium!.copyWith(color: AppColors.greyText),
-                                ),
-
-                                const SizedBox(height: 16.0),
-
-                                if (creator.uid != '') UserElementWidget(user: creator),
-
-                              ],
-                            ),
-                          ),
-                        ),
-
+                        if (creator.uid != '') CreatorWidget(headline: 'Создатель ации', desc: 'Ты можешь написать создателю и задать вопросы', user: creator),
 
                         if (promo.createDate != DateTime(2100) && currentUserPlaceRole.controlLevel >= 90) const SizedBox(height: 30.0),
 
