@@ -57,7 +57,9 @@ class ImageWithPlaceHolderWidget extends StatelessWidget {
                 colors: [
                   Colors.transparent, // Здесь можете использовать любой другой цвет или полную прозрачность
                   Colors.black.withOpacity(0.1), // Начальный цвет (черный с прозрачностью)
-                  Colors.black.withOpacity(0.2), // Начальный цвет (черный с прозрачностью)
+                  Colors.black.withOpacity(0.3), // Начальный цвет (черный с прозрачностью)
+                  Colors.black.withOpacity(0.5), // Начальный цвет (черный с прозрачностью)
+                  Colors.black.withOpacity(0.7), // Начальный цвет (черный с прозрачностью)
                   Colors.black.withOpacity(0.9), // Начальный цвет (черный с прозрачностью)
                 ],
               ), // Здесь можно настроить уровень прозрачности и цвет фона

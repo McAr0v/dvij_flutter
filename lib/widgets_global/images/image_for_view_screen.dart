@@ -74,10 +74,16 @@ class ImageForViewScreen extends StatelessWidget {
           bottom: 20.0,
           left: 20.0,
           child: SizedBox(
-            width: MediaQuery.of(context).size.width,
+            width: MediaQuery.of(context).size.width*0.95,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+
+                // ФЛАГ - СЕЙЧАС ОТКРЫТО / ЗАКРЫТО
+
+                TextOnBoolResultWidget(isTrue: openOrToday, trueText: trueText, falseText: falseText),
+
+                const SizedBox(height: 5,),
 
                 // НАЗВАНИЕ И АДРЕС
 
@@ -89,13 +95,6 @@ class ImageForViewScreen extends StatelessWidget {
                   descColor: AppColors.white,
                   padding: 5,
                 ),
-
-                const SizedBox(height: 5,),
-
-                // ФЛАГ - СЕЙЧАС ОТКРЫТО / ЗАКРЫТО
-
-                TextOnBoolResultWidget(isTrue: openOrToday, trueText: trueText, falseText: falseText),
-
               ],
             ),
           ),

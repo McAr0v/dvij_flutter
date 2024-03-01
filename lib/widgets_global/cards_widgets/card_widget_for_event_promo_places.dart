@@ -18,7 +18,7 @@ import '../../places/place_class.dart';
 import '../text_widgets/now_is_work_widget.dart';
 import '../text_widgets/text_size_enum.dart';
 
-class CardWidgetForEventPromoPlaces extends StatelessWidget {
+class CardWidgetForEventPromoPlaces extends StatefulWidget {
   final EventCustom? event;
   final PromoCustom? promo;
   final Place? place;
@@ -37,72 +37,37 @@ class CardWidgetForEventPromoPlaces extends StatelessWidget {
         this.height
       }
       );
+  @override
+  CardWidgetForEventPromoPlacesState createState() => CardWidgetForEventPromoPlacesState();
+}
+
+class CardWidgetForEventPromoPlacesState extends State<CardWidgetForEventPromoPlaces> {
+
+  int currentWeekDayNumber = DateTime.now().weekday;
+  String categoryName = '';
+  DateTypeEnum dateType = DateTypeEnum.once;
+  String imageUrl = '';
+  int favCount = 0;
+  String headline = '';
+  bool inFav = false;
+  bool today = false;
+
+  City city = City.emptyCity;
+  String street = '';
+  String house = '';
+  OnceDate onceDate = OnceDate();
+  LongDate longDate = LongDate();
+  RegularDate regularDate = RegularDate();
+  IrregularDate irregularDate = IrregularDate();
 
   @override
   Widget build(BuildContext context) {
-
-    int currentWeekDayNumber = DateTime.now().weekday;
-    String categoryName = '';
-    DateTypeEnum dateType = DateTypeEnum.once;
-    String imageUrl = '';
-    int favCount = 0;
-    String headline = '';
-    bool inFav = false;
-    bool today = false;
-
-    City city = City.emptyCity;
-    String street = '';
-    String house = '';
-    OnceDate onceDate = OnceDate();
-    LongDate longDate = LongDate();
-    RegularDate regularDate = RegularDate();
-    IrregularDate irregularDate = IrregularDate();
-
-    if (event != null) {
-      city = event!.city;
-      street = event!.street;
-      house = event!.house;
-      onceDate = event!.onceDay;
-      longDate = event!.longDays;
-      regularDate = event!.regularDays;
-
-      today = event!.today;
-      inFav = event!.inFav;
-      headline = event!.headline;
-      favCount = event!.addedToFavouritesCount;
-      imageUrl = event!.imageUrl;
-      dateType = event!.dateType;
-      categoryName = event!.category.name;
-      irregularDate = event!.irregularDays;
-    } else if (promo != null) {
-      city = promo!.city;
-      street = promo!.street;
-      house = promo!.house;
-      onceDate = promo!.onceDay;
-      longDate = promo!.longDays;
-      regularDate = promo!.regularDays;
-
-      today = promo!.today;
-      inFav = promo!.inFav;
-      headline = promo!.headline;
-      favCount = promo!.addedToFavouritesCount;
-      imageUrl = promo!.imageUrl;
-      dateType = promo!.dateType;
-      categoryName = promo!.category.name;
-      irregularDate = promo!.irregularDays;
+    if (widget.event != null) {
+      fillVariables(widget.event);
+    } else if (widget.promo != null) {
+      fillVariables(widget.promo);
     } else {
-      city = place!.city;
-      street = place!.street;
-      house = place!.house;
-      regularDate = place!.openingHours;
-
-      today = place!.nowIsOpen!;
-      inFav = place!.inFav!;
-      headline = place!.name;
-      favCount = place!.addedToFavouritesCount!;
-      imageUrl = place!.imageUrl;
-      dateType = DateTypeEnum.regular;
-      categoryName = place!.category.name;
+      fillVariables(widget.place);
     }
 
     List<int> irregularTodayIndexes = irregularDate.getIrregularTodayIndexes();
@@ -110,14 +75,14 @@ class CardWidgetForEventPromoPlaces extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(right: 5, bottom: 10, top: 10),
       child: GestureDetector(
-        onTap: onTap,
+        onTap: widget.onTap,
         child: Card(
           margin: const EdgeInsets.only(left: 5),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15), // настройте необходимый радиус скругления углов
           ),
           child: Container(
-            height: height ?? 400,
+            height: widget.height ?? 400,
             width: 330,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15), // настройте радиус скругления углов для контейнера
@@ -153,7 +118,7 @@ class CardWidgetForEventPromoPlaces extends StatelessWidget {
                     iconColor: inFav ? AppColors.brandColor : AppColors.white,
                     side: false,
                     backgroundColor: AppColors.greyBackground.withOpacity(0.8),
-                    onPressed: onFavoriteIconPressed,
+                    onPressed: widget.onFavoriteIconPressed,
                   ),
                 ),
 
@@ -175,13 +140,13 @@ class CardWidgetForEventPromoPlaces extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
 
-                      if (today || place != null) TextOnBoolResultWidget(
+                      if (today || widget.place != null) TextOnBoolResultWidget(
                         isTrue: today,
-                        trueText: place != null ? 'Сейчас открыто' : 'Сегодня',
-                        falseText: place != null ? 'Сейчас закрыто' : '123',
+                        trueText: widget.place != null ? 'Сейчас открыто' : 'Сегодня',
+                        falseText: widget.place != null ? 'Сейчас закрыто' : '123',
                         textSizeEnum: TextSizeEnum.bodySmall,
                       ),
-                      if (today || place != null) const SizedBox(height: 5),
+                      if (today || widget.place != null) const SizedBox(height: 5),
 
                       Text.rich(
                         TextSpan(
@@ -196,7 +161,7 @@ class CardWidgetForEventPromoPlaces extends StatelessWidget {
                       Text('${city.name}, $street $house', style: Theme.of(context).textTheme.labelMedium!.copyWith(color: AppColors.greyText), softWrap: true,),
                       const SizedBox(height: 15,),
 
-                      if (dateType == DateTypeEnum.once && place == null)  Row(
+                      if (dateType == DateTypeEnum.once && widget.place == null)  Row(
 
                         children: [
                           IconAndTextWidget(
@@ -216,7 +181,7 @@ class CardWidgetForEventPromoPlaces extends StatelessWidget {
                           ),
                         ],
                       ),
-                      if (dateType == DateTypeEnum.long && place == null) Row(
+                      if (dateType == DateTypeEnum.long && widget.place == null) Row(
                         children: [
                           IconAndTextWidget(
                             icon: FontAwesomeIcons.calendar,
@@ -273,7 +238,7 @@ class CardWidgetForEventPromoPlaces extends StatelessWidget {
                         ],
                       ),
 
-                      if (dateType == DateTypeEnum.irregular && place == null) Row(
+                      if (dateType == DateTypeEnum.irregular && widget.place == null) Row(
                         children: [
                           const Icon(
                             FontAwesomeIcons.clock,
@@ -285,11 +250,6 @@ class CardWidgetForEventPromoPlaces extends StatelessWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  /*Text(
-                                    'Проводится по расписанию в разные дни',
-                                    style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.greyText),
-                                    softWrap: true,
-                                  ),*/
 
                                   if (irregularTodayIndexes.isNotEmpty) const SizedBox(height: 5,),
 
@@ -319,8 +279,6 @@ class CardWidgetForEventPromoPlaces extends StatelessWidget {
                                               style: Theme.of(context).textTheme.labelSmall,
                                               softWrap: true,
                                             ),
-
-                                            //Text('Время$indexInIndexesList - ${chosenIrregularStartTime[indexInIndexesList]}--${chosenIrregularEndTime[indexInIndexesList]}'),
                                           ]
                                       );
                                     }
@@ -334,21 +292,21 @@ class CardWidgetForEventPromoPlaces extends StatelessWidget {
                           )
                         ],
                       ),
-                      if (event != null) const SizedBox(height: 15),
-                      if (event != null)IconAndTextWidget(
+                      if (widget.event != null) const SizedBox(height: 15),
+                      if (widget.event != null)IconAndTextWidget(
                         icon: FontAwesomeIcons.circleDollarToSlot,
-                        text: PriceTypeEnumClass.getFormattedPriceString(event!.priceType, event!.price),
+                        text: PriceTypeEnumClass.getFormattedPriceString(widget.event!.priceType, widget.event!.price),
                         textSize: TextSizeEnum.labelSmall,
                         padding: 10,
                       ),
-                      if (place != null) const SizedBox(height: 20),
-                      if (place != null) Row(
+                      if (widget.place != null) const SizedBox(height: 20),
+                      if (widget.place != null) Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         //mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          IconAndTextWidget(icon: FontAwesomeIcons.champagneGlasses, text: 'Мероприятий: ${place!.eventsCount}', textSize: TextSizeEnum.labelMedium, padding: 15, iconSize: 16,),
+                          IconAndTextWidget(icon: FontAwesomeIcons.champagneGlasses, text: 'Мероприятий: ${widget.place!.eventsCount}', textSize: TextSizeEnum.labelMedium, padding: 15, iconSize: 16,),
                           const SizedBox(width: 30,),
-                          IconAndTextWidget(icon: FontAwesomeIcons.fire, text: 'Акций: ${place!.promoCount}', textSize: TextSizeEnum.labelMedium, padding: 10, iconSize: 16,),
+                          IconAndTextWidget(icon: FontAwesomeIcons.fire, text: 'Акций: ${widget.place!.promoCount}', textSize: TextSizeEnum.labelMedium, padding: 10, iconSize: 16,),
                         ],
                       )
                     ],
@@ -361,4 +319,51 @@ class CardWidgetForEventPromoPlaces extends StatelessWidget {
       ),
     );
   }
+
+  void fillVariables(dynamic item) {
+    if (item is EventCustom) {
+      city = item.city;
+      street = item.street;
+      house = item.house;
+      onceDate = item.onceDay;
+      longDate = item.longDays;
+      regularDate = item.regularDays;
+      today = item.today;
+      inFav = item.inFav;
+      headline = item.headline;
+      favCount = item.addedToFavouritesCount;
+      imageUrl = item.imageUrl;
+      dateType = item.dateType;
+      categoryName = item.category.name;
+      irregularDate = item.irregularDays;
+    } else if (item is PromoCustom) {
+      city = item.city;
+      street = item.street;
+      house = item.house;
+      onceDate = item.onceDay;
+      longDate = item.longDays;
+      regularDate = item.regularDays;
+      today = item.today;
+      inFav = item.inFav;
+      headline = item.headline;
+      favCount = item.addedToFavouritesCount;
+      imageUrl = item.imageUrl;
+      dateType = item.dateType;
+      categoryName = item.category.name;
+      irregularDate = item.irregularDays;
+    } else if (item is Place) {
+      city = item.city;
+      street = item.street;
+      house = item.house;
+      regularDate = item.openingHours;
+      today = item.nowIsOpen!;
+      inFav = item.inFav!;
+      headline = item.name;
+      favCount = item.addedToFavouritesCount!;
+      imageUrl = item.imageUrl;
+      dateType = DateTypeEnum.regular;
+      categoryName = item.category.name;
+    }
+  }
+
 }

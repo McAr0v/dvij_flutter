@@ -12,7 +12,7 @@ class SocialButtonsWidget extends StatelessWidget {
   final String? whatsappUsername;
   final String? phoneNumber;
 
-  const SocialButtonsWidget({
+  const SocialButtonsWidget({super.key,
     this.instagramUsername,
     this.telegramUsername,
     this.whatsappUsername,

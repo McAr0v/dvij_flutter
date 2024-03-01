@@ -14,6 +14,7 @@ import 'package:dvij_flutter/users/place_user_class.dart';
 import 'package:dvij_flutter/users/place_users_roles.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../promos/promotions/promo_view_page.dart';
 import '../place_class.dart';
 import '../../classes/user_class.dart';
@@ -111,7 +112,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
         appBar: AppBar(
           title: Text(place.name != '' ? place.name : 'Загрузка...'),
           leading: IconButton(
-            icon: const Icon(Icons.chevron_left),
+            icon: const Icon(FontAwesomeIcons.chevronLeft, size: 18,),
             onPressed: () {
               // Возвращаем данные о состоянии избранного на экран ленты
               // На случай, если мы добавляли/убирали из избранного

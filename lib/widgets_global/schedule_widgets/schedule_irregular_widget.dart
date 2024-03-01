@@ -1,42 +1,42 @@
-import 'package:dvij_flutter/dates/regular_date_class.dart';
+import 'package:dvij_flutter/dates/irregular_date_class.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../dates/date_mixin.dart';
+import '../../dates/once_date_class.dart';
+import '../../dates/time_mixin.dart';
 import '../../themes/app_colors.dart';
-import '../../widgets_global/text_widgets/headline_and_desc.dart';
+import '../text_widgets/headline_and_desc.dart';
 
-class ScheduleRegularWidget extends StatefulWidget {
+class ScheduleIrregularWidget extends StatefulWidget {
   final double horizontalPadding;
-  final RegularDate regularDate;
+  final IrregularDate? irregularDays;
   final String headline;
   final String desc;
   final double verticalPadding;
   final Color backgroundColor;
-  final bool isPlace;
+  final bool isPlace; // Передаваемая переменная
 
 
-  const ScheduleRegularWidget({super.key,
-    this.horizontalPadding = 20,
+  const ScheduleIrregularWidget({super.key,
+    this.horizontalPadding = 30,
     this.verticalPadding = 20,
     required this.headline,
     required this.desc,
     this.backgroundColor = AppColors.greyOnBackground,
-    required this.regularDate,
+    this.irregularDays,
     this.isPlace = false,
   });
 
   @override
-  ScheduleRegularWidgetState createState() => ScheduleRegularWidgetState();
+  ScheduleIrregularWidgetState createState() => ScheduleIrregularWidgetState();
 }
 
-  class ScheduleRegularWidgetState extends State<ScheduleRegularWidget> {
-    bool openSchedule = false;
+class ScheduleIrregularWidgetState extends State<ScheduleIrregularWidget> {
 
+  bool openSchedule = false;
 
   @override
   Widget build(BuildContext context) {
-
-
     return GestureDetector(
       onTap: (){
         setState(() {
@@ -90,48 +90,35 @@ class ScheduleRegularWidget extends StatefulWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
 
-                          Column(
+                          if (widget.irregularDays!.dates.isNotEmpty && widget.irregularDays != null) Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.start,
-                            children: List.generate(7, (index) {
-                              bool haveDate = widget.regularDate.getDayFromIndex(index).startTime.toString() != 'Не выбрано'
-                                  && widget.regularDate.getDayFromIndex(index).startTime.toString() != widget.regularDate.getDayFromIndex(index).endTime.toString();
+                            children: List.generate(widget.irregularDays!.dates.length, (index) {
+                              OnceDate tempDay = widget.irregularDays!.dates[index];
                               return Column(
                                 children: [
-                                  if (haveDate) HeadlineAndDesc(headline: DateMixin.getHumanWeekday(index+1, false), description: 'День недели'),
-                                  if (haveDate) const SizedBox(height: 10,),
-                                  if (!haveDate && widget.isPlace) HeadlineAndDesc(headline: DateMixin.getHumanWeekday(index+1, false), description: 'День недели'),
-                                  if (!haveDate && widget.isPlace) const SizedBox(height: 10,),
+                                  HeadlineAndDesc(headline: DateMixin.getHumanDateFromDateTime(tempDay.startOnlyDate,), description: 'Дата'),
+                                  const SizedBox(height: 10,),
                                 ],
                               );
                             }),
                           ),
 
+
                           const SizedBox(width: 30,),
 
-                          Column(
+                          if (widget.irregularDays!.dateIsNotEmpty() && widget.irregularDays != null) Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.start,
-                            children: List.generate(7, (index) {
-                              bool haveDate = widget.regularDate.getDayFromIndex(index).startTime.toString() != 'Не выбрано'
-                                  && widget.regularDate.getDayFromIndex(index).startTime.toString() != widget.regularDate.getDayFromIndex(index).endTime.toString();
+                            children: List.generate(widget.irregularDays!.dates.length, (index) {
+                              OnceDate tempDay = widget.irregularDays!.dates[index];
                               return Column(
                                 children: [
-
-                                  if (haveDate)
-                                    HeadlineAndDesc(
-                                        headline: 'с ${widget.regularDate.getDayFromIndex(index).startTime.toString()} до ${widget.regularDate.getDayFromIndex(index).endTime.toString()}',
-                                        description: !widget.isPlace ? 'Время проведения' : 'Время работы'
-                                    ),
-                                  if (!haveDate && widget.isPlace)
-                                    const HeadlineAndDesc(
-                                        headline: 'Выходной',
-                                        description: 'Время работы'
-                                    ),
-                                  if (haveDate)
-                                    const SizedBox(height: 10,),
-                                  if (!haveDate && widget.isPlace)
-                                    const SizedBox(height: 10,),
+                                  HeadlineAndDesc(
+                                      headline: TimeMixin.getTimeRange(tempDay.startDate, tempDay.endDate),
+                                      description: 'Время проведения'
+                                  ),
+                                  const SizedBox(height: 10,),
                                 ],
                               );
                             }),

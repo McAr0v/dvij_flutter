@@ -2,7 +2,7 @@ import 'package:dvij_flutter/dates/date_mixin.dart';
 import 'package:dvij_flutter/events/event_class.dart';
 import 'package:dvij_flutter/promos/promos_list_manager.dart';
 import 'package:dvij_flutter/widgets_global/text_widgets/headline_and_desc.dart';
-import 'package:dvij_flutter/elements/shedule_elements/shedule_once_and_long_widget.dart';
+import 'package:dvij_flutter/widgets_global/schedule_widgets/shedule_once_and_long_widget.dart';
 import 'package:dvij_flutter/widgets_global/social_widgets/social_buttons_widget.dart';
 import 'package:dvij_flutter/elements/user_element_widget.dart';
 import 'package:dvij_flutter/promos/promo_class.dart';
@@ -20,9 +20,11 @@ import '../../places/place_class.dart';
 import '../../classes/priceTypeOptions.dart';
 import '../../classes/user_class.dart';
 import '../../elements/exit_dialog/exit_dialog.dart';
+import '../../widgets_global/schedule_widgets/schedule_regular_widget.dart';
+import '../../widgets_global/schedule_widgets/schedule_widget.dart';
 import '../../widgets_global/text_widgets/for_cards_small_widget_with_icon_and_text.dart';
 import '../../elements/loading_screen.dart';
-import '../../elements/shedule_elements/schedule_regular_and_irregular_widget.dart';
+import '../../widgets_global/schedule_widgets/schedule_irregular_widget.dart';
 import '../../elements/snack_bar.dart';
 import '../../users/place_user_class.dart';
 import '../../widgets_global/text_widgets/now_is_work_widget.dart';
@@ -378,35 +380,7 @@ class PromoViewScreenState extends State<PromoViewScreen> {
 
                         const SizedBox(height: 16.0),
 
-                        if (promo.dateType == DateTypeEnum.once) ScheduleOnceAndLongWidget(
-                            dateHeadline: 'Дата проведения',
-                            dateDesc: 'Акция проводится один раз',
-                            dateTypeEnum: promo.dateType,
-                            onceDate: promo.onceDay
-                        ),
-
-                        if (promo.dateType == DateTypeEnum.long) ScheduleOnceAndLongWidget(
-                          dateHeadline: 'Расписание',
-                          dateDesc: 'Акция проводится каждый день в течении указанного периода',
-                          dateTypeEnum: promo.dateType,
-                          longDates: promo.longDays,
-                        ),
-
-
-
-                        if (promo.dateType == DateTypeEnum.regular) ScheduleRegularAndIrregularWidget(
-                          dateTypeEnum: promo.dateType,
-                          regularTimes: promo.regularDays,
-                          headline: 'Расписание',
-                          desc: 'Акция проводится каждую неделю в определенные дни',
-                        ),
-
-                        if (promo.dateType == DateTypeEnum.irregular) ScheduleRegularAndIrregularWidget(
-                          dateTypeEnum: promo.dateType,
-                          irregularDays: promo.irregularDays,
-                          headline: 'Расписание',
-                          desc: 'Акция проводится в определенные дни',
-                        ),
+                        ScheduleWidget(promo: promo),
 
                         const SizedBox(height: 16.0),
 
