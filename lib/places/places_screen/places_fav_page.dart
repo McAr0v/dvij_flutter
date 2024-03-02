@@ -137,34 +137,7 @@ class PlacesFavPageState extends State<PlacesFavPage> {
       // - Обновление списка, если тянуть экран вниз
         body: RefreshIndicator (
           onRefresh: () async {
-
-            setState(() {
-              refresh = true;
-            });
-
-            placesFavList = PlaceList();
-
-            if (UserCustom.currentUser?.uid != null || UserCustom.currentUser?.uid != ''){
-
-              placesFavList = await placesFavList.getFavListFromDb(UserCustom.currentUser!.uid, refresh: true);
-
-              setState(() {
-                placesFavList.filterLists(
-                    placesFavList.generateMapForFilter(
-                        placeCategoryFromFilter,
-                        cityFromFilter,
-                        haveEventsFromFilter,
-                        nowIsOpenFromFilter,
-                        havePromosFromFilter
-                    )
-                );
-              });
-            }
-
-            setState(() {
-              refresh = false;
-            });
-
+            await refreshList();
           },
           child: Stack (
             children: [
@@ -228,116 +201,16 @@ class PlacesFavPageState extends State<PlacesFavPage> {
                             itemCount: placesFavList.placeList.length,
                             itemBuilder: (context, index) {
                               return CardWidgetForEventPromoPlaces(
-                                // TODO Сделать обновление иконки избранного и счетчика при возврате из экрана просмотра заведения
                                 place: placesFavList.placeList[index],
                                 height: 450,
 
                                 onTap: () async {
-
-                                  final results = await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => PlaceViewScreen(placeId: placesFavList.placeList[index].id),
-                                    ),
-                                  );
-
-                                  if (results != null) {
-
-                                    placesFavList = PlaceListManager.currentFavPlacesList;
-                                    setState(() {
-
-                                      placesFavList.placeList[index].inFav = results[0];
-                                      placesFavList.placeList[index].addedToFavouritesCount = results[1];
-
-                                      placesFavList.filterLists(
-                                          placesFavList.generateMapForFilter(
-                                              placeCategoryFromFilter,
-                                              cityFromFilter,
-                                              haveEventsFromFilter,
-                                              nowIsOpenFromFilter,
-                                              havePromosFromFilter
-                                          )
-                                      );
-                                    });
-                                  }
+                                  goToPlaceViewScreen(index);
                                 },
 
                                 // --- Функция на нажатие на карточке кнопки ИЗБРАННОЕ ---
                                 onFavoriteIconPressed: () async {
-
-                                  // TODO Сделать проверку на подтвержденный Email
-                                  // ---- Если не зарегистрирован или не вошел ----
-                                  if (UserCustom.currentUser?.uid == '' || UserCustom.currentUser?.uid == null)
-                                  {
-                                    showSnackBar('Чтобы добавлять в избранное, нужно зарегистрироваться!', AppColors.attentionRed, 2);
-                                  }
-
-                                  // --- Если пользователь залогинен -----
-                                  else {
-
-                                    // --- Если уже в избранном ----
-                                    if (placesFavList.placeList[index].inFav!)
-                                    {
-
-                                      // ---- Инициализируем счетчик -----
-                                      int favCounter = placesFavList.placeList[index].addedToFavouritesCount!;
-
-                                      setState(() {
-                                        loading = true;
-                                        // Обновляем текущий список
-                                        placesFavList.placeList[index].inFav = false;
-                                        favCounter --;
-                                        placesFavList.placeList[index].addedToFavouritesCount = favCounter;
-                                        // Обновляем общий список из БД
-                                        placesFavList.placeList[index].updateCurrentListFavInformation();
-
-                                      });
-
-                                      String resDel = await placesFavList.placeList[index].deleteFromFav();
-
-                                      setState(() {
-                                        placesFavList = PlaceListManager.currentFavPlacesList;
-                                        loading = false;
-                                      });
-
-                                      if (resDel == 'success'){
-                                        showSnackBar('Удалено из избранных', AppColors.attentionRed, 1);
-                                      } else {
-                                        // Если удаление из избранных не прошло, показываем сообщение
-                                        showSnackBar(resDel, AppColors.attentionRed, 1);
-                                      }
-                                    }
-                                    else {
-                                      // --- Если заведение не в избранном ----
-
-                                      // -- Добавляем в избранное ----
-                                      String res = await placesFavList.placeList[index].addToFav();
-                                      // ---- Инициализируем счетчик добавивших в избранное
-                                      int favCounter = placesFavList.placeList[index].addedToFavouritesCount!;
-
-                                      if (res == 'success') {
-                                        // --- Если добавилось успешно, так же обновляем текущий список и список из БД
-                                        setState(() {
-                                          // Обновляем текущий список
-                                          placesFavList.placeList[index].inFav = true;
-                                          favCounter ++;
-                                          placesFavList.placeList[index].addedToFavouritesCount = favCounter;
-
-                                          placesFavList.placeList[index].updateCurrentListFavInformation();
-
-                                          placesFavList = PlaceList();
-                                          placesFavList = PlaceListManager.currentFavPlacesList;
-
-                                        });
-
-                                        showSnackBar('Добавлено в избранные', Colors.green, 1);
-
-                                      } else {
-                                        // Если добавление прошло неудачно, отображаем всплывающее окно
-                                        showSnackBar(res, AppColors.attentionRed, 1);
-                                      }
-                                    }
-                                  }
+                                  await addOrDeleteFromFav(index);
                                 },
                               );
                             }
@@ -459,5 +332,141 @@ class PlacesFavPageState extends State<PlacesFavPage> {
       transitionDuration: const Duration(milliseconds: 100),
 
     );
+  }
+
+  Future<void> refreshList() async {
+    setState(() {
+      refresh = true;
+    });
+
+    placesFavList = PlaceList();
+
+    if (UserCustom.currentUser?.uid != null || UserCustom.currentUser?.uid != ''){
+
+      placesFavList = await placesFavList.getFavListFromDb(UserCustom.currentUser!.uid, refresh: true);
+
+      setState(() {
+        placesFavList.filterLists(
+            placesFavList.generateMapForFilter(
+                placeCategoryFromFilter,
+                cityFromFilter,
+                haveEventsFromFilter,
+                nowIsOpenFromFilter,
+                havePromosFromFilter
+            )
+        );
+      });
+    }
+
+    setState(() {
+      refresh = false;
+    });
+  }
+
+  Future<void> goToPlaceViewScreen(int index) async {
+
+    final results = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PlaceViewScreen(placeId: placesFavList.placeList[index].id),
+      ),
+    );
+
+    if (results != null) {
+
+      placesFavList = PlaceListManager.currentFavPlacesList;
+      setState(() {
+
+        placesFavList.placeList[index].inFav = results[0];
+        placesFavList.placeList[index].addedToFavouritesCount = results[1];
+
+        placesFavList.filterLists(
+            placesFavList.generateMapForFilter(
+                placeCategoryFromFilter,
+                cityFromFilter,
+                haveEventsFromFilter,
+                nowIsOpenFromFilter,
+                havePromosFromFilter
+            )
+        );
+      });
+    }
+  }
+
+  Future<void> addOrDeleteFromFav(int index) async {
+
+    // TODO Сделать проверку на подтвержденный Email
+    // ---- Если не зарегистрирован или не вошел ----
+    if (UserCustom.currentUser?.uid == '' || UserCustom.currentUser?.uid == null)
+    {
+      showSnackBar('Чтобы добавлять в избранное, нужно зарегистрироваться!', AppColors.attentionRed, 2);
+    }
+
+    // --- Если пользователь залогинен -----
+    else {
+
+      // --- Если уже в избранном ----
+      if (placesFavList.placeList[index].inFav!)
+      {
+
+        // ---- Инициализируем счетчик -----
+        int favCounter = placesFavList.placeList[index].addedToFavouritesCount!;
+
+        setState(() {
+          loading = true;
+          // Обновляем текущий список
+          placesFavList.placeList[index].inFav = false;
+          favCounter --;
+          placesFavList.placeList[index].addedToFavouritesCount = favCounter;
+          // Обновляем общий список из БД
+          placesFavList.placeList[index].updateCurrentListFavInformation();
+
+        });
+
+        String resDel = await placesFavList.placeList[index].deleteFromFav();
+
+        setState(() {
+          placesFavList = PlaceListManager.currentFavPlacesList;
+          loading = false;
+        });
+
+        if (resDel == 'success'){
+          showSnackBar('Удалено из избранных', AppColors.attentionRed, 1);
+        } else {
+          // Если удаление из избранных не прошло, показываем сообщение
+          showSnackBar(resDel, AppColors.attentionRed, 1);
+        }
+      }
+      else {
+        // --- Если заведение не в избранном ----
+
+        // -- Добавляем в избранное ----
+        String res = await placesFavList.placeList[index].addToFav();
+        // ---- Инициализируем счетчик добавивших в избранное
+        int favCounter = placesFavList.placeList[index].addedToFavouritesCount!;
+
+        if (res == 'success') {
+          // --- Если добавилось успешно, так же обновляем текущий список и список из БД
+          setState(() {
+            // Обновляем текущий список
+            placesFavList.placeList[index].inFav = true;
+            favCounter ++;
+            placesFavList.placeList[index].addedToFavouritesCount = favCounter;
+
+            placesFavList.placeList[index].updateCurrentListFavInformation();
+
+            placesFavList = PlaceList();
+            placesFavList = PlaceListManager.currentFavPlacesList;
+
+          });
+
+          showSnackBar('Добавлено в избранные', Colors.green, 1);
+
+        } else {
+          // Если добавление прошло неудачно, отображаем всплывающее окно
+          showSnackBar(res, AppColors.attentionRed, 1);
+        }
+      }
+    }
   }
 }
