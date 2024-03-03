@@ -1,10 +1,5 @@
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
-import '../../methods/date_functions.dart';
 import '../../themes/app_colors.dart';
-import '../date_elements/data_picker.dart';
 
 class RegularTypeDateTimePickerWidget extends StatelessWidget {
   //final String title;
