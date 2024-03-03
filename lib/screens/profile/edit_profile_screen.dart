@@ -6,7 +6,6 @@ import 'package:dvij_flutter/elements/genders_elements/gender_element_in_edit_sc
 import 'package:dvij_flutter/elements/genders_elements/gender_picker_page.dart';
 import 'package:dvij_flutter/elements/role_in_app_elements/role_in_app_element_in_edit_screen.dart';
 import 'package:dvij_flutter/elements/role_in_app_elements/role_in_app_picker_page.dart';
-import 'package:dvij_flutter/methods/date_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import '../../cities/cities_elements/city_element_in_edit_screen.dart';
@@ -21,8 +20,6 @@ import '../../widgets_global/images/image_in_edit_screen.dart';
 import '../../elements/loading_screen.dart';
 import '../../image_Uploader/image_uploader.dart';
 import '../../image_uploader/image_picker.dart';
-import '../../methods/date_class.dart';
-import '../../themes/app_colors.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final local_user.UserCustom userInfo;
@@ -145,7 +142,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       cityController = TextEditingController(text: widget.userInfo.city);
 
       if (widget.userInfo.birthDate != '') {
-        selectedDate = getDateFromString(widget.userInfo.birthDate);
+        selectedDate = DateMixin.getDateFromString(widget.userInfo.birthDate);
       } else {
         selectedDate = DateTime(2100);
       }

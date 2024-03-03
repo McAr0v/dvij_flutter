@@ -1,6 +1,5 @@
 import 'package:dvij_flutter/elements/exit_dialog/exit_dialog.dart';
 import 'package:dvij_flutter/widgets_global/text_widgets/headline_and_desc.dart';
-import 'package:dvij_flutter/methods/date_functions.dart';
 import 'package:dvij_flutter/screens/profile/edit_profile_screen.dart';
 import 'package:dvij_flutter/widgets_global/text_widgets/text_size_enum.dart';
 import 'package:flutter/material.dart';
@@ -17,8 +16,6 @@ import '../../classes/user_class.dart';
 import '../../classes/user_class.dart';
 import '../../dates/date_mixin.dart';
 import '../../elements/loading_screen.dart';
-import '../../methods/date_class.dart';
-
 
 // --- ЭКРАН ЗАЛОГИНЕВШЕГОСЯ ПОЛЬЗОВАТЕЛЯ -----
 

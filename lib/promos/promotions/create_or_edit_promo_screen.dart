@@ -22,6 +22,7 @@ import 'package:dvij_flutter/promos/promos_elements/promo_category_picker_page.d
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import '../../cities/city_class.dart';
+import '../../dates/date_mixin.dart';
 import '../../elements/snack_bar.dart';
 import '../../places/places_elements/place_picker_page.dart';
 import '../../classes/role_in_app.dart';
@@ -32,7 +33,6 @@ import '../../widgets_global/images/image_in_edit_screen.dart';
 import '../../elements/loading_screen.dart';
 import '../../image_Uploader/image_uploader.dart';
 import '../../image_uploader/image_picker.dart';
-import '../../methods/date_functions.dart';
 import '../../themes/app_colors.dart';
 
 class CreateOrEditPromoScreen extends StatefulWidget {
@@ -634,7 +634,7 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
                         buttonText: 'Сохранить изменения',
                         onTapMethod: () async {
 
-                          String checkDates = checkTimeAndDate(
+                          String checkDates = DateMixin.checkTimeAndDate(
                               dateTypeEnum,
                               selectedDayInOnceType,
                               onceDayStartTime,

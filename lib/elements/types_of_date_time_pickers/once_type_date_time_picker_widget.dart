@@ -1,15 +1,8 @@
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import '../../dates/date_mixin.dart';
-import '../../methods/date_class.dart';
-import '../../methods/date_functions.dart';
-import '../../themes/app_colors.dart';
 import '../date_elements/data_picker.dart';
 
 class OnceTypeDateTimePickerWidget extends StatelessWidget {
-  //final String title;
   final String dateLabelText;
   final String startTimeLabelText;
   final String endTimeLabelText;
@@ -21,8 +14,7 @@ class OnceTypeDateTimePickerWidget extends StatelessWidget {
   final Function(String?) onStartTimeChanged;
   final Function(String?) onEndTimeChanged;
 
-  OnceTypeDateTimePickerWidget({
-    //required this.title,
+  OnceTypeDateTimePickerWidget({super.key,
     required this.dateLabelText,
     required this.startTimeLabelText,
     required this.endTimeLabelText,
@@ -61,7 +53,7 @@ class OnceTypeDateTimePickerWidget extends StatelessWidget {
             labelText: dateLabelText
         ),
 
-        SizedBox(height: 10,),
+        const SizedBox(height: 10,),
 
         Row(
           //mainAxisAlignment: MainAxisAlignment.spaceAround,

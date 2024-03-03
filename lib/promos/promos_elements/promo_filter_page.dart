@@ -10,7 +10,6 @@ import '../../cities/city_class.dart';
 import '../../dates/date_mixin.dart';
 import '../../elements/choose_dialogs/city_choose_dialog.dart';
 import '../../elements/date_elements/data_picker.dart';
-import '../../methods/date_class.dart';
 import '../../themes/app_colors.dart';
 
 class PromoFilterPage extends StatefulWidget {

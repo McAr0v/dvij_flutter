@@ -1,11 +1,5 @@
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
 import '../../dates/date_mixin.dart';
-import '../../methods/date_class.dart';
-import '../../methods/date_functions.dart';
 import '../../themes/app_colors.dart';
 import '../date_elements/data_picker.dart';
 
@@ -23,7 +17,7 @@ class IrregularTypeDateTimePickerWidget extends StatelessWidget {
   final Function(String?) onEndTimeChanged;
   final VoidCallback onDeletePressed;
 
-  IrregularTypeDateTimePickerWidget({
+  IrregularTypeDateTimePickerWidget({super.key,
     //required this.title,
     required this.dateLabelText,
     required this.startTimeLabelText,
@@ -41,17 +35,9 @@ class IrregularTypeDateTimePickerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 0, vertical: 15),
+      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 15),
       child: Column(
         children: [
-
-
-          /*Text(
-              title,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(height: 1.1),
-            ),
-
-            SizedBox(height: 20,),*/
 
           if (selectedDate == DateTime(2100))
             DataPickerCustom(
@@ -66,7 +52,7 @@ class IrregularTypeDateTimePickerWidget extends StatelessWidget {
             labelText: dateLabelText,
           ),
 
-          SizedBox(height: 10,),
+          const SizedBox(height: 10,),
 
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -78,8 +64,6 @@ class IrregularTypeDateTimePickerWidget extends StatelessWidget {
                   context
               ),
 
-              //const SizedBox(width: 10,),
-
               _buildTimeDropdown(
                   endTimeLabelText,
                   endTime,
@@ -87,35 +71,16 @@ class IrregularTypeDateTimePickerWidget extends StatelessWidget {
                   context
               ),
 
-              //const SizedBox(width: 10,),
-
               Card(
                 color: AppColors.attentionRed,
                 child: IconButton(
                   onPressed: onDeletePressed,
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.delete,
                     color: AppColors.greyOnBackground,
                   ),
                 ),
               ),
-
-              /*GestureDetector(
-                  onTap: onDeletePressed,
-                  child: Row(
-                    children: [
-                      Text(
-                        'Удалить',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.attentionRed),
-                      ),
-                      //const SizedBox(width: 5,),
-                      /*const Icon(
-                        Icons.delete,
-                        color: AppColors.attentionRed,
-                      ),*/
-                    ],
-                  )
-              )*/
 
             ],
           ),

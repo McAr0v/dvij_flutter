@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import '../../classes/priceTypeOptions.dart';
 import '../../themes/app_colors.dart';
 
-class EventPriceWidget extends StatelessWidget {
+class PriceWidget extends StatelessWidget {
   final PriceTypeOption type; // Передаваемая переменная
   final Function(PriceTypeOption?) onTap;
   final TextEditingController fixedPriceController;
   final TextEditingController startPriceController;
   final TextEditingController endPriceController;
 
-  const EventPriceWidget({super.key, required this.type, required this.onTap, required this.fixedPriceController, required this.startPriceController, required this.endPriceController}); // required - значит, что обязательно
+  const PriceWidget({super.key, required this.type, required this.onTap, required this.fixedPriceController, required this.startPriceController, required this.endPriceController}); // required - значит, что обязательно
 
   @override
   Widget build(BuildContext context) {

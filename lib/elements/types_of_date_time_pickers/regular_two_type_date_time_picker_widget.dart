@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../methods/date_functions.dart';
+import '../../dates/date_mixin.dart';
 
 class RegularTwoTypeDateTimePickerWidget extends StatelessWidget {
   final String startTimeLabelText;
@@ -25,7 +25,7 @@ class RegularTwoTypeDateTimePickerWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text(getHumanWeekday(index, true), style: Theme.of(context).textTheme.bodyMedium,),
+        Text(DateMixin.getHumanWeekday(index, true), style: Theme.of(context).textTheme.bodyMedium,),
         const SizedBox(width: 20.0),
         _buildTimeDropdown(
             startTimeLabelText,

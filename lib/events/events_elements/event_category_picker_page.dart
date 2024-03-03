@@ -1,19 +1,17 @@
 import 'package:dvij_flutter/events/event_category_class.dart';
-import 'package:dvij_flutter/places/place_category_class.dart';
 import 'package:flutter/material.dart';
-import '../../cities/city_class.dart';
 import '../../themes/app_colors.dart';
 
 class EventCategoryPickerPage extends StatefulWidget {
   final List<EventCategory> categories;
 
-  EventCategoryPickerPage({required this.categories});
+  const EventCategoryPickerPage({super.key, required this.categories});
 
   @override
-  _EventCategoryPickerPageState createState() => _EventCategoryPickerPageState();
+  EventCategoryPickerPageState createState() => EventCategoryPickerPageState();
 }
 
-class _EventCategoryPickerPageState extends State<EventCategoryPickerPage> {
+class EventCategoryPickerPageState extends State<EventCategoryPickerPage> {
   TextEditingController searchController = TextEditingController();
   List<EventCategory> filteredCategories = [];
 
@@ -63,7 +61,7 @@ class _EventCategoryPickerPageState extends State<EventCategoryPickerPage> {
                       ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.close),
+                    icon: const Icon(Icons.close),
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
@@ -74,7 +72,7 @@ class _EventCategoryPickerPageState extends State<EventCategoryPickerPage> {
                 padding: const EdgeInsets.all(8.0),
                 child: TextField(
                   controller: searchController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: 'Поиск категории...',
                   ),
                   onChanged: (value) {
@@ -82,17 +80,15 @@ class _EventCategoryPickerPageState extends State<EventCategoryPickerPage> {
                   },
                 ),
               ),
-              SizedBox(height: 8.0),
+              const SizedBox(height: 8.0),
               Expanded(
                   child: Container (
-                    padding: EdgeInsets.all(15),
-                    //color: AppColors.greyOnBackground,
+                    padding: const EdgeInsets.all(15),
                     decoration: BoxDecoration(
                       color: AppColors.greyOnBackground,
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     child: SingleChildScrollView(
-                      //padding: EdgeInsets.all(15),
                       child: ListBody(
                         children: filteredCategories.map((EventCategory category) {
                           return GestureDetector(
@@ -100,7 +96,7 @@ class _EventCategoryPickerPageState extends State<EventCategoryPickerPage> {
                               Navigator.of(context).pop(category);
                             },
                             child: Padding(
-                              padding: EdgeInsets.all(8.0),
+                              padding: const EdgeInsets.all(8.0),
                               child: Text(category.name),
                             ),
                           );

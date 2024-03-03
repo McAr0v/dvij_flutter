@@ -1,11 +1,5 @@
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import '../../dates/date_mixin.dart';
-import '../../methods/date_class.dart';
-import '../../methods/date_functions.dart';
-import '../../themes/app_colors.dart';
 import '../date_elements/data_picker.dart';
 
 class LongTypeDateTimePickerWidget extends StatelessWidget {
@@ -25,8 +19,7 @@ class LongTypeDateTimePickerWidget extends StatelessWidget {
   final Function(String?) onStartTimeChanged;
   final Function(String?) onEndTimeChanged;
 
-  LongTypeDateTimePickerWidget({
-    //required this.title,
+  LongTypeDateTimePickerWidget({super.key,
     required this.startDateLabelText,
     required this.endDateLabelText,
     required this.startTimeLabelText,
@@ -48,14 +41,6 @@ class LongTypeDateTimePickerWidget extends StatelessWidget {
     return Column(
       children: [
 
-
-        /*Text(
-              title,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(height: 1.1),
-            ),
-
-            SizedBox(height: 20,),*/
-
         if (selectedStartDate == DateTime(2100))
           DataPickerCustom(
             onActionPressed: onStartDateActionPressed,
@@ -69,7 +54,7 @@ class LongTypeDateTimePickerWidget extends StatelessWidget {
             labelText: startDateLabelText
         ),
 
-        SizedBox(height: 10,),
+        const SizedBox(height: 10,),
 
         if (selectedEndDate == DateTime(2100))
           DataPickerCustom(
@@ -84,10 +69,9 @@ class LongTypeDateTimePickerWidget extends StatelessWidget {
             labelText: endDateLabelText
         ),
 
-        SizedBox(height: 10,),
+        const SizedBox(height: 10,),
 
         Row(
-          //mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             _buildTimeDropdown(
                 startTimeLabelText,

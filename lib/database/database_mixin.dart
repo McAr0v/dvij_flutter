@@ -8,7 +8,6 @@ mixin MixinDatabase{
       DataSnapshot snapshot = await reference.get();
       return snapshot;
     } catch (e) {
-      print('Ошибка при получении снимка данных: $e');
       return null;
     }
   }

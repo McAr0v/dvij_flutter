@@ -9,21 +9,20 @@ import '../../cities/cities_elements/city_element_in_edit_screen.dart';
 import '../../cities/city_class.dart';
 import '../../elements/choose_dialogs/city_choose_dialog.dart';
 import '../../elements/date_elements/data_picker.dart';
-import '../../methods/date_class.dart';
 import '../../themes/app_colors.dart';
 import 'event_category_picker_page.dart';
 
 class EventFilterPage extends StatefulWidget {
   final List<EventCategory> categories;
-  EventCategory chosenCategory;
-  City chosenCity;
-  bool freePrice;
-  bool today;
-  bool onlyFromPlaceEvents;
-  DateTime selectedStartDatePeriod;
-  DateTime selectedEndDatePeriod;
+  final EventCategory chosenCategory;
+  final City chosenCity;
+  final bool freePrice;
+  final bool today;
+  final bool onlyFromPlaceEvents;
+  final DateTime selectedStartDatePeriod;
+  final DateTime selectedEndDatePeriod;
 
-  EventFilterPage({super.key,
+  const EventFilterPage({super.key,
     required this.categories,
     required this.chosenCategory,
     required this.chosenCity,
@@ -36,12 +35,12 @@ class EventFilterPage extends StatefulWidget {
   });
 
   @override
-  _EventFilterPageState createState() => _EventFilterPageState();
+  EventFilterPageState createState() => EventFilterPageState();
 }
 
 // -- Виджет отображения фильтра в мероприятиях ---
 
-class _EventFilterPageState extends State<EventFilterPage> {
+class EventFilterPageState extends State<EventFilterPage> {
 
   // ---- Объявляем переменные ----
 
@@ -116,7 +115,7 @@ class _EventFilterPageState extends State<EventFilterPage> {
                                 'Фильтр и сортировка:',
                                 style: Theme.of(context).textTheme.displayMedium,
                               ),
-                              SizedBox(height: 5,),
+                              const SizedBox(height: 5,),
                               Text(
                                 'Для наиболее точного поиска мероприятия укажи все возможные элементы фильтра',
                                 style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.greyText),
@@ -138,14 +137,14 @@ class _EventFilterPageState extends State<EventFilterPage> {
                 ],
               ),
 
-              SizedBox(height: 8.0),
+              const SizedBox(height: 8.0),
 
               // ---- Содержимое фильтра -----
 
               Expanded(
                   child: SingleChildScrollView (
                     child: Container (
-                      padding: EdgeInsets.all(15),
+                      padding: const EdgeInsets.all(15),
                       decoration: BoxDecoration(
                         color: AppColors.greyBackground,
                         borderRadius: BorderRadius.circular(8.0),
@@ -402,7 +401,7 @@ class _EventFilterPageState extends State<EventFilterPage> {
         var offsetAnimation = animation.drive(tween);
         return SlideTransition(position: offsetAnimation, child: child);
       },
-      transitionDuration: Duration(milliseconds: 100),
+      transitionDuration: const Duration(milliseconds: 100),
 
     );
   }
@@ -432,7 +431,7 @@ class _EventFilterPageState extends State<EventFilterPage> {
         var offsetAnimation = animation.drive(tween);
         return SlideTransition(position: offsetAnimation, child: child);
       },
-      transitionDuration: Duration(milliseconds: 100),
+      transitionDuration: const Duration(milliseconds: 100),
 
     );
   }
@@ -442,8 +441,8 @@ class _EventFilterPageState extends State<EventFilterPage> {
       DateTime initial,
       {bool needClearInitialDate = false,
         bool isStart = true,
-        DateTime? firstDate = null,
-        DateTime? endDate = null,
+        DateTime? firstDate,
+        DateTime? endDate,
       }
       ) async {
 

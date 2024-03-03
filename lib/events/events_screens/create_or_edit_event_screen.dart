@@ -21,6 +21,7 @@ import 'package:dvij_flutter/places/place_list_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import '../../cities/city_class.dart';
+import '../../dates/date_mixin.dart';
 import '../../elements/snack_bar.dart';
 import '../../places/places_elements/place_picker_page.dart';
 import '../event_class.dart';
@@ -32,10 +33,9 @@ import '../../widgets_global/images/image_in_edit_screen.dart';
 import '../../elements/loading_screen.dart';
 import '../../image_Uploader/image_uploader.dart';
 import '../../image_uploader/image_picker.dart';
-import '../../methods/date_functions.dart';
 import '../../themes/app_colors.dart';
 import '../events_elements/event_category_picker_page.dart';
-import '../events_elements/event_price_widget.dart';
+import '../../widgets_global/price_widgets/price_widget.dart';
 
 
 
@@ -593,7 +593,7 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
                     const SizedBox(height: 15.0),
 
-                    EventPriceWidget(
+                    PriceWidget(
                       type: priceType,
                       onTap: (PriceTypeOption? newValue) {
                         setState(() {
@@ -703,7 +703,7 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                       buttonText: 'Сохранить изменения',
                       onTapMethod: () async {
 
-                        String checkDates = checkTimeAndDate(
+                        String checkDates = DateMixin.checkTimeAndDate(
                             eventTypeEnum,
                             selectedDayInOnceType,
                             onceDayStartTime,

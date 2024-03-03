@@ -1,6 +1,5 @@
 import 'package:dvij_flutter/database/database_mixin.dart';
 import 'package:dvij_flutter/dates/date_mixin.dart';
-import 'package:dvij_flutter/methods/date_class.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'ad_user_class.dart';
 import 'ads_enums/ad_active_enum.dart';
