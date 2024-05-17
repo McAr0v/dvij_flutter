@@ -9,7 +9,7 @@ import '../promos/promotions/promotions_page.dart';
 import 'custom_drawer.dart';
 import 'custom_bottom_navigation_bar.dart';
 import 'package:dvij_flutter/screens/profile/profile_page.dart';
-import '../../classes/user_class.dart' as local_user;
+import '../../classes/user_class.dart';
 
 // ---- ВСЯ НАВИГАЦИЯ ЗДЕСЬ! ----
 
@@ -36,7 +36,7 @@ class _CustomNavContainerState extends State<CustomNavContainer>
   late firebase_user.User? _user; // Объявление пользователя
 
   // Изначальная информация о пользователе
-  local_user.UserCustom userInfo = local_user.UserCustom(
+  /*UserCustom userInfo = UserCustom(
       uid: '',
       email: '',
       role: '1113',
@@ -50,7 +50,9 @@ class _CustomNavContainerState extends State<CustomNavContainer>
       birthDate: '',
       gender: '',
       avatar: ''
-  );
+  );*/
+
+  UserCustom userInfo = UserCustom.empty('', '');
 
   // --- ИНИЦИАЛИЗИРУЕМ СОСТОЯНИЕ -----
   @override

@@ -11,6 +11,7 @@ import 'package:dvij_flutter/elements/custom_snack_bar.dart';
 import 'package:dvij_flutter/elements/pop_up_dialog.dart';
 import '../../cities/city_class.dart';
 import '../../classes/gender_class.dart';
+import '../../classes/genders_class.dart';
 import '../../classes/role_in_app.dart';
 import '../../classes/user_class.dart';
 import '../../classes/user_class.dart';
@@ -43,7 +44,8 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
   UserCustom userInfo = UserCustom.empty('', '');
 
   City chosenCity = City(name: '', id: '');
-  Gender chosenGender = Gender(name: '', id: '');
+  //Gender chosenGender = Gender(name: '', id: '');
+  Genders chosenGender = Genders();
   RoleInApp chosenRoleInApp = RoleInApp(name: '', id: '');
 
   // --- Переключатель показа экрана загрузки -----
@@ -73,9 +75,7 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
       uid = userInfo.uid;
       // --- Читаем данные пользователя из БД
 
-      if (userInfo.gender != ''){
-        chosenGender = Gender.getGenderFromList(userInfo.gender);
-      }
+      chosenGender = userInfo.gender;
 
       if (userInfo.city != ''){
         chosenCity = City.getCityByIdFromList(userInfo.city);
@@ -219,7 +219,7 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
                     if (userInfo.birthDate != '') HeadlineAndDesc(headline: DateMixin.getHumanDate(userInfo.birthDate, '-'), description: 'Дата рождения'),
 
                     if (userInfo.gender != '') const SizedBox(height: 16.0),
-                    if (userInfo.gender != '') HeadlineAndDesc(headline: chosenGender.name, description: 'Пол'),
+                    HeadlineAndDesc(headline: chosenGender.getGenderString(needTranslate: true), description: 'Пол'),
 
                     // TODO - Решить, эта кнопка нужна или нет?
                     const SizedBox(height: 16.0),

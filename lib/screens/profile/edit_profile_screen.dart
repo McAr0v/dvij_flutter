@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import '../../cities/cities_elements/city_element_in_edit_screen.dart';
 import '../../cities/city_class.dart';
+import '../../classes/genders_class.dart';
 import '../../classes/role_in_app.dart';
 import '../../classes/user_class.dart' as local_user;
 import '../../classes/user_class.dart';
@@ -51,7 +52,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController genderController;
   late TextEditingController avatarController;
   late City chosenCity;
-  late Gender chosenGender;
+  //late Gender chosenGender;
+  late Genders chosenGender;
   late DateTime selectedDate;
   late RoleInApp chosenRoleInApp;
   late int accessLevel;
@@ -147,7 +149,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         selectedDate = DateTime(2100);
       }
 
-      genderController = TextEditingController(text: widget.userInfo.gender);
+      //genderController = TextEditingController(text: widget.userInfo.gender);
+      genderController = TextEditingController(text: widget.userInfo.gender.getGenderString(needTranslate: true));
       avatarController = TextEditingController(text: widget.userInfo.avatar);
 
       _cities = City.currentCityList;
@@ -155,7 +158,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _rolesInApp = RoleInApp.currentRoleInAppList;
 
       chosenCity = City.getCityByIdFromList(widget.userInfo.city);
-      chosenGender = await Gender.getGenderById(widget.userInfo.gender) as Gender;
+      //chosenGender = await Gender.getGenderById(widget.userInfo.gender) as Gender;
+      chosenGender = widget.userInfo.gender;
       chosenRoleInApp = await RoleInApp.getRoleInAppById(widget.userInfo.role) as RoleInApp;
 
       setState(() {
@@ -289,7 +293,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   const SizedBox(height: 16.0),
 
                   GenderElementInEditScreen(
-                    genderName: chosenGender.name,
+                    genderName: chosenGender.getGenderString(needTranslate: true),
                     onActionPressed: () {
                       //_showCityPickerDialog();
                       _showGenderPickerDialog();
@@ -359,8 +363,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         telegram: telegramController.text,
                         instagram: instagramController.text,
                         city: chosenCity.id,
-                        birthDate: '${selectedDate.year}-${selectedDate.month}-${selectedDate.day}',
-                        gender: chosenGender.id,
+                        birthDate: '${selectedDate.year}-${DateMixin.getCorrectMonthOrDate(selectedDate.month)}-${DateMixin.getCorrectMonthOrDate(selectedDate.day)}',
+                        gender: chosenGender,
                         avatar: avatarURL ?? widget.userInfo.avatar,
                       );
 
@@ -416,7 +420,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   void _showGenderPickerDialog() async {
-    final selectedGender = await Navigator.of(context).push(_createPopupGender(_genders));
+    final selectedGender = await Navigator.of(context).push(_createPopupGender());
 
     if (selectedGender != null) {
       setState(() {
@@ -457,12 +461,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Route _createPopupGender(List<Gender> genders) {
+  Route _createPopupGender() {
     return PageRouteBuilder(
 
       pageBuilder: (context, animation, secondaryAnimation) {
 
-        return GenderPickerPage(genders: genders);
+        return GenderPickerPage();
       },
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const begin = Offset(0.0, 1.0);

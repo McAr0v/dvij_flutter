@@ -1,12 +1,11 @@
+import 'package:dvij_flutter/classes/genders_class.dart';
 import 'package:flutter/material.dart';
 import '../../cities/city_class.dart';
 import '../../classes/gender_class.dart';
 import '../../themes/app_colors.dart';
 
 class GenderPickerPage extends StatefulWidget {
-  final List<Gender> genders;
-
-  GenderPickerPage({required this.genders});
+  const GenderPickerPage({super.key});
 
   @override
   _GenderPickerPage createState() => _GenderPickerPage();
@@ -14,22 +13,23 @@ class GenderPickerPage extends StatefulWidget {
 
 class _GenderPickerPage extends State<GenderPickerPage> {
   TextEditingController searchController = TextEditingController();
-  List<Gender> filteredGenders = [];
+  List<GenderEnum> genders = [GenderEnum.notChosen, GenderEnum.male, GenderEnum.female];
+  //List<Gender> filteredGenders = [];
 
   @override
   void initState() {
     super.initState();
-    filteredGenders = List.from(widget.genders);
+    //filteredGenders = List.from(widget.genders);
   }
 
-  void updateFilteredGenders(String query) {
+  /*void updateFilteredGenders(String query) {
     setState(() {
       filteredGenders = widget.genders
           .where((gender) =>
           gender.name.toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +66,7 @@ class _GenderPickerPage extends State<GenderPickerPage> {
                   ),
                 ],
               ),
-              Padding(
+              /*Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextField(
                   controller: searchController,
@@ -77,7 +77,7 @@ class _GenderPickerPage extends State<GenderPickerPage> {
                     updateFilteredGenders(value);
                   },
                 ),
-              ),
+              ),*/
               SizedBox(height: 8.0),
               Expanded(
                   child: Container (
@@ -90,14 +90,15 @@ class _GenderPickerPage extends State<GenderPickerPage> {
                     child: SingleChildScrollView(
                       //padding: EdgeInsets.all(15),
                       child: ListBody(
-                        children: filteredGenders.map((Gender gender) {
+                        children: genders.map((GenderEnum gender) {
+                          Genders genderName = Genders(genderEnum: gender);
                           return GestureDetector(
                             onTap: () {
-                              Navigator.of(context).pop(gender);
+                              Navigator.of(context).pop(genderName);
                             },
                             child: Padding(
                               padding: EdgeInsets.all(8.0),
-                              child: Text(gender.name),
+                              child: Text(genderName.getGenderString(needTranslate: true)),
                             ),
                           );
                         }).toList(),

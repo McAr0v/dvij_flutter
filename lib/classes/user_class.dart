@@ -1,3 +1,4 @@
+import 'package:dvij_flutter/classes/genders_class.dart';
 import 'package:dvij_flutter/events/events_list_class.dart';
 import 'package:dvij_flutter/events/events_list_manager.dart';
 import 'package:dvij_flutter/places/place_list_class.dart';
@@ -21,7 +22,7 @@ class UserCustom {
   String instagram;
   String city;
   String birthDate; // Формат даты (например, "yyyy-MM-dd")
-  String gender;
+  Genders gender;
   String avatar;
   String? roleInPlace;
 
@@ -65,7 +66,7 @@ class UserCustom {
       instagram: '',
       city: '',
       birthDate: '',
-      gender: '',
+      gender: Genders(),
       avatar: 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2Fdvij_unknow_user.jpg?alt=media&token=b63ea5ef-7bdf-49e9-a3ef-1d34d676b6a7',
       roleInPlace: ''
     );
@@ -87,6 +88,9 @@ class UserCustom {
     DataSnapshot genderSnapshot = snapshot.child('gender');
     DataSnapshot avatarSnapshot = snapshot.child('avatar');
 
+    Genders gender = Genders();
+    gender.switchEnumFromString(genderSnapshot.value.toString());
+
     // Берем из них данные и заполняем в класс Gender И возвращаем его
     return UserCustom(
       uid: uidSnapshot.value.toString() ?? '',
@@ -100,7 +104,7 @@ class UserCustom {
       instagram: instagramSnapshot.value.toString() ?? '',
       city: citySnapshot.value.toString() ?? '',
       birthDate: birthDateSnapshot.value.toString() ?? '',
-      gender: genderSnapshot.value.toString() ?? '',
+      gender: gender,
       avatar: avatarSnapshot.value.toString() ?? ''
     );
   }
@@ -315,7 +319,7 @@ class UserCustom {
         'instagram': user.instagram,
         'city': user.city,
         'birth_date': user.birthDate,
-        'gender': user.gender,
+        'gender': user.gender.getGenderString(),
         'avatar': user.avatar,
       });
 
@@ -351,6 +355,10 @@ class UserCustom {
       Map<dynamic, dynamic>? data = snapshot.snapshot.value as Map<dynamic, dynamic>?;
 
       if (data != null) {
+
+        Genders gender = Genders();
+        gender.switchEnumFromString(data['gender']);
+
         UserCustom user = UserCustom(
           uid: data['uid'] ?? '',
           email: data['email'] ?? '',
@@ -363,7 +371,7 @@ class UserCustom {
           instagram: data['instagram'] ?? '',
           city: data['city'] ?? '',
           birthDate: data['birth_date'] ?? '',
-          gender: data['gender'] ?? '',
+          gender: gender,
           avatar: data['avatar'] ?? '',
         );
 
@@ -395,6 +403,10 @@ class UserCustom {
       Map<dynamic, dynamic>? data = snapshot.snapshot.value as Map<dynamic, dynamic>?;
 
       if (data != null) {
+
+        Genders gender = Genders();
+        gender.switchEnumFromString(data['gender']);
+
         UserCustom user = UserCustom(
           uid: data['uid'] ?? '',
           email: data['email'] ?? '',
@@ -407,7 +419,7 @@ class UserCustom {
           instagram: data['instagram'] ?? '',
           city: data['city'] ?? '',
           birthDate: data['birth_date'] ?? '',
-          gender: data['gender'] ?? '',
+          gender: gender,
           avatar: data['avatar'] ?? '',
         );
 
