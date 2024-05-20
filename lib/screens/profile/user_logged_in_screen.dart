@@ -77,9 +77,9 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
 
       chosenGender = userInfo.gender;
 
-      if (userInfo.city != ''){
+      /*if (userInfo.city != ''){
         chosenCity = City.getCityByIdFromList(userInfo.city);
-      }
+      }*/
 
       if (userInfo.role != ''){
         chosenRoleInApp = RoleInApp.getRoleInAppFromList(userInfo.role);
@@ -201,7 +201,7 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
                     if (UserCustom.accessLevel >= 50) HeadlineAndDesc(headline: chosenRoleInApp.name, description: 'Роль в приложении'),
 
                     const SizedBox(height: 16.0),
-                    if (userInfo.city != '') HeadlineAndDesc(headline: chosenCity.name, description: 'Город'),
+                    if (userInfo.city != '') HeadlineAndDesc(headline: userInfo.city.name, description: 'Город'),
 
                     const SizedBox(height: 16.0),
                     if (userInfo.phone != '') HeadlineAndDesc(headline: userInfo.phone, description: 'Телефон для связи'),
@@ -215,8 +215,12 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
                     const SizedBox(height: 16.0),
                     if (userInfo.instagram != '') HeadlineAndDesc(headline: userInfo.instagram, description: 'Instagram'),
 
-                    if (userInfo.birthDate != '') const SizedBox(height: 16.0),
-                    if (userInfo.birthDate != '') HeadlineAndDesc(headline: DateMixin.getHumanDate(userInfo.birthDate, '-'), description: 'Дата рождения'),
+                    //if (userInfo.birthDate != '') const SizedBox(height: 16.0),
+                    //if (userInfo.birthDate != '') HeadlineAndDesc(headline: DateMixin.getHumanDate(userInfo.birthDate, '-'), description: 'Дата рождения'),
+
+                    if (userInfo.birthDate != DateTime(2100)) const SizedBox(height: 16.0),
+                    //if (userInfo.birthDate != DateTime(2100)) HeadlineAndDesc(headline: DateMixin.getHumanDate(userInfo.birthDate.toString(), '-'), description: 'Дата рождения'),
+                    if (userInfo.birthDate != DateTime(2100)) HeadlineAndDesc(headline: DateMixin.getHumanDateFromDateTime(userInfo.birthDate), description: 'Дата рождения'),
 
                     if (userInfo.gender != '') const SizedBox(height: 16.0),
                     HeadlineAndDesc(headline: chosenGender.getGenderString(needTranslate: true), description: 'Пол'),

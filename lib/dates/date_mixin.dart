@@ -8,7 +8,12 @@ import 'package:dvij_flutter/dates/regular_date_class.dart';
 mixin DateMixin {
 
   static DateTime getDateFromString(String date){
-    return DateTime.parse(date);
+    if (date.isNotEmpty && date != 'null'){
+      return DateTime.parse(date);
+    } else {
+      return DateTime(2100);
+    }
+
   }
 
   static String generateDateString(DateTime date){

@@ -96,12 +96,16 @@ class EventsFeedPageState extends State<EventsFeedPage> {
     // ---- Подгружаем город в фильтр из данных пользователя ---
 
     if (UserCustom.currentUser != null){
-      if (UserCustom.currentUser!.city != ''){
+      setState(() {
+        cityFromFilter = UserCustom.currentUser!.city;
+      });
+      /*if (UserCustom.currentUser!.city != ''){
         City usersCity = City.getCityByIdFromList(UserCustom.currentUser!.city);
         setState(() {
           cityFromFilter = usersCity;
         });
-      }
+      }*/
+
     }
 
     // ---- Устанавливаем счетчик выбранных настроек в фильтре ----

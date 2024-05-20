@@ -55,6 +55,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   //late Gender chosenGender;
   late Genders chosenGender;
   late DateTime selectedDate;
+  late DateTime registrationDate;
   late RoleInApp chosenRoleInApp;
   late int accessLevel;
 
@@ -141,12 +142,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       whatsappController = TextEditingController(text: widget.userInfo.whatsapp);
       telegramController = TextEditingController(text: widget.userInfo.telegram);
       instagramController = TextEditingController(text: widget.userInfo.instagram);
-      cityController = TextEditingController(text: widget.userInfo.city);
+      cityController = TextEditingController(text: widget.userInfo.city.name);
 
-      if (widget.userInfo.birthDate != '') {
-        selectedDate = DateMixin.getDateFromString(widget.userInfo.birthDate);
+      if (widget.userInfo.birthDate != DateTime(2100)) {
+        selectedDate = widget.userInfo.birthDate;
       } else {
         selectedDate = DateTime(2100);
+      }
+
+      if (widget.userInfo.registrationDate != DateTime(2100)){
+        registrationDate = widget.userInfo.registrationDate;
+      } else {
+        registrationDate = DateTime.now();
       }
 
       //genderController = TextEditingController(text: widget.userInfo.gender);
@@ -157,7 +164,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _genders = Gender.currentGenderList;
       _rolesInApp = RoleInApp.currentRoleInAppList;
 
-      chosenCity = City.getCityByIdFromList(widget.userInfo.city);
+      chosenCity = widget.userInfo.city;
       //chosenGender = await Gender.getGenderById(widget.userInfo.gender) as Gender;
       chosenGender = widget.userInfo.gender;
       chosenRoleInApp = await RoleInApp.getRoleInAppById(widget.userInfo.role) as RoleInApp;
@@ -362,10 +369,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         whatsapp: whatsappController.text,
                         telegram: telegramController.text,
                         instagram: instagramController.text,
-                        city: chosenCity.id,
-                        birthDate: '${selectedDate.year}-${DateMixin.getCorrectMonthOrDate(selectedDate.month)}-${DateMixin.getCorrectMonthOrDate(selectedDate.day)}',
+                        city: chosenCity,
+                        birthDate: selectedDate,
                         gender: chosenGender,
                         avatar: avatarURL ?? widget.userInfo.avatar,
+                        registrationDate: registrationDate,
+                        myEvents: widget.userInfo.myEvents,
+                        myPromos: widget.userInfo.myPromos,
+                        myPlaces: widget.userInfo.myPlaces,
+                        favEvents: widget.userInfo.favEvents,
+                        favPlaces: widget.userInfo.favPlaces,
+                        favPromos: widget.userInfo.favPromos
                       );
 
                       // Выгружаем пользователя в БД
@@ -426,7 +440,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       setState(() {
         chosenGender = selectedGender;
       });
-      print("Selected gender: ${selectedGender.name}, ID: ${selectedGender.id}");
+      //print("Selected gender: ${selectedGender.name}, ID: ${selectedGender.id}");
     }
   }
 

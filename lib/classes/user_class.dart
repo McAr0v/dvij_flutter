@@ -1,4 +1,6 @@
+import 'package:dvij_flutter/cities/city_class.dart';
 import 'package:dvij_flutter/classes/genders_class.dart';
+import 'package:dvij_flutter/dates/date_mixin.dart';
 import 'package:dvij_flutter/events/events_list_class.dart';
 import 'package:dvij_flutter/events/events_list_manager.dart';
 import 'package:dvij_flutter/places/place_list_class.dart';
@@ -10,6 +12,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 
+import '../database/database_mixin.dart';
+
 class UserCustom {
   String uid;
   String email;
@@ -20,11 +24,18 @@ class UserCustom {
   String whatsapp;
   String telegram;
   String instagram;
-  String city;
-  String birthDate; // Формат даты (например, "yyyy-MM-dd")
+  City city;
+  DateTime birthDate; // Формат даты (например, "yyyy-MM-dd")
   Genders gender;
   String avatar;
   String? roleInPlace;
+  DateTime registrationDate;
+  List<String> myEvents;
+  List<String> myPlaces;
+  List<String> myPromos;
+  List<String> favPlaces;
+  List<String> favEvents;
+  List<String> favPromos;
 
   // Статическая переменная для хранения текущего пользователя
   static UserCustom? currentUser;
@@ -50,6 +61,13 @@ class UserCustom {
     required this.birthDate,
     required this.gender,
     required this.avatar,
+    required this.registrationDate,
+    required this.myEvents,
+    required this.myPlaces,
+    required this.myPromos,
+    required this.favEvents,
+    required this.favPlaces,
+    required this.favPromos,
     this.roleInPlace
   });
 
@@ -64,48 +82,56 @@ class UserCustom {
       whatsapp: '',
       telegram: '',
       instagram: '',
-      city: '',
-      birthDate: '',
+      city: City.emptyCity,
+      birthDate: DateTime(2100),
       gender: Genders(),
       avatar: 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2Fdvij_unknow_user.jpg?alt=media&token=b63ea5ef-7bdf-49e9-a3ef-1d34d676b6a7',
-      roleInPlace: ''
+      roleInPlace: '',
+      registrationDate: DateTime(2100),
+      myEvents: [],
+      myPlaces: [],
+      myPromos: [],
+      favEvents: [],
+      favPlaces: [],
+      favPromos: []
     );
   }
 
   factory UserCustom.fromSnapshot(DataSnapshot snapshot) {
     // Указываем путь к нашим полям
-    DataSnapshot uidSnapshot = snapshot.child('uid');
-    DataSnapshot emailSnapshot = snapshot.child('email');
-    DataSnapshot roleSnapshot = snapshot.child('role');
-    DataSnapshot nameSnapshot = snapshot.child('name');
-    DataSnapshot lastnameSnapshot = snapshot.child('lastname');
-    DataSnapshot phoneSnapshot = snapshot.child('phone');
-    DataSnapshot whatsappSnapshot = snapshot.child('whatsapp');
-    DataSnapshot telegramSnapshot = snapshot.child('telegram');
-    DataSnapshot instagramSnapshot = snapshot.child('instagram');
-    DataSnapshot citySnapshot = snapshot.child('city');
-    DataSnapshot birthDateSnapshot = snapshot.child('birthDate');
-    DataSnapshot genderSnapshot = snapshot.child('gender');
-    DataSnapshot avatarSnapshot = snapshot.child('avatar');
+
+    DataSnapshot infoSnapshot = snapshot.child('user_info');
+
+    //.child('user_info')
+
+    City city = City.emptyCity;
+    city = city.getEntityByIdFromList(infoSnapshot.child('city').value.toString());
 
     Genders gender = Genders();
-    gender.switchEnumFromString(genderSnapshot.value.toString());
+    gender.switchEnumFromString(infoSnapshot.child('gender').value.toString());
 
     // Берем из них данные и заполняем в класс Gender И возвращаем его
     return UserCustom(
-      uid: uidSnapshot.value.toString() ?? '',
-      email: emailSnapshot.value.toString() ?? '',
-      role: roleSnapshot.value.toString() ?? '',
-      name: nameSnapshot.value.toString() ?? '',
-      lastname: lastnameSnapshot.value.toString() ?? '',
-      phone: phoneSnapshot.value.toString() ?? '',
-      whatsapp: whatsappSnapshot.value.toString() ?? '',
-      telegram: telegramSnapshot.value.toString() ?? '',
-      instagram: instagramSnapshot.value.toString() ?? '',
-      city: citySnapshot.value.toString() ?? '',
-      birthDate: birthDateSnapshot.value.toString() ?? '',
+      uid: infoSnapshot.child('uid').value.toString(),
+      email: infoSnapshot.child('email').value.toString(),
+      role: infoSnapshot.child('role').value.toString(),
+      name: infoSnapshot.child('name').value.toString(),
+      lastname: infoSnapshot.child('lastname').value.toString(),
+      phone: infoSnapshot.child('phone').value.toString(),
+      whatsapp: infoSnapshot.child('whatsapp').value.toString(),
+      telegram: infoSnapshot.child('telegram').value.toString(),
+      instagram: infoSnapshot.child('instagram').value.toString(),
+      city: city,
+      birthDate: DateMixin.getDateFromString(infoSnapshot.child('birthDate').value.toString()),
       gender: gender,
-      avatar: avatarSnapshot.value.toString() ?? ''
+      avatar: infoSnapshot.child('avatar').value.toString(),
+      registrationDate: DateMixin.getDateFromString(infoSnapshot.child('registrationDate').value.toString()),
+      myEvents: [],
+      myPromos: [],
+      myPlaces: [],
+      favPromos: [],
+      favPlaces: [],
+      favEvents: []
     );
   }
 
@@ -212,7 +238,7 @@ class UserCustom {
       );
 
       // Если пользователь успешно вошел, обновляем текущего пользователя
-      currentUser = await readUserDataAndWriteCurrentUser(credential.user!.uid);
+      currentUser = await readUserDataAndWriteCurrentUser(uid: credential.user!.uid);
       updateAccessLevel(currentUser!.role);
       PlaceListManager.currentFeedPlacesList = PlaceList();
       PlaceListManager.currentMyPlacesList = PlaceList();
@@ -317,10 +343,11 @@ class UserCustom {
         'whatsapp': user.whatsapp,
         'telegram': user.telegram,
         'instagram': user.instagram,
-        'city': user.city,
-        'birth_date': user.birthDate,
+        'city': user.city.id,
+        'birthDate': DateMixin.generateDateString(user.birthDate),
         'gender': user.gender.getGenderString(),
         'avatar': user.avatar,
+        'registrationDate' : DateMixin.generateDateString(user.registrationDate)
       });
 
       if (notAdminChanges)
@@ -343,55 +370,27 @@ class UserCustom {
 
   // ---- ФУНКЦИЯ ЧТЕНИЯ ИНФОРМАЦИИ О ПОЛЬЗОВАТЕЛЕ -----
 
-  static Future<UserCustom?> readUserDataAndWriteCurrentUser(String uid) async {
-    try {
-      // Путь к данным пользователя
-      String userPath = 'users/$uid/user_info';
+  static Future<UserCustom?> readUserDataAndWriteCurrentUser({required String uid, bool onlyRead = false}) async {
 
-      // Считываем данные
-      DatabaseEvent snapshot = await FirebaseDatabase.instance.ref().child(userPath).once();
+    UserCustom user = UserCustom.empty('', '');
 
-      // Получаем значение и заполняем как User
-      Map<dynamic, dynamic>? data = snapshot.snapshot.value as Map<dynamic, dynamic>?;
+    String userPath = 'users/$uid';
 
-      if (data != null) {
+    DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB(userPath);
 
-        Genders gender = Genders();
-        gender.switchEnumFromString(data['gender']);
-
-        UserCustom user = UserCustom(
-          uid: data['uid'] ?? '',
-          email: data['email'] ?? '',
-          role: data['role'] ?? '',
-          name: data['name'] ?? '',
-          lastname: data['lastname'] ?? '',
-          phone: data['phone'] ?? '',
-          whatsapp: data['whatsapp'] ?? '',
-          telegram: data['telegram'] ?? '',
-          instagram: data['instagram'] ?? '',
-          city: data['city'] ?? '',
-          birthDate: data['birth_date'] ?? '',
-          gender: gender,
-          avatar: data['avatar'] ?? '',
-        );
-
-        currentUser = user; // Обновляем текущего пользователя
+    if (snapshot != null) {
+      user = UserCustom.fromSnapshot(snapshot);
+      if (!onlyRead){
         updateAccessLevel(user.role);
-
-        return user;
-      } else {
-
-        currentUser = null; // Обнуляем текущего пользователя
-        updateAccessLevel('');
-        return null; // Возвращаем null, если данных нет
+        currentUser = user; // Обновляем текущего пользователя
       }
-    } catch (e) {
-      print('Error reading user data: $e');
-      return null; // Возвращаем null в случае ошибки
+      return user;
     }
+
+    return user;
   }
 
-  static Future<UserCustom?> readUserData(String uid) async {
+  /*static Future<UserCustom?> readUserData(String uid) async {
     try {
       // Путь к данным пользователя
       String userPath = 'users/$uid/user_info';
@@ -431,7 +430,7 @@ class UserCustom {
       print('Error reading user data: $e');
       return null; // Возвращаем null в случае ошибки
     }
-  }
+  }*/
 
   // Метод для получения списка ролей из Firebase
 
@@ -602,7 +601,8 @@ class UserCustom {
       DataSnapshot roleIdSnapshot = childSnapshot.child('roleId');
 
       if (userIdSnapshot.exists) {
-        UserCustom? user = await readUserData(userIdSnapshot.value.toString());
+        //UserCustom? user = await readUserData(userIdSnapshot.value.toString());
+        UserCustom? user = await readUserDataAndWriteCurrentUser(uid: userIdSnapshot.value.toString(), onlyRead: true);
         if (user != null) {
           if(roleIdSnapshot.exists){
             user.roleInPlace = roleIdSnapshot.value.toString();
