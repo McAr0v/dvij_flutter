@@ -1,5 +1,6 @@
 import 'package:firebase_database/firebase_database.dart';
 
+// НУЖНО ИЗБАВИТЬСЯ ОТ ЭТОГО
 class RoleInApp {
   late String id; // Идентификатор роли
   late String name; // Название роли

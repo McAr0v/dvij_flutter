@@ -3,8 +3,8 @@ import 'package:dvij_flutter/elements/profile_drawer_elements/profile_element_lo
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../../classes/user_class.dart';
-import '../classes/user_class.dart';
+import '../current_user/user_class.dart';
+import '../current_user/user_class.dart';
 import '../themes/app_colors.dart';
 
 class ProfileBoxInDrawer extends StatefulWidget {

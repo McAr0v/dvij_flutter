@@ -17,7 +17,7 @@ import 'themes/dark_theme.dart';
 import 'navigation/custom_nav_containter.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import '../../classes/user_class.dart' as local_user;
+import 'current_user/user_class.dart' as local_user;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,7 +25,7 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await City.getCitiesAndSave();
-  await Gender.getGenderAndSave();
+  //await Gender.getGenderAndSave();
   await RoleInApp.getRolesInAppAndSave();
   await PlaceCategory.getPlaceCategoryAndSave();
   await EventCategory.getEventCategoryAndSave();

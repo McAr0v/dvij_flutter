@@ -12,7 +12,7 @@ import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../places/place_class.dart';
 import '../../classes/priceTypeOptions.dart';
-import '../../classes/user_class.dart';
+import '../../current_user/user_class.dart';
 import '../../elements/exit_dialog/exit_dialog.dart';
 import '../../widgets_global/images/image_for_view_screen.dart';
 import '../../widgets_global/text_widgets/expandable_text.dart';
@@ -35,7 +35,7 @@ class EventViewScreenState extends State<EventViewScreen> {
 
   bool today = false;
 
-  UserCustom creator = UserCustom.empty('', '');
+  UserCustom creator = UserCustom.empty();
   PlaceUserRole currentUserPlaceRole = PlaceUserRole();
 
   EventCustom event = EventCustom.emptyEvent;

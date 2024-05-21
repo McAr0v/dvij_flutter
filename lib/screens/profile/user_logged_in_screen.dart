@@ -1,3 +1,4 @@
+import 'package:dvij_flutter/current_user/app_role.dart';
 import 'package:dvij_flutter/elements/exit_dialog/exit_dialog.dart';
 import 'package:dvij_flutter/widgets_global/text_widgets/headline_and_desc.dart';
 import 'package:dvij_flutter/screens/profile/edit_profile_screen.dart';
@@ -11,10 +12,10 @@ import 'package:dvij_flutter/elements/custom_snack_bar.dart';
 import 'package:dvij_flutter/elements/pop_up_dialog.dart';
 import '../../cities/city_class.dart';
 import '../../classes/gender_class.dart';
-import '../../classes/genders_class.dart';
+import '../../current_user/genders_class.dart';
 import '../../classes/role_in_app.dart';
-import '../../classes/user_class.dart';
-import '../../classes/user_class.dart';
+import '../../current_user/user_class.dart';
+import '../../current_user/user_class.dart';
 import '../../dates/date_mixin.dart';
 import '../../elements/loading_screen.dart';
 
@@ -41,13 +42,13 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
 
   String? uid = '';
   String? userEmail = '';
-  UserCustom userInfo = UserCustom.empty('', '');
+  UserCustom userInfo = UserCustom.empty();
 
   City chosenCity = City(name: '', id: '');
   //Gender chosenGender = Gender(name: '', id: '');
   Genders chosenGender = Genders();
-  RoleInApp chosenRoleInApp = RoleInApp(name: '', id: '');
-
+  //RoleInApp chosenRoleInApp = RoleInApp(name: '', id: '');
+  AppRole appRole = AppRole();
   // --- Переключатель показа экрана загрузки -----
 
   bool loading = true;
@@ -81,10 +82,8 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
         chosenCity = City.getCityByIdFromList(userInfo.city);
       }*/
 
-      if (userInfo.role != ''){
-        chosenRoleInApp = RoleInApp.getRoleInAppFromList(userInfo.role);
-      }
-
+      appRole = userInfo.role;
+      
       // ---- Убираем экран загрузки -----
       setState(() {
 
@@ -198,7 +197,7 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
                     if (userEmail != '' && userEmail != null) HeadlineAndDesc(headline: userEmail!, description: 'email профиля'),
 
                     if (UserCustom.accessLevel >= 50) const SizedBox(height: 16.0),
-                    if (UserCustom.accessLevel >= 50) HeadlineAndDesc(headline: chosenRoleInApp.name, description: 'Роль в приложении'),
+                    if (UserCustom.accessLevel >= 50) HeadlineAndDesc(headline: appRole.getRoleNameInString(roleEnum: appRole.role, needTranslate: true), description: 'Роль в приложении'),
 
                     const SizedBox(height: 16.0),
                     if (userInfo.city != '') HeadlineAndDesc(headline: userInfo.city.name, description: 'Город'),
@@ -253,9 +252,10 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
 
                           //TODO Сделать экран загрузки при выходе их профила
                           // --- Функция выхода из профиля
-                          String result = await UserCustom.signOut();
+                          //String result = await UserCustom.signOut();
+                          String result = await UserCustom.empty().signOut();
 
-                          if (result == 'success') {
+                          if (result == 'ok') {
                             showSnackBar(
                               'Как жаль, что ты уходишь! В любом случае, мы всегда будем рады видеть тебя снова. До скорой встречи!',
                               Colors.green,

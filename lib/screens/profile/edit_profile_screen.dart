@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:dvij_flutter/classes/gender_class.dart';
+import 'package:dvij_flutter/current_user/app_role.dart';
 import 'package:dvij_flutter/dates/date_mixin.dart';
 import 'package:dvij_flutter/elements/date_elements/data_picker.dart';
 import 'package:dvij_flutter/elements/genders_elements/gender_element_in_edit_screen.dart';
@@ -10,10 +11,10 @@ import 'package:flutter/material.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import '../../cities/cities_elements/city_element_in_edit_screen.dart';
 import '../../cities/city_class.dart';
-import '../../classes/genders_class.dart';
+import '../../current_user/genders_class.dart';
 import '../../classes/role_in_app.dart';
-import '../../classes/user_class.dart' as local_user;
-import '../../classes/user_class.dart';
+import '../../current_user/user_class.dart' as local_user;
+import '../../current_user/user_class.dart';
 import '../../elements/choose_dialogs/city_choose_dialog.dart';
 import '../../elements/custom_snack_bar.dart';
 import 'package:image_picker/image_picker.dart';
@@ -56,14 +57,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late Genders chosenGender;
   late DateTime selectedDate;
   late DateTime registrationDate;
-  late RoleInApp chosenRoleInApp;
+  late AppRole appRole;
   late int accessLevel;
 
   File? _imageFile;
   bool loading = true;
 
   List<City> _cities = [];
-  List<Gender> _genders = [];
   List<RoleInApp> _rolesInApp = [];
 
   // DateTime selectedDate = DateTime.now();
@@ -161,13 +161,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       avatarController = TextEditingController(text: widget.userInfo.avatar);
 
       _cities = City.currentCityList;
-      _genders = Gender.currentGenderList;
       _rolesInApp = RoleInApp.currentRoleInAppList;
 
       chosenCity = widget.userInfo.city;
       //chosenGender = await Gender.getGenderById(widget.userInfo.gender) as Gender;
       chosenGender = widget.userInfo.gender;
-      chosenRoleInApp = await RoleInApp.getRoleInAppById(widget.userInfo.role) as RoleInApp;
+      appRole = widget.userInfo.role;
 
       setState(() {
         loading = false;
@@ -311,7 +310,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                   if (UserCustom.accessLevel >= 100) RoleInAppElementInEditScreen(
                       onActionPressed: _showRoleInAppPickerDialog,
-                    roleInAppName: chosenRoleInApp.name,
+                    roleInAppName: appRole.getRoleNameInString(roleEnum: appRole.role, needTranslate: true),
                   ),
 
                   /*TextField(
@@ -362,7 +361,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       local_user.UserCustom updatedUser = local_user.UserCustom(
                         uid: widget.userInfo.uid,
                         email: widget.userInfo.email,
-                        role: chosenRoleInApp.id,
+                        role: appRole,
                         name: nameController.text,
                         lastname: lastnameController.text,
                         phone: phoneController.text,
@@ -383,7 +382,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       );
 
                       // Выгружаем пользователя в БД
-                      String? editInDatabase = await UserCustom.writeUserData(updatedUser);
+                      //String? editInDatabase = await UserCustom.publishUserToDb(updatedUser);
+                      String? editInDatabase = await updatedUser.publishUserToDb();
 
                       // Если выгрузка успешна
                       if (editInDatabase == 'success') {
@@ -449,7 +449,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     if (selectedRoleInApp != null) {
       setState(() {
-        chosenRoleInApp = selectedRoleInApp;
+        appRole = selectedRoleInApp;
       });
       print("Selected roleInApp: ${selectedRoleInApp.name}, ID: ${selectedRoleInApp.id}");
     }

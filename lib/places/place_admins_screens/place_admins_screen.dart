@@ -4,7 +4,7 @@ import 'package:dvij_flutter/places/place_class.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../../classes/user_class.dart';
+import '../../current_user/user_class.dart';
 import '../../users/place_user_class.dart';
 import '../../users/place_users_roles.dart';
 import '../places_widgets/place_managers_element_list_item.dart';

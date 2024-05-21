@@ -13,7 +13,7 @@ import 'package:dvij_flutter/themes/app_colors.dart';
 import '../../ads/ad_user_class.dart';
 import '../../widgets_global/cards_widgets/card_widget_for_event_promo_places.dart';
 import '../place_sorting_options.dart';
-import '../../classes/user_class.dart';
+import '../../current_user/user_class.dart';
 import '../../elements/custom_snack_bar.dart';
 import '../../elements/loading_screen.dart';
 import '../places_elements/place_filter_page.dart';

@@ -2,7 +2,7 @@ import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/elements/loading_screen.dart';
 import 'package:dvij_flutter/elements/text_and_icons_widgets/text_with_link.dart';
 import 'package:flutter/material.dart';
-import '../../classes/user_class.dart';
+import '../../current_user/user_class.dart';
 import '../../elements/custom_snack_bar.dart';
 import '../../themes/app_colors.dart';
 import 'login_screen.dart';
@@ -204,7 +204,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
                         // Запускаем регистрацию и ждем
                         //String? uid = await authWithEmail.createUserWithEmailAndPassword(email, password);
-                        String? uid = await UserCustom.createUserWithEmailAndPassword(email, password);
+                        //String? uid = await UserCustom.createUserWithEmailAndPassword(email, password);
+                        String? uid = await UserCustom.empty().createUserWithEmailAndPassword(email, password);
 
                         // ----- Если есть результат функции -----
 
@@ -259,12 +260,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
                             // ---- Если результат регистрации не равен ошибкам, создаем почти пустого пользователя ---
 
-                            UserCustom newUser = UserCustom.empty(uid, email);
+                            //UserCustom newUser = UserCustom.empty(uid, email);
+                            UserCustom newUser = UserCustom.empty();
+                            newUser.uid = uid;
+                            newUser.email = email;
 
                             // --- Создаем запись в базе данных в Firebase
 
                             // String? publishedInDatabase = await userDatabase.writeUserData(newUser);
-                            String? publishedInDatabase = await UserCustom.writeUserData(newUser);
+                            //String? publishedInDatabase = await UserCustom.publishUserToDb(newUser);
+                            String? publishedInDatabase = await newUser.publishUserToDb();
 
                             // ---- Если все прошло успешно ----
 

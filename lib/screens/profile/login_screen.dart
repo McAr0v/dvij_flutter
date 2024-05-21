@@ -1,4 +1,4 @@
-import 'package:dvij_flutter/classes/user_class.dart';
+import 'package:dvij_flutter/current_user/user_class.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/screens/profile/registration_screen.dart';
 import 'package:dvij_flutter/screens/profile/reset_password_page.dart';
@@ -146,7 +146,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       // Выполняем функцию входа
                       //String? uid = await authWithEmail.signInWithEmailAndPassword(email, password, context);
 
-                      String? uid = await UserCustom.signInWithEmailAndPassword(email, password, context);
+                      //String? uid = await UserCustom.signInWithEmailAndPassword(email, password, context);
+
+                      String? uid = await UserCustom.empty().signIn(email, password);
 
                       if (uid != null) {
 

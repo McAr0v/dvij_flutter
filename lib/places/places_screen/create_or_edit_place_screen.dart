@@ -9,7 +9,7 @@ import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import '../../cities/cities_elements/city_element_in_edit_screen.dart';
 import '../../cities/city_class.dart';
 import '../../classes/role_in_app.dart';
-import '../../classes/user_class.dart';
+import '../../current_user/user_class.dart';
 import '../../dates/regular_date_class.dart';
 import '../../elements/choose_dialogs/city_choose_dialog.dart';
 import '../../elements/custom_snack_bar.dart';

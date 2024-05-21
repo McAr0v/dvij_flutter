@@ -8,7 +8,7 @@ import 'package:dvij_flutter/screens/otherPages/about_app_page.dart';
 import 'package:dvij_flutter/screens/otherPages/about_ad_page.dart';
 import 'package:dvij_flutter/screens/otherPages/feedback_page.dart';
 import 'package:dvij_flutter/screens/otherPages/privacy_policy_page.dart';
-import 'package:dvij_flutter/classes/user_class.dart' as local_user;
+import 'package:dvij_flutter/current_user/user_class.dart' as local_user;
 import '../cities/cities_screens/cities_list_screen.dart';
 import '../events/event_categories_screens/event_categories_list_screen.dart';
 import '../places/place_categories_screens/place_categories_list_screen.dart';
@@ -25,6 +25,8 @@ class CustomDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+
 
     // -- Определяем ширину Drawer в зависимости от ширины всего экрана
     double drawerWidthPercentage = 0.85;

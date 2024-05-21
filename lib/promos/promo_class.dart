@@ -1,6 +1,6 @@
 import 'package:dvij_flutter/cities/city_class.dart';
 import 'package:dvij_flutter/dates/date_type_enum.dart';
-import 'package:dvij_flutter/classes/user_class.dart';
+import 'package:dvij_flutter/current_user/user_class.dart';
 import 'package:dvij_flutter/database/database_mixin.dart';
 import 'package:dvij_flutter/dates/date_mixin.dart';
 import 'package:dvij_flutter/dates/irregular_date_class.dart';

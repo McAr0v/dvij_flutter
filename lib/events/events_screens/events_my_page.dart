@@ -9,7 +9,7 @@ import '../../widgets_global/cards_widgets/card_widget_for_event_promo_places.da
 import '../../widgets_global/filter_widgets/filter_widget.dart';
 import '../event_class.dart';
 import '../../classes/pair.dart';
-import '../../classes/user_class.dart';
+import '../../current_user/user_class.dart';
 import '../../elements/loading_screen.dart';
 import '../../elements/snack_bar.dart';
 import '../../widgets_global/text_widgets/headline_and_desc.dart';

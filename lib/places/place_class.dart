@@ -2,7 +2,7 @@ import 'package:dvij_flutter/cities/city_class.dart';
 import 'package:dvij_flutter/dates/regular_date_class.dart';
 import 'package:dvij_flutter/places/place_category_class.dart';
 import 'package:dvij_flutter/places/place_list_class.dart';
-import 'package:dvij_flutter/classes/user_class.dart';
+import 'package:dvij_flutter/current_user/user_class.dart';
 import 'package:dvij_flutter/places/place_sorting_options.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';

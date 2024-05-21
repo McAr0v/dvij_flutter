@@ -11,7 +11,7 @@ import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../ads/ad_user_class.dart';
 import '../../classes/pair.dart';
-import '../../classes/user_class.dart';
+import '../../current_user/user_class.dart';
 import '../../elements/loading_screen.dart';
 import '../../elements/snack_bar.dart';
 import '../../widgets_global/text_widgets/headline_and_desc.dart';

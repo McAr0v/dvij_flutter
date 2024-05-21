@@ -1,4 +1,4 @@
-import 'package:dvij_flutter/classes/user_class.dart';
+import 'package:dvij_flutter/current_user/user_class.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

@@ -1,4 +1,4 @@
-import 'package:dvij_flutter/classes/user_class.dart';
+import 'package:dvij_flutter/current_user/user_class.dart';
 import 'package:dvij_flutter/users/place_admins_item_class.dart';
 import 'package:dvij_flutter/users/place_users_roles.dart';
 import 'package:firebase_database/firebase_database.dart';

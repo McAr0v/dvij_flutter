@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import '../../ads/ad_user_class.dart';
 import '../../classes/pair.dart';
-import '../../classes/user_class.dart';
+import '../../current_user/user_class.dart';
 import '../../elements/loading_screen.dart';
 import '../../elements/snack_bar.dart';
 import '../../widgets_global/cards_widgets/card_widget_for_event_promo_places.dart';

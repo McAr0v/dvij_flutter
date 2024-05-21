@@ -1,5 +1,5 @@
 import 'package:dvij_flutter/places/place_class.dart';
-import 'package:dvij_flutter/classes/user_class.dart';
+import 'package:dvij_flutter/current_user/user_class.dart';
 import 'package:dvij_flutter/elements/social_elements/social_buttons_mini_widget.dart';
 import 'package:dvij_flutter/widgets_global/social_widgets/social_buttons_widget.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';

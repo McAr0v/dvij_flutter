@@ -5,7 +5,7 @@ import 'package:dvij_flutter/screens/role_in_app_screens/role_in_app_add_or_edit
 import 'package:dvij_flutter/screens/users_list_screens/users_change_role_admin_screen.dart';
 import 'package:flutter/material.dart';
 import '../../classes/gender_class.dart';
-import '../../classes/user_class.dart';
+import '../../current_user/user_class.dart';
 import '../../themes/app_colors.dart';
 
 class UserElementInUsersListScreen extends StatelessWidget {

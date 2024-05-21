@@ -26,7 +26,7 @@ import '../../elements/snack_bar.dart';
 import '../../places/places_elements/place_picker_page.dart';
 import '../event_class.dart';
 import '../../classes/role_in_app.dart';
-import '../../classes/user_class.dart';
+import '../../current_user/user_class.dart';
 import '../../elements/choose_dialogs/city_choose_dialog.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../widgets_global/images/image_in_edit_screen.dart';

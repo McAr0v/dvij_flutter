@@ -18,7 +18,7 @@ import '../../places/places_screen/place_view_screen.dart';
 import '../../dates/date_type_enum.dart';
 import '../../places/place_class.dart';
 import '../../classes/priceTypeOptions.dart';
-import '../../classes/user_class.dart';
+import '../../current_user/user_class.dart';
 import '../../elements/exit_dialog/exit_dialog.dart';
 import '../../widgets_global/place_or_location_widgets/place_or_location_widget.dart';
 import '../../widgets_global/schedule_widgets/schedule_regular_widget.dart';
@@ -49,7 +49,7 @@ class PromoViewScreenState extends State<PromoViewScreen> {
 
   bool today = false;
 
-  UserCustom creator = UserCustom.empty('', '');
+  UserCustom creator = UserCustom.empty();
   PlaceUserRole currentUserPlaceRole = PlaceUserRole();
 
   PromoCustom promo = PromoCustom.emptyPromo;

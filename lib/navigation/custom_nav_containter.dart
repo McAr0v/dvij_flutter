@@ -2,14 +2,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_user;
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import '../classes/user_class.dart';
+import '../current_user/user_class.dart';
 import '../events/events_screens/events_page.dart';
 import '../places/places_screen/places_page.dart';
 import '../promos/promotions/promotions_page.dart';
 import 'custom_drawer.dart';
 import 'custom_bottom_navigation_bar.dart';
 import 'package:dvij_flutter/screens/profile/profile_page.dart';
-import '../../classes/user_class.dart';
+import '../current_user/user_class.dart';
 
 // ---- ВСЯ НАВИГАЦИЯ ЗДЕСЬ! ----
 
@@ -52,7 +52,7 @@ class _CustomNavContainerState extends State<CustomNavContainer>
       avatar: ''
   );*/
 
-  UserCustom userInfo = UserCustom.empty('', '');
+  UserCustom userInfo = UserCustom.empty();
 
   // --- ИНИЦИАЛИЗИРУЕМ СОСТОЯНИЕ -----
   @override
@@ -77,9 +77,14 @@ class _CustomNavContainerState extends State<CustomNavContainer>
       });
 
       // Если пользователь вошел в систему, обновляем userInfo
-      if (user != null) {
+      /*if (user != null) {
+        userInfo = UserCustom.currentUser!;
+      }*/
+
+      if (UserCustom.currentUser != null){
         userInfo = UserCustom.currentUser!;
       }
+
     });
   }
 

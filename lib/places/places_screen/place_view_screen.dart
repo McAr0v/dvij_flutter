@@ -18,7 +18,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../promos/promotions/promo_view_page.dart';
 import '../../widgets_global/social_widgets/callback_widget.dart';
 import '../place_class.dart';
-import '../../classes/user_class.dart';
+import '../../current_user/user_class.dart';
 import '../../elements/exit_dialog/exit_dialog.dart';
 import '../../elements/snack_bar.dart';
 import '../../elements/loading_screen.dart';

@@ -1,4 +1,4 @@
-import 'package:dvij_flutter/classes/user_class.dart';
+import 'package:dvij_flutter/current_user/user_class.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/screens/profile/registration_screen.dart';
 import 'package:flutter/material.dart';
@@ -93,7 +93,8 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
 
                   // Сброс пароля
                   // TODO - Сделать экран загрузки
-                  String? textMessage = await UserCustom.resetPassword(email);
+                  //String? textMessage = await UserCustom.resetPassword(email);
+                  String? textMessage = await UserCustom.empty().resetPassword(email);
 
                   // --- Если есть результат функции сброса ----
 

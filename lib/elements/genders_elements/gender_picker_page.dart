@@ -1,4 +1,4 @@
-import 'package:dvij_flutter/classes/genders_class.dart';
+import 'package:dvij_flutter/current_user/genders_class.dart';
 import 'package:flutter/material.dart';
 import '../../cities/city_class.dart';
 import '../../classes/gender_class.dart';

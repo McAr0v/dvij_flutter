@@ -1,23 +1,16 @@
 import 'package:dvij_flutter/cities/city_class.dart';
-import 'package:dvij_flutter/classes/genders_class.dart';
+import 'package:dvij_flutter/current_user/app_role.dart';
+import 'package:dvij_flutter/current_user/genders_class.dart';
 import 'package:dvij_flutter/dates/date_mixin.dart';
-import 'package:dvij_flutter/events/events_list_class.dart';
-import 'package:dvij_flutter/events/events_list_manager.dart';
-import 'package:dvij_flutter/places/place_list_class.dart';
-import 'package:dvij_flutter/places/place_list_manager.dart';
 import 'package:dvij_flutter/classes/role_in_app.dart';
-import 'package:dvij_flutter/promos/promos_list_class.dart';
-import 'package:dvij_flutter/promos/promos_list_manager.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter/cupertino.dart';
-
+import '../authentication/user_auth.dart';
 import '../database/database_mixin.dart';
 
-class UserCustom {
+class UserCustom with MixinDatabase, UserAuthMixin {
   String uid;
   String email;
-  String role;
+  AppRole role;
   String name;
   String lastname;
   String phone;
@@ -39,6 +32,7 @@ class UserCustom {
 
   // Статическая переменная для хранения текущего пользователя
   static UserCustom? currentUser;
+
   // Статическая переменная для хранения списка ролей
   static List<RoleInApp> currentUsersList = [];
 
@@ -71,11 +65,11 @@ class UserCustom {
     this.roleInPlace
   });
 
-  factory UserCustom.empty(String uid, String email) {
+  factory UserCustom.empty() {
     return UserCustom(
-      uid: uid,
-      email: email,
-      role: '-Nm5r9zW9P9cMDCYRjP3',
+      uid: '',
+      email: '',
+      role: AppRole(),
       name: '',
       lastname: '',
       phone: '',
@@ -87,7 +81,7 @@ class UserCustom {
       gender: Genders(),
       avatar: 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2Fdvij_unknow_user.jpg?alt=media&token=b63ea5ef-7bdf-49e9-a3ef-1d34d676b6a7',
       roleInPlace: '',
-      registrationDate: DateTime(2100),
+      registrationDate: DateTime.now(),
       myEvents: [],
       myPlaces: [],
       myPromos: [],
@@ -102,19 +96,20 @@ class UserCustom {
 
     DataSnapshot infoSnapshot = snapshot.child('user_info');
 
-    //.child('user_info')
-
     City city = City.emptyCity;
     city = city.getEntityByIdFromList(infoSnapshot.child('city').value.toString());
 
     Genders gender = Genders();
     gender.switchEnumFromString(infoSnapshot.child('gender').value.toString());
 
+    AppRole appRole = AppRole();
+    appRole.setRoleFromDb(infoSnapshot.child('role').value.toString());
+
     // Берем из них данные и заполняем в класс Gender И возвращаем его
     return UserCustom(
       uid: infoSnapshot.child('uid').value.toString(),
       email: infoSnapshot.child('email').value.toString(),
-      role: infoSnapshot.child('role').value.toString(),
+      role: appRole,
       name: infoSnapshot.child('name').value.toString(),
       lastname: infoSnapshot.child('lastname').value.toString(),
       phone: infoSnapshot.child('phone').value.toString(),
@@ -135,10 +130,26 @@ class UserCustom {
     );
   }
 
+  Future<String> signOut() async {
+    return await signOutInMixin();
+  }
+
+  Future<String?> createUser(String email, String password) async {
+    return await createUserWithEmailAndPassword(email, password);
+  }
+
+  Future<String?> signIn(String email, String password) async{
+    return await signInWithEmailAndPassword(email, password);
+  }
+
+  Future<String?> resetPassword(String email) async {
+    return await resetPasswordInMixin(email);
+  }
+
   // Метод для обновления данных текущего пользователя
   static void updateCurrentUser(UserCustom updatedUser) {
     currentUser = updatedUser;
-    updateAccessLevel(updatedUser.role);
+    //updateAccessLevel(updatedUser.role);
   }
 
   // Метод для обновления данных списка пользователей
@@ -147,7 +158,7 @@ class UserCustom {
     currentUsersList = await getAllUsers() as List<RoleInApp>;
   }
 
-  static void updateAccessLevel(String userRoleInApp) {
+  /*static void updateAccessLevel(String userRoleInApp) {
     switch (userRoleInApp)
     {
       case '-Nm5qtfg-e8VVBXkYC0y': accessLevel = 100; // God
@@ -158,221 +169,49 @@ class UserCustom {
 
     }
 
-  }
+  }*/
 
-  // ---- Функция выхода из аккаунта ---
-  static Future<String> signOut() async {
-    try {
-      await FirebaseAuth.instance.signOut();
-      currentUser = null; // Обнуляем текущего пользователя при выходе
-      PlaceListManager.currentFeedPlacesList = PlaceList();
-      PlaceListManager.currentMyPlacesList = PlaceList();
-      PlaceListManager.currentFavPlacesList = PlaceList();
-
-      EventListsManager.currentFeedEventsList = EventsList();
-      EventListsManager.currentFavEventsList = EventsList();
-      EventListsManager.currentMyEventsList = EventsList();
-
-      PromoListsManager.currentFeedPromosList = PromoList();
-      PromoListsManager.currentFavPromoList = PromoList();
-      PromoListsManager.currentMyPromoList = PromoList();
-
-      updateAccessLevel('');
-      return 'success';
-    } catch (e) {
-      return e.toString();
-    }
-  }
-
-  // ---- Функция создания пользователя через Email и пароль ----
-
-  static Future<String?> createUserWithEmailAndPassword(String emailAddress, String password) async {
-    try {
-      final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: emailAddress,
-        password: password,
-      );
-
-      // Пользователь успешно создан
-      User? user = credential.user;
-
-      // Отправляем письмо с подтверждением
-      await user?.sendEmailVerification();
-
-      // Возвращаем UID
-      return user?.uid;
-
-    } on FirebaseAuthException catch (e) {
-      // --- Если ошибки, возвращаем коды ошибок ---
-      if (e.code == 'weak-password') {
-        return e.code;
-      } else if (e.code == 'email-already-in-use') {
-        return e.code;
-      } else if (e.code == 'channel-error') {
-        return e.code;
-      } else if (e.code == 'invalid-email') {
-        return e.code;
-      } else {
-        print(e.code);
-        return null;
-      }
-
-    } catch (e) {
-      print(e);
-      // В случае исключения возвращаем null
-      return null;
-    }
-  }
-
-  // --- Вход в аккаунт ----
-
-  static Future<String?> signInWithEmailAndPassword(
-      String emailAddress,
-      String password,
-      BuildContext context
-      ) async {
-    try {
-      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailAddress,
-        password: password,
-      );
-
-      // Если пользователь успешно вошел, обновляем текущего пользователя
-      currentUser = await readUserDataAndWriteCurrentUser(uid: credential.user!.uid);
-      updateAccessLevel(currentUser!.role);
-      PlaceListManager.currentFeedPlacesList = PlaceList();
-      PlaceListManager.currentMyPlacesList = PlaceList();
-      PlaceListManager.currentFavPlacesList = PlaceList();
-
-      EventListsManager.currentFeedEventsList = EventsList();
-      EventListsManager.currentFavEventsList = EventsList();
-      EventListsManager.currentMyEventsList = EventsList();
-
-      PromoListsManager.currentFeedPromosList = PromoList();
-      PromoListsManager.currentFavPromoList = PromoList();
-      PromoListsManager.currentMyPromoList = PromoList();
-
-      // и возвращаем uid
-      return credential.user?.uid;
-
-    } on FirebaseAuthException catch (e) {
-
-      // Если ошибки, возвращаем коды ошибок
-
-      //print('Ошибка - Firebase Auth Error: ${e.code} - ${e.message}');
-
-      if (e.code == 'wrong-password') {
-
-        return e.code;
-
-      } else if (e.code == 'user-not-found') {
-
-        return e.code;
-
-      } else if (e.code == 'too-many-requests') {
-
-        return e.code;
-
-      } else if (e.code == 'channel-error') {
-
-        return e.code;
-
-      } else if (e.code == 'invalid-email') {
-
-        return e.code;
-
-      } else {
-
-        print(e.code);
-
-        return null;
-
-      }
-
-    } catch (e) {
-      print(e);
-      return null;
-    }
-  }
-
-  // ---- СБРОС ПАРОЛЯ -----
-
-  static Future<String?> resetPassword(String emailAddress) async {
-    try {
-      await FirebaseAuth.instance.sendPasswordResetEmail(
-        email: emailAddress,
-      );
-
-      // Если успешно отправлено письмо, возвращаем success
-      return 'success';
-
-    } on FirebaseAuthException catch (e) {
-
-      // Если ошибки, возвращаем коды ошибок
-
-      if (e.code == 'invalid-email') {
-        return e.code;
-      } else if (e.code == 'user-not-found') {
-        return e.code;
-      } else {
-        print(e.code);
-
-        return e.code;
-      }
-    } catch (e) {
-      print(e);
-      return null;
-    }
+  Map<String, dynamic> generateEntityDataCode(){
+    return <String, dynamic>{
+      'uid': uid,
+      'email': email,
+      'role': role.getRoleNameInString(roleEnum: role.role),
+      'name': name,
+      'lastname': lastname,
+      'phone': phone,
+      'whatsapp': whatsapp,
+      'telegram': telegram,
+      'instagram': instagram,
+      'city': city.id,
+      'birthDate': DateMixin.generateDateString(birthDate),
+      'gender': gender.getGenderString(),
+      'avatar': avatar,
+      'registrationDate' : DateMixin.generateDateString(registrationDate)
+    };
   }
 
   // --- ФУНКЦИЯ ЗАПИСИ ДАННЫХ ПОЛЬЗОВАТЕЛЯ -----
-  static Future<String?> writeUserData(UserCustom user, {bool notAdminChanges = true}) async {
+  Future<String> publishUserToDb({bool notAdminChanges = true}) async {
 
-    try {
-      // Создаем путь для пользователя в базе данных
-      String userPath = 'users/${user.uid}/user_info';
+    String userPath = 'users/$uid/user_info';
+    Map<String, dynamic> data = generateEntityDataCode();
 
-      // Записываем данные пользователя в базу данных
-      await FirebaseDatabase.instance.ref().child(userPath).set({
-        'uid': user.uid,
-        'email': user.email,
-        'role': user.role,
-        'name': user.name,
-        'lastname': user.lastname,
-        'phone': user.phone,
-        'whatsapp': user.whatsapp,
-        'telegram': user.telegram,
-        'instagram': user.instagram,
-        'city': user.city.id,
-        'birthDate': DateMixin.generateDateString(user.birthDate),
-        'gender': user.gender.getGenderString(),
-        'avatar': user.avatar,
-        'registrationDate' : DateMixin.generateDateString(user.registrationDate)
-      });
+    String result = await MixinDatabase.publishToDB(userPath, data);
 
-      if (notAdminChanges)
-        {
-          currentUser = user; // Обновляем текущего пользователя
-          updateAccessLevel(user.role);
-        }
-
-
-      // Если успешно
-      return 'success';
-
-    } catch (e) {
-      // Если ошибки
-      // TODO Сделать обработку ошибок. Наверняка есть какие то, которые можно различать и писать что случилось
-      print('Error writing user data: $e');
-      return 'Failed to write user data. Error: $e';
+    if (notAdminChanges)
+    {
+      currentUser = this; // Обновляем текущего пользователя
+      //updateAccessLevel(user.role);
     }
+
+    return result;
   }
 
   // ---- ФУНКЦИЯ ЧТЕНИЯ ИНФОРМАЦИИ О ПОЛЬЗОВАТЕЛЕ -----
 
   static Future<UserCustom?> readUserDataAndWriteCurrentUser({required String uid, bool onlyRead = false}) async {
 
-    UserCustom user = UserCustom.empty('', '');
+    UserCustom user = UserCustom.empty();
 
     String userPath = 'users/$uid';
 
@@ -381,7 +220,7 @@ class UserCustom {
     if (snapshot != null) {
       user = UserCustom.fromSnapshot(snapshot);
       if (!onlyRead){
-        updateAccessLevel(user.role);
+        //updateAccessLevel(user.role);
         currentUser = user; // Обновляем текущего пользователя
       }
       return user;
@@ -480,7 +319,7 @@ class UserCustom {
 
   static Future<UserCustom?> getUserByEmail(String email) async {
 
-    UserCustom user = UserCustom.empty('', '');
+    UserCustom user = UserCustom.empty();
 
     // Указываем путь
     final DatabaseReference reference = FirebaseDatabase.instance.ref().child('users');
@@ -509,7 +348,7 @@ class UserCustom {
 
   static Future<UserCustom> getUserById(String id) async {
 
-    UserCustom user = UserCustom.empty('', '');
+    UserCustom user = UserCustom.empty();
 
     // Указываем путь
     final DatabaseReference reference = FirebaseDatabase.instance.ref().child('users');
@@ -625,6 +464,8 @@ class UserCustom {
     // Возвращаем список
     return users;
   }
+
+
 
   /*static Future<PlaceRole> getPlaceRoleInUserById(String placeId, String userId) async {
 
