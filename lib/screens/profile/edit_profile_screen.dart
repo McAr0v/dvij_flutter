@@ -53,7 +53,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController genderController;
   late TextEditingController avatarController;
   late City chosenCity;
-  //late Gender chosenGender;
   late Genders chosenGender;
   late DateTime selectedDate;
   late DateTime registrationDate;
@@ -132,7 +131,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.initState();
     loading = true;
 
-    accessLevel = UserCustom.accessLevel;
+    //accessLevel = UserCustom.accessLevel;
 
     // Подгружаем в контроллеры содержимое из БД.
     Future.delayed(Duration.zero, () async {
@@ -306,9 +305,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     },
                   ),
 
-                  if (UserCustom.accessLevel >= 100) const SizedBox(height: 16.0),
+                  if (widget.userInfo.role.getAccessNumber() >= 100) const SizedBox(height: 16.0),
 
-                  if (UserCustom.accessLevel >= 100) RoleInAppElementInEditScreen(
+                  if (widget.userInfo.role.getAccessNumber() >= 100) RoleInAppElementInEditScreen(
                       onActionPressed: _showRoleInAppPickerDialog,
                     roleInAppName: appRole.getRoleNameInString(roleEnum: appRole.role, needTranslate: true),
                   ),

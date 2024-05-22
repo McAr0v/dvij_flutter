@@ -121,10 +121,10 @@ class PromoViewScreenState extends State<PromoViewScreen> {
       currentUserPlaceRole = currentUserPlaceRole.searchPlaceUserRoleInAdminsList(place.admins!, currentPlaceUser);
       currentPlaceUser.placeUserRole = currentUserPlaceRole;
       // Грузим создателя из БД
-      creator = await UserCustom.getUserById(promo.creatorId);
+      creator = await creator.getUserByEmailOrId(uid: promo.creatorId);
 
     } else {
-      creator = await UserCustom.getUserById(promo.creatorId);
+      creator = await creator.getUserByEmailOrId(uid: promo.creatorId);
     }
 
 

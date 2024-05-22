@@ -12,14 +12,14 @@ class UserElementInUsersListScreen extends StatelessWidget {
   final UserCustom user;
   final VoidCallback onTapMethod;
   final int index;
-  final String roleName;
+  //final String roleName;
 
   const UserElementInUsersListScreen({
     Key? key,
     required this.user,
     required this.onTapMethod,
     required this.index,
-    required this.roleName,
+    //required this.roleName,
   })
       : super(key: key);
 
@@ -59,14 +59,14 @@ class UserElementInUsersListScreen extends StatelessWidget {
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
 
-                  if (roleName != '') Text(
-                    'role: $roleName',
+                  Text(
+                    user.role.getRoleNameInString(roleEnum: user.role.role, needTranslate: true),
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
-                  if (roleName == '')Text(
+                  /*if (roleName == '')Text(
                     'role: Не указана роль',
                     style: Theme.of(context).textTheme.bodySmall,
-                  ),
+                  ),*/
 
                   const SizedBox(height: 10,),
 

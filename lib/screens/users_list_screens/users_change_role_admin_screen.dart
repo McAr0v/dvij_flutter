@@ -105,9 +105,9 @@ class _UsersChangeRoleAdminScreenState extends State<UsersChangeRoleAdminScreen>
                     const SizedBox(height: 20.0),
                     HeadlineAndDesc(headline: widget.userInfo.uid, description: 'ID'),
 
-                    if (UserCustom.accessLevel >= 100) const SizedBox(height: 20.0),
+                    if (widget.userInfo.role.getAccessNumber() >= 100) const SizedBox(height: 20.0),
 
-                    if (UserCustom.accessLevel >= 100) RoleInAppElementInEditScreen(
+                    if (widget.userInfo.role.getAccessNumber() >= 100) RoleInAppElementInEditScreen(
                       onActionPressed: _showRoleInAppPickerDialog,
                       roleInAppName: appRole.getRoleNameInString(roleEnum: appRole.role, needTranslate: true),
                     ),

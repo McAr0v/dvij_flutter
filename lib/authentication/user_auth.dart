@@ -69,8 +69,10 @@ mixin UserAuthMixin{
         password: password,
       );
 
+      UserCustom tempUser = UserCustom.empty();
+
       // Если пользователь успешно вошел, обновляем текущего пользователя
-      await UserCustom.readUserDataAndWriteCurrentUser(uid: credential.user!.uid);
+      await tempUser.readUserDataFromDb(uid: credential.user!.uid);
 
       PlaceListManager.currentFeedPlacesList = PlaceList();
       PlaceListManager.currentMyPlacesList = PlaceList();

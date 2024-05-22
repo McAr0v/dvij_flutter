@@ -108,10 +108,10 @@ class EventViewScreenState extends State<EventViewScreen> {
       currentUserPlaceRole = currentUserPlaceRole.searchPlaceUserRoleInAdminsList(place.admins!, currentPlaceUser);
       currentPlaceUser.placeUserRole = currentUserPlaceRole;
       // Грузим создателя из БД
-      creator = await UserCustom.getUserById(event.creatorId);
+      creator = await creator.getUserByEmailOrId(uid: event.creatorId);
 
     } else {
-      creator = await UserCustom.getUserById(event.creatorId);
+      creator = await creator.getUserByEmailOrId(uid: event.creatorId);
     }
 
     inFav = event.inFav;

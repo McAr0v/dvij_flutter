@@ -3,6 +3,7 @@ import 'package:dvij_flutter/current_user/user_class.dart';
 import 'package:dvij_flutter/elements/role_in_app_elements/role_in_app_element_in_roles_in_app_screen.dart';
 import 'package:dvij_flutter/elements/users_list_elements/user_element_in_users_list.dart';
 import 'package:dvij_flutter/screens/role_in_app_screens/role_in_app_add_or_edit_screen.dart';
+import 'package:dvij_flutter/users_mixin/users_lists_mixin.dart';
 import 'package:flutter/material.dart';
 import '../../cities/city_class.dart';
 import '../../elements/custom_snack_bar.dart';
@@ -18,7 +19,7 @@ class UsersListScreen extends StatefulWidget {
 
 // ---- Страница списка ролей (Должна быть доступна только для админа)------
 
-class _UsersListScreenState extends State<UsersListScreen> {
+class _UsersListScreenState extends State<UsersListScreen> with UsersListsMixin {
 
   // Список пользователей
   List<UserCustom> _usersList = [];
@@ -29,7 +30,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
   // Переменная, включающая экран загрузки
   bool loading = true;
 
-  List<String> rolesList = [];
+  //List<String> rolesList = [];
 
   @override
   void initState() {
@@ -44,12 +45,17 @@ class _UsersListScreenState extends State<UsersListScreen> {
 
     // Enable loading screen
     setState(() {
-      rolesList.clear();
+      //rolesList.clear();
       loading = true;
     });
 
     // Retrieve the list of users asynchronously
-    _usersList = await UserCustom.getAllUsers();
+    if (UsersListsMixin.downloadedUsers.isNotEmpty){
+      _usersList = UsersListsMixin.downloadedUsers;
+    } else {
+      _usersList = await getAllUsersFromDb();
+    }
+
 
     //rolesList = await setRoleName(_usersList);
 
@@ -119,7 +125,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
                   _isAscending = !_isAscending;
                 });
                 // Сортируем список ролей
-                UserCustom.sortUsersByEmail(_usersList, _isAscending);
+                sortUsersByEmail(_usersList, _isAscending);
 
               },
             ),
@@ -143,7 +149,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
                   itemBuilder: (context, index) {
                     return UserElementInUsersListScreen(
                         user: _usersList[index],
-                        roleName: rolesList[index],
+                        //roleName: rolesList[index],
                         onTapMethod: () async {
                           /*
                           setState(() {

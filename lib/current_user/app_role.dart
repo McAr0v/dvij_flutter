@@ -31,4 +31,14 @@ class AppRole{
     }
   }
 
+  int getAccessNumber(){
+    switch (role){
+      case AppRoleEnum.god: return 100;
+      case AppRoleEnum.admin: return 90;
+      case AppRoleEnum.adManager: return 50;
+      case AppRoleEnum.contentManager: return 70;
+      case AppRoleEnum.simpleUser: return 0;
+    }
+  }
+
 }

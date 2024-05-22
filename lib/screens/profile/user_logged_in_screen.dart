@@ -196,11 +196,11 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
                     const SizedBox(height: 16.0),
                     if (userEmail != '' && userEmail != null) HeadlineAndDesc(headline: userEmail!, description: 'email профиля'),
 
-                    if (UserCustom.accessLevel >= 50) const SizedBox(height: 16.0),
-                    if (UserCustom.accessLevel >= 50) HeadlineAndDesc(headline: appRole.getRoleNameInString(roleEnum: appRole.role, needTranslate: true), description: 'Роль в приложении'),
+                    if (userInfo.role.getAccessNumber() >= 50) const SizedBox(height: 16.0),
+                    if (userInfo.role.getAccessNumber() >= 50) HeadlineAndDesc(headline: appRole.getRoleNameInString(roleEnum: appRole.role, needTranslate: true), description: 'Роль в приложении'),
 
                     const SizedBox(height: 16.0),
-                    if (userInfo.city != '') HeadlineAndDesc(headline: userInfo.city.name, description: 'Город'),
+                    HeadlineAndDesc(headline: userInfo.city.name, description: 'Город'),
 
                     const SizedBox(height: 16.0),
                     if (userInfo.phone != '') HeadlineAndDesc(headline: userInfo.phone, description: 'Телефон для связи'),

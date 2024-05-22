@@ -105,7 +105,7 @@ class CustomDrawer extends StatelessWidget {
               },
             ),
 
-            if (local_user.UserCustom.accessLevel >= 50) ListTile(
+            if (userInfo.role.getAccessNumber() >= 50) ListTile(
               title: Text(
                   'Админ панель',
                 style: Theme.of(context).textTheme.titleMedium,
@@ -113,7 +113,7 @@ class CustomDrawer extends StatelessWidget {
               contentPadding: const EdgeInsets.all(15),
             ),
 
-            if (local_user.UserCustom.accessLevel >= 100) ListTile(
+            if (userInfo.role.getAccessNumber() >= 90) ListTile(
               leading: const Icon(Icons.privacy_tip),
               title: const Text('Список пользователей'),
               onTap: () {
@@ -126,7 +126,7 @@ class CustomDrawer extends StatelessWidget {
               },
             ),
 
-            if (local_user.UserCustom.accessLevel >= 80) ListTile(
+            if (userInfo.role.getAccessNumber() >= 70) ListTile(
               leading: const Icon(Icons.privacy_tip),
               title: const Text('Список городов'),
               onTap: () {
@@ -139,20 +139,7 @@ class CustomDrawer extends StatelessWidget {
               },
             ),
 
-            if (local_user.UserCustom.accessLevel >= 90) ListTile(
-              leading: const Icon(Icons.man),
-              title: const Text('Список гендеров'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const GendersListScreen()),
-                );
-              },
-            ),
-
-            if (local_user.UserCustom.accessLevel >= 90) ListTile(
+            if (userInfo.role.getAccessNumber() >= 90) ListTile(
               leading: const Icon(Icons.lock),
               title: const Text('Список ролей для приложения'),
               onTap: () {
@@ -165,7 +152,7 @@ class CustomDrawer extends StatelessWidget {
               },
             ),
 
-            if (local_user.UserCustom.accessLevel >= 80) ListTile(
+            if (userInfo.role.getAccessNumber() >= 70) ListTile(
               leading: const Icon(Icons.category),
               title: const Text('Список категорий мест'),
               onTap: () {
@@ -178,7 +165,7 @@ class CustomDrawer extends StatelessWidget {
               },
             ),
 
-            if (local_user.UserCustom.accessLevel >= 80) ListTile(
+            if (userInfo.role.getAccessNumber() >= 70) ListTile(
               leading: const Icon(Icons.category),
               title: const Text('Список категорий мероприятий'),
               onTap: () {
@@ -191,7 +178,7 @@ class CustomDrawer extends StatelessWidget {
               },
             ),
 
-            if (local_user.UserCustom.accessLevel >= 80) ListTile(
+            if (userInfo.role.getAccessNumber() >= 70) ListTile(
               leading: const Icon(Icons.category),
               title: const Text('Список категорий акций'),
               onTap: () {
@@ -204,7 +191,7 @@ class CustomDrawer extends StatelessWidget {
               },
             ),
 
-            if (local_user.UserCustom.accessLevel >= 80) ListTile(
+            if (userInfo.role.getAccessNumber() >= 70) ListTile(
               leading: const Icon(Icons.category),
               title: const Text('ТЕСТОВАЯ СТРАНИЦА'),
               onTap: () {
