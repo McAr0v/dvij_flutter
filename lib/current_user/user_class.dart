@@ -1,6 +1,7 @@
 import 'package:dvij_flutter/cities/city_class.dart';
 import 'package:dvij_flutter/constants/constants.dart';
 import 'package:dvij_flutter/current_user/app_role.dart';
+import 'package:dvij_flutter/current_user/fav_list_mixin.dart';
 import 'package:dvij_flutter/current_user/genders_class.dart';
 import 'package:dvij_flutter/dates/date_mixin.dart';
 import 'package:dvij_flutter/users_mixin/users_lists_mixin.dart';
@@ -8,7 +9,7 @@ import 'package:firebase_database/firebase_database.dart';
 import '../authentication/user_auth.dart';
 import '../database/database_mixin.dart';
 
-class UserCustom with MixinDatabase, UserAuthMixin, UsersListsMixin {
+class UserCustom with MixinDatabase, UserAuthMixin, UsersListsMixin, FavListsMixin {
   String uid;
   String email;
   AppRole role;
@@ -99,6 +100,8 @@ class UserCustom with MixinDatabase, UserAuthMixin, UsersListsMixin {
     AppRole appRole = AppRole();
     appRole.setRoleFromDb(infoSnapshot.child('role').value.toString());
 
+    List<String> favPromos = getFavEntitiesId(infoSnapshot.child(AppConstants.favPromoPathKey), AppConstants.favPromoIdKey);
+
     // Берем из них данные и заполняем в класс Gender И возвращаем его
     return UserCustom(
       uid: infoSnapshot.child('uid').value.toString(),
@@ -118,7 +121,7 @@ class UserCustom with MixinDatabase, UserAuthMixin, UsersListsMixin {
       myEvents: [],
       myPromos: [],
       myPlaces: [],
-      favPromos: [],
+      favPromos: ,
       favPlaces: [],
       favEvents: []
     );

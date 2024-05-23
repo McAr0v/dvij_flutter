@@ -2,6 +2,7 @@ import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/elements/loading_screen.dart';
 import 'package:dvij_flutter/elements/text_and_icons_widgets/text_with_link.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../current_user/user_class.dart';
 import '../../elements/custom_snack_bar.dart';
 import '../../themes/app_colors.dart';
@@ -26,6 +27,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   // --- Инициализируем контроллеры для полей ввода
   final TextEditingController emailController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
   // --- Функция перехода на страницу профиля ---
@@ -116,11 +119,33 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
                 TextField(
                   style: Theme.of(context).textTheme.bodyMedium,
+                  keyboardType: TextInputType.text,
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Имя',
+                    prefixIcon: Icon(FontAwesomeIcons.person),
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+
+                TextField(
+                  style: Theme.of(context).textTheme.bodyMedium,
                   keyboardType: TextInputType.emailAddress,
                   controller: emailController,
                   decoration: const InputDecoration(
                     labelText: 'Email',
                     prefixIcon: Icon(Icons.email),
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+
+                TextField(
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  keyboardType: TextInputType.phone,
+                  controller: phoneController,
+                  decoration: const InputDecoration(
+                    labelText: 'Контактный номер телефона',
+                    prefixIcon: Icon(Icons.phone),
                   ),
                 ),
                 const SizedBox(height: 16.0),
@@ -195,6 +220,34 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           loading = false;
                         });
 
+                      } else if (nameController.text.isEmpty) {
+                        showSnackBar('Как вас зовут? Нам важно знать ваше имя!', AppColors.attentionRed, 2);
+
+                        // Останавливаем регистрацию
+                        setState(() {
+                          loading = false;
+                        });
+                      } else if (phoneController.text.isEmpty) {
+                        showSnackBar('Вы забыли ввести свой телефон(', AppColors.attentionRed, 2);
+
+                        // Останавливаем регистрацию
+                        setState(() {
+                          loading = false;
+                        });
+                      } else if (emailController.text.isEmpty) {
+                        showSnackBar('А Email? Мы регистрируем по электронной почте! Заполни его пожалуйста', AppColors.attentionRed, 2);
+
+                        // Останавливаем регистрацию
+                        setState(() {
+                          loading = false;
+                        });
+                      } else if (passwordController.text.isEmpty) {
+                        showSnackBar('Увы, без пароля никак! Тебе надо придумать его!', AppColors.attentionRed, 2);
+
+                        // Останавливаем регистрацию
+                        setState(() {
+                          loading = false;
+                        });
                       } else {
 
                         // ---- ЕСЛИ ЧЕК-БОКС ПОДТВЕРЖДЕН -----
@@ -264,6 +317,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             UserCustom newUser = UserCustom.empty();
                             newUser.uid = uid;
                             newUser.email = email;
+                            newUser.phone = phoneController.text;
+                            newUser.name = nameController.text;
 
                             // --- Создаем запись в базе данных в Firebase
 
