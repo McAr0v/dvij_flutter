@@ -224,6 +224,15 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
                     if (userInfo.gender != '') const SizedBox(height: 16.0),
                     HeadlineAndDesc(headline: chosenGender.getGenderString(needTranslate: true), description: 'Пол'),
 
+                    const SizedBox(height: 16.0),
+                    for (String id in userInfo.favEvents) HeadlineAndDesc(headline: id, description: 'Избранное мероприятие'),
+
+                    const SizedBox(height: 16.0),
+                    for (String id in userInfo.favPlaces) HeadlineAndDesc(headline: id, description: 'Избранное заведение'),
+
+                    const SizedBox(height: 16.0),
+                    for (String id in userInfo.favPromos) HeadlineAndDesc(headline: id, description: 'Избранное акция'),
+
                     // TODO - Решить, эта кнопка нужна или нет?
                     const SizedBox(height: 16.0),
                     CustomButton(

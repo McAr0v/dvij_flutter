@@ -89,41 +89,43 @@ class UserCustom with MixinDatabase, UserAuthMixin, UsersListsMixin, FavListsMix
   factory UserCustom.fromSnapshot(DataSnapshot snapshot) {
     // Указываем путь к нашим полям
 
-    DataSnapshot infoSnapshot = snapshot.child('user_info');
+    DataSnapshot infoSnapshot = snapshot.child(AppConstants.userInfoFolderPath);
 
     City city = City.emptyCity;
-    city = city.getEntityByIdFromList(infoSnapshot.child('city').value.toString());
+    city = city.getEntityByIdFromList(infoSnapshot.child(AppConstants.userCityProperty).value.toString());
 
     Genders gender = Genders();
-    gender.switchEnumFromString(infoSnapshot.child('gender').value.toString());
+    gender.switchEnumFromString(infoSnapshot.child(AppConstants.userGenderProperty).value.toString());
 
     AppRole appRole = AppRole();
-    appRole.setRoleFromDb(infoSnapshot.child('role').value.toString());
+    appRole.setRoleFromDb(infoSnapshot.child(AppConstants.userRoleProperty).value.toString());
 
-    List<String> favPromos = getFavEntitiesId(infoSnapshot.child(AppConstants.favPromoPathKey), AppConstants.favPromoIdKey);
+    List<String> favPromos = FavListsMixin.getFavEntitiesId(snapshot.child(AppConstants.favPromoPathKey), AppConstants.favPromoIdKey);
+    List<String> favPlaces = FavListsMixin.getFavEntitiesId(snapshot.child(AppConstants.favPlacePathKey), AppConstants.favPlaceIdKey);
+    List<String> favEvents = FavListsMixin.getFavEntitiesId(snapshot.child(AppConstants.favEventPathKey), AppConstants.favEventIdKey);
 
     // Берем из них данные и заполняем в класс Gender И возвращаем его
     return UserCustom(
-      uid: infoSnapshot.child('uid').value.toString(),
-      email: infoSnapshot.child('email').value.toString(),
+      uid: infoSnapshot.child(AppConstants.userUidProperty).value.toString(),
+      email: infoSnapshot.child(AppConstants.userEmailProperty).value.toString(),
       role: appRole,
-      name: infoSnapshot.child('name').value.toString(),
-      lastname: infoSnapshot.child('lastname').value.toString(),
-      phone: infoSnapshot.child('phone').value.toString(),
-      whatsapp: infoSnapshot.child('whatsapp').value.toString(),
-      telegram: infoSnapshot.child('telegram').value.toString(),
-      instagram: infoSnapshot.child('instagram').value.toString(),
+      name: infoSnapshot.child(AppConstants.userNameProperty).value.toString(),
+      lastname: infoSnapshot.child(AppConstants.userLastnameProperty).value.toString(),
+      phone: infoSnapshot.child(AppConstants.userPhoneProperty).value.toString(),
+      whatsapp: infoSnapshot.child(AppConstants.userWhatsappProperty).value.toString(),
+      telegram: infoSnapshot.child(AppConstants.userTelegramProperty).value.toString(),
+      instagram: infoSnapshot.child(AppConstants.userInstagramProperty).value.toString(),
       city: city,
-      birthDate: DateMixin.getDateFromString(infoSnapshot.child('birthDate').value.toString()),
+      birthDate: DateMixin.getDateFromString(infoSnapshot.child(AppConstants.userBirthDateProperty).value.toString()),
       gender: gender,
-      avatar: infoSnapshot.child('avatar').value.toString(),
-      registrationDate: DateMixin.getDateFromString(infoSnapshot.child('registrationDate').value.toString()),
+      avatar: infoSnapshot.child(AppConstants.userAvatarProperty).value.toString(),
+      registrationDate: DateMixin.getDateFromString(infoSnapshot.child(AppConstants.userRegistrationDateProperty).value.toString()),
       myEvents: [],
       myPromos: [],
       myPlaces: [],
-      favPromos: ,
-      favPlaces: [],
-      favEvents: []
+      favPromos: favPromos,
+      favPlaces: favPlaces,
+      favEvents: favEvents
     );
   }
 
@@ -151,27 +153,27 @@ class UserCustom with MixinDatabase, UserAuthMixin, UsersListsMixin, FavListsMix
 
   Map<String, dynamic> generateEntityDataCode(){
     return <String, dynamic>{
-      'uid': uid,
-      'email': email,
-      'role': role.getRoleNameInString(roleEnum: role.role),
-      'name': name,
-      'lastname': lastname,
-      'phone': phone,
-      'whatsapp': whatsapp,
-      'telegram': telegram,
-      'instagram': instagram,
-      'city': city.id,
-      'birthDate': DateMixin.generateDateString(birthDate),
-      'gender': gender.getGenderString(),
-      'avatar': avatar,
-      'registrationDate' : DateMixin.generateDateString(registrationDate)
+      AppConstants.userUidProperty: uid,
+      AppConstants.userEmailProperty: email,
+      AppConstants.userRoleProperty: role.getRoleNameInString(roleEnum: role.role),
+      AppConstants.userNameProperty: name,
+      AppConstants.userLastnameProperty: lastname,
+      AppConstants.userPhoneProperty: phone,
+      AppConstants.userWhatsappProperty: whatsapp,
+      AppConstants.userTelegramProperty: telegram,
+      AppConstants.userInstagramProperty: instagram,
+      AppConstants.userCityProperty: city.id,
+      AppConstants.userBirthDateProperty: DateMixin.generateDateString(birthDate),
+      AppConstants.userGenderProperty: gender.getGenderString(),
+      AppConstants.userAvatarProperty: avatar,
+      AppConstants.userRegistrationDateProperty : DateMixin.generateDateString(registrationDate)
     };
   }
 
   // --- ФУНКЦИЯ ЗАПИСИ ДАННЫХ ПОЛЬЗОВАТЕЛЯ -----
   Future<String> publishUserToDb({bool notAdminChanges = true}) async {
 
-    String userPath = 'users/$uid/user_info';
+    String userPath = '${AppConstants.usersFolderPath}/$uid/${AppConstants.userInfoFolderPath}';
     Map<String, dynamic> data = generateEntityDataCode();
 
     String result = await MixinDatabase.publishToDB(userPath, data);
@@ -191,7 +193,7 @@ class UserCustom with MixinDatabase, UserAuthMixin, UsersListsMixin, FavListsMix
 
     UserCustom user = UserCustom.empty();
 
-    String userPath = 'users/$uid';
+    String userPath = '${AppConstants.usersFolderPath}/$uid';
 
     DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB(userPath);
 
