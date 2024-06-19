@@ -104,6 +104,10 @@ class UserCustom with MixinDatabase, UserAuthMixin, UsersListsMixin, FavListsMix
     List<String> favPlaces = FavListsMixin.getFavEntitiesId(snapshot.child(AppConstants.favPlacePathKey), AppConstants.favPlaceIdKey);
     List<String> favEvents = FavListsMixin.getFavEntitiesId(snapshot.child(AppConstants.favEventPathKey), AppConstants.favEventIdKey);
 
+    List<String> myPromos = FavListsMixin.getFavEntitiesId(snapshot.child(AppConstants.myPromoPathKey), AppConstants.favPromoIdKey);
+    List<String> myPlaces = FavListsMixin.getFavEntitiesId(snapshot.child(AppConstants.myPlacePathKey), AppConstants.favPlaceIdKey);
+    List<String> myEvents = FavListsMixin.getFavEntitiesId(snapshot.child(AppConstants.myEventPathKey), AppConstants.favEventIdKey);
+
     // Берем из них данные и заполняем в класс Gender И возвращаем его
     return UserCustom(
       uid: infoSnapshot.child(AppConstants.userUidProperty).value.toString(),
@@ -120,9 +124,9 @@ class UserCustom with MixinDatabase, UserAuthMixin, UsersListsMixin, FavListsMix
       gender: gender,
       avatar: infoSnapshot.child(AppConstants.userAvatarProperty).value.toString(),
       registrationDate: DateMixin.getDateFromString(infoSnapshot.child(AppConstants.userRegistrationDateProperty).value.toString()),
-      myEvents: [],
-      myPromos: [],
-      myPlaces: [],
+      myEvents: myEvents,
+      myPromos: myPromos,
+      myPlaces: myPlaces,
       favPromos: favPromos,
       favPlaces: favPlaces,
       favEvents: favEvents

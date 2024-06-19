@@ -233,6 +233,15 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
                     const SizedBox(height: 16.0),
                     for (String id in userInfo.favPromos) HeadlineAndDesc(headline: id, description: 'Избранное акция'),
 
+                    const SizedBox(height: 16.0),
+                    for (String id in userInfo.myEvents) HeadlineAndDesc(headline: id, description: 'мое мероприятие'),
+
+                    const SizedBox(height: 16.0),
+                    for (String id in userInfo.myPlaces) HeadlineAndDesc(headline: id, description: 'мое заведение'),
+
+                    const SizedBox(height: 16.0),
+                    for (String id in userInfo.myPromos) HeadlineAndDesc(headline: id, description: 'моя акция'),
+
                     // TODO - Решить, эта кнопка нужна или нет?
                     const SizedBox(height: 16.0),
                     CustomButton(

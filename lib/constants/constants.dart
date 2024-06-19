@@ -11,6 +11,10 @@ class AppConstants {
   static const String favEventPathKey = 'favEvents';
   static const String favPromoPathKey = 'favPromos';
 
+  static const String myPlacePathKey = 'myPlaces';
+  static const String myEventPathKey = 'myEvents';
+  static const String myPromoPathKey = 'myPromos';
+
 
   static const String userInfoFolderPath = 'user_info';
   static const String usersFolderPath = 'users';
