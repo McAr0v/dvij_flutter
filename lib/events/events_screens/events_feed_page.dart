@@ -1,4 +1,5 @@
 import 'package:dvij_flutter/cities/city_class.dart';
+import 'package:dvij_flutter/constants/constants.dart';
 import 'package:dvij_flutter/events/event_category_class.dart';
 import 'package:dvij_flutter/events/event_class.dart';
 import 'package:dvij_flutter/events/event_sorting_options.dart';
@@ -179,10 +180,10 @@ class EventsFeedPageState extends State<EventsFeedPage> {
           },
           child: Stack (
             children: [
-              if (loading) const LoadingScreen(loadingText: 'Подожди, идет загрузка мероприятий')
+              if (loading) const LoadingScreen(loadingText: AppConstants.eventsLoadingMessage)
               else if (refresh) Center(
                 child: Text(
-                  'Подожди, идет обновление мероприятий',
+                  AppConstants.eventsRefreshMessage,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               )
@@ -214,7 +215,7 @@ class EventsFeedPageState extends State<EventsFeedPage> {
                               return const Column(
                                   children: [
                                     Center(
-                                      child: Text('Пусто'),
+                                      child: Text(AppConstants.emptyMessage),
                                     )
                                   ]
                               );

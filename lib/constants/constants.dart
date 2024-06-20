@@ -36,6 +36,9 @@ class AppConstants {
   static const String userAvatarProperty = 'avatar';
   static const String userRegistrationDateProperty = 'registrationDate';
 
-
+  // Сообщения на экране
+  static const String emptyMessage = 'Пусто';
+  static const String eventsLoadingMessage = 'Подожди, идет загрузка мероприятий';
+  static const String eventsRefreshMessage = 'Подожди, идет обновление мероприятий';
 
 }
