@@ -111,7 +111,11 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
 
     // --- Читаем папку моих сущностей у пользователя ----
 
-    String myPath = 'users/$userId/myEvents/';
+    if (UserCustom.currentUser != null) {
+      eventsId = UserCustom.currentUser!.myEvents;
+    }
+
+    /*String myPath = 'users/$userId/myEvents/';
     DataSnapshot? myFolder = await MixinDatabase.getInfoFromDB(myPath);
 
     if (myFolder != null) {
@@ -125,7 +129,7 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
           eventsId.add(idSnapshot.value.toString());
         }
       }
-    }
+    }*/
 
     // Если список ID не пустой, и не была вызвана функция обновления
     if (eventsId.isNotEmpty){

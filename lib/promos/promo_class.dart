@@ -333,6 +333,12 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
       placePublishResult = await MixinDatabase.publishToDB(placePath, dataToCreatorAndPlace);
     }
 
+    if (UserCustom.currentUser != null){
+      if (!UserCustom.currentUser!.myPromos.contains(id)){
+        UserCustom.currentUser!.myPromos.add(id);
+      }
+    }
+
     return checkSuccessFromDb(entityPublishResult, creatorPublishResult, placePublishResult, 'success');
   }
 

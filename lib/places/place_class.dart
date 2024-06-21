@@ -156,7 +156,6 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
     Map<String, dynamic> data = generateEntityDataCode();
     Map<String, dynamic> dataToCreatorAndPlace = {
       'placeId': id,
-      //'roleId': '-NngrYovmKAw_cp0pYfJ'
     };
 
     Map <String, dynamic> creatorDataToAdminsList = {
@@ -167,6 +166,12 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
     String entityPublishResult = await MixinDatabase.publishToDB(entityPath, data);
     String creatorPublishResult = await MixinDatabase.publishToDB(creatorPath, dataToCreatorAndPlace);
     String creatorToAdminResult = await MixinDatabase.publishToDB(creatorInAdminsPath, creatorDataToAdminsList);
+
+    if (UserCustom.currentUser != null){
+      if (!UserCustom.currentUser!.myPlaces.contains(id)){
+        UserCustom.currentUser!.myPlaces.add(id);
+      }
+    }
 
     String result = 'success';
 

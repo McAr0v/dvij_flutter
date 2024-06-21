@@ -356,6 +356,17 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
       placePublishResult = await MixinDatabase.publishToDB(placePath, dataToCreatorAndPlace);
     }
 
+    // Если текущий пользователь не налл и создатель
+    if(UserCustom.currentUser != null && UserCustom.currentUser!.uid == creatorId){
+      // Проверяем, содержит ли в списке его мероприятий уже мероприятие
+      if (!UserCustom.currentUser!.myEvents.contains(id)){
+        // Если нет, то добавляем
+        UserCustom.currentUser!.myEvents.add(id);
+      }
+
+    }
+
+
     return checkSuccessFromDb(entityPublishResult, creatorPublishResult, placePublishResult, 'success');
   }
 
