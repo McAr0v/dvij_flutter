@@ -42,10 +42,11 @@ class PlaceAdminsScreenState extends State<PlaceAdminsScreen> {
     });
 
     currentPlace = widget.place;
+
     // Получаем информацию об админах из списка ролей и UID админов в заведении
     admins = await creator.getAdminsInfoFromDb(widget.place.admins!);
 
-    if (UserCustom.currentUser != null){
+    /*if (UserCustom.currentUser != null){
       // Если пользователь - создатель
       if (widget.place.creatorId == UserCustom.currentUser!.uid){
         PlaceUserRole role = PlaceUserRole();
@@ -60,7 +61,7 @@ class PlaceAdminsScreenState extends State<PlaceAdminsScreen> {
       // Если текущий пользователь не создатель
       // Грузим создателя из БД
       creator = await creator.getPlaceUserFromDb(widget.place.creatorId, PlaceUserRoleEnum.creator);
-    }
+    }*/
 
     setState(() {
       loading = false;
@@ -118,10 +119,10 @@ class PlaceAdminsScreenState extends State<PlaceAdminsScreen> {
                   Text('Ты можешь управлять менеджерами своего заведения. Организаторы могут добавлять мероприятия и акции от имени заведения, а администраторы - полноценно управлять заведением', style: Theme.of(context).textTheme.bodyMedium,),
                   const SizedBox(height: 30,),
 
-                  if (creator.name != '') PlaceManagersElementListItem(
+                  /*if (creator.name != '') PlaceManagersElementListItem(
                     user: creator,
                     showButton: false
-                  ),
+                  ),*/
                   if(admins.isNotEmpty) Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: admins.map((user) {
@@ -129,7 +130,7 @@ class PlaceAdminsScreenState extends State<PlaceAdminsScreen> {
                         padding: const EdgeInsets.all(0.0),
                         child: PlaceManagersElementListItem(
                           user: user,
-                          showButton: true,
+                          showButton: user.placeUserRole.roleInPlaceEnum == PlaceUserRoleEnum.creator ? false : true,
                           onTapMethod: () async {
                             // Переходим на экран редактирования
                             navigateToAddManager(user: user);

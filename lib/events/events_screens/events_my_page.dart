@@ -2,6 +2,7 @@ import 'package:dvij_flutter/cities/city_class.dart';
 import 'package:dvij_flutter/events/event_category_class.dart';
 import 'package:dvij_flutter/events/event_sorting_options.dart';
 import 'package:dvij_flutter/events/events_list_class.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import '../../ads/ad_user_class.dart';
@@ -74,6 +75,8 @@ class EventsMyPageState extends State<EventsMyPage> {
   int adStep = 2;
   // --- Индекс первого рекламного элемента
   int firstIndexOfAd = 1;
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   void initState(){
@@ -258,11 +261,15 @@ class EventsMyPageState extends State<EventsMyPage> {
         ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          if (UserCustom.currentUser != null && UserCustom.currentUser!.uid != '') {
+          if (UserCustom.currentUser != null && UserCustom.currentUser!.uid != '' && _auth.currentUser!.emailVerified) {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => CreateOrEditEventScreen(eventInfo: EventCustom.emptyEvent)),
             );
+          } else if (_auth.currentUser != null && !_auth.currentUser!.emailVerified) {
+
+            showSnackBar(context,'Чтобы создать мероприятие, нужно подтвердить почту', AppColors.attentionRed, 2);
+
           } else {
 
             showSnackBar(context,'Чтобы создать мероприятие, нужно зарегистрироваться', AppColors.attentionRed, 2);

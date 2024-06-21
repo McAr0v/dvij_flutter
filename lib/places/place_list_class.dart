@@ -1,3 +1,4 @@
+import 'package:dvij_flutter/current_user/user_class.dart';
 import 'package:dvij_flutter/places/place_category_class.dart';
 import 'package:dvij_flutter/places/place_class.dart';
 import 'package:dvij_flutter/places/place_list_manager.dart';
@@ -186,20 +187,8 @@ class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
     PlaceListManager.currentMyPlacesList = PlaceList();
     List<String> placesId = [];
 
-    String myPath = 'users/$userId/myPlaces/';
-    DataSnapshot? myFolder = await MixinDatabase.getInfoFromDB(myPath);
-
-    if (myFolder != null) {
-      for (var idFolder in myFolder.children) {
-
-        // ---- Считываем ID и добавляем в список ID
-
-        DataSnapshot idSnapshot = idFolder.child('placeId');
-
-        if (idSnapshot.exists){
-          placesId.add(idSnapshot.value.toString());
-        }
-      }
+    if (UserCustom.currentUser != null) {
+      placesId = UserCustom.currentUser!.myPlaces;
     }
 
     // Если список ID не пустой, и не была вызвана функция обновления

@@ -145,22 +145,34 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
 
   @override
   Future<String> publishToDb() async {
+    PlaceUserRole creatorPlaceRole = PlaceUserRole();
+
     String entityPath = 'places/$id/place_info';
     String creatorPath = 'users/$creatorId/myPlaces/$id';
+
+    // Добавляем создателя в папку админов
+    String creatorInAdminsPath = 'places/$id/managers/$creatorId';
 
     Map<String, dynamic> data = generateEntityDataCode();
     Map<String, dynamic> dataToCreatorAndPlace = {
       'placeId': id,
-      'roleId': '-NngrYovmKAw_cp0pYfJ'
+      //'roleId': '-NngrYovmKAw_cp0pYfJ'
+    };
+
+    Map <String, dynamic> creatorDataToAdminsList = {
+      'userId': creatorId,
+      'roleId': creatorPlaceRole.generatePlaceRoleEnumForPlaceUser(PlaceUserRoleEnum.creator)
     };
 
     String entityPublishResult = await MixinDatabase.publishToDB(entityPath, data);
     String creatorPublishResult = await MixinDatabase.publishToDB(creatorPath, dataToCreatorAndPlace);
+    String creatorToAdminResult = await MixinDatabase.publishToDB(creatorInAdminsPath, creatorDataToAdminsList);
 
     String result = 'success';
 
     if (entityPublishResult != 'success') result = entityPublishResult;
     if (creatorPublishResult != 'success') result = creatorPublishResult;
+    if (creatorToAdminResult != 'success') result = creatorToAdminResult;
 
     return result;
 

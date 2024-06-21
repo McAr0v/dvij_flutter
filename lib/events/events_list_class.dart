@@ -1,3 +1,4 @@
+import 'package:dvij_flutter/current_user/user_class.dart';
 import 'package:dvij_flutter/events/event_category_class.dart';
 import 'package:dvij_flutter/events/event_sorting_options.dart';
 import 'package:dvij_flutter/events/events_list_manager.dart';
@@ -54,24 +55,8 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
     EventListsManager.currentFavEventsList = EventsList();
     List<String> eventsId = [];
 
-    // TODO !!! Сделать загрузку списка избранного при загрузке информации пользователя. Здесь обращаться к уже готовому списку
-    // TODO !!! Не забыть реализовать обновление списка избранных при добавлении и удалении из избранных
-
-    // --- Читаем папку избранных сущностей у пользователя ----
-
-    String favPath = 'users/$userId/favEvents/';
-    DataSnapshot? favFolder = await MixinDatabase.getInfoFromDB(favPath);
-
-    if (favFolder != null) {
-      for (var idFolder in favFolder.children) {
-
-        DataSnapshot idSnapshot = idFolder.child('eventId');
-
-        // ---- Считываем ID и добавляем в список ID
-        if (idSnapshot.exists){
-          eventsId.add(idSnapshot.value.toString());
-        }
-      }
+    if (UserCustom.currentUser != null) {
+      eventsId = UserCustom.currentUser!.favEvents;
     }
 
     // Если список ID не пустой

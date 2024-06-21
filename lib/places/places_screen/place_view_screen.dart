@@ -186,7 +186,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                             // ВИДЖЕТ МЕНЕДЖЕРОВ
 
                             if (currentPlaceUser.placeUserRole.controlLevel >= 90) AddManagersWidget(
-                                headline: 'Менеджеры (${place.admins!.length + 1})',
+                                headline: 'Менеджеры (${place.admins!.length})',
                                 desc: 'Ты можешь добавить менеджеров к этому заведению, чтобы они управляли им вместе с тобой. У каждого менеджера свой уровень доступа',
                               onTapMethod: (){
                                 navigateToManagersList();

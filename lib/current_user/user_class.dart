@@ -104,8 +104,8 @@ class UserCustom with MixinDatabase, UserAuthMixin, UsersListsMixin, FavListsMix
     List<String> favPlaces = FavListsMixin.getFavEntitiesId(snapshot.child(AppConstants.favPlacePathKey), AppConstants.favPlaceIdKey);
     List<String> favEvents = FavListsMixin.getFavEntitiesId(snapshot.child(AppConstants.favEventPathKey), AppConstants.favEventIdKey);
 
-    List<String> myPromos = FavListsMixin.getFavEntitiesId(snapshot.child(AppConstants.myPromoPathKey), AppConstants.favPromoIdKey);
     List<String> myPlaces = FavListsMixin.getFavEntitiesId(snapshot.child(AppConstants.myPlacePathKey), AppConstants.favPlaceIdKey);
+    List<String> myPromos = FavListsMixin.getFavEntitiesId(snapshot.child(AppConstants.myPromoPathKey), AppConstants.favPromoIdKey);
     List<String> myEvents = FavListsMixin.getFavEntitiesId(snapshot.child(AppConstants.myEventPathKey), AppConstants.favEventIdKey);
 
     // Берем из них данные и заполняем в класс Gender И возвращаем его
@@ -190,6 +190,35 @@ class UserCustom with MixinDatabase, UserAuthMixin, UsersListsMixin, FavListsMix
 
     return result;
   }
+
+  void deleteEventFromFav(String id){
+    if (favEvents.contains(id)){
+      favEvents.removeWhere((event) => event == id);
+    }
+
+  }
+
+  void addEventToFav(String id){
+    if (!favEvents.contains(id)){
+      favEvents.add(id);
+    }
+
+  }
+
+  void deleteEventFromMy(String id){
+    if (myEvents.contains(id)){
+      myEvents.removeWhere((event) => event == id);
+    }
+
+  }
+
+  void addEventToMy(String id){
+    if (!myEvents.contains(id)){
+      myEvents.add(id);
+    }
+
+  }
+  //.removeWhere((event) => event.id == entityId);
 
   // ---- ФУНКЦИЯ ЧТЕНИЯ ИНФОРМАЦИИ О ПОЛЬЗОВАТЕЛЕ -----
 

@@ -422,10 +422,12 @@ class EventsFeedPageState extends State<EventsFeedPage> {
         if (resDel == 'success'){
           // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
           setState(() {
+
             // Обновляем текущий список
             eventsList.eventsList[indexWithAddCountCorrection].inFav = false;
             favCounter --;
             eventsList.eventsList[indexWithAddCountCorrection].addedToFavouritesCount = favCounter;
+
             // Обновляем общий список из БД
             eventsList.eventsList[indexWithAddCountCorrection].updateCurrentListFavInformation();
 

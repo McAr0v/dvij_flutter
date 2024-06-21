@@ -215,6 +215,10 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
       String eventPublish = await MixinDatabase.publishToDB(eventPath, eventData);
       String userPublish = await MixinDatabase.publishToDB(userPath, userData);
 
+      if (UserCustom.currentUser != null){
+        UserCustom.currentUser!.addEventToFav(id);
+      }
+
       favEvents.addEntityToCurrentFavList(id);
 
       String result = 'success';
@@ -268,6 +272,11 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
 
       String eventDelete = await MixinDatabase.deleteFromDb(eventPath);
       String userDelete = await MixinDatabase.deleteFromDb(userPath);
+
+      if (UserCustom.currentUser != null){
+        UserCustom.currentUser!.deleteEventFromFav(id);
+      }
+
 
       favEvents.deleteEntityFromCurrentFavList(id);
 

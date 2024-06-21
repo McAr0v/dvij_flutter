@@ -3,6 +3,7 @@ import 'package:dvij_flutter/places/place_category_class.dart';
 import 'package:dvij_flutter/places/place_class.dart';
 import 'package:dvij_flutter/places/place_list_class.dart';
 import 'package:dvij_flutter/places/places_screen/place_view_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import '../../widgets_global/cards_widgets/card_widget_for_event_promo_places.dart';
@@ -28,6 +29,8 @@ class PlacesMyPage extends StatefulWidget {
 
 
 class PlacesMyPageState extends State<PlacesMyPage> {
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   PlaceList placesMyList = PlaceList();
   late List<PlaceCategory> placeCategoriesList;
@@ -230,11 +233,15 @@ class PlacesMyPageState extends State<PlacesMyPage> {
         ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          if (UserCustom.currentUser != null && UserCustom.currentUser!.uid != '') {
+          if (UserCustom.currentUser != null && UserCustom.currentUser!.uid != '' && _auth.currentUser!.emailVerified) {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => CreateOrEditPlaceScreen(placeInfo: placeEmpty)),
             );
+          } else if (_auth.currentUser != null && !_auth.currentUser!.emailVerified) {
+
+            showSnackBar('Чтобы создать заведение, нужно подтвердить почту', AppColors.attentionRed, 2);
+
           } else {
 
             showSnackBar('Чтобы создать заведение, нужно зарегистрироваться', AppColors.attentionRed, 2);

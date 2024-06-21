@@ -8,6 +8,7 @@ import 'package:dvij_flutter/promos/promos_list_class.dart';
 import 'package:dvij_flutter/promos/promos_list_manager.dart';
 import 'package:dvij_flutter/promos/promotions/create_or_edit_promo_screen.dart';
 import 'package:dvij_flutter/promos/promotions/promo_view_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -33,6 +34,7 @@ class PromotionsMyPage extends StatefulWidget {
 class PromotionsMyPageState extends State<PromotionsMyPage> {
 
   // --- ОБЪЯВЛЯЕМ ПЕРЕМЕННЫЕ -----
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   PromoList promosList = PromoListsManager.currentMyPromoList;
   late List<PromoCategory> promoCategoriesList;
@@ -433,11 +435,15 @@ class PromotionsMyPageState extends State<PromotionsMyPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          if (UserCustom.currentUser != null && UserCustom.currentUser!.uid != '') {
+          if (UserCustom.currentUser != null && UserCustom.currentUser!.uid != '' && _auth.currentUser!.emailVerified) {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => CreateOrEditPromoScreen(promoInfo: PromoCustom.emptyPromo)),
             );
+          } else if (_auth.currentUser != null && !_auth.currentUser!.emailVerified) {
+
+            showSnackBar(context, 'Чтобы создать акцию, нужно подтвердить почту', AppColors.attentionRed, 2);
+
           } else {
 
             showSnackBar(context,'Чтобы создать акцию, нужно зарегистрироваться', AppColors.attentionRed, 2);
