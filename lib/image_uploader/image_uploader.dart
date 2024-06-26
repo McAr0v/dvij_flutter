@@ -16,7 +16,7 @@ class ImageUploader {
 
     FirebaseStorage storage = FirebaseStorage.instance;
 
-    final storageRef = storage.ref().child('avatars').child(uid).child('avatar_$uid.jpeg');
+    final storageRef = storage.ref().child('avatars').child(uid).child('image_$uid.jpeg');
 
     // Выгружаем аватар
     final uploadTask = storageRef.putFile(File(pickedFile.path));
@@ -36,7 +36,7 @@ class ImageUploader {
 
     FirebaseStorage storage = FirebaseStorage.instance;
 
-    final storageRef = storage.ref().child('places').child(placeId).child('avatar_$placeId.jpeg');
+    final storageRef = storage.ref().child('places').child(placeId).child('image_$placeId.jpeg');
 
     // Выгружаем аватар
     final uploadTask = storageRef.putFile(File(pickedFile.path));
@@ -85,6 +85,21 @@ class ImageUploader {
 
     // Возвращаем URL загруженного файла
     return downloadURL;
+  }
+
+  static Future<String> deleteImage(String folder, String entityId) async {
+
+    FirebaseStorage storage = FirebaseStorage.instance;
+
+    final storageRef = storage.ref().child(folder).child(entityId).child('image_$entityId.jpeg');
+
+    try {
+      await storageRef.delete();
+      return 'success';
+    } on FirebaseException catch (e) {
+      print("Failed with error '${e.code}': ${e.message}");
+      return e.toString();
+    }
   }
 
 }

@@ -79,8 +79,26 @@ class PlacesMyPageState extends State<PlacesMyPage> {
 
     // ----- Работаем со списком заведений -----
 
+    if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
+
+      placesMyList = await placesMyList.getMyListFromDb(UserCustom.currentUser!.uid);
+
+      // --- Фильтруем список -----
+      setState(() {
+        placesMyList.filterLists(
+            placesMyList.generateMapForFilter(
+                placeCategoryFromFilter,
+                cityFromFilter,
+                haveEventsFromFilter,
+                nowIsOpenFromFilter,
+                havePromosFromFilter
+            )
+        );
+      });
+    }
+
     // ---- Если список пуст ----
-    if (PlaceListManager.currentMyPlacesList.placeList.isEmpty){
+    /*if (PlaceListManager.currentMyPlacesList.placeList.isEmpty){
 
       // ---- Считываем с БД заведения -----
       if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
@@ -118,7 +136,7 @@ class PlacesMyPageState extends State<PlacesMyPage> {
             )
         );
       });
-    }
+    }*/
 
     // Подгружаем список категорий заведений
     placeCategoriesList = PlaceCategory.currentPlaceCategoryList;

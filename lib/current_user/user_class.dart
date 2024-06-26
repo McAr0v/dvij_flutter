@@ -198,6 +198,8 @@ class UserCustom with MixinDatabase, UserAuthMixin, UsersListsMixin, FavListsMix
 
   }
 
+
+
   void addEventToFav(String id){
     if (!favEvents.contains(id)){
       favEvents.add(id);
@@ -215,6 +217,36 @@ class UserCustom with MixinDatabase, UserAuthMixin, UsersListsMixin, FavListsMix
   void addEventToMy(String id){
     if (!myEvents.contains(id)){
       myEvents.add(id);
+    }
+
+  }
+
+  void deletePlaceFromFav(String id){
+    if (favPlaces.contains(id)){
+      favPlaces.removeWhere((place) => place == id);
+    }
+
+  }
+
+
+
+  void addPlaceToFav(String id){
+    if (!favPlaces.contains(id)){
+      favPlaces.add(id);
+    }
+
+  }
+
+  void deletePlaceFromMy(String id){
+    if (myPlaces.contains(id)){
+      myPlaces.removeWhere((event) => event == id);
+    }
+
+  }
+
+  void addPlaceToMy(String id){
+    if (!myPlaces.contains(id)){
+      myPlaces.add(id);
     }
 
   }

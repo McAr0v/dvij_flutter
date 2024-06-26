@@ -1,4 +1,5 @@
 import 'package:dvij_flutter/cities/city_class.dart';
+import 'package:dvij_flutter/constants/constants.dart';
 import 'package:dvij_flutter/dates/date_type_enum.dart';
 import 'package:dvij_flutter/current_user/user_class.dart';
 import 'package:dvij_flutter/database/database_mixin.dart';
@@ -13,6 +14,8 @@ import 'package:dvij_flutter/interfaces/entity_interface.dart';
 import 'package:dvij_flutter/promos/promo_category_class.dart';
 import 'package:dvij_flutter/promos/promos_list_class.dart';
 import 'package:firebase_database/firebase_database.dart';
+
+import '../image_uploader/image_uploader.dart';
 
 class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
   String id;
@@ -169,7 +172,7 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
       whatsapp: '',
       telegram: '',
       instagram: '',
-      imageUrl: 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2Fdvij_unknow_user.jpg?alt=media&token=b63ea5ef-7bdf-49e9-a3ef-1d34d676b6a7',
+      imageUrl: AppConstants.defaultAvatar,
       placeId: '',
       onceDay: OnceDate(),
       longDays: LongDate(),
@@ -233,6 +236,11 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
     String inFavListDeleteResult = 'success';
     String entityDeleteResult = await MixinDatabase.deleteFromDb(entityPath);
     String creatorDeleteResult = await MixinDatabase.deleteFromDb(creatorPath);
+
+    String imageDeleteResult = 'success';
+
+    imageDeleteResult = await ImageUploader.deleteImage('promos', id);
+
     if (placeId != ''){
       placeDeleteResult = await MixinDatabase.deleteFromDb(placePath);
     }

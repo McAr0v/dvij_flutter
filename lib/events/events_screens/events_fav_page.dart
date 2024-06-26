@@ -113,7 +113,11 @@ class EventsFavPageState extends State<EventsFavPage> {
 
     //EventsList tempEventsList = EventsList();
 
-    if (EventListsManager.currentFavEventsList.eventsList.isEmpty){
+    if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
+      eventsList = await eventsList.getFavListFromDb(UserCustom.currentUser!.uid);
+    }
+
+    /*if (EventListsManager.currentFavEventsList.eventsList.isEmpty){
       // ---- Если список пуст ----
       // ---- И Юзер залогинен
       // ---- Считываем с БД заведения -----
@@ -128,7 +132,7 @@ class EventsFavPageState extends State<EventsFavPage> {
 
       eventsList = EventListsManager.currentFavEventsList;
 
-    }
+    }*/
 
     // --- Фильтруем список ----
 

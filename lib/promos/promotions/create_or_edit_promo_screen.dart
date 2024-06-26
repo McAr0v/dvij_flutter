@@ -675,7 +675,7 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
 
 
                               // Выгружаем изображение в БД и получаем URL картинки
-                              avatarURL = await ImageUploader.uploadImageInEvent(promoId, compressedImage);
+                              avatarURL = await ImageUploader.uploadImageInPromo(promoId, compressedImage);
 
                               // Если URL аватарки есть
                               if (avatarURL != null) {

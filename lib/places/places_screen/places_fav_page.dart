@@ -73,8 +73,27 @@ class PlacesFavPageState extends State<PlacesFavPage> {
 
     // ----- Работаем со списком заведений -----
 
+    if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
+      placesFavList = await placesFavList.getFavListFromDb(UserCustom.currentUser!.uid);
+
+      // --- Фильтруем список -----
+      setState(() {
+        placesFavList.filterLists(
+            placesFavList.generateMapForFilter(
+                placeCategoryFromFilter,
+                cityFromFilter,
+                haveEventsFromFilter,
+                nowIsOpenFromFilter,
+                havePromosFromFilter
+            )
+        );
+      });
+    }
+
+
+
     // ---- Если список пуст ----
-    if (PlaceListManager.currentFavPlacesList.placeList.isEmpty){
+    /*if (PlaceListManager.currentFavPlacesList.placeList.isEmpty){
 
       // ---- Считываем с БД заведения -----
       if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
@@ -111,7 +130,7 @@ class PlacesFavPageState extends State<PlacesFavPage> {
             )
         );
       });
-    }
+    }*/
 
     // Подгружаем список категорий заведений
     placeCategoriesList = PlaceCategory.currentPlaceCategoryList;

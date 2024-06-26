@@ -116,7 +116,11 @@ class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
     PlaceListManager.currentFavPlacesList = PlaceList();
     List<String> placesId = [];
 
-    String myPath = 'users/$userId/favPlaces/';
+    if (UserCustom.currentUser != null) {
+      placesId = UserCustom.currentUser!.favPlaces;
+    }
+
+    /*String myPath = 'users/$userId/favPlaces/';
     DataSnapshot? myFolder = await MixinDatabase.getInfoFromDB(myPath);
 
     if (myFolder != null) {
@@ -130,7 +134,7 @@ class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
           placesId.add(idSnapshot.value.toString());
         }
       }
-    }
+    }*/
 
     // Если список ID не пустой, и не была вызвана функция обновления
     if (placesId.isNotEmpty){

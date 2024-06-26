@@ -1,4 +1,5 @@
 import 'package:dvij_flutter/cities/city_class.dart';
+import 'package:dvij_flutter/constants/constants.dart';
 import 'package:dvij_flutter/dates/regular_date_class.dart';
 import 'package:dvij_flutter/places/place_category_class.dart';
 import 'package:dvij_flutter/places/place_list_class.dart';
@@ -9,6 +10,7 @@ import 'package:flutter/material.dart';
 import '../database/database_mixin.dart';
 import '../dates/date_mixin.dart';
 import '../dates/time_mixin.dart';
+import '../image_uploader/image_uploader.dart';
 import '../interfaces/entity_interface.dart';
 import '../users/place_admins_item_class.dart';
 import '../users/place_users_roles.dart';
@@ -139,7 +141,7 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
       whatsapp: '',
       telegram: '',
       instagram: '',
-      imageUrl: 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2Fdvij_unknow_user.jpg?alt=media&token=b63ea5ef-7bdf-49e9-a3ef-1d34d676b6a7',
+      imageUrl: AppConstants.defaultAvatar,
       openingHours: RegularDate(),
   );
 
@@ -235,6 +237,10 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
     // TODO - сделать такое же удаление добавивших в изрбанное, как в заведениях, в мероприятиях и акциях
     List<String> favUsersList = await getNeededIds('places/$id/addedToFavourites', 'userId');
 
+    String imageDeleteResult = 'success';
+
+    imageDeleteResult = await ImageUploader.deleteImage('places', id);
+
     // TODO По хорошему надо удалять и мероприятия и акции из удаляемых заведений
 
     // Удаляем заведение
@@ -284,7 +290,7 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
 
     DataSnapshot? entitySnapshot = await MixinDatabase.getInfoFromDB(path);
 
-    if (entitySnapshot != null){
+    if (entitySnapshot != null && entitySnapshot.exists){
       return Place.fromSnapshot(entitySnapshot);
     }
     return returnedPlace;
@@ -305,6 +311,10 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
 
       String placePublish = await MixinDatabase.publishToDB(placePath, placeData);
       String userPublish = await MixinDatabase.publishToDB(userPath, userData);
+
+      if (UserCustom.currentUser != null){
+        UserCustom.currentUser!.addPlaceToFav(id);
+      }
 
       favPlaces.addEntityToCurrentFavList(id);
 
@@ -331,6 +341,10 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
 
       String eventDelete = await MixinDatabase.deleteFromDb(eventPath);
       String userDelete = await MixinDatabase.deleteFromDb(userPath);
+
+      if (UserCustom.currentUser != null){
+        UserCustom.currentUser!.deletePlaceFromFav(id);
+      }
 
       favPLaces.deleteEntityFromCurrentFavList(id);
 

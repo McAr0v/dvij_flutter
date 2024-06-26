@@ -111,7 +111,12 @@ class EventsMyPageState extends State<EventsMyPage> {
 
     // ----- РАБОТАЕМ СО СПИСКОМ МЕРОПРИЯТИЙ -----
 
-    if (EventListsManager.currentMyEventsList.eventsList.isEmpty){
+
+    if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
+      eventsList = await eventsList.getMyListFromDb(UserCustom.currentUser!.uid);
+    }
+
+    /*if (EventListsManager.currentMyEventsList.eventsList.isEmpty){
       // ---- Если список пуст ----
       // ---- И Юзер залогинен
       // ---- Считываем с БД заведения -----
@@ -126,7 +131,7 @@ class EventsMyPageState extends State<EventsMyPage> {
 
       eventsList = EventListsManager.currentMyEventsList;
 
-    }
+    }*/
 
     // --- Фильтруем список ----
 

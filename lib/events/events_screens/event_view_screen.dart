@@ -101,7 +101,7 @@ class EventViewScreenState extends State<EventViewScreen> {
       // Ставим нас как создателя
       creator = UserCustom.currentUser!;
 
-    } else if (UserCustom.currentUser != null && UserCustom.currentUser!.uid != event.creatorId){
+    } else if (UserCustom.currentUser != null && UserCustom.currentUser!.uid != event.creatorId && place.admins != null){
 
       // Если создатель не я
       // Читаем нашу роль

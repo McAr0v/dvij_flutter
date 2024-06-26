@@ -1,4 +1,5 @@
 import 'package:dvij_flutter/cities/city_class.dart';
+import 'package:dvij_flutter/constants/constants.dart';
 import 'package:dvij_flutter/dates/date_type_enum.dart';
 import 'package:dvij_flutter/classes/priceTypeOptions.dart';
 import 'package:dvij_flutter/current_user/user_class.dart';
@@ -12,6 +13,7 @@ import 'package:dvij_flutter/dates/time_mixin.dart';
 import 'package:dvij_flutter/events/event_sorting_options.dart';
 import 'package:dvij_flutter/events/events_list_class.dart';
 import 'package:dvij_flutter/filters/filter_mixin.dart';
+import 'package:dvij_flutter/image_uploader/image_uploader.dart';
 import 'package:dvij_flutter/interfaces/entity_interface.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -180,7 +182,7 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
       whatsapp: '',
       telegram: '',
       instagram: '',
-      imageUrl: 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2Fdvij_unknow_user.jpg?alt=media&token=b63ea5ef-7bdf-49e9-a3ef-1d34d676b6a7',
+      imageUrl: AppConstants.defaultAvatar,
       placeId: '',
       onceDay: OnceDate(),
       longDays: LongDate(),
@@ -241,6 +243,8 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
 
   @override
   Future<String> deleteFromDb() async {
+
+
     String entityPath = 'events/$id';
     String creatorPath = 'users/$creatorId/myEvents/$id';
     String placePath = 'places/$placeId/events/$id';
@@ -248,8 +252,13 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
 
     String placeDeleteResult = 'success';
     String inFavListDeleteResult = 'success';
+    String imageDeleteResult = 'success';
+
     String entityDeleteResult = await MixinDatabase.deleteFromDb(entityPath);
     String creatorDeleteResult = await MixinDatabase.deleteFromDb(creatorPath);
+
+    imageDeleteResult = await ImageUploader.deleteImage('events', id);
+
     if (placeId != ''){
       placeDeleteResult = await MixinDatabase.deleteFromDb(placePath);
     }
