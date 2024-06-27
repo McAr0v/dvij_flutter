@@ -48,7 +48,7 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
   PlaceUserRole chosenRole = PlaceUserRole();
 
   Place _place = Place.emptyPlace;
-  List<PlaceAdminsListItem> admins = [];
+  //List<PlaceAdminsListItem> admins = [];
 
   // --- Инициализируем состояние ----
 
@@ -72,7 +72,7 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
 
     _place = widget.place;
 
-    admins = _place.admins!;
+    //admins = _place.admins!;
 
     setState(() {
       loading = false;
@@ -92,7 +92,8 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
   }
 
   void _navigateBackWithResult() {
-    Navigator.of(context).pop(admins);
+    Navigator.of(context).pop(true);
+    //Navigator.of(context).pop();
   }
 
   @override
@@ -269,7 +270,7 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
     String deleteResult = await user.deletePlaceRoleInManagerAndPlace(_place.id);
 
     if (deleteResult == 'success') {
-      admins.removeWhere((element) => element.userId == user.uid);
+      // admins.removeWhere((element) => element.userId == user.uid);
       showSnackBar('Роль успешно изменена', Colors.green, 2);
 
     } else {
@@ -295,11 +296,11 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
       String publishResult = await user.writePlaceRoleInManagerAndPlace(_place.id);
 
       if (publishResult == 'success'){
-        admins.removeWhere((element) => element.userId == user.uid);
+        /*admins.removeWhere((element) => element.userId == user.uid);
 
         admins.add(PlaceAdminsListItem(
             userId: user.uid, placeRole: user.placeUserRole.roleInPlaceEnum.name
-        ));
+        ));*/
 
         showSnackBar('Роль успешно изменена', Colors.green, 2);
 
@@ -333,18 +334,19 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
         showNotFound = false;
       });
 
-      PlaceUser foundUser = await user.getPlaceUserByEmail(_emailSearchController.text);
+      PlaceUser foundUser = await user.getPlaceUserByEmail(_emailSearchController.text, _place.id);
 
       if (foundUser.uid != ''){
         if (foundUser.uid == _place.creatorId){
           setState(() {
             chosenRole = chosenRole.getPlaceUserRole(PlaceUserRoleEnum.creator);
-            foundUser.placeUserRole = chosenRole;
+            //foundUser.placeUserRole = chosenRole;
           });
         } else{
           setState(() {
-            chosenRole = chosenRole.searchPlaceUserRoleInAdminsList(admins, foundUser);
-            foundUser.placeUserRole = chosenRole;
+            chosenRole = foundUser.placeUserRole;
+            //chosenRole = chosenRole.searchPlaceUserRoleInAdminsList(admins, foundUser);
+            //foundUser.placeUserRole = chosenRole;
           });
         }
 

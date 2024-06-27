@@ -44,7 +44,9 @@ class PlaceAdminsScreenState extends State<PlaceAdminsScreen> {
     currentPlace = widget.place;
 
     // Получаем информацию об админах из списка ролей и UID админов в заведении
-    admins = await creator.getAdminsInfoFromDb(widget.place.admins!);
+    // ------ admins = await creator.getAdminsInfoFromDb(widget.place.admins!);
+
+    admins = await creator.getAdminsFromDb(widget.place.id);
 
     /*if (UserCustom.currentUser != null){
       // Если пользователь - создатель
@@ -160,10 +162,9 @@ class PlaceAdminsScreenState extends State<PlaceAdminsScreen> {
     );
 
     if (result != null) {
-      setState(() {
+      /*setState(() async {
         currentPlace.admins = result;
-
-      });
+      });*/
       fetchAndSetData();
     }
   }

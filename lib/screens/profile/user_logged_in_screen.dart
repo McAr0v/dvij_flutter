@@ -1,5 +1,6 @@
 import 'package:dvij_flutter/current_user/app_role.dart';
 import 'package:dvij_flutter/elements/exit_dialog/exit_dialog.dart';
+import 'package:dvij_flutter/places/users_my_place/my_places_class.dart';
 import 'package:dvij_flutter/widgets_global/text_widgets/headline_and_desc.dart';
 import 'package:dvij_flutter/screens/profile/edit_profile_screen.dart';
 import 'package:dvij_flutter/widgets_global/text_widgets/text_size_enum.dart';
@@ -237,7 +238,7 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
                     for (String id in userInfo.myEvents) HeadlineAndDesc(headline: id, description: 'мое мероприятие'),
 
                     const SizedBox(height: 16.0),
-                    for (String id in userInfo.myPlaces) HeadlineAndDesc(headline: id, description: 'мое заведение'),
+                    for (MyPlaces myPlace in userInfo.myPlaces) HeadlineAndDesc(headline: '${myPlace.placeId} - ${myPlace.placeRole.title}', description: 'мое заведение'),
 
                     const SizedBox(height: 16.0),
                     for (String id in userInfo.myPromos) HeadlineAndDesc(headline: id, description: 'моя акция'),

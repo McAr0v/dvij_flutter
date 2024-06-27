@@ -101,12 +101,15 @@ class EventViewScreenState extends State<EventViewScreen> {
       // Ставим нас как создателя
       creator = UserCustom.currentUser!;
 
-    } else if (UserCustom.currentUser != null && UserCustom.currentUser!.uid != event.creatorId && place.admins != null){
+    } else if (UserCustom.currentUser != null && UserCustom.currentUser!.uid != event.creatorId && UserCustom.currentUser!.myPlaces.isNotEmpty){
 
       // Если создатель не я
       // Читаем нашу роль
-      currentUserPlaceRole = currentUserPlaceRole.searchPlaceUserRoleInAdminsList(place.admins!, currentPlaceUser);
-      currentPlaceUser.placeUserRole = currentUserPlaceRole;
+
+      currentPlaceUser.placeUserRole = UserCustom.currentUser!.getPlaceRoleFromMyPlaces(event.placeId);
+
+      //currentUserPlaceRole = currentUserPlaceRole.searchPlaceUserRoleInAdminsList(place.admins!, currentPlaceUser);
+      //currentPlaceUser.placeUserRole = currentUserPlaceRole;
       // Грузим создателя из БД
       creator = await creator.getUserByEmailOrId(uid: event.creatorId);
 

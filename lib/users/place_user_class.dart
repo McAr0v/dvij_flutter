@@ -1,3 +1,4 @@
+import 'package:dvij_flutter/constants/constants.dart';
 import 'package:dvij_flutter/current_user/user_class.dart';
 import 'package:dvij_flutter/users/place_admins_item_class.dart';
 import 'package:dvij_flutter/users/place_users_roles.dart';
@@ -18,7 +19,7 @@ class PlaceUser {
     this.email = email ?? '';
     this.name = name ?? '';
     this.lastname = lastname ?? '';
-    this.avatar = avatar ?? 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/avatars%2Fdvij_unknow_user.jpg?alt=media&token=b63ea5ef-7bdf-49e9-a3ef-1d34d676b6a7';
+    this.avatar = avatar ?? AppConstants.defaultAvatar;
     this.placeUserRole = roleInPlace ?? PlaceUserRole();
   }
 
@@ -73,6 +74,43 @@ class PlaceUser {
     return admins;
   }
 
+  Future<List<PlaceUser>> getAdminsFromDb(String placeId) async {
+    List<PlaceUser> admins = [];
+
+    String usersPath = 'users';
+
+    DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB(usersPath);
+
+    if (snapshot != null) {
+      for (var childSnapshot in snapshot.children) {
+        // Указываем путь к нужному заведению в моих завдеениях каждого пользователя
+        var myPlacesFolder = childSnapshot.child('myPlaces').child(placeId);
+
+        // Если такоя папка есть
+        if (myPlacesFolder.exists) {
+          // Читаем роль в заведении в БД
+          String roleId = myPlacesFolder
+              .child('roleId')
+              .value
+              .toString();
+
+          // Устанавливаем нашу роль
+          PlaceUserRole placeRole = PlaceUserRole();
+          placeRole = placeRole.getPlaceUserRole(
+              placeRole.getPlaceUserEnumFromString(roleId));
+
+          PlaceUser tempUser = PlaceUser.fromSnapshot(
+              childSnapshot.child('user_info'));
+          tempUser.placeUserRole = placeRole;
+
+          admins.add(tempUser);
+        }
+      }
+    }
+
+    return admins;
+  }
+
   PlaceUser getCurrentUserRoleInPlace(UserCustom currentUser, List<PlaceUser> admins){
     PlaceUserRole role = PlaceUserRole();
 
@@ -95,7 +133,7 @@ class PlaceUser {
     return user;
   }
 
-  Future<PlaceUser> getPlaceUserByEmail(String email) async {
+  Future<PlaceUser> getPlaceUserByEmail(String email, String placeId) async {
 
     PlaceUser user = PlaceUser();
 
@@ -103,13 +141,34 @@ class PlaceUser {
     
     if (usersSnapshot != null){
       
-      for (var idFolders in usersSnapshot.children){
-        String tempEmail = idFolders.child('user_info').child('email').value.toString();
-        if (tempEmail == email){
-          return PlaceUser.fromSnapshot(idFolders.child('user_info'));
+      for (var idFolders in usersSnapshot.children) {
+        String tempEmail = idFolders
+            .child('user_info')
+            .child('email')
+            .value
+            .toString();
+        if (tempEmail == email) {
+          user = PlaceUser.fromSnapshot(idFolders.child('user_info'));
+
+          var myPlacesFolder = idFolders.child('myPlaces').child(placeId);
+
+          // Если такоя папка есть
+          if (myPlacesFolder.exists) {
+            // Читаем роль в заведении в БД
+            String roleId = myPlacesFolder
+                .child('roleId')
+                .value
+                .toString();
+
+            // Устанавливаем нашу роль
+            PlaceUserRole placeRole = PlaceUserRole();
+            placeRole = placeRole.getPlaceUserRole(
+                placeRole.getPlaceUserEnumFromString(roleId));
+            user.placeUserRole = placeRole;
+          }
+          return user;
         }
       }
-      
     }
 
     return user;
@@ -130,14 +189,14 @@ class PlaceUser {
 
     String result = 'success';
     String userPath = 'users/$uid/myPlaces/$placeId';
-    String placePath = 'places/$placeId/managers/$uid';
+    // ------ String placePath = 'places/$placeId/managers/$uid';
 
     String publishInUser = await MixinDatabase.publishToDB(userPath, {
       'placeId': placeId,
       'roleId': placeUserRole.roleInPlaceEnum.name
     });
 
-    String publishInPlace = await MixinDatabase.publishToDB(placePath, {
+    /* ------ String publishInPlace = await MixinDatabase.publishToDB(placePath, {
       'userId': uid,
       'roleId': placeUserRole.roleInPlaceEnum.name
     });
@@ -145,6 +204,10 @@ class PlaceUser {
     if (publishInPlace != 'success'){
       result = publishInPlace;
     } else if (publishInUser != 'success') {
+      result = publishInUser;
+    }*/
+
+    if (publishInUser != 'success') {
       result = publishInUser;
     }
 
@@ -157,15 +220,19 @@ class PlaceUser {
 
     String result = 'success';
     String userPath = 'users/$uid/myPlaces/$placeId';
-    String placePath = 'places/$placeId/managers/$uid';
+    // ---- String placePath = 'places/$placeId/managers/$uid';
 
     String publishInUser = await MixinDatabase.deleteFromDb(userPath);
 
-    String publishInPlace = await MixinDatabase.deleteFromDb(placePath);
+    // ----- String publishInPlace = await MixinDatabase.deleteFromDb(placePath);
 
-    if (publishInPlace != 'success'){
+    /* ------ if (publishInPlace != 'success'){
       result = publishInPlace;
     } else if (publishInUser != 'success') {
+      result = publishInUser;
+    }*/
+
+    if (publishInUser != 'success') {
       result = publishInUser;
     }
 

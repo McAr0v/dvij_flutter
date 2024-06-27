@@ -72,7 +72,9 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
     }
 
     // Подгружаем список администраторов
-    admins = await currentPlaceUser.getAdminsInfoFromDb(place.admins!);
+    //admins = await currentPlaceUser.getAdminsInfoFromDb(place.admins!);
+
+    admins = await currentPlaceUser.getAdminsFromDb(place.id);
 
     // Устанавливаем роль текущему пользователю
     if (UserCustom.currentUser != null){
@@ -186,7 +188,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                             // ВИДЖЕТ МЕНЕДЖЕРОВ
 
                             if (currentPlaceUser.placeUserRole.controlLevel >= 90) AddManagersWidget(
-                                headline: 'Менеджеры (${place.admins!.length})',
+                                headline: 'Менеджеры (${admins.length})',
                                 desc: 'Ты можешь добавить менеджеров к этому заведению, чтобы они управляли им вместе с тобой. У каждого менеджера свой уровень доступа',
                               onTapMethod: (){
                                 navigateToManagersList();
@@ -559,7 +561,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
       setState(() {
         PlaceList placeList = PlaceList();
         place = result;
-        placeList.updateCurrentListAdminsInformation(place.id, place.admins!);
+        //placeList.updateCurrentListAdminsInformation(place.id, place.admins!);
       });
       fetchAndSetData();
     }

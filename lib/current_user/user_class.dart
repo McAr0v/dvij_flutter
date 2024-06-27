@@ -4,6 +4,9 @@ import 'package:dvij_flutter/current_user/app_role.dart';
 import 'package:dvij_flutter/current_user/fav_list_mixin.dart';
 import 'package:dvij_flutter/current_user/genders_class.dart';
 import 'package:dvij_flutter/dates/date_mixin.dart';
+import 'package:dvij_flutter/places/users_my_place/my_places_class.dart';
+import 'package:dvij_flutter/users/place_user_class.dart';
+import 'package:dvij_flutter/users/place_users_roles.dart';
 import 'package:dvij_flutter/users_mixin/users_lists_mixin.dart';
 import 'package:firebase_database/firebase_database.dart';
 import '../authentication/user_auth.dart';
@@ -26,7 +29,7 @@ class UserCustom with MixinDatabase, UserAuthMixin, UsersListsMixin, FavListsMix
   String? roleInPlace;
   DateTime registrationDate;
   List<String> myEvents;
-  List<String> myPlaces;
+  List<MyPlaces> myPlaces;
   List<String> myPromos;
   List<String> favPlaces;
   List<String> favEvents;
@@ -104,7 +107,9 @@ class UserCustom with MixinDatabase, UserAuthMixin, UsersListsMixin, FavListsMix
     List<String> favPlaces = FavListsMixin.getFavEntitiesId(snapshot.child(AppConstants.favPlacePathKey), AppConstants.favPlaceIdKey);
     List<String> favEvents = FavListsMixin.getFavEntitiesId(snapshot.child(AppConstants.favEventPathKey), AppConstants.favEventIdKey);
 
-    List<String> myPlaces = FavListsMixin.getFavEntitiesId(snapshot.child(AppConstants.myPlacePathKey), AppConstants.favPlaceIdKey);
+    List<MyPlaces> myPlaces = FavListsMixin.getMyPlacesEntities(snapshot.child(AppConstants.myPlacePathKey));
+
+
     List<String> myPromos = FavListsMixin.getFavEntitiesId(snapshot.child(AppConstants.myPromoPathKey), AppConstants.favPromoIdKey);
     List<String> myEvents = FavListsMixin.getFavEntitiesId(snapshot.child(AppConstants.myEventPathKey), AppConstants.favEventIdKey);
 
@@ -236,17 +241,36 @@ class UserCustom with MixinDatabase, UserAuthMixin, UsersListsMixin, FavListsMix
     }
 
   }
+  PlaceUserRole getPlaceRoleFromMyPlaces(String placeId){
 
-  void deletePlaceFromMy(String id){
-    if (myPlaces.contains(id)){
-      myPlaces.removeWhere((event) => event == id);
+    if (placeId.isNotEmpty){
+      if (currentUser != null && currentUser!.myPlaces.isNotEmpty){
+        for (MyPlaces tempPlace in currentUser!.myPlaces){
+
+          if (tempPlace.placeId == placeId){
+            return tempPlace.placeRole;
+          }
+        }
+      }
     }
+
+    return PlaceUserRole();
 
   }
 
+  void deletePlaceFromMy(String id){
+    if (myPlaces.any((place) => place.placeId == id)){
+      myPlaces.removeWhere((place) => place.placeId == id);
+    }
+  }
+
   void addPlaceToMy(String id){
-    if (!myPlaces.contains(id)){
-      myPlaces.add(id);
+
+    PlaceUserRole placeRole = PlaceUserRole();
+    placeRole = placeRole.getPlaceUserRole(PlaceUserRoleEnum.creator);
+
+    if (!myPlaces.any((place) => place.placeId == id)) {
+      myPlaces.add(MyPlaces(placeId: id, placeRole: placeRole));
     }
 
   }

@@ -3,6 +3,7 @@ import 'package:dvij_flutter/places/place_category_class.dart';
 import 'package:dvij_flutter/places/place_class.dart';
 import 'package:dvij_flutter/places/place_list_manager.dart';
 import 'package:dvij_flutter/places/place_sorting_options.dart';
+import 'package:dvij_flutter/places/users_my_place/my_places_class.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 import '../cities/city_class.dart';
@@ -192,7 +193,10 @@ class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
     List<String> placesId = [];
 
     if (UserCustom.currentUser != null) {
-      placesId = UserCustom.currentUser!.myPlaces;
+
+      for (MyPlaces place in UserCustom.currentUser!.myPlaces){
+        placesId.add(place.placeId);
+      }
     }
 
     // Если список ID не пустой, и не была вызвана функция обновления
@@ -272,7 +276,7 @@ class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
     }
   }
 
-  void updateCurrentListAdminsInformation(String entityId, List<PlaceAdminsListItem> admins) {
+  /*void updateCurrentListAdminsInformation(String entityId, List<PlaceAdminsListItem> admins) {
     for (Place place in PlaceListManager.currentFeedPlacesList.placeList){
       if (place.id == entityId){
         place.admins = admins;
@@ -293,6 +297,6 @@ class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
         break;
       }
     }
-  }
+  }*/
 
 }

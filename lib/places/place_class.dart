@@ -13,6 +13,7 @@ import '../dates/time_mixin.dart';
 import '../image_uploader/image_uploader.dart';
 import '../interfaces/entity_interface.dart';
 import '../users/place_admins_item_class.dart';
+import '../users/place_user_class.dart';
 import '../users/place_users_roles.dart';
 
 class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
@@ -38,7 +39,7 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
   bool? nowIsOpen;
   List<String>? eventsList;
   List<String>? promosList;
-  List<PlaceAdminsListItem>? admins;
+  //List<PlaceAdminsListItem>? admins;
 
   Place({
     required this.id,
@@ -63,7 +64,7 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
     this.nowIsOpen,
     this.eventsList,
     this.promosList,
-    this.admins
+    //this.admins
 
   });
 
@@ -72,7 +73,7 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
     DataSnapshot favSnapshot = snapshot.child('addedToFavourites');
     DataSnapshot eventsSnapshot = snapshot.child('events');
     DataSnapshot promosSnapshot = snapshot.child('promos');
-    DataSnapshot managersSnapshot = snapshot.child('managers');
+    //DataSnapshot managersSnapshot = snapshot.child('managers');
 
 
     PlaceCategory placeCategory = PlaceCategory(name: '', id: infoSnapshot.child('category').value.toString());
@@ -90,13 +91,13 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
       nowIsOpen = openingHours.todayOrNot();
     }
 
-    for (var idFolder in managersSnapshot.children){
+    /*for (var idFolder in managersSnapshot.children){
       PlaceAdminsListItem tempAdmin = PlaceAdminsListItem();
       PlaceUserRole tempRole = PlaceUserRole();
       tempAdmin.userId = idFolder.child('userId').value.toString();
       tempAdmin.placeRole = tempRole.getPlaceUserRole(tempRole.getPlaceUserEnumFromString(idFolder.child('roleId').value.toString()));
       adminsList.add(tempAdmin);
-    }
+    }*/
 
     return Place(
       id: infoSnapshot.child('id').value.toString(),
@@ -121,7 +122,7 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
       promosList: promos,
       eventsCount: events.length,
       promoCount: promos.length,
-      admins: adminsList
+      //admins: adminsList
 
     );
   }
@@ -153,33 +154,39 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
     String creatorPath = 'users/$creatorId/myPlaces/$id';
 
     // Добавляем создателя в папку админов
-    String creatorInAdminsPath = 'places/$id/managers/$creatorId';
+    //   ----- String creatorInAdminsPath = 'places/$id/managers/$creatorId';
 
     Map<String, dynamic> data = generateEntityDataCode();
-    Map<String, dynamic> dataToCreatorAndPlace = {
+
+    /*Map<String, dynamic> dataToCreatorAndPlace = {
       'placeId': id,
-    };
+    };*/
+
+    /*Map <String, dynamic> creatorDataToAdminsList = {
+      'userId': creatorId,
+      'roleId': creatorPlaceRole.generatePlaceRoleEnumForPlaceUser(PlaceUserRoleEnum.creator)
+    };*/
 
     Map <String, dynamic> creatorDataToAdminsList = {
-      'userId': creatorId,
+      'placeId': id,
       'roleId': creatorPlaceRole.generatePlaceRoleEnumForPlaceUser(PlaceUserRoleEnum.creator)
     };
 
     String entityPublishResult = await MixinDatabase.publishToDB(entityPath, data);
-    String creatorPublishResult = await MixinDatabase.publishToDB(creatorPath, dataToCreatorAndPlace);
-    String creatorToAdminResult = await MixinDatabase.publishToDB(creatorInAdminsPath, creatorDataToAdminsList);
+    //String creatorPublishResult = await MixinDatabase.publishToDB(creatorPath, dataToCreatorAndPlace);
+    String creatorPublishResult = await MixinDatabase.publishToDB(creatorPath, creatorDataToAdminsList);
+
+    // ------ String creatorToAdminResult = await MixinDatabase.publishToDB(creatorInAdminsPath, creatorDataToAdminsList);
 
     if (UserCustom.currentUser != null){
-      if (!UserCustom.currentUser!.myPlaces.contains(id)){
-        UserCustom.currentUser!.myPlaces.add(id);
-      }
+      UserCustom.currentUser!.addPlaceToMy(id);
     }
 
     String result = 'success';
 
     if (entityPublishResult != 'success') result = entityPublishResult;
     if (creatorPublishResult != 'success') result = creatorPublishResult;
-    if (creatorToAdminResult != 'success') result = creatorToAdminResult;
+    //if (creatorToAdminResult != 'success') result = creatorToAdminResult;
 
     return result;
 
@@ -233,6 +240,11 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
     // Путь создателя заведения
     String creatorPath = 'users/$creatorId/myPromos/$id';
 
+    // Получаем список админов
+    List<PlaceUser> admins = [];
+    // Объявляем класс placeUser
+    PlaceUser placeUser = PlaceUser();
+
     // Получаем списки добавивших заведение в избранное
     // TODO - сделать такое же удаление добавивших в изрбанное, как в заведениях, в мероприятиях и акциях
     List<String> favUsersList = await getNeededIds('places/$id/addedToFavourites', 'userId');
@@ -249,8 +261,11 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
     String creatorDeleteResult = await MixinDatabase.deleteFromDb(creatorPath);
 
     // Удаляем записи у админов
-    for (PlaceAdminsListItem admin in admins!){
-      String adminPath = 'users/${admin.userId}/myPlaces/$id';
+
+    admins = await placeUser.getAdminsFromDb(id);
+
+    for (PlaceUser adminUser in admins){
+      String adminPath = 'users/${adminUser.uid}/myPlaces/$id';
       String deleteAdminResult = await MixinDatabase.deleteFromDb(adminPath);
     }
 
