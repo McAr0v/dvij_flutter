@@ -331,7 +331,7 @@ class CardWidgetForEventPromoPlacesState extends State<CardWidgetForEventPromoPl
       today = item.today;
       inFav = item.inFav;
       headline = item.headline;
-      favCount = item.addedToFavouritesCount;
+      favCount = item.favUsersIds;
       imageUrl = item.imageUrl;
       dateType = item.dateType;
       categoryName = item.category.name;

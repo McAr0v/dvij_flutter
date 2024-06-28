@@ -813,7 +813,7 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                               priceType: priceType,
                             inFav: false,
                             today: false,
-                            addedToFavouritesCount: 0
+                            favUsersIds: 0
                           );
 
                           String? editInDatabase = await event.publishToDb();

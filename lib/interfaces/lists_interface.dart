@@ -75,8 +75,8 @@ abstract class ILists<T, K, J>{
   /// <br>Fav
   /// <br>My
   /// <br><br>
-  /// Принимает [entityId], [favCounter], [inFav] для поиска сущности и обновления данных
-  void updateCurrentListFavInformation(String entityId, int favCounter, bool inFav);
+  /// Принимает [entityId], [usersIdsList], [inFav] для поиска сущности и обновления данных
+  void updateCurrentListFavInformation(String entityId, List<String> usersIdsList, bool inFav);
 
   /// ФУНКЦИЯ УдАЛЕНИЯ СУЩНОСТИ ИЗ НЕОБХОДИМЫХ СПИСКОВ
   /// <br><br>

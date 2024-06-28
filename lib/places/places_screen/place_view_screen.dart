@@ -318,7 +318,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                     if (results != null) {
                       setState(() {
                         eventsList.eventsList[index].inFav = results[0];
-                        eventsList.eventsList[index].addedToFavouritesCount = results[1];
+                        eventsList.eventsList[index].favUsersIds = results[1];
                       });
                     }
                   },
@@ -335,7 +335,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                         // --- Удаляем из избранных ---
                         String resDel = await eventsList.eventsList[index].deleteFromFav();
                         // ---- Инициализируем счетчик -----
-                        int favCounter = eventsList.eventsList[index].addedToFavouritesCount;
+                        int favCounter = eventsList.eventsList[index].favUsersIds;
 
                         if (resDel == 'success'){
                           // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
@@ -343,7 +343,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                             // Обновляем текущий список
                             eventsList.eventsList[index].inFav = false;
                             favCounter --;
-                            eventsList.eventsList[index].addedToFavouritesCount = favCounter;
+                            eventsList.eventsList[index].favUsersIds = favCounter;
                             // Обновляем общий список из БД
                             eventsList.eventsList[index].updateCurrentListFavInformation();
                           });
@@ -360,7 +360,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                         String res = await eventsList.eventsList[index].addToFav();
 
                         // ---- Инициализируем счетчик добавивших в избранное
-                        int favCounter = eventsList.eventsList[index].addedToFavouritesCount;
+                        int favCounter = eventsList.eventsList[index].favUsersIds;
 
                         if (res == 'success') {
                           // --- Если добавилось успешно, так же обновляем текущий список и список из БД
@@ -368,7 +368,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                             // Обновляем текущий список
                             eventsList.eventsList[index].inFav = true;
                             favCounter ++;
-                            eventsList.eventsList[index].addedToFavouritesCount = favCounter;
+                            eventsList.eventsList[index].favUsersIds = favCounter;
                             // Обновляем список из БД
                             eventsList.eventsList[index].updateCurrentListFavInformation();
                           });

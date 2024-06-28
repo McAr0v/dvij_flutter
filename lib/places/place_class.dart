@@ -117,7 +117,7 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
       openingHours: openingHours,
       nowIsOpen: nowIsOpen,
       inFav: emptyPlace.addedInFavOrNot(favSnapshot),
-      addedToFavouritesCount: emptyPlace.getFavCount(favSnapshot),
+      addedToFavouritesCount: emptyPlace.getFavIdsList(favSnapshot),
       eventsList: events,
       promosList: promos,
       eventsCount: events.length,
@@ -492,7 +492,7 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
   }
 
   @override
-  int getFavCount(DataSnapshot snapshot) {
+  int getFavIdsList(DataSnapshot snapshot) {
     if (snapshot.exists) {
       return snapshot.children.length;
     } else {

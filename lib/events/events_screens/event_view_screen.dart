@@ -118,7 +118,7 @@ class EventViewScreenState extends State<EventViewScreen> {
     }
 
     inFav = event.inFav;
-    favCounter = event.addedToFavouritesCount;
+    favCounter = event.favUsersIds;
 
     // ---- Убираем экран загрузки -----
     setState(() {
@@ -305,7 +305,7 @@ class EventViewScreenState extends State<EventViewScreen> {
             inFav = false;
             favCounter --;
             event.inFav = inFav;
-            event.addedToFavouritesCount = favCounter;
+            event.favUsersIds = favCounter;
             event.updateCurrentListFavInformation();
           });
 
@@ -324,7 +324,7 @@ class EventViewScreenState extends State<EventViewScreen> {
             inFav = true;
             favCounter ++;
             event.inFav = inFav;
-            event.addedToFavouritesCount = favCounter;
+            event.favUsersIds = favCounter;
             event.updateCurrentListFavInformation();
           });
 

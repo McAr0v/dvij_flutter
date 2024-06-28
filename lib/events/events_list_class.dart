@@ -3,6 +3,8 @@ import 'package:dvij_flutter/events/event_category_class.dart';
 import 'package:dvij_flutter/events/event_sorting_options.dart';
 import 'package:dvij_flutter/events/events_list_manager.dart';
 import 'package:dvij_flutter/interfaces/lists_interface.dart';
+import 'package:dvij_flutter/places/users_my_place/my_places_class.dart';
+import 'package:dvij_flutter/users/place_users_roles.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 import '../cities/city_class.dart';
@@ -53,44 +55,48 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
   Future<EventsList> getFavListFromDb(String userId, {bool refresh = false}) async {
     EventsList events = EventsList();
     EventListsManager.currentFavEventsList = EventsList();
-    List<String> eventsId = [];
 
-    if (UserCustom.currentUser != null) {
-      eventsId = UserCustom.currentUser!.favEvents;
+    EventsList downloadedEventsList = EventListsManager.currentFeedEventsList;
+
+    if (downloadedEventsList.eventsList.isEmpty || refresh) {
+      EventsList tempList = await getListFromDb();
+      downloadedEventsList = tempList;
     }
 
-    // Если список ID не пустой
+    for (EventCustom event in downloadedEventsList.eventsList){
+      if (event.favUsersIds.contains(userId)){
+        events.eventsList.add(event);
+      }
+    }
 
-    if (eventsId.isNotEmpty){
+    // Если список всей ленты не пустой и не была вызвана функция обновления, то будем забирать данные из него
+    /*if (EventListsManager.currentFeedEventsList.eventsList.isNotEmpty && !refresh){
 
-      // Если список всей ленты не пустой и не была вызвана функция обновления, то будем забирать данные из него
-      if (EventListsManager.currentFeedEventsList.eventsList.isNotEmpty && !refresh){
-
-        for (String id in eventsId) {
-          EventCustom favEvent = getEntityFromFeedListById(id);
-          if (favEvent.id != ''){
-            if (favEvent.id == id){
-              EventListsManager.currentFavEventsList.eventsList.add(favEvent);
-              events.eventsList.add(favEvent);
-            }
-          }
-        }
-
-      } else {
-
-        // Если список ленты не прогружен, то считываем каждую сущность из БД
-        for (String event in eventsId){
-
-          EventCustom temp = EventCustom.emptyEvent;
-          temp = await temp.getEntityByIdFromDb(event);
-
-          if (temp.id != ''){
-            EventListsManager.currentFavEventsList.eventsList.add(temp);
-            events.eventsList.add(temp);
+      for (String id in eventsId) {
+        EventCustom favEvent = getEntityFromFeedListById(id);
+        if (favEvent.id != ''){
+          if (favEvent.id == id){
+            EventListsManager.currentFavEventsList.eventsList.add(favEvent);
+            events.eventsList.add(favEvent);
           }
         }
       }
-    }
+
+    } else {
+
+      // Если список ленты не прогружен, то считываем каждую сущность из БД
+      for (String event in eventsId){
+
+        EventCustom temp = EventCustom.emptyEvent;
+        temp = await temp.getEntityByIdFromDb(event);
+
+        if (temp.id != ''){
+          EventListsManager.currentFavEventsList.eventsList.add(temp);
+          events.eventsList.add(temp);
+        }
+      }
+    }*/
+
     return events;
   }
 
@@ -102,17 +108,31 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
 
   @override
   Future<EventsList> getMyListFromDb(String userId, {bool refresh = false}) async {
+    List<MyPlaces> myPlaces = UserCustom.currentUser!.myPlaces;
+
     EventsList events = EventsList();
     EventListsManager.currentMyEventsList = EventsList();
-    List<String> eventsId = [];
 
-    // TODO !!! Сделать загрузку списка моих сущностей при загрузке информации пользователя. Здесь обращаться к уже готовому списку
-    // TODO !!! Не забыть реализовать обновление списка моих сущностей при добавлении и удалении из раздела мои
 
-    // --- Читаем папку моих сущностей у пользователя ----
+    EventsList downloadedEventsList = EventListsManager.currentFeedEventsList;
 
-    if (UserCustom.currentUser != null) {
-      eventsId = UserCustom.currentUser!.myEvents;
+    if (downloadedEventsList.eventsList.isEmpty || refresh) {
+      EventsList tempList = await getListFromDb();
+      downloadedEventsList = tempList;
+    }
+
+    for (EventCustom event in downloadedEventsList.eventsList){
+      if (event.creatorId == userId){
+        events.eventsList.add(event);
+      } else if (event.placeId != '' && myPlaces.isNotEmpty) {
+        for (MyPlaces place in myPlaces){
+          if (place.placeId == event.placeId
+              && (place.placeRole.roleInPlaceEnum != PlaceUserRoleEnum.reader && place.placeRole.roleInPlaceEnum != PlaceUserRoleEnum.org)){
+            events.eventsList.add(event);
+            break;
+          }
+        }
+      }
     }
 
     /*String myPath = 'users/$userId/myEvents/';
@@ -132,7 +152,7 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
     }*/
 
     // Если список ID не пустой, и не была вызвана функция обновления
-    if (eventsId.isNotEmpty){
+    /*if (eventsId.isNotEmpty){
 
       // Если список всей ленты не пустой, то будем забирать данные из него
       if (EventListsManager.currentFeedEventsList.eventsList.isNotEmpty && !refresh) {
@@ -154,7 +174,7 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
           }
         }
       }
-    }
+    }*/
     return events;
   }
 
@@ -215,9 +235,9 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
 
       case EventSortingOption.nameDesc: eventsList.sort((a, b) => b.headline.compareTo(a.headline)); break;
 
-      case EventSortingOption.favCountAsc: eventsList.sort((a, b) => a.addedToFavouritesCount.compareTo(b.addedToFavouritesCount)); break;
+      case EventSortingOption.favCountAsc: eventsList.sort((a, b) => a.favUsersIds.length.compareTo(b.favUsersIds.length)); break;
 
-      case EventSortingOption.favCountDesc: eventsList.sort((a, b) => b.addedToFavouritesCount.compareTo(a.addedToFavouritesCount)); break;
+      case EventSortingOption.favCountDesc: eventsList.sort((a, b) => b.favUsersIds.length.compareTo(a.favUsersIds.length)); break;
 
     }
   }
@@ -231,19 +251,21 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
   void addEntityToCurrentFavList(String entityId) {
     for (var event in EventListsManager.currentFeedEventsList.eventsList){
       if (event.id == entityId){
-        EventListsManager.currentFavEventsList.eventsList.add(event);
-        break;
+        if (!EventListsManager.currentFavEventsList.eventsList.any((element) => element.id == entityId)){
+          EventListsManager.currentFavEventsList.eventsList.add(event);
+          break;
+        }
       }
     }
   }
 
   @override
-  void updateCurrentListFavInformation(String entityId, int favCounter, bool inFav) {
+  void updateCurrentListFavInformation(String entityId, List<String> usersIdsList, bool inFav) {
     // ---- Функция обновления списка из БД при добавлении или удалении из избранного
 
     for (EventCustom event in EventListsManager.currentFeedEventsList.eventsList){
       if (event.id == entityId){
-        event.addedToFavouritesCount = favCounter;
+        event.favUsersIds = usersIdsList;
         event.inFav = inFav;
         break;
       }
@@ -251,7 +273,7 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
 
     for (EventCustom event in EventListsManager.currentFavEventsList.eventsList){
       if (event.id == entityId){
-        event.addedToFavouritesCount = favCounter;
+        event.favUsersIds = usersIdsList;
         event.inFav = inFav;
         break;
       }
@@ -259,7 +281,7 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
 
     for (EventCustom event in EventListsManager.currentMyEventsList.eventsList){
       if (event.id == entityId){
-        event.addedToFavouritesCount = favCounter;
+        event.favUsersIds = usersIdsList;
         event.inFav = inFav;
         break;
       }

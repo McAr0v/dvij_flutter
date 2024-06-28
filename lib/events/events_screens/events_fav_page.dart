@@ -33,7 +33,7 @@ class EventsFavPageState extends State<EventsFavPage> {
 
   // --- ОБЪЯВЛЯЕМ ПЕРЕМЕННЫЕ -----
 
-  EventsList eventsList = EventListsManager.currentFavEventsList;
+  EventsList eventsList = EventsList();
   late List<EventCategory> eventCategoriesList;
 
   // --- Переменные фильтра по умолчанию ----
@@ -436,27 +436,29 @@ class EventsFavPageState extends State<EventsFavPage> {
       // --- Если уже в избранном ----
       if (eventsList.eventsList[indexWithAddCountCorrection].inFav == true)
       {
-        int favCounter = eventsList.eventsList[indexWithAddCountCorrection].addedToFavouritesCount;
+        //int favCounter = eventsList.eventsList[indexWithAddCountCorrection].favUsersIds;
         setState(() {
           loading = true;
           // Обновляем текущий список
-          eventsList.eventsList[indexWithAddCountCorrection].inFav = false;
-          favCounter --;
-          eventsList.eventsList[indexWithAddCountCorrection].addedToFavouritesCount = favCounter;
-          // Обновляем общий список из БД
-          eventsList.eventsList[indexWithAddCountCorrection].updateCurrentListFavInformation();
-
         });
         // --- Удаляем из избранных ---
         String resDel = await eventsList.eventsList[indexWithAddCountCorrection].deleteFromFav();
 
-        setState(() {
-          eventsList = EventListsManager.currentFavEventsList;
-          allElementsList = AdUser.generateIndexedList(adIndexesList, eventsList.eventsList.length);
-          loading = false;
-        });
+
 
         if (resDel == 'success'){
+          eventsList.eventsList[indexWithAddCountCorrection].inFav = false;
+          //favCounter --;
+          //eventsList.eventsList[indexWithAddCountCorrection].favUsersIds = favCounter;
+          // Обновляем общий список из БД
+          eventsList.eventsList[indexWithAddCountCorrection].updateCurrentListFavInformation();
+          EventsList tempList = await eventsList.getFavListFromDb(UserCustom.currentUser!.uid);
+
+          setState(() {
+            eventsList = tempList;
+            allElementsList = AdUser.generateIndexedList(adIndexesList, eventsList.eventsList.length);
+            loading = false;
+          });
           // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
           _showSnackBar('Удалено из избранных', AppColors.attentionRed, 1);
 
@@ -466,27 +468,37 @@ class EventsFavPageState extends State<EventsFavPage> {
         }
       }
       else {
+
+        setState(() {
+          loading = true;
+          // Обновляем текущий список
+        });
         // --- Если заведение не в избранном ----
 
         // -- Добавляем в избранное ----
         String res = await eventsList.eventsList[indexWithAddCountCorrection].addToFav();
 
         // ---- Инициализируем счетчик добавивших в избранное
-        int favCounter = eventsList.eventsList[indexWithAddCountCorrection].addedToFavouritesCount;
+        //int favCounter = eventsList.eventsList[indexWithAddCountCorrection].favUsersIds;
 
         if (res == 'success') {
           // --- Если добавилось успешно, так же обновляем текущий список и список из БД
+
+          EventsList tempList = await eventsList.getFavListFromDb(UserCustom.currentUser!.uid);
+
           setState(() {
             // Обновляем текущий список
             eventsList.eventsList[indexWithAddCountCorrection].inFav = true;
-            favCounter ++;
-            eventsList.eventsList[indexWithAddCountCorrection].addedToFavouritesCount = favCounter;
+            //favCounter ++;
+            //eventsList.eventsList[indexWithAddCountCorrection].favUsersIds = favCounter;
 
             eventsList.eventsList[indexWithAddCountCorrection].updateCurrentListFavInformation();
 
-            eventsList = EventsList();
-            eventsList = EventListsManager.currentFavEventsList;
+            eventsList = tempList;
+            //eventsList = EventListsManager.currentFavEventsList;
             allElementsList = AdUser.generateIndexedList(adIndexesList, eventsList.eventsList.length);
+
+            loading = false;
 
           });
           _showSnackBar('Добавлено в избранные', Colors.green, 1);

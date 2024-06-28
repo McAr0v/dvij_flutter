@@ -27,4 +27,5 @@ mixin FavListsMixin {
     return myPlaces;
 
   }
+
 }

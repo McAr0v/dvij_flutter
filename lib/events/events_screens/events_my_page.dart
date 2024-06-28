@@ -460,7 +460,7 @@ class EventsMyPageState extends State<EventsMyPage> {
     if (results != null) {
       setState(() {
         eventsList.eventsList[indexWithAddCountCorrection].inFav = results[0];
-        eventsList.eventsList[indexWithAddCountCorrection].addedToFavouritesCount = results[1];
+        eventsList.eventsList[indexWithAddCountCorrection].favUsersIds = results[1];
       });
     }
   }
@@ -482,15 +482,16 @@ class EventsMyPageState extends State<EventsMyPage> {
         // --- Удаляем из избранных ---
         String resDel = await eventsList.eventsList[indexWithAddCountCorrection].deleteFromFav();
         // ---- Инициализируем счетчик -----
-        int favCounter = eventsList.eventsList[indexWithAddCountCorrection].addedToFavouritesCount;
+        //int favCounter = eventsList.eventsList[indexWithAddCountCorrection].favUsersIds.length;
 
         if (resDel == 'success'){
           // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
           setState(() {
             // Обновляем текущий список
             eventsList.eventsList[indexWithAddCountCorrection].inFav = false;
-            favCounter --;
-            eventsList.eventsList[indexWithAddCountCorrection].addedToFavouritesCount = favCounter;
+
+            //favCounter --;
+            //eventsList.eventsList[indexWithAddCountCorrection].favUsersIds = favCounter;
             // Обновляем общий список из БД
             eventsList.eventsList[indexWithAddCountCorrection].updateCurrentListFavInformation();
 
@@ -508,15 +509,15 @@ class EventsMyPageState extends State<EventsMyPage> {
         String res = await eventsList.eventsList[indexWithAddCountCorrection].addToFav();
 
         // ---- Инициализируем счетчик добавивших в избранное
-        int favCounter = eventsList.eventsList[indexWithAddCountCorrection].addedToFavouritesCount;
+        //int favCounter = eventsList.eventsList[indexWithAddCountCorrection].favUsersIds;
 
         if (res == 'success') {
           // --- Если добавилось успешно, так же обновляем текущий список и список из БД
           setState(() {
             // Обновляем текущий список
             eventsList.eventsList[indexWithAddCountCorrection].inFav = true;
-            favCounter ++;
-            eventsList.eventsList[indexWithAddCountCorrection].addedToFavouritesCount = favCounter;
+            //favCounter ++;
+            //eventsList.eventsList[indexWithAddCountCorrection].favUsersIds = favCounter;
             // Обновляем список из БД
             eventsList.eventsList[indexWithAddCountCorrection].updateCurrentListFavInformation();
 

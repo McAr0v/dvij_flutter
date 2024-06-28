@@ -5,7 +5,6 @@ import 'package:dvij_flutter/current_user/fav_list_mixin.dart';
 import 'package:dvij_flutter/current_user/genders_class.dart';
 import 'package:dvij_flutter/dates/date_mixin.dart';
 import 'package:dvij_flutter/places/users_my_place/my_places_class.dart';
-import 'package:dvij_flutter/users/place_user_class.dart';
 import 'package:dvij_flutter/users/place_users_roles.dart';
 import 'package:dvij_flutter/users_mixin/users_lists_mixin.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -26,14 +25,13 @@ class UserCustom with MixinDatabase, UserAuthMixin, UsersListsMixin, FavListsMix
   DateTime birthDate;
   Genders gender;
   String avatar;
-  String? roleInPlace;
   DateTime registrationDate;
-  List<String> myEvents;
+  //List<String> myEvents;
   List<MyPlaces> myPlaces;
-  List<String> myPromos;
-  List<String> favPlaces;
-  List<String> favEvents;
-  List<String> favPromos;
+  //List<String> myPromos;
+  //List<String> favPlaces;
+  //List<String> favEvents;
+  //List<String> favPromos;
 
 
   static UserCustom? currentUser;
@@ -54,13 +52,12 @@ class UserCustom with MixinDatabase, UserAuthMixin, UsersListsMixin, FavListsMix
     required this.gender,
     required this.avatar,
     required this.registrationDate,
-    required this.myEvents,
+    //required this.myEvents,
     required this.myPlaces,
-    required this.myPromos,
-    required this.favEvents,
-    required this.favPlaces,
-    required this.favPromos,
-    this.roleInPlace
+    //required this.myPromos,
+    //required this.favEvents,
+    //required this.favPlaces,
+    //required this.favPromos,
   });
 
   factory UserCustom.empty() {
@@ -78,14 +75,13 @@ class UserCustom with MixinDatabase, UserAuthMixin, UsersListsMixin, FavListsMix
       birthDate: DateTime(2100),
       gender: Genders(),
       avatar: AppConstants.defaultAvatar,
-      roleInPlace: '',
       registrationDate: DateTime.now(),
-      myEvents: [],
+      //myEvents: [],
       myPlaces: [],
-      myPromos: [],
-      favEvents: [],
-      favPlaces: [],
-      favPromos: []
+      //myPromos: [],
+      //favEvents: [],
+      //favPlaces: [],
+      //favPromos: []
     );
   }
 
@@ -103,15 +99,15 @@ class UserCustom with MixinDatabase, UserAuthMixin, UsersListsMixin, FavListsMix
     AppRole appRole = AppRole();
     appRole.setRoleFromDb(infoSnapshot.child(AppConstants.userRoleProperty).value.toString());
 
-    List<String> favPromos = FavListsMixin.getFavEntitiesId(snapshot.child(AppConstants.favPromoPathKey), AppConstants.favPromoIdKey);
-    List<String> favPlaces = FavListsMixin.getFavEntitiesId(snapshot.child(AppConstants.favPlacePathKey), AppConstants.favPlaceIdKey);
-    List<String> favEvents = FavListsMixin.getFavEntitiesId(snapshot.child(AppConstants.favEventPathKey), AppConstants.favEventIdKey);
+    //List<String> favPromos = FavListsMixin.getFavEntitiesId(snapshot.child(AppConstants.favPromoPathKey), AppConstants.favPromoIdKey);
+    //List<String> favPlaces = FavListsMixin.getFavEntitiesId(snapshot.child(AppConstants.favPlacePathKey), AppConstants.favPlaceIdKey);
+    //List<String> favEvents = FavListsMixin.getFavEntitiesId(snapshot.child(AppConstants.favEventPathKey), AppConstants.favEventIdKey);
 
     List<MyPlaces> myPlaces = FavListsMixin.getMyPlacesEntities(snapshot.child(AppConstants.myPlacePathKey));
 
 
-    List<String> myPromos = FavListsMixin.getFavEntitiesId(snapshot.child(AppConstants.myPromoPathKey), AppConstants.favPromoIdKey);
-    List<String> myEvents = FavListsMixin.getFavEntitiesId(snapshot.child(AppConstants.myEventPathKey), AppConstants.favEventIdKey);
+    //List<String> myPromos = FavListsMixin.getFavEntitiesId(snapshot.child(AppConstants.myPromoPathKey), AppConstants.favPromoIdKey);
+    //List<String> myEvents = FavListsMixin.getFavEntitiesId(snapshot.child(AppConstants.myEventPathKey), AppConstants.favEventIdKey);
 
     // Берем из них данные и заполняем в класс Gender И возвращаем его
     return UserCustom(
@@ -129,12 +125,12 @@ class UserCustom with MixinDatabase, UserAuthMixin, UsersListsMixin, FavListsMix
       gender: gender,
       avatar: infoSnapshot.child(AppConstants.userAvatarProperty).value.toString(),
       registrationDate: DateMixin.getDateFromString(infoSnapshot.child(AppConstants.userRegistrationDateProperty).value.toString()),
-      myEvents: myEvents,
-      myPromos: myPromos,
+      //myEvents: myEvents,
+      //myPromos: myPromos,
       myPlaces: myPlaces,
-      favPromos: favPromos,
-      favPlaces: favPlaces,
-      favEvents: favEvents
+      //favPromos: favPromos,
+      //favPlaces: favPlaces,
+      //favEvents: favEvents
     );
   }
 
@@ -196,51 +192,52 @@ class UserCustom with MixinDatabase, UserAuthMixin, UsersListsMixin, FavListsMix
     return result;
   }
 
-  void deleteEventFromFav(String id){
+  /*void deleteEventFromFav(String id){
     if (favEvents.contains(id)){
       favEvents.removeWhere((event) => event == id);
     }
 
-  }
+  }*/
 
 
 
-  void addEventToFav(String id){
+  /*void addEventToFav(String id){
     if (!favEvents.contains(id)){
       favEvents.add(id);
     }
 
-  }
+  }*/
 
-  void deleteEventFromMy(String id){
+  /*void deleteEventFromMy(String id){
     if (myEvents.contains(id)){
       myEvents.removeWhere((event) => event == id);
     }
 
-  }
+  }*/
 
-  void addEventToMy(String id){
+  /*void addEventToMy(String id){
     if (!myEvents.contains(id)){
       myEvents.add(id);
     }
 
-  }
+  }*/
 
-  void deletePlaceFromFav(String id){
+  /*void deletePlaceFromFav(String id){
     if (favPlaces.contains(id)){
       favPlaces.removeWhere((place) => place == id);
     }
 
-  }
+  }*/
 
 
 
-  void addPlaceToFav(String id){
+  /*void addPlaceToFav(String id){
     if (!favPlaces.contains(id)){
       favPlaces.add(id);
     }
 
-  }
+  }*/
+
   PlaceUserRole getPlaceRoleFromMyPlaces(String placeId){
 
     if (placeId.isNotEmpty){

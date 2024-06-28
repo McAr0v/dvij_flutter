@@ -152,7 +152,7 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
       irregularDays: irregularDate,
       today: today,
         inFav: promoTemp.addedInFavOrNot(favSnapshot),
-        addedToFavouritesCount: promoTemp.getFavCount(favSnapshot)
+        addedToFavouritesCount: promoTemp.getFavIdsList(favSnapshot)
     );
   }
 
@@ -454,7 +454,7 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
   }
 
   @override
-  int getFavCount(DataSnapshot snapshot) {
+  int getFavIdsList(DataSnapshot snapshot) {
     if (snapshot.exists) {
       return snapshot.children.length;
     } else {

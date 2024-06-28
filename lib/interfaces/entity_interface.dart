@@ -98,11 +98,11 @@ abstract class IEntity <T> {
   /// <br> Если сущность не найдена, вернет пустую сущность
   T getEntityFromSnapshot(DataSnapshot snapshot);
 
-  /// ФУНКЦИЯ ПОЛУЧЕНИЯ СЧЕТЧИКА ДОБАВИВШИХ В ИЗБРАННОЕ
+  /// ФУНКЦИЯ СПИСКА ID ПОЛЬЗОВАТЕЛЕЙ ДОБАВИВШИХ В ИЗБРАННОЕ
   /// <br><br>
-  /// Считывает количество ID пользователей, добавивших в избранное сущность
-  /// <br> Вернет [int]
-  int getFavCount(DataSnapshot snapshot);
+  /// Считывает в список ID пользователей, добавивших в избранное сущность
+  /// <br> Вернет [List<String>]
+  List<String> getFavIdsList(DataSnapshot snapshot);
 
   /// ФУНКЦИЯ ПРОВЕРКИ - ИЗБРАННАЯ СУЩНОСТЬ ИЛИ НЕТ
   /// <br><br>
