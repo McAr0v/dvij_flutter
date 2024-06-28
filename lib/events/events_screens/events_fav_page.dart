@@ -401,7 +401,9 @@ class EventsFavPageState extends State<EventsFavPage> {
     );
 
     if (results != null) {
-      eventsList = EventListsManager.currentFavEventsList;
+      EventsList tempList = await eventsList.getFavListFromDb(UserCustom.currentUser!.uid);
+      eventsList = tempList;
+
       setState(() {
         eventsList.filterLists(
             eventsList.generateMapForFilter(

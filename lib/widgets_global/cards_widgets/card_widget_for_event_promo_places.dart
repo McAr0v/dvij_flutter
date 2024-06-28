@@ -304,9 +304,9 @@ class CardWidgetForEventPromoPlacesState extends State<CardWidgetForEventPromoPl
                         crossAxisAlignment: CrossAxisAlignment.center,
                         //mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          IconAndTextWidget(icon: FontAwesomeIcons.champagneGlasses, text: 'Мероприятий: ${widget.place!.eventsCount}', textSize: TextSizeEnum.labelMedium, padding: 15, iconSize: 16,),
+                          IconAndTextWidget(icon: FontAwesomeIcons.champagneGlasses, text: 'Мероприятий: ${widget.place!.eventsList.length}', textSize: TextSizeEnum.labelMedium, padding: 15, iconSize: 16,),
                           const SizedBox(width: 30,),
-                          IconAndTextWidget(icon: FontAwesomeIcons.fire, text: 'Акций: ${widget.place!.promoCount}', textSize: TextSizeEnum.labelMedium, padding: 10, iconSize: 16,),
+                          IconAndTextWidget(icon: FontAwesomeIcons.fire, text: 'Акций: ${widget.place!.promosList.length}', textSize: TextSizeEnum.labelMedium, padding: 10, iconSize: 16,),
                         ],
                       )
                     ],
@@ -331,7 +331,7 @@ class CardWidgetForEventPromoPlacesState extends State<CardWidgetForEventPromoPl
       today = item.today;
       inFav = item.inFav;
       headline = item.headline;
-      favCount = item.favUsersIds;
+      favCount = item.favUsersIds.length;
       imageUrl = item.imageUrl;
       dateType = item.dateType;
       categoryName = item.category.name;
@@ -346,7 +346,7 @@ class CardWidgetForEventPromoPlacesState extends State<CardWidgetForEventPromoPl
       today = item.today;
       inFav = item.inFav;
       headline = item.headline;
-      favCount = item.addedToFavouritesCount;
+      favCount = item.favUsersIds.length;
       imageUrl = item.imageUrl;
       dateType = item.dateType;
       categoryName = item.category.name;
@@ -359,7 +359,7 @@ class CardWidgetForEventPromoPlacesState extends State<CardWidgetForEventPromoPl
       today = item.nowIsOpen!;
       inFav = item.inFav!;
       headline = item.name;
-      favCount = item.addedToFavouritesCount!;
+      favCount = item.favUsersIds.length;
       imageUrl = item.imageUrl;
       dateType = DateTypeEnum.regular;
       categoryName = item.category.name;

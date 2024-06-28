@@ -397,7 +397,7 @@ class PlacesFavPageState extends State<PlacesFavPage> {
       setState(() {
 
         placesFavList.placeList[index].inFav = results[0];
-        placesFavList.placeList[index].addedToFavouritesCount = results[1];
+        placesFavList.placeList[index].favUsersIds = results[1];
 
         placesFavList.filterLists(
             placesFavList.generateMapForFilter(
@@ -424,19 +424,23 @@ class PlacesFavPageState extends State<PlacesFavPage> {
     // --- Если пользователь залогинен -----
     else {
 
+      setState(() {
+        loading = true;
+      });
+
       // --- Если уже в избранном ----
       if (placesFavList.placeList[index].inFav!)
       {
 
         // ---- Инициализируем счетчик -----
-        int favCounter = placesFavList.placeList[index].addedToFavouritesCount!;
+        //int favCounter = placesFavList.placeList[index].favUsersIds!;
 
         setState(() {
           loading = true;
           // Обновляем текущий список
           placesFavList.placeList[index].inFav = false;
-          favCounter --;
-          placesFavList.placeList[index].addedToFavouritesCount = favCounter;
+          //favCounter --;
+          //placesFavList.placeList[index].favUsersIds = favCounter;
           // Обновляем общий список из БД
           placesFavList.placeList[index].updateCurrentListFavInformation();
 
@@ -462,15 +466,15 @@ class PlacesFavPageState extends State<PlacesFavPage> {
         // -- Добавляем в избранное ----
         String res = await placesFavList.placeList[index].addToFav();
         // ---- Инициализируем счетчик добавивших в избранное
-        int favCounter = placesFavList.placeList[index].addedToFavouritesCount!;
+        //int favCounter = placesFavList.placeList[index].favUsersIds!;
 
         if (res == 'success') {
           // --- Если добавилось успешно, так же обновляем текущий список и список из БД
           setState(() {
             // Обновляем текущий список
             placesFavList.placeList[index].inFav = true;
-            favCounter ++;
-            placesFavList.placeList[index].addedToFavouritesCount = favCounter;
+            //favCounter ++;
+            //placesFavList.placeList[index].favUsersIds = favCounter;
 
             placesFavList.placeList[index].updateCurrentListFavInformation();
 
@@ -486,6 +490,10 @@ class PlacesFavPageState extends State<PlacesFavPage> {
           showSnackBar(res, AppColors.attentionRed, 1);
         }
       }
+
+      setState(() {
+        loading = false;
+      });
     }
   }
 }

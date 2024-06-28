@@ -100,7 +100,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
     }
 
     inFav = place.inFav!;
-    favCounter = place.addedToFavouritesCount!;
+    favCounter = place.favUsersIds.length;
 
     setState(() {
       loading = false;
@@ -335,15 +335,15 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                         // --- Удаляем из избранных ---
                         String resDel = await eventsList.eventsList[index].deleteFromFav();
                         // ---- Инициализируем счетчик -----
-                        int favCounter = eventsList.eventsList[index].favUsersIds;
+                        //int favCounter = eventsList.eventsList[index].favUsersIds;
 
                         if (resDel == 'success'){
                           // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
                           setState(() {
                             // Обновляем текущий список
                             eventsList.eventsList[index].inFav = false;
-                            favCounter --;
-                            eventsList.eventsList[index].favUsersIds = favCounter;
+                            //favCounter --;
+                            //eventsList.eventsList[index].favUsersIds = favCounter;
                             // Обновляем общий список из БД
                             eventsList.eventsList[index].updateCurrentListFavInformation();
                           });
@@ -360,15 +360,15 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                         String res = await eventsList.eventsList[index].addToFav();
 
                         // ---- Инициализируем счетчик добавивших в избранное
-                        int favCounter = eventsList.eventsList[index].favUsersIds;
+                        //int favCounter = eventsList.eventsList[index].favUsersIds;
 
                         if (res == 'success') {
                           // --- Если добавилось успешно, так же обновляем текущий список и список из БД
                           setState(() {
                             // Обновляем текущий список
                             eventsList.eventsList[index].inFav = true;
-                            favCounter ++;
-                            eventsList.eventsList[index].favUsersIds = favCounter;
+                            //favCounter ++;
+                            //eventsList.eventsList[index].favUsersIds = favCounter;
                             // Обновляем список из БД
                             eventsList.eventsList[index].updateCurrentListFavInformation();
                           });
@@ -434,7 +434,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                     if (results != null) {
                       setState(() {
                         promosList.promosList[index].inFav = results[0];
-                        promosList.promosList[index].addedToFavouritesCount = results[1];
+                        promosList.promosList[index].favUsersIds = results[1];
                       });
                     }
                   },
@@ -451,15 +451,15 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                         // --- Удаляем из избранных ---
                         String resDel = await promosList.promosList[index].deleteFromFav();
                         // ---- Инициализируем счетчик -----
-                        int favCounter = promosList.promosList[index].addedToFavouritesCount;
+                        //int favCounter = promosList.promosList[index].favUsersIds;
 
                         if (resDel == 'success'){
                           // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
                           setState(() {
                             // Обновляем текущий список
                             promosList.promosList[index].inFav = false;
-                            favCounter --;
-                            promosList.promosList[index].addedToFavouritesCount = favCounter;
+                            //favCounter --;
+                            //promosList.promosList[index].favUsersIds = favCounter;
                             // Обновляем общий список из БД
                             promosList.promosList[index].updateCurrentListFavInformation();
 
@@ -476,15 +476,15 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                         String res = await promosList.promosList[index].addToFav();
 
                         // ---- Инициализируем счетчик добавивших в избранное
-                        int favCounter = promosList.promosList[index].addedToFavouritesCount;
+                        //int favCounter = promosList.promosList[index].favUsersIds;
 
                         if (res == 'success') {
                           // --- Если добавилось успешно, так же обновляем текущий список и список из БД
                           setState(() {
                             // Обновляем текущий список
                             promosList.promosList[index].inFav = true;
-                            favCounter ++;
-                            promosList.promosList[index].addedToFavouritesCount = favCounter;
+                            //favCounter ++;
+                            //promosList.promosList[index].favUsersIds = favCounter;
                             // Обновляем список из БД
                             promosList.promosList[index].updateCurrentListFavInformation();
                           });
@@ -582,7 +582,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
             inFav = false;
             favCounter --;
             place.inFav = inFav;
-            place.addedToFavouritesCount = favCounter;
+            //place.favUsersIds = favCounter;
             place.updateCurrentListFavInformation();
           });
           _showSnackBar('Удалено из избранных', AppColors.attentionRed, 1);
@@ -597,7 +597,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
             inFav = true;
             favCounter ++;
             place.inFav = inFav;
-            place.addedToFavouritesCount = favCounter;
+            //place.favUsersIds = favCounter;
             place.updateCurrentListFavInformation();
           });
 

@@ -372,7 +372,10 @@ class CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
                             imageUrl: avatarURL ?? widget.placeInfo.imageUrl,
                             openingHours: widget.placeInfo.openingHours.generateDateForEntity(
                                 RegularDate.generateOnceMapForEntity(regularStartTimes, regularFinishTimes)
-                            )
+                            ),
+                            eventsList: widget.placeInfo.eventsList,
+                            promosList: widget.placeInfo.promosList,
+                            favUsersIds: widget.placeInfo.favUsersIds
                         );
 
                         // Выгружаем пользователя в БД

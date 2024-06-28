@@ -76,7 +76,7 @@ class PlaceWidgetInViewScreenInEventAndPromoScreen extends StatelessWidget {
 
 
                     Text(
-                      'Мероприятий - ${place.eventsCount}, Акций - ${place.promoCount}',
+                      'Мероприятий - ${place.eventsList.length}, Акций - ${place.promosList.length}',
                       style: Theme.of(context).textTheme.labelMedium!.copyWith(color: AppColors.greyText),
                     ),
 

@@ -38,7 +38,7 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
   LongDate longDays;
   RegularDate regularDays;
   IrregularDate irregularDays;
-  int addedToFavouritesCount;
+  List<String> favUsersIds;
   bool inFav;
   bool today;
 
@@ -63,7 +63,7 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
     required this.longDays,
     required this.regularDays,
     required this.irregularDays,
-    required this.addedToFavouritesCount,
+    required this.favUsersIds,
     required this.inFav,
     required this.today,
 
@@ -152,7 +152,7 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
       irregularDays: irregularDate,
       today: today,
         inFav: promoTemp.addedInFavOrNot(favSnapshot),
-        addedToFavouritesCount: promoTemp.getFavIdsList(favSnapshot)
+        favUsersIds: promoTemp.getFavIdsList(favSnapshot)
     );
   }
 
@@ -179,7 +179,7 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
       regularDays: RegularDate(),
       irregularDays: IrregularDate(),
     inFav: false,
-    addedToFavouritesCount: 0,
+    favUsersIds: [],
     today: false
   );
 
@@ -197,20 +197,23 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
     if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
 
       String promoPath = 'promos/$id/addedToFavourites/${UserCustom.currentUser?.uid}';
-      String userPath = 'users/${UserCustom.currentUser?.uid}/favPromos/$id';
+      //String userPath = 'users/${UserCustom.currentUser?.uid}/favPromos/$id';
 
       Map<String, dynamic> promoData = MixinDatabase.generateDataCode('userId', UserCustom.currentUser?.uid);
-      Map<String, dynamic> userData = MixinDatabase.generateDataCode('promoId', id);
+      //Map<String, dynamic> userData = MixinDatabase.generateDataCode('promoId', id);
 
       String promoPublish = await MixinDatabase.publishToDB(promoPath, promoData);
-      String userPublish = await MixinDatabase.publishToDB(userPath, userData);
+      //String userPublish = await MixinDatabase.publishToDB(userPath, userData);
 
+      if (!favUsersIds.contains(UserCustom.currentUser!.uid)){
+        favUsersIds.add(UserCustom.currentUser!.uid);
+      }
       favPromos.addEntityToCurrentFavList(id);
 
       String result = 'success';
 
       if (promoPublish != 'success') result = promoPublish;
-      if (userPublish != 'success') result = userPublish;
+      //if (userPublish != 'success') result = userPublish;
 
       return result;
 
@@ -259,17 +262,20 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
     if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
 
       String promoPath = 'promos/$id/addedToFavourites/${UserCustom.currentUser?.uid}';
-      String userPath = 'users/${UserCustom.currentUser?.uid}/favPromos/$id';
+      //String userPath = 'users/${UserCustom.currentUser?.uid}/favPromos/$id';
 
       String promoDelete = await MixinDatabase.deleteFromDb(promoPath);
-      String userDelete = await MixinDatabase.deleteFromDb(userPath);
+      //String userDelete = await MixinDatabase.deleteFromDb(userPath);
 
+      favUsersIds.removeWhere((element) => element == UserCustom.currentUser?.uid);
       favPromos.deleteEntityFromCurrentFavList(id);
+
+
 
       String result = 'success';
 
       if (promoDelete != 'success') result = promoDelete;
-      if (userDelete != 'success') result = userDelete;
+      //if (userDelete != 'success') result = userDelete;
 
       return result;
 
@@ -341,11 +347,11 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
       placePublishResult = await MixinDatabase.publishToDB(placePath, dataToCreatorAndPlace);
     }
 
-    if (UserCustom.currentUser != null){
+    /*if (UserCustom.currentUser != null){
       if (!UserCustom.currentUser!.myPromos.contains(id)){
         UserCustom.currentUser!.myPromos.add(id);
       }
-    }
+    }*/
 
     return checkSuccessFromDb(entityPublishResult, creatorPublishResult, placePublishResult, 'success');
   }
@@ -381,7 +387,7 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
   @override
   void updateCurrentListFavInformation() {
     PromoList promosList = PromoList();
-    promosList.updateCurrentListFavInformation(id, addedToFavouritesCount, inFav);
+    promosList.updateCurrentListFavInformation(id, favUsersIds, inFav);
   }
 
   @override
@@ -454,12 +460,19 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
   }
 
   @override
-  int getFavIdsList(DataSnapshot snapshot) {
-    if (snapshot.exists) {
-      return snapshot.children.length;
-    } else {
-      return 0;
+  List<String> getFavIdsList(DataSnapshot snapshot) {
+    List<String> favIds = [];
+
+    for (DataSnapshot usersIdFolders in snapshot.children){
+
+      String tempId = usersIdFolders.child('userId').value.toString();
+
+      if (!favIds.contains(tempId)){
+        favIds.add(tempId);
+      }
     }
+
+    return favIds;
   }
 
   @override

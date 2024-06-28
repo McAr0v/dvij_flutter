@@ -813,7 +813,7 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                               priceType: priceType,
                             inFav: false,
                             today: false,
-                            favUsersIds: 0
+                            favUsersIds: widget.eventInfo.favUsersIds
                           );
 
                           String? editInDatabase = await event.publishToDb();
@@ -829,6 +829,10 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
                               await widget.eventInfo.deleteEntityIdFromPlace(widget.eventInfo.placeId);
 
+                            }
+
+                            if (PlaceListManager.currentFeedPlacesList.placeList.isNotEmpty){
+                              // TODO После создания мероприятия или акции нужно добавлять их в списки акций или мероприятий места. При условии, что они прогружены
                             }
 
                             // Если в передаваемом месте нет имени, т.е это создание

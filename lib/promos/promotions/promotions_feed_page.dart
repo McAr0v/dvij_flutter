@@ -344,7 +344,7 @@ class PromotionsFeedPageState extends State<PromotionsFeedPage> {
                                     if (results != null) {
                                       setState(() {
                                         promosList.promosList[indexWithAddCountCorrection].inFav = results[0];
-                                        promosList.promosList[indexWithAddCountCorrection].addedToFavouritesCount = results[1];
+                                        promosList.promosList[indexWithAddCountCorrection].favUsersIds = results[1];
                                       });
                                     }
                                   },
@@ -362,21 +362,25 @@ class PromotionsFeedPageState extends State<PromotionsFeedPage> {
                                     // --- Если пользователь залогинен -----
                                     else {
 
+                                      setState(() {
+                                        loading = true;
+                                      });
+
                                       // --- Если уже в избранном ----
                                       if (promosList.promosList[indexWithAddCountCorrection].inFav == true)
                                       {
                                         // --- Удаляем из избранных ---
                                         String resDel = await promosList.promosList[indexWithAddCountCorrection].deleteFromFav();
                                         // ---- Инициализируем счетчик -----
-                                        int favCounter = promosList.promosList[indexWithAddCountCorrection].addedToFavouritesCount!;
+                                        //int favCounter = promosList.promosList[indexWithAddCountCorrection].favUsersIds!;
 
                                         if (resDel == 'success'){
                                           // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
                                           setState(() {
                                             // Обновляем текущий список
                                             promosList.promosList[indexWithAddCountCorrection].inFav = false;
-                                            favCounter --;
-                                            promosList.promosList[indexWithAddCountCorrection].addedToFavouritesCount = favCounter;
+                                            //favCounter --;
+                                            //promosList.promosList[indexWithAddCountCorrection].favUsersIds = favCounter;
                                             // Обновляем общий список из БД
                                             promosList.promosList[indexWithAddCountCorrection].updateCurrentListFavInformation();
                                             //EventCustom.updateCurrentEventListFavInformation(eventsList[indexWithAddCountCorrection].id, favCounter, false);
@@ -395,15 +399,15 @@ class PromotionsFeedPageState extends State<PromotionsFeedPage> {
                                         String res = await promosList.promosList[indexWithAddCountCorrection].addToFav();
 
                                         // ---- Инициализируем счетчик добавивших в избранное
-                                        int favCounter = promosList.promosList[indexWithAddCountCorrection].addedToFavouritesCount!;
+                                        //int favCounter = promosList.promosList[indexWithAddCountCorrection].favUsersIds!;
 
                                         if (res == 'success') {
                                           // --- Если добавилось успешно, так же обновляем текущий список и список из БД
                                           setState(() {
                                             // Обновляем текущий список
                                             promosList.promosList[indexWithAddCountCorrection].inFav = true;
-                                            favCounter ++;
-                                            promosList.promosList[indexWithAddCountCorrection].addedToFavouritesCount = favCounter;
+                                            //favCounter ++;
+                                           // promosList.promosList[indexWithAddCountCorrection].favUsersIds = favCounter;
                                             // Обновляем список из БД
                                             promosList.promosList[indexWithAddCountCorrection].updateCurrentListFavInformation();
                                             //EventCustom.updateCurrentEventListFavInformation(eventsList[indexWithAddCountCorrection].id, favCounter, true);
@@ -416,6 +420,9 @@ class PromotionsFeedPageState extends State<PromotionsFeedPage> {
                                           showSnackBar(context , res, AppColors.attentionRed, 1);
                                         }
                                       }
+                                      setState(() {
+                                        loading = false;
+                                      });
                                     }
                                   },
                                 );

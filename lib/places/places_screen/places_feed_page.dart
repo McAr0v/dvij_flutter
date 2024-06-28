@@ -409,6 +409,10 @@ class PlacesFeedPageState extends State<PlacesFeedPage> {
     // --- Если пользователь залогинен -----
     else {
 
+      setState(() {
+        loading = true;
+      });
+
       // --- Если уже в избранном ----
       if (placesList.placeList[index].inFav!)
       {
@@ -416,15 +420,15 @@ class PlacesFeedPageState extends State<PlacesFeedPage> {
         //String resDel = await Place.deletePlaceFromFav(placesList[indexWithAddCountCorrection].id);
         String resDel = await placesList.placeList[index].deleteFromFav();
         // ---- Инициализируем счетчик -----
-        int favCounter = placesList.placeList[index].addedToFavouritesCount!;
+        //int favCounter = placesList.placeList[index].favUsersIds!;
 
         if (resDel == 'success'){
           // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
           setState(() {
             // Обновляем текущий список
             placesList.placeList[index].inFav = false;
-            favCounter --;
-            placesList.placeList[index].addedToFavouritesCount = favCounter;
+            //favCounter --;
+            //placesList.placeList[index].favUsersIds = favCounter;
 
             // Обновляем общий список из БД
             //Place.updateCurrentPlaceListFavInformation(placesList[indexWithAddCountCorrection].id, favCounter.toString(), 'false');
@@ -444,15 +448,15 @@ class PlacesFeedPageState extends State<PlacesFeedPage> {
         //String res = await Place.addPlaceToFav(placesList[indexWithAddCountCorrection].id);
         String res = await placesList.placeList[index].addToFav();
         // ---- Инициализируем счетчик добавивших в избранное
-        int favCounter = placesList.placeList[index].addedToFavouritesCount!;
+        //int favCounter = placesList.placeList[index].favUsersIds!;
 
         if (res == 'success') {
           // --- Если добавилось успешно, так же обновляем текущий список и список из БД
           setState(() {
             // Обновляем текущий список
             placesList.placeList[index].inFav = true;
-            favCounter ++;
-            placesList.placeList[index].addedToFavouritesCount = favCounter;
+           // favCounter ++;
+            //placesList.placeList[index].favUsersIds = favCounter;
             // Обновляем список из БД
             placesList.placeList[index].updateCurrentListFavInformation();
             //Place.updateCurrentPlaceListFavInformation(placesList[indexWithAddCountCorrection].id, favCounter.toString(), 'true');
@@ -465,6 +469,10 @@ class PlacesFeedPageState extends State<PlacesFeedPage> {
           showSnackBar(res, AppColors.attentionRed, 1);
         }
       }
+
+      setState(() {
+        loading = false;
+      });
     }
   }
 
@@ -479,7 +487,7 @@ class PlacesFeedPageState extends State<PlacesFeedPage> {
     if (results != null) {
       setState(() {
         placesList.placeList[indexWithAddCountCorrection].inFav = results[0];
-        placesList.placeList[indexWithAddCountCorrection].addedToFavouritesCount = results[1];
+        placesList.placeList[indexWithAddCountCorrection].favUsersIds = results[1];
       });
     }
   }

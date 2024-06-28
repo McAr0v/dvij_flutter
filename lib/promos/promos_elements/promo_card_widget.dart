@@ -60,7 +60,7 @@ class PromoCardWidget extends StatelessWidget {
                   right: 10.0,
                   child: IconAndTextInTransparentSurfaceWidget(
                     icon: Icons.bookmark,
-                    text: '${promo.addedToFavouritesCount}',
+                    text: '${promo.favUsersIds}',
                     iconColor: promo.inFav! ? AppColors.brandColor : AppColors.white,
                     side: false,
                     backgroundColor: AppColors.greyBackground.withOpacity(0.8),

@@ -142,11 +142,11 @@ class _UsersChangeRoleAdminScreenState extends State<UsersChangeRoleAdminScreen>
                           avatar: widget.userInfo.avatar,
                           registrationDate: widget.userInfo.registrationDate,
                           myPlaces: widget.userInfo.myPlaces,
-                          myPromos: widget.userInfo.myPromos,
-                          myEvents: widget.userInfo.myEvents,
-                          favEvents: widget.userInfo.favEvents,
-                          favPlaces: widget.userInfo.favPlaces,
-                          favPromos: widget.userInfo.favPromos
+                          //myPromos: widget.userInfo.myPromos,
+                          //myEvents: widget.userInfo.myEvents,
+                          //favEvents: widget.userInfo.favEvents,
+                          //favPlaces: widget.userInfo.favPlaces,
+                          //favPromos: widget.userInfo.favPromos
                         );
 
                         // Выгружаем пользователя в БД

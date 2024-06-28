@@ -118,7 +118,7 @@ class EventViewScreenState extends State<EventViewScreen> {
     }
 
     inFav = event.inFav;
-    favCounter = event.favUsersIds;
+    favCounter = event.favUsersIds.length;
 
     // ---- Убираем экран загрузки -----
     setState(() {
@@ -296,6 +296,11 @@ class EventViewScreenState extends State<EventViewScreen> {
       _showSnackBar('Чтобы добавлять в избранное, нужно зарегистрироваться!', AppColors.attentionRed, 2);
     }
     else {
+
+      setState(() {
+        loading = true;
+      });
+
       if (inFav)
       {
         String resDel = await event.deleteFromFav();
@@ -305,7 +310,7 @@ class EventViewScreenState extends State<EventViewScreen> {
             inFav = false;
             favCounter --;
             event.inFav = inFav;
-            event.favUsersIds = favCounter;
+            //event.favUsersIds = favCounter;
             event.updateCurrentListFavInformation();
           });
 
@@ -324,7 +329,7 @@ class EventViewScreenState extends State<EventViewScreen> {
             inFav = true;
             favCounter ++;
             event.inFav = inFav;
-            event.favUsersIds = favCounter;
+            //event.favUsersIds = favCounter;
             event.updateCurrentListFavInformation();
           });
 
@@ -334,6 +339,10 @@ class EventViewScreenState extends State<EventViewScreen> {
           _showSnackBar(res, AppColors.attentionRed, 1);
         }
       }
+
+      setState(() {
+        loading = false;
+      });
     }
   }
 }

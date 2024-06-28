@@ -132,7 +132,7 @@ class PromoViewScreenState extends State<PromoViewScreen> {
 
 
     inFav = promo.inFav;
-    favCounter = promo.addedToFavouritesCount;
+    favCounter = promo.favUsersIds.length;
 
     // ---- Убираем экран загрузки -----
     setState(() {
@@ -213,6 +213,10 @@ class PromoViewScreenState extends State<PromoViewScreen> {
 
                               else {
 
+                                setState(() {
+                                  loading = true;
+                                });
+
                                 if (inFav)
                                 {
 
@@ -223,7 +227,7 @@ class PromoViewScreenState extends State<PromoViewScreen> {
                                       inFav = false;
                                       favCounter --;
                                       promo.inFav = inFav;
-                                      promo.addedToFavouritesCount = favCounter;
+                                      //promo.usersIdsFav = favCounter;
                                       promo.updateCurrentListFavInformation();
                                       //EventCustom.updateCurrentEventListFavInformation(event.id, favCounter, inFav);
                                     });
@@ -247,7 +251,7 @@ class PromoViewScreenState extends State<PromoViewScreen> {
                                       inFav = true;
                                       favCounter ++;
                                       promo.inFav = inFav;
-                                      promo.addedToFavouritesCount = favCounter;
+                                      //promo.usersIdsFav = favCounter;
                                       promo.updateCurrentListFavInformation();
                                       //EventCustom.updateCurrentEventListFavInformation(event.id, favCounter, inFav);
                                     });
@@ -261,6 +265,10 @@ class PromoViewScreenState extends State<PromoViewScreen> {
                                   }
 
                                 }
+
+                                setState(() {
+                                  loading = false;
+                                });
 
                               }
 

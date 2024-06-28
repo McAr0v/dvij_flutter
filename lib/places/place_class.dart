@@ -32,13 +32,13 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
   String instagram;
   String imageUrl;
   RegularDate openingHours;
-  int? addedToFavouritesCount;
-  int? eventsCount;
-  int? promoCount;
+  List<String> favUsersIds;
+  //int? eventsCount;
+  //int? promoCount;
   bool? inFav;
   bool? nowIsOpen;
-  List<String>? eventsList;
-  List<String>? promosList;
+  List<String> eventsList;
+  List<String> promosList;
   //List<PlaceAdminsListItem>? admins;
 
   Place({
@@ -57,13 +57,11 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
     required this.instagram,
     required this.imageUrl,
     required this.openingHours,
-    this.addedToFavouritesCount,
-    this.eventsCount,
+    required this.favUsersIds,
     this.inFav,
-    this.promoCount,
     this.nowIsOpen,
-    this.eventsList,
-    this.promosList,
+    required this.eventsList,
+    required this.promosList,
     //this.admins
 
   });
@@ -117,11 +115,9 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
       openingHours: openingHours,
       nowIsOpen: nowIsOpen,
       inFav: emptyPlace.addedInFavOrNot(favSnapshot),
-      addedToFavouritesCount: emptyPlace.getFavIdsList(favSnapshot),
+      favUsersIds: emptyPlace.getFavIdsList(favSnapshot),
       eventsList: events,
       promosList: promos,
-      eventsCount: events.length,
-      promoCount: promos.length,
       //admins: adminsList
 
     );
@@ -144,6 +140,9 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
       instagram: '',
       imageUrl: AppConstants.defaultAvatar,
       openingHours: RegularDate(),
+      favUsersIds: [],
+    eventsList: [],
+    promosList: []
   );
 
   @override
@@ -291,8 +290,8 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
     bool category = placeCategoryFromFilter.id == '' || placeCategoryFromFilter.id == this.category.id;
     bool city = cityFromFilter.id == '' || cityFromFilter.id == this.city.id;
     bool checkNowIsOpen = nowIsOpenFromFilter == false ||  nowIsOpen!;
-    bool events = haveEventsFromFilter == false || eventsCount! > 0;
-    bool promos = havePromosFromFilter == false || promoCount! > 0;
+    bool events = haveEventsFromFilter == false || eventsList.isNotEmpty;
+    bool promos = havePromosFromFilter == false || promosList.isNotEmpty;
 
     return category && city && checkNowIsOpen && events && promos;
   }
@@ -319,16 +318,20 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
     if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
 
       String placePath = 'places/$id/addedToFavourites/${UserCustom.currentUser?.uid}';
-      String userPath = 'users/${UserCustom.currentUser?.uid}/favPlaces/$id';
+      //String userPath = 'users/${UserCustom.currentUser?.uid}/favPlaces/$id';
 
       Map<String, dynamic> placeData = MixinDatabase.generateDataCode('userId', UserCustom.currentUser?.uid);
       Map<String, dynamic> userData = MixinDatabase.generateDataCode('placeId', id);
 
       String placePublish = await MixinDatabase.publishToDB(placePath, placeData);
-      String userPublish = await MixinDatabase.publishToDB(userPath, userData);
+      //String userPublish = await MixinDatabase.publishToDB(userPath, userData);
 
-      if (UserCustom.currentUser != null){
+      /*if (UserCustom.currentUser != null){
         UserCustom.currentUser!.addPlaceToFav(id);
+      }*/
+
+      if (!favUsersIds.contains(UserCustom.currentUser!.uid)){
+        favUsersIds.add(UserCustom.currentUser!.uid);
       }
 
       favPlaces.addEntityToCurrentFavList(id);
@@ -336,7 +339,7 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
       String result = 'success';
 
       if (placePublish != 'success') result = placePublish;
-      if (userPublish != 'success') result = userPublish;
+      //if (userPublish != 'success') result = userPublish;
 
       return result;
 
@@ -352,21 +355,23 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
     if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
 
       String eventPath = 'places/$id/addedToFavourites/${UserCustom.currentUser?.uid}';
-      String userPath = 'users/${UserCustom.currentUser?.uid}/favPlaces/$id';
+      //String userPath = 'users/${UserCustom.currentUser?.uid}/favPlaces/$id';
 
       String eventDelete = await MixinDatabase.deleteFromDb(eventPath);
-      String userDelete = await MixinDatabase.deleteFromDb(userPath);
+      //String userDelete = await MixinDatabase.deleteFromDb(userPath);
 
-      if (UserCustom.currentUser != null){
+      /*if (UserCustom.currentUser != null){
         UserCustom.currentUser!.deletePlaceFromFav(id);
-      }
+      }*/
+
+      favUsersIds.removeWhere((element) => element == UserCustom.currentUser?.uid);
 
       favPLaces.deleteEntityFromCurrentFavList(id);
 
       String result = 'success';
 
       if (eventDelete != 'success') result = eventDelete;
-      if (userDelete != 'success') result = userDelete;
+      //if (userDelete != 'success') result = userDelete;
 
       return result;
 
@@ -473,7 +478,7 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
   @override
   void updateCurrentListFavInformation() {
     PlaceList placeList = PlaceList();
-    placeList.updateCurrentListFavInformation(id, addedToFavouritesCount!, inFav!);
+    placeList.updateCurrentListFavInformation(id, favUsersIds, inFav!);
   }
 
   @override
@@ -492,12 +497,19 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
   }
 
   @override
-  int getFavIdsList(DataSnapshot snapshot) {
-    if (snapshot.exists) {
-      return snapshot.children.length;
-    } else {
-      return 0;
+  List<String> getFavIdsList(DataSnapshot snapshot) {
+    List<String> favIds = [];
+
+    for (DataSnapshot usersIdFolders in snapshot.children){
+
+      String tempId = usersIdFolders.child('userId').value.toString();
+
+      if (!favIds.contains(tempId)){
+        favIds.add(tempId);
+      }
     }
+
+    return favIds;
   }
 
   @override

@@ -372,12 +372,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         gender: chosenGender,
                         avatar: avatarURL ?? widget.userInfo.avatar,
                         registrationDate: registrationDate,
-                        myEvents: widget.userInfo.myEvents,
-                        myPromos: widget.userInfo.myPromos,
+                        //myEvents: widget.userInfo.myEvents,
+                        //myPromos: widget.userInfo.myPromos,
                         myPlaces: widget.userInfo.myPlaces,
-                        favEvents: widget.userInfo.favEvents,
-                        favPlaces: widget.userInfo.favPlaces,
-                        favPromos: widget.userInfo.favPromos
+                        //favEvents: widget.userInfo.favEvents,
+                        //favPlaces: widget.userInfo.favPlaces,
+                        //favPromos: widget.userInfo.favPromos
                       );
 
                       // Выгружаем пользователя в БД

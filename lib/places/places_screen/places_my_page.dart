@@ -422,7 +422,7 @@ class PlacesMyPageState extends State<PlacesMyPage> {
     if (results != null) {
       setState(() {
         placesMyList.placeList[index].inFav = results[0];
-        placesMyList.placeList[index].addedToFavouritesCount = results[1];
+        placesMyList.placeList[index].favUsersIds = results[1];
       });
     }
   }
@@ -438,21 +438,24 @@ class PlacesMyPageState extends State<PlacesMyPage> {
     // --- Если пользователь залогинен -----
     else {
 
+      setState(() {
+        loading = true;
+      });
       // --- Если уже в избранном ----
       if (placesMyList.placeList[index].inFav!)
       {
         // --- Удаляем из избранных ---
         String resDel = await placesMyList.placeList[index].deleteFromFav();
         // ---- Инициализируем счетчик -----
-        int favCounter = placesMyList.placeList[index].addedToFavouritesCount!;
+        //int favCounter = placesMyList.placeList[index].favUsersIds!;
 
         if (resDel == 'success'){
           // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
           setState(() {
             // Обновляем текущий список
             placesMyList.placeList[index].inFav = false;
-            favCounter --;
-            placesMyList.placeList[index].addedToFavouritesCount = favCounter;
+            //favCounter --;
+            //placesMyList.placeList[index].favUsersIds = favCounter;
             // Обновляем списки из БД
             placesMyList.placeList[index].updateCurrentListFavInformation();
 
@@ -469,15 +472,15 @@ class PlacesMyPageState extends State<PlacesMyPage> {
         // -- Добавляем в избранное ----
         String res = await placesMyList.placeList[index].addToFav();
         // ---- Инициализируем счетчик добавивших в избранное
-        int favCounter = placesMyList.placeList[index].addedToFavouritesCount!;
+        //int favCounter = placesMyList.placeList[index].favUsersIds!;
 
         if (res == 'success') {
           // --- Если добавилось успешно, так же обновляем текущий список и список из БД
           setState(() {
             // Обновляем текущий список
             placesMyList.placeList[index].inFav = true;
-            favCounter ++;
-            placesMyList.placeList[index].addedToFavouritesCount = favCounter;
+            //favCounter ++;
+            //placesMyList.placeList[index].favUsersIds = favCounter;
             // Обновляем списки из БД
             placesMyList.placeList[index].updateCurrentListFavInformation();
           });
@@ -489,6 +492,10 @@ class PlacesMyPageState extends State<PlacesMyPage> {
           showSnackBar(res, AppColors.attentionRed, 1);
         }
       }
+
+      setState(() {
+        loading = false;
+      });
     }
   }
 }

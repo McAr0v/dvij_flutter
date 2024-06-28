@@ -738,7 +738,7 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
                                         chosenIrregularEndTime
                                     )
                                 ),
-                              addedToFavouritesCount: 0,
+                              favUsersIds: widget.promoInfo.favUsersIds,
                               inFav: false,
                               today: false,
                             );

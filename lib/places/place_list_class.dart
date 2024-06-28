@@ -115,11 +115,29 @@ class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
   Future<PlaceList> getFavListFromDb(String userId, {bool refresh = false}) async {
     PlaceList places = PlaceList();
     PlaceListManager.currentFavPlacesList = PlaceList();
-    List<String> placesId = [];
 
-    if (UserCustom.currentUser != null) {
-      placesId = UserCustom.currentUser!.favPlaces;
+    PlaceList downloadedPlacesList = PlaceListManager.currentFeedPlacesList;
+
+    if (downloadedPlacesList.placeList.isEmpty || refresh) {
+      PlaceList tempList = await getListFromDb();
+      downloadedPlacesList = tempList;
     }
+
+    for (Place place in downloadedPlacesList.placeList){
+      if (place.favUsersIds.contains(userId)){
+        places.placeList.add(place);
+      }
+    }
+
+    /*
+    EventsList events = EventsList();
+    EventListsManager.currentFavEventsList = EventsList();
+
+
+
+
+
+     */
 
     /*String myPath = 'users/$userId/favPlaces/';
     DataSnapshot? myFolder = await MixinDatabase.getInfoFromDB(myPath);
@@ -138,7 +156,7 @@ class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
     }*/
 
     // Если список ID не пустой, и не была вызвана функция обновления
-    if (placesId.isNotEmpty){
+    /*if (placesId.isNotEmpty){
 
       // Если список всей ленты не пустой, то будем забирать данные из него
       if (PlaceListManager.currentFeedPlacesList.placeList.isNotEmpty && !refresh) {
@@ -160,7 +178,7 @@ class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
           }
         }
       }
-    }
+    }*/
     return places;
   }
 
@@ -234,26 +252,26 @@ class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
 
       case PlaceSortingOption.nameDesc: placeList.sort((a, b) => b.name.compareTo(a.name)); break;
 
-      case PlaceSortingOption.promoCountAsc: placeList.sort((a, b) => a.promoCount!.compareTo(b.promoCount!)); break;
+      case PlaceSortingOption.promoCountAsc: placeList.sort((a, b) => a.promosList.length.compareTo(b.promosList.length)); break;
 
-      case PlaceSortingOption.promoCountDesc: placeList.sort((a, b) => b.promoCount!.compareTo(a.promoCount!)); break;
+      case PlaceSortingOption.promoCountDesc: placeList.sort((a, b) => b.promosList.length.compareTo(a.promosList.length)); break;
 
-      case PlaceSortingOption.eventCountAsc: placeList.sort((a, b) => a.eventsCount!.compareTo(b.eventsCount!)); break;
+      case PlaceSortingOption.eventCountAsc: placeList.sort((a, b) => a.eventsList.length.compareTo(b.eventsList.length)); break;
 
-      case PlaceSortingOption.eventCountDesc: placeList.sort((a, b) => b.eventsCount!.compareTo(a.eventsCount!)); break;
+      case PlaceSortingOption.eventCountDesc: placeList.sort((a, b) => b.eventsList.length.compareTo(a.eventsList.length)); break;
 
-      case PlaceSortingOption.favCountAsc: placeList.sort((a, b) => a.addedToFavouritesCount!.compareTo(b.addedToFavouritesCount!)); break;
+      case PlaceSortingOption.favCountAsc: placeList.sort((a, b) => a.favUsersIds.length.compareTo(b.favUsersIds.length)); break;
 
-      case PlaceSortingOption.favCountDesc: placeList.sort((a, b) => b.addedToFavouritesCount!.compareTo(a.addedToFavouritesCount!)); break;
+      case PlaceSortingOption.favCountDesc: placeList.sort((a, b) => b.favUsersIds.length.compareTo(a.favUsersIds.length)); break;
 
     }
   }
 
   @override
-  void updateCurrentListFavInformation(String entityId, int favCounter, bool inFav) {
+  void updateCurrentListFavInformation(String entityId, List<String> usersIdsList, bool inFav) {
     for (Place place in PlaceListManager.currentFeedPlacesList.placeList){
       if (place.id == entityId){
-        place.addedToFavouritesCount = favCounter;
+        place.favUsersIds = usersIdsList;
         place.inFav = inFav;
         break;
       }
@@ -261,7 +279,7 @@ class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
 
     for (Place place in PlaceListManager.currentFavPlacesList.placeList){
       if (place.id == entityId){
-        place.addedToFavouritesCount = favCounter;
+        place.favUsersIds = usersIdsList;
         place.inFav = inFav;
         break;
       }
@@ -269,7 +287,7 @@ class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
 
     for (Place place in PlaceListManager.currentMyPlacesList.placeList){
       if (place.id == entityId){
-        place.addedToFavouritesCount = favCounter;
+        place.favUsersIds = usersIdsList;
         place.inFav = inFav;
         break;
       }

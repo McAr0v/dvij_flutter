@@ -5,7 +5,10 @@ import 'package:dvij_flutter/promos/promo_sorting_options.dart';
 import 'package:dvij_flutter/promos/promos_list_manager.dart';
 import 'package:firebase_database/firebase_database.dart';
 import '../cities/city_class.dart';
+import '../current_user/user_class.dart';
 import '../database/database_mixin.dart';
+import '../places/users_my_place/my_places_class.dart';
+import '../users/place_users_roles.dart';
 
 class PromoList implements ILists<PromoList, PromoCustom, PromoSortingOption>{
   List<PromoCustom> promosList = [];
@@ -51,14 +54,46 @@ class PromoList implements ILists<PromoList, PromoCustom, PromoSortingOption>{
   Future<PromoList> getFavListFromDb(String userId, {bool refresh = false}) async {
     PromoList promos = PromoList();
     PromoListsManager.currentFavPromoList = PromoList();
-    List<String> promosId = [];
+
+    PromoList downloadedPromosList = PromoListsManager.currentFeedPromosList;
+
+    if (downloadedPromosList.promosList.isEmpty || refresh) {
+      PromoList tempList = await getListFromDb();
+      downloadedPromosList = tempList;
+    }
+
+    for (PromoCustom promo in downloadedPromosList.promosList){
+      if (promo.favUsersIds.contains(userId)){
+        promos.promosList.add(promo);
+      }
+    }
+
+
+    /*
+
+
+
+    EventsList downloadedEventsList = EventListsManager.currentFeedEventsList;
+
+    if (downloadedEventsList.eventsList.isEmpty || refresh) {
+      EventsList tempList = await getListFromDb();
+      downloadedEventsList = tempList;
+    }
+
+    for (EventCustom event in downloadedEventsList.eventsList){
+      if (event.favUsersIds.contains(userId)){
+        events.eventsList.add(event);
+      }
+    }
+
+     */
 
     // TODO !!! Сделать загрузку списка избранного при загрузке информации пользователя. Здесь обращаться к уже готовому списку
     // TODO !!! Не забыть реализовать обновление списка избранных при добавлении и удалении из избранных
 
     // --- Читаем папку избранных сущностей у пользователя ----
 
-    String favPath = 'users/$userId/favPromos/';
+    /*String favPath = 'users/$userId/favPromos/';
     DataSnapshot? favFolder = await MixinDatabase.getInfoFromDB(favPath);
 
     if (favFolder != null) {
@@ -104,7 +139,7 @@ class PromoList implements ILists<PromoList, PromoCustom, PromoSortingOption>{
           }
         }
       }
-    }
+    }*/
     return promos;
   }
 
@@ -116,16 +151,47 @@ class PromoList implements ILists<PromoList, PromoCustom, PromoSortingOption>{
 
   @override
   Future<PromoList> getMyListFromDb(String userId, {bool refresh = false}) async {
+
+    List<MyPlaces> myPlaces = UserCustom.currentUser!.myPlaces;
+
     PromoList promos = PromoList();
     PromoListsManager.currentMyPromoList = PromoList();
-    List<String> promoId = [];
+    PromoList downloadedPromosList = PromoListsManager.currentFeedPromosList;
 
-    // TODO !!! Сделать загрузку списка моих сущностей при загрузке информации пользователя. Здесь обращаться к уже готовому списку
-    // TODO !!! Не забыть реализовать обновление списка моих сущностей при добавлении и удалении из раздела мои
+    if (downloadedPromosList.promosList.isEmpty || refresh) {
+      PromoList tempList = await getListFromDb();
+      downloadedPromosList = tempList;
+    }
+
+    for (PromoCustom promo in downloadedPromosList.promosList){
+      if (promo.creatorId == userId){
+        promos.promosList.add(promo);
+      } else if (promo.placeId != '' && myPlaces.isNotEmpty) {
+        for (MyPlaces place in myPlaces){
+          if (place.placeId == promo.placeId
+              && (place.placeRole.roleInPlaceEnum != PlaceUserRoleEnum.reader && place.placeRole.roleInPlaceEnum != PlaceUserRoleEnum.org)){
+            promos.promosList.add(promo);
+            break;
+          }
+        }
+      }
+    }
+
+    /*
+
+
+    EventsList events = EventsList();
+    EventListsManager.currentMyEventsList = EventsList();
+
+
+
+
+
+     */
 
     // --- Читаем папку моих сущностей у пользователя ----
 
-    String myPath = 'users/$userId/myPromos/';
+    /*String myPath = 'users/$userId/myPromos/';
     DataSnapshot? myFolder = await MixinDatabase.getInfoFromDB(myPath);
 
     if (myFolder != null) {
@@ -164,7 +230,7 @@ class PromoList implements ILists<PromoList, PromoCustom, PromoSortingOption>{
           }
         }
       }
-    }
+    }*/
     return promos;
   }
 
@@ -222,9 +288,9 @@ class PromoList implements ILists<PromoList, PromoCustom, PromoSortingOption>{
 
       case PromoSortingOption.nameDesc: promosList.sort((a, b) => b.headline.compareTo(a.headline)); break;
 
-      case PromoSortingOption.favCountAsc: promosList.sort((a, b) => a.addedToFavouritesCount.compareTo(b.addedToFavouritesCount)); break;
+      case PromoSortingOption.favCountAsc: promosList.sort((a, b) => a.favUsersIds.length.compareTo(b.favUsersIds.length)); break;
 
-      case PromoSortingOption.favCountDesc: promosList.sort((a, b) => b.addedToFavouritesCount.compareTo(a.addedToFavouritesCount)); break;
+      case PromoSortingOption.favCountDesc: promosList.sort((a, b) => b.favUsersIds.length.compareTo(a.favUsersIds.length)); break;
 
     }
   }
@@ -245,12 +311,12 @@ class PromoList implements ILists<PromoList, PromoCustom, PromoSortingOption>{
   }
 
   @override
-  void updateCurrentListFavInformation(String entityId, int favCounter, bool inFav) {
+  void updateCurrentListFavInformation(String entityId, List<String> usersIdsList, bool inFav) {
     // ---- Функция обновления списка из БД при добавлении или удалении из избранного
 
     for (PromoCustom promo in PromoListsManager.currentFeedPromosList.promosList){
       if (promo.id == entityId){
-        promo.addedToFavouritesCount = favCounter;
+        promo.favUsersIds = usersIdsList;
         promo.inFav = inFav;
         break;
       }
@@ -258,7 +324,7 @@ class PromoList implements ILists<PromoList, PromoCustom, PromoSortingOption>{
 
     for (PromoCustom promo in PromoListsManager.currentFavPromoList.promosList){
       if (promo.id == entityId){
-        promo.addedToFavouritesCount = favCounter;
+        promo.favUsersIds = usersIdsList;
         promo.inFav = inFav;
         break;
       }
@@ -266,7 +332,7 @@ class PromoList implements ILists<PromoList, PromoCustom, PromoSortingOption>{
 
     for (PromoCustom promo in PromoListsManager.currentMyPromoList.promosList){
       if (promo.id == entityId){
-        promo.addedToFavouritesCount = favCounter;
+        promo.favUsersIds = usersIdsList;
         promo.inFav = inFav;
         break;
       }

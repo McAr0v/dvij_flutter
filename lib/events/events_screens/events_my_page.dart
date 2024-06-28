@@ -35,7 +35,7 @@ class EventsMyPageState extends State<EventsMyPage> {
 
   // --- ОБЪЯВЛЯЕМ ПЕРЕМЕННЫЕ -----
 
-  EventsList eventsList = EventListsManager.currentMyEventsList;
+  EventsList eventsList = EventsList();
   late List<EventCategory> eventCategoriesList;
 
   // --- Переменные фильтра по умолчанию ----
@@ -246,7 +246,7 @@ class EventsMyPageState extends State<EventsMyPage> {
                                     height: 450,
                                     event: eventsList.eventsList[indexWithAddCountCorrection],
                                     onTap: () async {
-                                      await goToEventScreen(indexWithAddCountCorrection);
+                                      await goToEventViewScreen(indexWithAddCountCorrection);
                                     },
 
                                     // --- Функция на нажатие на карточке кнопки ИЗБРАННОЕ ---
@@ -449,7 +449,7 @@ class EventsMyPageState extends State<EventsMyPage> {
     });
   }
 
-  Future<void> goToEventScreen(int indexWithAddCountCorrection) async {
+  Future<void> goToEventViewScreen(int indexWithAddCountCorrection) async {
     final results = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -458,9 +458,11 @@ class EventsMyPageState extends State<EventsMyPage> {
     );
 
     if (results != null) {
+
+      EventCustom eventCustom = eventsList.getEntityFromFeedListById(eventsList.eventsList[indexWithAddCountCorrection].id);
+
       setState(() {
-        eventsList.eventsList[indexWithAddCountCorrection].inFav = results[0];
-        eventsList.eventsList[indexWithAddCountCorrection].favUsersIds = results[1];
+        eventsList.eventsList[indexWithAddCountCorrection] = eventCustom;
       });
     }
   }

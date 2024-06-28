@@ -393,9 +393,11 @@ class EventsFeedPageState extends State<EventsFeedPage> {
     );
 
     if (results != null) {
+
+      EventCustom eventCustom = eventsList.getEntityFromFeedListById(eventsList.eventsList[indexWithAddCountCorrection].id);
+
       setState(() {
-        eventsList.eventsList[indexWithAddCountCorrection].inFav = results[0];
-        eventsList.eventsList[indexWithAddCountCorrection].favUsersIds = results[1];
+        eventsList.eventsList[indexWithAddCountCorrection] = eventCustom;
       });
     }
   }
@@ -411,13 +413,18 @@ class EventsFeedPageState extends State<EventsFeedPage> {
     // --- Если пользователь залогинен -----
     else {
 
+      setState(() {
+        loading = true;
+      });
+
       // --- Если уже в избранном ----
       if (eventsList.eventsList[indexWithAddCountCorrection].inFav == true)
       {
+
         // --- Удаляем из избранных ---
         String resDel = await eventsList.eventsList[indexWithAddCountCorrection].deleteFromFav();
         // ---- Инициализируем счетчик -----
-        int favCounter = eventsList.eventsList[indexWithAddCountCorrection].favUsersIds;
+        //int favCounter = eventsList.eventsList[indexWithAddCountCorrection].favUsersIds;
 
         if (resDel == 'success'){
           // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
@@ -425,8 +432,8 @@ class EventsFeedPageState extends State<EventsFeedPage> {
 
             // Обновляем текущий список
             eventsList.eventsList[indexWithAddCountCorrection].inFav = false;
-            favCounter --;
-            eventsList.eventsList[indexWithAddCountCorrection].favUsersIds = favCounter;
+            //favCounter --;
+            //eventsList.eventsList[indexWithAddCountCorrection].favUsersIds = favCounter;
 
             // Обновляем общий список из БД
             eventsList.eventsList[indexWithAddCountCorrection].updateCurrentListFavInformation();
@@ -445,15 +452,15 @@ class EventsFeedPageState extends State<EventsFeedPage> {
         String res = await eventsList.eventsList[indexWithAddCountCorrection].addToFav();
 
         // ---- Инициализируем счетчик добавивших в избранное
-        int favCounter = eventsList.eventsList[indexWithAddCountCorrection].favUsersIds;
+        //int favCounter = eventsList.eventsList[indexWithAddCountCorrection].favUsersIds;
 
         if (res == 'success') {
           // --- Если добавилось успешно, так же обновляем текущий список и список из БД
           setState(() {
             // Обновляем текущий список
             eventsList.eventsList[indexWithAddCountCorrection].inFav = true;
-            favCounter ++;
-            eventsList.eventsList[indexWithAddCountCorrection].favUsersIds = favCounter;
+            //favCounter ++;
+            //eventsList.eventsList[indexWithAddCountCorrection].favUsersIds = favCounter;
             // Обновляем список из БД
             eventsList.eventsList[indexWithAddCountCorrection].updateCurrentListFavInformation();
           });
@@ -465,6 +472,9 @@ class EventsFeedPageState extends State<EventsFeedPage> {
           _showSnackBar(res, AppColors.attentionRed, 1);
         }
       }
+      setState(() {
+        loading = false;
+      });
     }
   }
 
