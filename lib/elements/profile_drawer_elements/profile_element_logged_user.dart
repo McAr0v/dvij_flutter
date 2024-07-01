@@ -21,34 +21,41 @@ class ProfileElementLoggedUser extends StatelessWidget {
       child:Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              // Аватарка
-              CircleAvatar(
-                backgroundColor: Theme.of(context).colorScheme.background,
-                radius: 30,
-                backgroundImage: NetworkImage(imageUrl),
-              ),
+          Expanded(
+            child: Row(
+              children: [
+                // Аватарка
+                CircleAvatar(
+                  backgroundColor: Theme.of(context).colorScheme.background,
+                  radius: 30,
+                  backgroundImage: NetworkImage(imageUrl),
+                ),
 
-              const SizedBox(width: 15.0),
+                const SizedBox(width: 15.0),
 
-              // Имя и Email
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    name,
-                    style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                // Имя и Email
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name,
+                        style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                        softWrap: true,
+                        maxLines: 2,
+
+                      ),
+                      Text(
+                        email,
+                        style: const TextStyle(fontSize: 14.0),
+                      ),
+                    ],
                   ),
-                  Text(
-                    email,
-                    style: const TextStyle(fontSize: 14.0),
-                  ),
-                ],
-              ),
+                ),
 
-              const SizedBox(width: 15.0),
-            ],
+                const SizedBox(width: 15.0),
+              ],
+            ),
           ),
 
           // Иконка

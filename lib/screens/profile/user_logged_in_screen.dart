@@ -5,17 +5,11 @@ import 'package:dvij_flutter/widgets_global/text_widgets/headline_and_desc.dart'
 import 'package:dvij_flutter/screens/profile/edit_profile_screen.dart';
 import 'package:dvij_flutter/widgets_global/text_widgets/text_size_enum.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:dvij_flutter/elements/custom_snack_bar.dart';
-import 'package:dvij_flutter/elements/pop_up_dialog.dart';
 import '../../cities/city_class.dart';
-import '../../classes/gender_class.dart';
 import '../../current_user/genders_class.dart';
-import '../../classes/role_in_app.dart';
-import '../../current_user/user_class.dart';
 import '../../current_user/user_class.dart';
 import '../../dates/date_mixin.dart';
 import '../../elements/loading_screen.dart';
@@ -30,27 +24,14 @@ class UserLoggedInScreen extends StatefulWidget {
 }
 
 class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
-  // --- Инициализируем дополнительные классы ---
-
-  //final UserDatabase userDatabase = UserDatabase();
-  //final AuthWithEmail authWithEmail = AuthWithEmail();
-
-  // ---- Инициализируем базу данных ------
-  //final FirebaseAuth _auth = FirebaseAuth.instance;
-  //final DatabaseReference databaseReference = FirebaseDatabase.instance.ref();
-
-  // ---- Инициализируем пустые переменные ----
 
   String? uid = '';
   String? userEmail = '';
   UserCustom userInfo = UserCustom.empty();
 
   City chosenCity = City(name: '', id: '');
-  //Gender chosenGender = Gender(name: '', id: '');
   Genders chosenGender = Genders();
-  //RoleInApp chosenRoleInApp = RoleInApp(name: '', id: '');
   AppRole appRole = AppRole();
-  // --- Переключатель показа экрана загрузки -----
 
   bool loading = true;
 
@@ -79,17 +60,13 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
 
       chosenGender = userInfo.gender;
 
-      /*if (userInfo.city != ''){
-        chosenCity = City.getCityByIdFromList(userInfo.city);
-      }*/
-
       appRole = userInfo.role;
       
       // ---- Убираем экран загрузки -----
       setState(() {
-
         loading = false;
       });
+
     } catch (e) {
       // TODO Сделать обработку ошибок, если не получилось считать данные
     }
@@ -123,6 +100,9 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
               // ---- Экран профиля -----
 
             children: [
+
+
+
               if (userInfo.avatar != '') // Проверяем, есть ли ссылка на аватар
                 // TODO - Сделать более проработанную проверку аватарки
 
@@ -225,23 +205,8 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
                     if (userInfo.gender != '') const SizedBox(height: 16.0),
                     HeadlineAndDesc(headline: chosenGender.getGenderString(needTranslate: true), description: 'Пол'),
 
-                    /*const SizedBox(height: 16.0),
-                    for (String id in userInfo.favEvents) HeadlineAndDesc(headline: id, description: 'Избранное мероприятие'),
-
-                    const SizedBox(height: 16.0),
-                    for (String id in userInfo.favPlaces) HeadlineAndDesc(headline: id, description: 'Избранное заведение'),
-
-                    const SizedBox(height: 16.0),
-                    for (String id in userInfo.favPromos) HeadlineAndDesc(headline: id, description: 'Избранное акция'),
-
-                    const SizedBox(height: 16.0),
-                    for (String id in userInfo.myEvents) HeadlineAndDesc(headline: id, description: 'мое мероприятие'),*/
-
                     const SizedBox(height: 16.0),
                     for (MyPlaces myPlace in userInfo.myPlaces) HeadlineAndDesc(headline: '${myPlace.placeId} - ${myPlace.placeRole.title}', description: 'мое заведение'),
-
-                    /*const SizedBox(height: 16.0),
-                    for (String id in userInfo.myPromos) HeadlineAndDesc(headline: id, description: 'моя акция'),*/
 
                     // TODO - Решить, эта кнопка нужна или нет?
                     const SizedBox(height: 16.0),
