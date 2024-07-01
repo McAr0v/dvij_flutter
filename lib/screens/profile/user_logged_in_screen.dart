@@ -1,13 +1,10 @@
-import 'package:dvij_flutter/current_user/app_role.dart';
 import 'package:dvij_flutter/elements/exit_dialog/exit_dialog.dart';
-import 'package:dvij_flutter/places/users_my_place/my_places_class.dart';
-import 'package:dvij_flutter/widgets_global/text_widgets/headline_and_desc.dart';
 import 'package:dvij_flutter/screens/profile/edit_profile_screen.dart';
-import 'package:dvij_flutter/widgets_global/text_widgets/text_size_enum.dart';
+import 'package:dvij_flutter/widgets_global/text_widgets/text_with_icon_and_divider.dart';
 import 'package:flutter/material.dart';
-import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:dvij_flutter/elements/custom_snack_bar.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../cities/city_class.dart';
 import '../../current_user/genders_class.dart';
 import '../../current_user/user_class.dart';
@@ -17,59 +14,39 @@ import '../../elements/loading_screen.dart';
 // --- ЭКРАН ЗАЛОГИНЕВШЕГОСЯ ПОЛЬЗОВАТЕЛЯ -----
 
 class UserLoggedInScreen extends StatefulWidget {
-  UserLoggedInScreen({Key? key}) : super(key: key);
+  const UserLoggedInScreen({Key? key}) : super(key: key);
 
   @override
-  _UserLoggedInScreenState createState() => _UserLoggedInScreenState();
+  UserLoggedInScreenState createState() => UserLoggedInScreenState();
 }
 
-class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
+class UserLoggedInScreenState extends State<UserLoggedInScreen> {
 
-  String? uid = '';
-  String? userEmail = '';
   UserCustom userInfo = UserCustom.empty();
-
   City chosenCity = City(name: '', id: '');
   Genders chosenGender = Genders();
-  AppRole appRole = AppRole();
-
   bool loading = true;
+  bool logOut = false;
 
-  // ---- Инициализация экрана -----
   @override
   void initState() {
     super.initState();
-    // --- Получаем и устанавливаем данные ---
     fetchAndSetData();
-
   }
 
 
   // --- Функция получения и ввода данных ---
 
   Future<void> fetchAndSetData() async {
-    try {
+    setState(() {
+      loading = true;
+    });
 
-      userInfo = UserCustom.currentUser!;
+    userInfo = UserCustom.currentUser!;
 
-      // --- Получаем email нашего пользователя
-      userEmail = userInfo.email;
-      // ---- Получаем uid нашего пользователя
-      uid = userInfo.uid;
-      // --- Читаем данные пользователя из БД
-
-      chosenGender = userInfo.gender;
-
-      appRole = userInfo.role;
-      
-      // ---- Убираем экран загрузки -----
-      setState(() {
-        loading = false;
-      });
-
-    } catch (e) {
-      // TODO Сделать обработку ошибок, если не получилось считать данные
-    }
+    setState(() {
+      loading = false;
+    });
   }
 
   // ---- Функция перехода в профиль ----
@@ -95,167 +72,159 @@ class _UserLoggedInScreenState extends State<UserLoggedInScreen> {
           children: [
             // ---- Экран загрузки ----
             if (loading) const LoadingScreen(loadingText: 'Подожди, идет загрузка данных',)
+            else if (logOut) const LoadingScreen(loadingText: 'Выходим из профиля',)
             else ListView(
 
               // ---- Экран профиля -----
 
             children: [
 
-
-
-              if (userInfo.avatar != '') // Проверяем, есть ли ссылка на аватар
-                // TODO - Сделать более проработанную проверку аватарки
-
-                Card(
-                  child: Image.network(
-                    userInfo.avatar, // Предполагаем, что avatar - это строка с URL изображения
-                    fit: BoxFit.cover,
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.width,
-                    loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-                      if (loadingProgress == null) {
-                        return child;
-                      } else {
-                        return const LoadingScreen(loadingText: 'Подожди, идет загрузка фото',);
-                        // --- БЫЛО ВМЕСТО ЛОАДИНГ СКРИН. НАДО ПОТЕСТИТЬ ---
-                        /*const Center(
-                          child: CircularProgressIndicator(
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
-                                : null,
-                          ),
-                        );*/
-                      }
-                    },
-                  ),
+              Container(
+                decoration: const BoxDecoration(
+                  color: AppColors.greyOnBackground, // Убедитесь, что цвет указан здесь, а не в свойстве color Container
+                  borderRadius: BorderRadius.only(bottomRight: Radius.circular(30), bottomLeft: Radius.circular(30)), // Здесь устанавливается радиус скругления углов
                 ),
+                padding: const EdgeInsets.all(50),
+                child: Column(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: AppColors.greyBackground,
+                      radius: 80,
+                      backgroundImage: NetworkImage(userInfo.avatar),
+                    ),
+
+                    const SizedBox(height: 20,),
+
+                    Text(
+                      '${userInfo.name} ${userInfo.lastname}',
+                      style: Theme.of(context).textTheme.titleMedium,
+                      textAlign: TextAlign.center,
+                    ),
+
+                    const SizedBox(height: 5,),
+
+                    Text(
+                      userInfo.email,
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.greyText),
+                      textAlign: TextAlign.center,
+                    ),
+
+                    const SizedBox(height: 30,),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        GestureDetector(
+                          child: Text('Редактировать', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.brandColor),),
+                          onTap: () async {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => EditProfileScreen(userInfo: userInfo))
+                            );
+                          },
+                        ),
+
+                        const SizedBox(width: 40,),
+
+                        GestureDetector(
+                          child: Text('Выйти из профиля', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.attentionRed),),
+                          onTap: () async {
+
+                            bool? confirmed = await exitDialog(context, "Ты правда хочешь уйти от нас?" , 'Да', 'Нет', 'Выход из профиля');
+
+                            // ---- Если пользователь нажал ВЫЙТИ ----
+
+                            if (confirmed != null && confirmed) {
+
+                              setState(() {
+                                logOut = true;
+                              });
+
+                              String result = await UserCustom.empty().signOut();
+
+                              if (result == 'ok') {
+                                showSnackBar(
+                                  'Как жаль, что ты уходишь! В любом случае, мы всегда будем рады видеть тебя снова. До скорой встречи!',
+                                  Colors.green,
+                                  5,
+                                );
+                                navigateToProfile();
+                              } else {
+                                showSnackBar(
+                                  'Что-то пошло не так при попытке выхода. Возможно, это заговор темных сил! Пожалуйста, попробуй еще раз, и если проблема сохранится, обратись в нашу техподдержку.',
+                                  AppColors.attentionRed,
+                                  5,
+                                );
+                              }
+                              setState(() {
+                                logOut = false;
+                              });
+                            }
+                          },
+                        ),
+
+
+                      ],
+                    )
+
+                  ],
+                ),
+              ),
 
               // --- Контент под аватаркой -----
 
               SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
 
-                    // TODO - Такая проверка не пойдет. Иначе пользователь никак не сможет перейти на экран редактирования
+                    Text('Контактная информация', style: Theme.of(context).textTheme.titleMedium,),
+                    const SizedBox(height: 5.0),
+                    Text('Для автоматического заполнения полей при создании мероприятий или акций', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.greyText),),
+                    const SizedBox(height: 20.0),
+                    //const SizedBox(height: 16.0),
 
-                    if (userInfo.name != '') Row(
-                      children: [
-                        Expanded(
-                          child: HeadlineAndDesc(
-                            headline: '${userInfo.name} ${userInfo.lastname}',
-                            description: 'Имя',
-                            textSize: TextSizeEnum.headlineMedium,
-                          ),
-                        ),
-                        const SizedBox(width: 16.0),
-
-                        // --- Кнопка редактирования ----
-                        IconButton(
-                          icon: Icon(
-                              Icons.edit,
-                            color: Theme.of(context).colorScheme.background,
-                          ),
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(Colors.yellow),
-                          ),
-                          onPressed: () async {
-                            Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => EditProfileScreen(userInfo: userInfo))
-                          );
-                        },
-                            // Действие при нажатии на кнопку редактирования
-                        ),
-                      ],
+                    TextWithIconAndDivider(
+                        headline: userInfo.city.name.isNotEmpty ? userInfo.city.name : 'Город не указан',
+                        description: 'Город',
+                        icon: FontAwesomeIcons.locationDot,
+                        iconSize: 20,
                     ),
 
-                    // ---- Остальные данные пользователя ----
-
-                    const SizedBox(height: 16.0),
-                    if (userEmail != '' && userEmail != null) HeadlineAndDesc(headline: userEmail!, description: 'email профиля'),
-
-                    if (userInfo.role.getAccessNumber() >= 50) const SizedBox(height: 16.0),
-                    if (userInfo.role.getAccessNumber() >= 50) HeadlineAndDesc(headline: appRole.getRoleNameInString(roleEnum: appRole.role, needTranslate: true), description: 'Роль в приложении'),
-
-                    const SizedBox(height: 16.0),
-                    HeadlineAndDesc(headline: userInfo.city.name, description: 'Город'),
-
-                    const SizedBox(height: 16.0),
-                    if (userInfo.phone != '') HeadlineAndDesc(headline: userInfo.phone, description: 'Телефон для связи'),
-
-                    const SizedBox(height: 16.0),
-                    if (userInfo.telegram != '') HeadlineAndDesc(headline: userInfo.telegram, description: 'Telegram'),
-
-                    const SizedBox(height: 16.0),
-                    if (userInfo.whatsapp != '') HeadlineAndDesc(headline: userInfo.whatsapp, description: 'Whatsapp'),
-
-                    const SizedBox(height: 16.0),
-                    if (userInfo.instagram != '') HeadlineAndDesc(headline: userInfo.instagram, description: 'Instagram'),
-
-                    //if (userInfo.birthDate != '') const SizedBox(height: 16.0),
-                    //if (userInfo.birthDate != '') HeadlineAndDesc(headline: DateMixin.getHumanDate(userInfo.birthDate, '-'), description: 'Дата рождения'),
-
-                    if (userInfo.birthDate != DateTime(2100)) const SizedBox(height: 16.0),
-                    //if (userInfo.birthDate != DateTime(2100)) HeadlineAndDesc(headline: DateMixin.getHumanDate(userInfo.birthDate.toString(), '-'), description: 'Дата рождения'),
-                    if (userInfo.birthDate != DateTime(2100)) HeadlineAndDesc(headline: DateMixin.getHumanDateFromDateTime(userInfo.birthDate), description: 'Дата рождения'),
-
-                    if (userInfo.gender != '') const SizedBox(height: 16.0),
-                    HeadlineAndDesc(headline: chosenGender.getGenderString(needTranslate: true), description: 'Пол'),
-
-                    const SizedBox(height: 16.0),
-                    for (MyPlaces myPlace in userInfo.myPlaces) HeadlineAndDesc(headline: '${myPlace.placeId} - ${myPlace.placeRole.title}', description: 'мое заведение'),
-
-                    // TODO - Решить, эта кнопка нужна или нет?
-                    const SizedBox(height: 16.0),
-                    CustomButton(
-                      buttonText: 'Редактировать профиль',
-                      onTapMethod: () async {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => EditProfileScreen(userInfo: userInfo))
-                        );
-                      },
+                    TextWithIconAndDivider(
+                        headline: userInfo.phone.isNotEmpty ? userInfo.phone : 'Телефон не указан',
+                        description: 'Контактный телефон',
+                        icon: FontAwesomeIcons.phone,
+                        iconSize: 20,
+                    ),
+                    TextWithIconAndDivider(
+                        headline: userInfo.telegram.isNotEmpty ? userInfo.telegram : 'Аккаунт Telegram не указан',
+                        description: 'Telegram',
+                        icon: FontAwesomeIcons.telegram
+                    ),
+                    TextWithIconAndDivider(
+                        headline: userInfo.whatsapp.isNotEmpty ? userInfo.whatsapp : 'Аккаунт Whatsapp не указан',
+                        description: 'Whatsapp',
+                        icon: FontAwesomeIcons.whatsapp
+                    ),
+                    TextWithIconAndDivider(
+                        headline: userInfo.instagram.isNotEmpty ? userInfo.instagram : 'Аккаунт Instagram не указан',
+                        description: 'Instagram',
+                        icon: FontAwesomeIcons.instagram
+                    ),
+                    TextWithIconAndDivider(
+                        headline: userInfo.birthDate != DateTime(2100) ? DateMixin.getHumanDateFromDateTime(userInfo.birthDate) : 'Дата рождения не указана',
+                        description: 'Дата рождения',
+                        icon: FontAwesomeIcons.cakeCandles
+                    ),
+                    TextWithIconAndDivider(
+                        headline: userInfo.gender.genderEnum != GenderEnum.notChosen ? userInfo.gender.getGenderString(needTranslate: true) : 'Пол не указан',
+                        description: 'Пол',
+                        icon: FontAwesomeIcons.genderless
                     ),
 
-                    // --- Выход из профиля ----
-
-                    const SizedBox(height: 16.0),
-                    CustomButton(
-                      state: 'error',
-                      buttonText: 'Выйти из профиля',
-                      onTapMethod: () async {
-
-                        bool? confirmed = await exitDialog(context, "Ты правда хочешь уйти от нас?" , 'Да', 'Нет', 'Выход из профиля');
-
-                        // ---- Если пользователь нажал ВЫЙТИ ----
-
-                        if (confirmed != null && confirmed) {
-
-                          //TODO Сделать экран загрузки при выходе их профила
-                          // --- Функция выхода из профиля
-                          //String result = await UserCustom.signOut();
-                          String result = await UserCustom.empty().signOut();
-
-                          if (result == 'ok') {
-                            showSnackBar(
-                              'Как жаль, что ты уходишь! В любом случае, мы всегда будем рады видеть тебя снова. До скорой встречи!',
-                              Colors.green,
-                              5,
-                            );
-                            navigateToProfile();
-                          } else {
-                            showSnackBar(
-                              'Что-то пошло не так при попытке выхода. Возможно, это заговор темных сил! Пожалуйста, попробуй еще раз, и если проблема сохранится, обратись в нашу техподдержку.',
-                              AppColors.attentionRed,
-                              5,
-                            );
-                          }
-                        }
-                      },
-                    ),
                   ],
                 ),
               ),
