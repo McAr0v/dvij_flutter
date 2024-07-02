@@ -1,20 +1,15 @@
 import 'dart:io';
-import 'package:dvij_flutter/classes/gender_class.dart';
 import 'package:dvij_flutter/current_user/app_role.dart';
 import 'package:dvij_flutter/dates/date_mixin.dart';
 import 'package:dvij_flutter/elements/date_elements/data_picker.dart';
 import 'package:dvij_flutter/elements/genders_elements/gender_element_in_edit_screen.dart';
 import 'package:dvij_flutter/elements/genders_elements/gender_picker_page.dart';
-import 'package:dvij_flutter/elements/role_in_app_elements/role_in_app_element_in_edit_screen.dart';
-import 'package:dvij_flutter/elements/role_in_app_elements/role_in_app_picker_page.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import '../../cities/cities_elements/city_element_in_edit_screen.dart';
 import '../../cities/city_class.dart';
 import '../../current_user/genders_class.dart';
-import '../../classes/role_in_app.dart';
 import '../../current_user/user_class.dart' as local_user;
-import '../../current_user/user_class.dart';
 import '../../elements/choose_dialogs/city_choose_dialog.dart';
 import '../../elements/custom_snack_bar.dart';
 import 'package:image_picker/image_picker.dart';
@@ -31,13 +26,13 @@ class EditProfileScreen extends StatefulWidget {
 
 
   @override
-  _EditProfileScreenState createState() => _EditProfileScreenState();
+  EditProfileScreenState createState() => EditProfileScreenState();
 
 }
 
 // ----- ЭКРАН РЕДАКТИРОВАНИЯ ПРОФИЛЯ -------
 
-class _EditProfileScreenState extends State<EditProfileScreen> {
+class EditProfileScreenState extends State<EditProfileScreen> {
 
   // Инициализируем классы
   final ImagePickerService imagePickerService = ImagePickerService();
@@ -57,15 +52,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late DateTime selectedDate;
   late DateTime registrationDate;
   late AppRole appRole;
-  late int accessLevel;
 
   File? _imageFile;
   bool loading = true;
 
   List<City> _cities = [];
-  List<RoleInApp> _rolesInApp = [];
-
-  // DateTime selectedDate = DateTime.now();
+  //List<RoleInApp> _rolesInApp = [];
 
   Future<void> _selectDate(BuildContext context, {bool needClearInitialDate = false}) async {
     DateTime initial = selectedDate;
@@ -131,46 +123,40 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.initState();
     loading = true;
 
-    //accessLevel = UserCustom.accessLevel;
+    nameController = TextEditingController(text: widget.userInfo.name);
+    lastnameController = TextEditingController(text: widget.userInfo.lastname);
+    phoneController = TextEditingController(text: widget.userInfo.phone);
+    whatsappController = TextEditingController(text: widget.userInfo.whatsapp);
+    telegramController = TextEditingController(text: widget.userInfo.telegram);
+    instagramController = TextEditingController(text: widget.userInfo.instagram);
+    cityController = TextEditingController(text: widget.userInfo.city.name);
 
-    // Подгружаем в контроллеры содержимое из БД.
-    Future.delayed(Duration.zero, () async {
-      nameController = TextEditingController(text: widget.userInfo.name);
-      lastnameController = TextEditingController(text: widget.userInfo.lastname);
-      phoneController = TextEditingController(text: widget.userInfo.phone);
-      whatsappController = TextEditingController(text: widget.userInfo.whatsapp);
-      telegramController = TextEditingController(text: widget.userInfo.telegram);
-      instagramController = TextEditingController(text: widget.userInfo.instagram);
-      cityController = TextEditingController(text: widget.userInfo.city.name);
+    if (widget.userInfo.birthDate != DateTime(2100)) {
+      selectedDate = widget.userInfo.birthDate;
+    } else {
+      selectedDate = DateTime(2100);
+    }
 
-      if (widget.userInfo.birthDate != DateTime(2100)) {
-        selectedDate = widget.userInfo.birthDate;
-      } else {
-        selectedDate = DateTime(2100);
-      }
+    if (widget.userInfo.registrationDate != DateTime(2100)){
+      registrationDate = widget.userInfo.registrationDate;
+    } else {
+      registrationDate = DateTime.now();
+    }
 
-      if (widget.userInfo.registrationDate != DateTime(2100)){
-        registrationDate = widget.userInfo.registrationDate;
-      } else {
-        registrationDate = DateTime.now();
-      }
+    genderController = TextEditingController(text: widget.userInfo.gender.getGenderString(needTranslate: true));
+    avatarController = TextEditingController(text: widget.userInfo.avatar);
 
-      //genderController = TextEditingController(text: widget.userInfo.gender);
-      genderController = TextEditingController(text: widget.userInfo.gender.getGenderString(needTranslate: true));
-      avatarController = TextEditingController(text: widget.userInfo.avatar);
+    _cities = City.currentCityList;
+    //_rolesInApp = RoleInApp.currentRoleInAppList;
 
-      _cities = City.currentCityList;
-      _rolesInApp = RoleInApp.currentRoleInAppList;
+    chosenCity = widget.userInfo.city;
+    chosenGender = widget.userInfo.gender;
+    appRole = widget.userInfo.role;
 
-      chosenCity = widget.userInfo.city;
-      //chosenGender = await Gender.getGenderById(widget.userInfo.gender) as Gender;
-      chosenGender = widget.userInfo.gender;
-      appRole = widget.userInfo.role;
-
-      setState(() {
-        loading = false;
-      });
+    setState(() {
+      loading = false;
     });
+
   }
 
 
@@ -305,25 +291,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     },
                   ),
 
-                  if (widget.userInfo.role.getAccessNumber() >= 100) const SizedBox(height: 16.0),
+                  /*if (widget.userInfo.role.getAccessNumber() >= 100) const SizedBox(height: 16.0),
 
                   if (widget.userInfo.role.getAccessNumber() >= 100) RoleInAppElementInEditScreen(
                       onActionPressed: _showRoleInAppPickerDialog,
                     roleInAppName: appRole.getRoleNameInString(roleEnum: appRole.role, needTranslate: true),
-                  ),
-
-                  /*TextField(
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    keyboardType: TextInputType.text,
-                    controller: genderController,
-                    decoration: const InputDecoration(
-                      labelText: 'Пол',
-                      //prefixIcon: Icon(Icons.email),
-                    ),
                   ),*/
 
                   const SizedBox(height: 40.0),
-
 
                   // --- КНОПКА Сохранить изменения -------
 
@@ -372,16 +347,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         gender: chosenGender,
                         avatar: avatarURL ?? widget.userInfo.avatar,
                         registrationDate: registrationDate,
-                        //myEvents: widget.userInfo.myEvents,
-                        //myPromos: widget.userInfo.myPromos,
                         myPlaces: widget.userInfo.myPlaces,
-                        //favEvents: widget.userInfo.favEvents,
-                        //favPlaces: widget.userInfo.favPlaces,
-                        //favPromos: widget.userInfo.favPromos
                       );
 
                       // Выгружаем пользователя в БД
-                      //String? editInDatabase = await UserCustom.publishUserToDb(updatedUser);
                       String? editInDatabase = await updatedUser.publishUserToDb();
 
                       // Если выгрузка успешна
@@ -428,7 +397,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       setState(() {
         chosenCity = selectedCity;
       });
-      print("Selected city: ${selectedCity.name}, ID: ${selectedCity.id}");
     }
   }
 
@@ -439,20 +407,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       setState(() {
         chosenGender = selectedGender;
       });
-      //print("Selected gender: ${selectedGender.name}, ID: ${selectedGender.id}");
     }
   }
 
-  void _showRoleInAppPickerDialog() async {
+  /*void _showRoleInAppPickerDialog() async {
     final selectedRoleInApp = await Navigator.of(context).push(_createPopupRoleInApp(_rolesInApp));
 
     if (selectedRoleInApp != null) {
       setState(() {
         appRole = selectedRoleInApp;
       });
-      print("Selected roleInApp: ${selectedRoleInApp.name}, ID: ${selectedRoleInApp.id}");
     }
-  }
+  }*/
 
   Route _createPopup(List<City> cities) {
     return PageRouteBuilder(
@@ -469,7 +435,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         var offsetAnimation = animation.drive(tween);
         return SlideTransition(position: offsetAnimation, child: child);
       },
-      transitionDuration: Duration(milliseconds: 100),
+      transitionDuration: const Duration(milliseconds: 100),
 
     );
   }
@@ -479,7 +445,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       pageBuilder: (context, animation, secondaryAnimation) {
 
-        return GenderPickerPage();
+        return const GenderPickerPage();
       },
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const begin = Offset(0.0, 1.0);
@@ -489,12 +455,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         var offsetAnimation = animation.drive(tween);
         return SlideTransition(position: offsetAnimation, child: child);
       },
-      transitionDuration: Duration(milliseconds: 100),
+      transitionDuration: const Duration(milliseconds: 100),
 
     );
   }
 
-  Route _createPopupRoleInApp(List<RoleInApp> roleInApp) {
+  /*Route _createPopupRoleInApp(List<RoleInApp> roleInApp) {
     return PageRouteBuilder(
 
       pageBuilder: (context, animation, secondaryAnimation) {
@@ -509,9 +475,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         var offsetAnimation = animation.drive(tween);
         return SlideTransition(position: offsetAnimation, child: child);
       },
-      transitionDuration: Duration(milliseconds: 100),
+      transitionDuration: const Duration(milliseconds: 100),
 
     );
-  }
+  }*/
 
 }
