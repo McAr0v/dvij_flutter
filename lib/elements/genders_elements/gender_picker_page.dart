@@ -1,7 +1,5 @@
 import 'package:dvij_flutter/current_user/genders_class.dart';
 import 'package:flutter/material.dart';
-import '../../cities/city_class.dart';
-import '../../classes/gender_class.dart';
 import '../../themes/app_colors.dart';
 
 class GenderPickerPage extends StatefulWidget {
