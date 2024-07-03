@@ -1,8 +1,6 @@
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/screens/profile/registration_screen.dart';
 import 'package:flutter/material.dart';
-
-import '../../themes/app_colors.dart';
 import 'login_screen.dart';
 
 class UserNotVerifiedScreen extends StatelessWidget {

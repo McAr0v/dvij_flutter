@@ -11,9 +11,7 @@ class UserNotSignInScreen extends StatelessWidget {
   Widget build(BuildContext context) {
 
     return SingleChildScrollView(
-      //alignment: Alignment.centerLeft,
       padding: const EdgeInsets.fromLTRB(20, 50, 20, 50),
-      //color: AppColors.greyBackground,
       child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,7 +45,7 @@ class UserNotSignInScreen extends StatelessWidget {
 
         ),
 
-        const SizedBox(height: 15.0), // Добавлено дополнительное пространство между кнопками
+        const SizedBox(height: 15.0),
 
         CustomButton(
           state: 'secondary',

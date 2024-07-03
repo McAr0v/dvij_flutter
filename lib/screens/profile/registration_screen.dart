@@ -8,22 +8,14 @@ import '../../elements/custom_snack_bar.dart';
 import '../../themes/app_colors.dart';
 import 'login_screen.dart';
 
-// -- ЭКРАН РЕГИСТРАЦИИ ----
-
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
 
   @override
-  _RegistrationScreenState createState() => _RegistrationScreenState();
+  State<RegistrationScreen> createState() => _RegistrationScreenState();
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
-
-  //late final AppState appState; -- Если все норм будет работать, удали эту строчку // От 30.11.2023
-
-  // --- Инициализируем классы
-  //final AuthWithEmail authWithEmail = AuthWithEmail();
-  //final UserDatabase userDatabase = UserDatabase();
 
   // --- Инициализируем контроллеры для полей ввода
   final TextEditingController emailController = TextEditingController();
@@ -256,8 +248,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         String password = passwordController.text;
 
                         // Запускаем регистрацию и ждем
-                        //String? uid = await authWithEmail.createUserWithEmailAndPassword(email, password);
-                        //String? uid = await UserCustom.createUserWithEmailAndPassword(email, password);
+
                         String? uid = await UserCustom.empty().createUserWithEmailAndPassword(email, password);
 
                         // ----- Если есть результат функции -----
@@ -313,7 +304,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
                             // ---- Если результат регистрации не равен ошибкам, создаем почти пустого пользователя ---
 
-                            //UserCustom newUser = UserCustom.empty(uid, email);
                             UserCustom newUser = UserCustom.empty();
                             newUser.uid = uid;
                             newUser.email = email;
@@ -322,8 +312,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
                             // --- Создаем запись в базе данных в Firebase
 
-                            // String? publishedInDatabase = await userDatabase.writeUserData(newUser);
-                            //String? publishedInDatabase = await UserCustom.publishUserToDb(newUser);
                             String? publishedInDatabase = await newUser.publishUserToDb();
 
                             // ---- Если все прошло успешно ----

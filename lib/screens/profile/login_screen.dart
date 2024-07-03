@@ -12,7 +12,7 @@ class LoginScreen extends StatefulWidget {
 
 
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();
 
 }
 
@@ -20,8 +20,6 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
 
-  // Инициализируем класс с функциями для входа
-  //final AuthWithEmail authWithEmail = AuthWithEmail();
 
   // Контроллеры полей ввода
   final TextEditingController emailController = TextEditingController();
@@ -144,9 +142,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       String password = passwordController.text;
 
                       // Выполняем функцию входа
-                      //String? uid = await authWithEmail.signInWithEmailAndPassword(email, password, context);
-
-                      //String? uid = await UserCustom.signInWithEmailAndPassword(email, password, context);
 
                       String? uid = await UserCustom.empty().signIn(email, password);
 
@@ -167,7 +162,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           });
                           updateShowRegButton(true);
                           updateForgotPasswordButton(false);
-                          showSnackBar('Упс! Похоже, такой Email не зарегистрирован. Может, опечатка? Попробуй еще раз или зарегистрируйcя! 📧🤔', AppColors.attentionRed, 5);
+                          showSnackBar('Упс! Похоже, такой Email не зарегистрирован. Может, опечатка? Попробуй еще раз или зарегистрируйся! 📧🤔', AppColors.attentionRed, 5);
                         } else if (uid == 'too-many-requests') {
                           setState(() {
                             loading = false;

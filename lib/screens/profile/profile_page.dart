@@ -25,7 +25,7 @@ class ProfilePage extends StatelessWidget {
 
     } else {
 
-      return UserLoggedInScreen();
+      return const UserLoggedInScreen();
 
     }
   }

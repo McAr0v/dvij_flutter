@@ -19,11 +19,10 @@ import '../../image_Uploader/image_uploader.dart';
 import '../../image_uploader/image_picker.dart';
 
 class EditProfileScreen extends StatefulWidget {
+
   final local_user.UserCustom userInfo;
 
   const EditProfileScreen({Key? key, required this.userInfo}) : super(key: key);
-
-
 
   @override
   EditProfileScreenState createState() => EditProfileScreenState();
@@ -57,7 +56,6 @@ class EditProfileScreenState extends State<EditProfileScreen> {
   bool loading = true;
 
   List<City> _cities = [];
-  //List<RoleInApp> _rolesInApp = [];
 
   Future<void> _selectDate(BuildContext context, {bool needClearInitialDate = false}) async {
     DateTime initial = selectedDate;
@@ -147,7 +145,6 @@ class EditProfileScreenState extends State<EditProfileScreen> {
     avatarController = TextEditingController(text: widget.userInfo.avatar);
 
     _cities = City.currentCityList;
-    //_rolesInApp = RoleInApp.currentRoleInAppList;
 
     chosenCity = widget.userInfo.city;
     chosenGender = widget.userInfo.gender;
@@ -286,17 +283,9 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                   GenderElementInEditScreen(
                     genderName: chosenGender.getGenderString(needTranslate: true),
                     onActionPressed: () {
-                      //_showCityPickerDialog();
                       _showGenderPickerDialog();
                     },
                   ),
-
-                  /*if (widget.userInfo.role.getAccessNumber() >= 100) const SizedBox(height: 16.0),
-
-                  if (widget.userInfo.role.getAccessNumber() >= 100) RoleInAppElementInEditScreen(
-                      onActionPressed: _showRoleInAppPickerDialog,
-                    roleInAppName: appRole.getRoleNameInString(roleEnum: appRole.role, needTranslate: true),
-                  ),*/
 
                   const SizedBox(height: 40.0),
 
@@ -410,16 +399,6 @@ class EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  /*void _showRoleInAppPickerDialog() async {
-    final selectedRoleInApp = await Navigator.of(context).push(_createPopupRoleInApp(_rolesInApp));
-
-    if (selectedRoleInApp != null) {
-      setState(() {
-        appRole = selectedRoleInApp;
-      });
-    }
-  }*/
-
   Route _createPopup(List<City> cities) {
     return PageRouteBuilder(
 
@@ -459,25 +438,6 @@ class EditProfileScreenState extends State<EditProfileScreen> {
 
     );
   }
-
-  /*Route _createPopupRoleInApp(List<RoleInApp> roleInApp) {
-    return PageRouteBuilder(
-
-      pageBuilder: (context, animation, secondaryAnimation) {
-
-        return RoleInAppPickerPage(rolesInApp: roleInApp);
-      },
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        const begin = Offset(0.0, 1.0);
-        const end = Offset.zero;
-        const curve = Curves.easeInOut;
-        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-        var offsetAnimation = animation.drive(tween);
-        return SlideTransition(position: offsetAnimation, child: child);
-      },
-      transitionDuration: const Duration(milliseconds: 100),
-
-    );
-  }*/
+  
 
 }
