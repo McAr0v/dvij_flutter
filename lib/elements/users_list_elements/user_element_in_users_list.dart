@@ -25,7 +25,6 @@ class UserElementInUsersListScreen extends StatelessWidget {
     return Column(
       children: [
 
-
         // ----- Теперь в строки
         Row(
           children: [

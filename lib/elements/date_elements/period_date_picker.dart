@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import '../../themes/app_colors.dart';
 
 
@@ -12,7 +10,7 @@ class PeriodDatePickerCustom extends StatelessWidget {
   final String endLabelText;
   final VoidCallback onEndActionPressed;
 
-  PeriodDatePickerCustom({
+  const PeriodDatePickerCustom({super.key,
     required this.onStartActionPressed,
     this.startDate,
     required this.startLabelText,
@@ -20,8 +18,6 @@ class PeriodDatePickerCustom extends StatelessWidget {
     required this.onEndActionPressed,
     required this.endLabelText
   });
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -33,12 +29,12 @@ class PeriodDatePickerCustom extends StatelessWidget {
 
           children: [
             Text(startDate ?? 'Не выбрано', style: Theme.of(context).textTheme.bodyMedium,),
-            SizedBox(width: 10,),
+            const SizedBox(width: 10,),
             Card(
               color: AppColors.brandColor,
               child: IconButton(
                 onPressed: onEndActionPressed,
-                icon: Icon(
+                icon: const Icon(
                   Icons.edit,
                   color: AppColors.greyOnBackground,
                 ),
@@ -49,12 +45,12 @@ class PeriodDatePickerCustom extends StatelessWidget {
         Row(
           children: [
             Text(startDate ?? 'Не выбрано', style: Theme.of(context).textTheme.bodyMedium,),
-            SizedBox(width: 10,),
+            const SizedBox(width: 10,),
             Card(
               color: AppColors.brandColor,
               child: IconButton(
                 onPressed: onEndActionPressed,
-                icon: Icon(
+                icon: const Icon(
                   Icons.edit,
                   color: AppColors.greyOnBackground,
                 ),
@@ -62,8 +58,6 @@ class PeriodDatePickerCustom extends StatelessWidget {
             )
           ],
         )
-
-
       ],
     );
   }

@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import '../../themes/app_colors.dart';
 
 Future<bool?> exitDialog(BuildContext context, String message, String confirmText, String cancelText, String headline) async {
@@ -19,7 +17,7 @@ Future<bool?> exitDialog(BuildContext context, String message, String confirmTex
               style: Theme.of(context).textTheme.titleSmall,
             ),
 
-            SizedBox(height: 20,),
+            const SizedBox(height: 20,),
 
             Text(
               message,
@@ -67,7 +65,7 @@ Future<bool?> exitDialog(BuildContext context, String message, String confirmTex
               ),
               minimumSize: MaterialStateProperty.resolveWith<Size?>(
                     (Set<MaterialState> states) {
-                  return Size(0, 0); // Задайте минимальную ширину и высоту
+                  return const Size(0, 0); // Задайте минимальную ширину и высоту
                 },
               ),
             ),
@@ -76,7 +74,7 @@ Future<bool?> exitDialog(BuildContext context, String message, String confirmTex
             },
             child: Text(
               cancelText,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.red, // Устанавливаем цвет текста для кнопки "Нет"
               ),
             ),
@@ -118,7 +116,7 @@ Future<bool?> exitDialog(BuildContext context, String message, String confirmTex
               ),
               minimumSize: MaterialStateProperty.resolveWith<Size?>(
                     (Set<MaterialState> states) {
-                  return Size(0, 0); // Задайте минимальную ширину и высоту
+                  return const Size(0, 0); // Задайте минимальную ширину и высоту
                 },
               ),
             ),
@@ -127,7 +125,7 @@ Future<bool?> exitDialog(BuildContext context, String message, String confirmTex
             },
             child: Text(
               confirmText,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.green, // Устанавливаем цвет текста для кнопки "Да"
               ),
             ),

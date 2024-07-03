@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import '../../themes/app_colors.dart';
 
 class DataPickerCustom extends StatelessWidget {
@@ -8,9 +6,7 @@ class DataPickerCustom extends StatelessWidget {
   final String labelText;
   final VoidCallback onActionPressed;
 
-  DataPickerCustom({required this.onActionPressed, this.date, required this.labelText});
-
-
+  const DataPickerCustom({super.key, required this.onActionPressed, this.date, required this.labelText});
 
   @override
   Widget build(BuildContext context) {
@@ -41,13 +37,13 @@ class DataPickerCustom extends StatelessWidget {
               ],
             )
         ),
-        SizedBox(width: 8.0),
+        const SizedBox(width: 8.0),
 
         Card(
           color: AppColors.brandColor,
           child: IconButton(
             onPressed: onActionPressed,
-            icon: Icon(
+            icon: const Icon(
               Icons.edit,
               color: AppColors.greyOnBackground,
             ),

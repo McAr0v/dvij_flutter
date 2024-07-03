@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../../themes/app_colors.dart';
 
 class CustomOnlyTextButton extends StatelessWidget {
@@ -19,20 +18,14 @@ class CustomOnlyTextButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(8.0),
         ),
         child: Text(
           buttonText,
-          style: TextStyle(
-            color: textColor,
-              fontSize: 16,
-              fontFamily: 'SfProDisplay',
-              fontWeight: FontWeight.normal,
-              height: 1.3
-          ),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: textColor),
         ),
       ),
     );

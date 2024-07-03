@@ -5,10 +5,10 @@ import '../../themes/app_colors.dart';
 class CityPickerPage extends StatefulWidget {
   final List<City> cities;
 
-  CityPickerPage({required this.cities});
+  const CityPickerPage({super.key, required this.cities});
 
   @override
-  _CityPickerPageState createState() => _CityPickerPageState();
+  State<CityPickerPage> createState() => _CityPickerPageState();
 }
 
 class _CityPickerPageState extends State<CityPickerPage> {
@@ -58,7 +58,7 @@ class _CityPickerPageState extends State<CityPickerPage> {
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.close),
+                    icon: const Icon(Icons.close),
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
@@ -69,7 +69,7 @@ class _CityPickerPageState extends State<CityPickerPage> {
                 padding: const EdgeInsets.all(8.0),
                 child: TextField(
                   controller: searchController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: 'Поиск города...',
                   ),
                   onChanged: (value) {
@@ -77,11 +77,10 @@ class _CityPickerPageState extends State<CityPickerPage> {
                   },
                 ),
               ),
-              SizedBox(height: 8.0),
+              const SizedBox(height: 8.0),
               Expanded(
                 child: Container (
-                  padding: EdgeInsets.all(15),
-                  //color: AppColors.greyOnBackground,
+                  padding: const EdgeInsets.all(15),
                   decoration: BoxDecoration(
                     color: AppColors.greyOnBackground,
                     borderRadius: BorderRadius.circular(8.0),
@@ -95,7 +94,7 @@ class _CityPickerPageState extends State<CityPickerPage> {
                             Navigator.of(context).pop(city);
                           },
                           child: Padding(
-                            padding: EdgeInsets.all(8.0),
+                            padding: const EdgeInsets.all(8.0),
                             child: Text(city.name),
                           ),
                         );

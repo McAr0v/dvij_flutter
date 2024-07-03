@@ -1,3 +1,4 @@
+import 'package:dvij_flutter/elements/buttons/custom_only_text_button.dart';
 import 'package:dvij_flutter/elements/exit_dialog/exit_dialog.dart';
 import 'package:dvij_flutter/screens/profile/edit_profile_screen.dart';
 import 'package:dvij_flutter/widgets_global/text_widgets/text_with_icon_and_divider.dart';
@@ -114,20 +115,23 @@ class UserLoggedInScreenState extends State<UserLoggedInScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        GestureDetector(
-                          child: Text('Редактировать', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.brandColor),),
+
+                        CustomOnlyTextButton(
+                          buttonText: 'Редактировать',
                           onTap: () async {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(builder: (context) => EditProfileScreen(userInfo: userInfo))
                             );
                           },
+                          textColor: AppColors.brandColor,
                         ),
+
 
                         const SizedBox(width: 40,),
 
-                        GestureDetector(
-                          child: Text('Выйти из профиля', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.attentionRed),),
+                        CustomOnlyTextButton(
+                          buttonText: 'Выйти из профиля',
                           onTap: () async {
 
                             bool? confirmed = await exitDialog(context, "Ты правда хочешь уйти от нас?" , 'Да', 'Нет', 'Выход из профиля');
@@ -161,8 +165,8 @@ class UserLoggedInScreenState extends State<UserLoggedInScreen> {
                               });
                             }
                           },
+                          textColor: AppColors.attentionRed,
                         ),
-
 
                       ],
                     )
