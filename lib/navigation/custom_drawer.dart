@@ -1,6 +1,5 @@
 import 'package:dvij_flutter/elements/logo_view.dart';
 import 'package:dvij_flutter/navigation/profile_box_in_drawer.dart';
-import 'package:dvij_flutter/screens/role_in_app_screens/roles_in_app_list_screen.dart';
 import 'package:dvij_flutter/screens/users_list_screens/users_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
@@ -13,7 +12,6 @@ import '../cities/cities_screens/cities_list_screen.dart';
 import '../events/event_categories_screens/event_categories_list_screen.dart';
 import '../places/place_categories_screens/place_categories_list_screen.dart';
 import '../promos/promo_categories_screen/promo_categories_list_screen.dart';
-import '../screens/genders_screens/genders_list_screen.dart';
 import '../test_screen.dart';
 
 // --- КАСТОМНАЯ БОКОВАЯ ШТОРКА -----
@@ -135,19 +133,6 @@ class CustomDrawer extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                       builder: (context) => const CitiesListScreen()),
-                );
-              },
-            ),
-
-            if (userInfo.role.getAccessNumber() >= 90) ListTile(
-              leading: const Icon(Icons.lock),
-              title: const Text('Список ролей для приложения'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const RolesInAppListScreen()),
                 );
               },
             ),

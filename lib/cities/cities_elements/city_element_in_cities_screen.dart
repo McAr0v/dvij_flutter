@@ -61,7 +61,7 @@ class CityElementInCitiesScreen extends StatelessWidget {
 
                 // ---- Редактирование ----
                 IconButton(
-                  icon: Icon(Icons.edit),
+                  icon: const Icon(Icons.edit),
                   // --- Уходим на экран редактирования -----
                   onPressed: () {
                     Navigator.pushReplacement(
@@ -76,7 +76,7 @@ class CityElementInCitiesScreen extends StatelessWidget {
                 // ---- Удаление ------
 
                 IconButton(
-                  icon: Icon(Icons.delete),
+                  icon: const Icon(Icons.delete),
 
                   // ---- Запускаем функцию удаления города ----
 
@@ -88,7 +88,7 @@ class CityElementInCitiesScreen extends StatelessWidget {
         ),
 
         // ---- Расстояние между элементами -----
-        SizedBox(height: 15.0),
+        const SizedBox(height: 15.0),
       ],
     );
   }

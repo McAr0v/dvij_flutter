@@ -59,7 +59,7 @@ class UserCustom with MixinDatabase, UserAuthMixin, UsersListsMixin, FavListsMix
       whatsapp: '',
       telegram: '',
       instagram: '',
-      city: City.emptyCity,
+      city: City.empty(),
       birthDate: DateTime(2100),
       gender: Genders(),
       avatar: AppConstants.defaultAvatar,
@@ -73,7 +73,7 @@ class UserCustom with MixinDatabase, UserAuthMixin, UsersListsMixin, FavListsMix
 
     DataSnapshot infoSnapshot = snapshot.child(AppConstants.userInfoFolderPath);
 
-    City city = City.emptyCity;
+    City city = City.empty();
     city = city.getEntityByIdFromList(infoSnapshot.child(AppConstants.userCityProperty).value.toString());
 
     Genders gender = Genders();

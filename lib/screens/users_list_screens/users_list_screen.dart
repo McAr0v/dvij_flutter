@@ -1,11 +1,7 @@
-import 'package:dvij_flutter/classes/role_in_app.dart';
 import 'package:dvij_flutter/current_user/user_class.dart';
-import 'package:dvij_flutter/elements/role_in_app_elements/role_in_app_element_in_roles_in_app_screen.dart';
 import 'package:dvij_flutter/elements/users_list_elements/user_element_in_users_list.dart';
-import 'package:dvij_flutter/screens/role_in_app_screens/role_in_app_add_or_edit_screen.dart';
 import 'package:dvij_flutter/users_mixin/users_lists_mixin.dart';
 import 'package:flutter/material.dart';
-import '../../cities/city_class.dart';
 import '../../elements/custom_snack_bar.dart';
 import '../../elements/loading_screen.dart';
 import '../../themes/app_colors.dart';
@@ -65,22 +61,6 @@ class _UsersListScreenState extends State<UsersListScreen> with UsersListsMixin 
     });
   }
 
-  /*Future<List<String>> setRoleName (List<UserCustom> list)
-  async {
-    List<String> returnedList = [];
-    for (int i = 0; i<list.length; i++)
-      {
-        RoleInApp? temp = await RoleInApp.getRoleInAppById(list[i].role);
-        if (temp != null && temp.id != ''){
-          String? roleName = temp.name;
-          returnedList.add(roleName);
-        } else {returnedList.add('');}
-
-      }
-
-    return returnedList;
-
-  }*/
 
   void showSnackBar(String message, Color color, int showTime) {
     final snackBar = customSnackBar(message: message, backgroundColor: color, showTime: showTime);

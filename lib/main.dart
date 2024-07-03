@@ -1,7 +1,6 @@
 import 'package:dvij_flutter/events/event_category_class.dart';
 import 'package:dvij_flutter/places/place_category_class.dart';
 import 'package:dvij_flutter/promos/promo_category_class.dart';
-import 'package:dvij_flutter/classes/role_in_app.dart';
 import 'package:dvij_flutter/screens/otherPages/privacy_policy_page.dart';
 import 'package:dvij_flutter/screens/profile/reset_password_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -12,7 +11,6 @@ import 'ads/ad_user_class.dart';
 import 'app_state/appstate.dart';
 import 'cities/cities_screens/cities_list_screen.dart';
 import 'cities/city_class.dart';
-import 'classes/gender_class.dart';
 import 'themes/dark_theme.dart';
 import 'navigation/custom_nav_containter.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -25,8 +23,6 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await City.getCitiesAndSave();
-  //await Gender.getGenderAndSave();
-  await RoleInApp.getRolesInAppAndSave();
   await PlaceCategory.getPlaceCategoryAndSave();
   await EventCategory.getEventCategoryAndSave();
   await PromoCategory.getPromoCategoryAndSave();

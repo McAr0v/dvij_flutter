@@ -1,34 +1,16 @@
-import 'dart:io';
-import 'package:dvij_flutter/classes/gender_class.dart';
 import 'package:dvij_flutter/current_user/app_role.dart';
-import 'package:dvij_flutter/elements/date_elements/data_picker.dart';
-import 'package:dvij_flutter/elements/genders_elements/gender_element_in_edit_screen.dart';
-import 'package:dvij_flutter/elements/genders_elements/gender_picker_page.dart';
 import 'package:dvij_flutter/widgets_global/text_widgets/headline_and_desc.dart';
-import 'package:dvij_flutter/elements/role_in_app_elements/role_in_app_element_in_edit_screen.dart';
-import 'package:dvij_flutter/elements/role_in_app_elements/role_in_app_picker_page.dart';
 import 'package:dvij_flutter/screens/users_list_screens/users_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/elements/buttons/custom_button.dart';
-import '../../cities/city_class.dart';
-import '../../classes/role_in_app.dart';
 import '../../current_user/user_class.dart';
-import '../../current_user/user_class.dart';
-import '../../elements/choose_dialogs/city_choose_dialog.dart';
 import '../../elements/custom_snack_bar.dart';
-import 'package:image_picker/image_picker.dart';
-import '../../widgets_global/images/image_in_edit_screen.dart';
 import '../../elements/loading_screen.dart';
-import '../../image_Uploader/image_uploader.dart';
-import '../../image_uploader/image_picker.dart';
-import '../../themes/app_colors.dart';
 
 class UsersChangeRoleAdminScreen extends StatefulWidget {
   final UserCustom userInfo;
 
   const UsersChangeRoleAdminScreen({Key? key, required this.userInfo}) : super(key: key);
-
-
 
   @override
   _UsersChangeRoleAdminScreenState createState() => _UsersChangeRoleAdminScreenState();
@@ -42,8 +24,6 @@ class _UsersChangeRoleAdminScreenState extends State<UsersChangeRoleAdminScreen>
   late AppRole appRole;
 
   bool loading = true;
-
-  late List<RoleInApp> _rolesInApp = [];
 
   // --- Функция перехода на страницу профиля ----
 
@@ -70,8 +50,6 @@ class _UsersChangeRoleAdminScreenState extends State<UsersChangeRoleAdminScreen>
   void initState() {
     super.initState();
     loading = true;
-
-    _rolesInApp = RoleInApp.currentRoleInAppList;
 
     appRole = widget.userInfo.role;
 
@@ -107,10 +85,10 @@ class _UsersChangeRoleAdminScreenState extends State<UsersChangeRoleAdminScreen>
 
                     if (widget.userInfo.role.getAccessNumber() >= 100) const SizedBox(height: 20.0),
 
-                    if (widget.userInfo.role.getAccessNumber() >= 100) RoleInAppElementInEditScreen(
+                    /*if (widget.userInfo.role.getAccessNumber() >= 100) RoleInAppElementInEditScreen(
                       onActionPressed: _showRoleInAppPickerDialog,
                       roleInAppName: appRole.getRoleNameInString(roleEnum: appRole.role, needTranslate: true),
-                    ),
+                    ),*/
 
                     const SizedBox(height: 40.0),
 
@@ -142,11 +120,7 @@ class _UsersChangeRoleAdminScreenState extends State<UsersChangeRoleAdminScreen>
                           avatar: widget.userInfo.avatar,
                           registrationDate: widget.userInfo.registrationDate,
                           myPlaces: widget.userInfo.myPlaces,
-                          //myPromos: widget.userInfo.myPromos,
-                          //myEvents: widget.userInfo.myEvents,
-                          //favEvents: widget.userInfo.favEvents,
-                          //favPlaces: widget.userInfo.favPlaces,
-                          //favPromos: widget.userInfo.favPromos
+
                         );
 
                         // Выгружаем пользователя в БД
@@ -190,7 +164,7 @@ class _UsersChangeRoleAdminScreenState extends State<UsersChangeRoleAdminScreen>
     );
   }
 
-  void _showRoleInAppPickerDialog() async {
+  /*void _showRoleInAppPickerDialog() async {
     final selectedRoleInApp = await Navigator.of(context).push(_createPopupRoleInApp(_rolesInApp));
 
     if (selectedRoleInApp != null) {
@@ -199,9 +173,9 @@ class _UsersChangeRoleAdminScreenState extends State<UsersChangeRoleAdminScreen>
       });
       print("Selected roleInApp: ${selectedRoleInApp.name}, ID: ${selectedRoleInApp.id}");
     }
-  }
+  }*/
 
-  Route _createPopupRoleInApp(List<RoleInApp> roleInApp) {
+  /*Route _createPopupRoleInApp(List<RoleInApp> roleInApp) {
     return PageRouteBuilder(
 
       pageBuilder: (context, animation, secondaryAnimation) {
@@ -219,6 +193,6 @@ class _UsersChangeRoleAdminScreenState extends State<UsersChangeRoleAdminScreen>
       transitionDuration: Duration(milliseconds: 100),
 
     );
-  }
+  }*/
 
 }

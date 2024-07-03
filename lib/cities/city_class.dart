@@ -16,11 +16,15 @@ class City with MixinDatabase implements IAppServices<City> {
     );
   }
 
+  factory City.empty(){
+    return City(name: '', id: '');
+  }
+
   static List<City> currentCityList = [];
-  static City emptyCity = City(name: '', id: '');
 
   static Future<void> getCitiesAndSave({bool order = true}) async {
-    currentCityList = await emptyCity.getEntitiesListFromDb(order: order);
+    City tempCity = City.empty();
+    currentCityList = await tempCity.getEntitiesListFromDb(order: order);
   }
 
   Map<String, dynamic> generateCityDataCode() {
@@ -79,10 +83,6 @@ class City with MixinDatabase implements IAppServices<City> {
     cities.sortCities(order);
 
     return cities;
-  }
-
-  static City getCityByIdFromList(String id) {
-      return City(name: '', id: id).getEntityByIdFromList(id);
   }
 
   @override

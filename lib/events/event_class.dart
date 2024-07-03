@@ -175,7 +175,7 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
       creatorId: '',
       createDate: DateTime(2100),
       category: EventCategory.emptyEventCategory,
-      city: City.emptyCity,
+      city: City.empty(),
       street: '',
       house: '',
       phone: '',

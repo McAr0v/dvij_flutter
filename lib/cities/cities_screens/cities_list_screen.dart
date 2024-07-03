@@ -2,6 +2,7 @@ import 'package:dvij_flutter/cities/city_list_extention.dart';
 import 'package:flutter/material.dart';
 import '../../cities/city_class.dart';
 import '../../elements/custom_snack_bar.dart';
+import '../../elements/exit_dialog/exit_dialog.dart';
 import '../../elements/loading_screen.dart';
 import '../../themes/app_colors.dart';
 import '../cities_elements/city_element_in_cities_screen.dart';
@@ -11,7 +12,7 @@ class CitiesListScreen extends StatefulWidget {
   const CitiesListScreen({Key? key}) : super(key: key);
 
   @override
-  _CitiesListScreenState createState() => _CitiesListScreenState();
+  State<CitiesListScreen> createState() => _CitiesListScreenState();
 }
 
 // ---- Страница списка городов (Должна быть доступна только для админа)------
@@ -26,6 +27,7 @@ class _CitiesListScreenState extends State<CitiesListScreen> {
 
   // Переменная, включающая экран загрузки
   bool loading = true;
+  bool deleting = false;
 
   // --- Инициализируем состояние экрана ----
   @override
@@ -34,8 +36,6 @@ class _CitiesListScreenState extends State<CitiesListScreen> {
 
     // Влючаем экран загрузки
     loading = true;
-    // Получаем список городов
-    //_getCitiesFromDatabase();
 
     if (City.currentCityList.isNotEmpty)
       {
@@ -57,7 +57,7 @@ class _CitiesListScreenState extends State<CitiesListScreen> {
     return Scaffold(
       // --- Верхняя панель -----
       appBar: AppBar(
-        title: Text('Список городов'),
+        title: const Text('Список городов'),
 
         // ---- Кнопки управления в AppBar ---
         actions: [
@@ -103,8 +103,9 @@ class _CitiesListScreenState extends State<CitiesListScreen> {
         children: [
           // --- ЕСЛИ ЭКРАН ЗАГРУЗКИ -----
           if (loading) const LoadingScreen(loadingText: 'Подожди, идет загрузка городов')
+          else if (deleting) const LoadingScreen(loadingText: 'Подожди, идет удаление города')
           // --- ЕСЛИ ГОРОДОВ НЕТ -----
-          else if (_cities.isEmpty) Center(child: Text('Список городов пуст'))
+          else if (_cities.isEmpty) const Center(child: Text('Список городов пуст'))
           // --- ЕСЛИ ГОРОДА ЗАГРУЗИЛИСЬ
           else ListView.builder(
               // Открываем создатель списков
@@ -116,27 +117,31 @@ class _CitiesListScreenState extends State<CitiesListScreen> {
                       city: _cities[index],
                       onTapMethod: () async {
 
-                        setState(() {
-                          loading = true;
-                        });
+                        bool? confirmed = await exitDialog(context, "Ты правда хочешь удалить город?" , 'Да', 'Нет', 'Удаление города');
 
-                        String result = await _cities[index].deleteEntityFromDb();
-
-                        if (result == 'success') {
+                        if (confirmed != null && confirmed){
                           setState(() {
-                            _cities = City.currentCityList;
+                            deleting = true;
                           });
-                          showSnackBar('Город успешно удален', Colors.green, 3);
-                        } else {
-                          showSnackBar('Произошла ошибка удаления города(', AppColors.attentionRed, 3);
+
+                          String result = await _cities[index].deleteEntityFromDb();
+
+                          if (result == 'success') {
+                            setState(() {
+                              _cities = City.currentCityList;
+                            });
+                            showSnackBar('Город успешно удален', Colors.green, 3);
+                          } else {
+                            showSnackBar('Произошла ошибка удаления города(', AppColors.attentionRed, 3);
+                          }
+
+                          setState(() {
+                            deleting = false;
+                          });
                         }
-
-                        setState(() {
-                          loading = false;
-                        });
-
                       },
-                      index: index);
+                      index: index
+                  );
                 }
             )
         ],

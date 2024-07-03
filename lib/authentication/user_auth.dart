@@ -1,6 +1,5 @@
 import 'package:dvij_flutter/current_user/user_class.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import '../events/events_list_class.dart';
 import '../events/events_list_manager.dart';
 import '../places/place_list_class.dart';
@@ -56,7 +55,6 @@ mixin UserAuthMixin{
       return e.code;
 
     } catch (e) {
-      print(e);
       // В случае исключения возвращаем null
       return e.toString();
     }
@@ -94,7 +92,6 @@ mixin UserAuthMixin{
       return e.code;
 
     } catch (e) {
-      print(e);
       return null;
     }
   }
@@ -111,7 +108,6 @@ mixin UserAuthMixin{
     } on FirebaseAuthException catch (e) {
       return e.code;
     } catch (e) {
-      print(e);
       return null;
     }
   }

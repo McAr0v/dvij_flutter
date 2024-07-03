@@ -1,10 +1,5 @@
-import 'package:dvij_flutter/classes/role_in_app.dart';
-import 'package:dvij_flutter/screens/genders_screens/gender_add_or_edit_screen.dart';
-import 'package:dvij_flutter/screens/profile/edit_profile_screen.dart';
-import 'package:dvij_flutter/screens/role_in_app_screens/role_in_app_add_or_edit_screen.dart';
 import 'package:dvij_flutter/screens/users_list_screens/users_change_role_admin_screen.dart';
 import 'package:flutter/material.dart';
-import '../../classes/gender_class.dart';
 import '../../current_user/user_class.dart';
 import '../../themes/app_colors.dart';
 

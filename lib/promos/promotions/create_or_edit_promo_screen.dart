@@ -25,7 +25,6 @@ import '../../cities/city_class.dart';
 import '../../dates/date_mixin.dart';
 import '../../elements/snack_bar.dart';
 import '../../places/places_elements/place_picker_page.dart';
-import '../../classes/role_in_app.dart';
 import '../../current_user/user_class.dart';
 import '../../elements/choose_dialogs/city_choose_dialog.dart';
 import 'package:image_picker/image_picker.dart';
@@ -74,7 +73,6 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
 
   File? _imageFile;
 
-  late RoleInApp chosenRoleInApp;
   late int accessLevel;
 
   DateTypeEnum dateTypeEnum = DateTypeEnum.once;

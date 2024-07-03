@@ -131,7 +131,7 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
       creatorId: '',
       createDate: DateTime(2100),
       category: PlaceCategory.empty,
-      city: City.emptyCity,
+      city: City.empty(),
       street: '',
       house: '',
       phone: '',

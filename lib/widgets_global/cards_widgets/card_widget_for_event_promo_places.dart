@@ -52,7 +52,7 @@ class CardWidgetForEventPromoPlacesState extends State<CardWidgetForEventPromoPl
   bool inFav = false;
   bool today = false;
 
-  City city = City.emptyCity;
+  City city = City.empty();
   String street = '';
   String house = '';
   OnceDate onceDate = OnceDate();

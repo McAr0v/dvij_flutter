@@ -12,7 +12,7 @@ class CityEditScreen extends StatefulWidget {
   const CityEditScreen({Key? key, this.city}) : super(key: key);
 
   @override
-  _CityEditScreenState createState() => _CityEditScreenState();
+  State<CityEditScreen> createState() => _CityEditScreenState();
 }
 
 // ---- Экран редактирования или создания города ----
@@ -81,12 +81,12 @@ class _CityEditScreenState extends State<CityEditScreen> {
 
       body: Stack(
         children: [
-          if (loading) LoadingScreen(loadingText: "Идет публикация города",)
+          if (loading) const LoadingScreen(loadingText: "Идет публикация города",)
           else Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
               children: [
-                SizedBox(height: 40.0),
+                const SizedBox(height: 40.0),
 
                 // ---- Поле ввода города ---
 
@@ -100,11 +100,10 @@ class _CityEditScreenState extends State<CityEditScreen> {
                   ),
                 ),
 
-                SizedBox(height: 40.0),
+                const SizedBox(height: 40.0),
 
                 // ---- Кнопка опубликовать -----
 
-                // TODO Пока публикуется сделать экран загрузки
                 CustomButton(
                     buttonText: 'Опубликовать',
                     onTapMethod: (){
@@ -121,7 +120,7 @@ class _CityEditScreenState extends State<CityEditScreen> {
                     }
                 ),
 
-                SizedBox(height: 20.0),
+                const SizedBox(height: 20.0),
 
                 // -- Кнопка отменить ----
 
@@ -132,7 +131,7 @@ class _CityEditScreenState extends State<CityEditScreen> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => CitiesListScreen(),
+                          builder: (context) => const CitiesListScreen(),
                         ),
                       );
                     }
@@ -145,9 +144,21 @@ class _CityEditScreenState extends State<CityEditScreen> {
     );
   }
 
+  bool _checkCityNameInList(City publishedCity){
+    List<City> cities = City.currentCityList;
+
+    if (cities.any((element) => element.name.toLowerCase() == publishedCity.name.toLowerCase())) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   void _publishCity() async {
 
-    loading = true;
+    setState(() {
+      loading = true;
+    });
 
     String cityName = _cityNameController.text;
 
@@ -160,18 +171,34 @@ class _CityEditScreenState extends State<CityEditScreen> {
 
     }
 
-    result = await publishedCity.addOrEditEntityInDb();
+    // Если города с таким названием еще нет в списке
 
-    if (result == 'success'){
-      loading = false;
-      showSnackBar('Город успешно опубликован', Colors.green, 3);
-      // Возвращаемся на экран списка городов
-      // TODO - Вывести переход на страницу выше, за пределы виджета
-      navigateToCitiesListScreen();
+    if (_checkCityNameInList(publishedCity)){
+
+      // Публикуем город
+      result = await publishedCity.addOrEditEntityInDb();
+
+      if (result == 'success'){
+
+        setState(() {
+          loading = false;
+        });
+
+        showSnackBar('Город успешно опубликован', Colors.green, 3);
+        // Возвращаемся на экран списка городов
+        navigateToCitiesListScreen();
+      } else {
+        // TODO Сделать обработчик ошибок, если публикация города не удалась
+      }
     } else {
-      // TODO Сделать обработчик ошибок, если публикация города не удалась
+
+      // Если город существует с введенным именем
+      // Выводим оповещение
+
+      setState(() {
+        loading = false;
+      });
+      showSnackBar('Город с таким именем уже существует', AppColors.attentionRed, 1);
     }
-
-
   }
 }
