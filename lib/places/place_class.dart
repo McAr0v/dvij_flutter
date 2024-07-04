@@ -234,6 +234,9 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
 
   @override
   Future<String> deleteFromDb() async {
+
+    ImageUploader imageUploader = ImageUploader();
+
     // Путь самого заведения
     String entityPath = 'places/$id';
     // Путь создателя заведения
@@ -250,7 +253,8 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
 
     String imageDeleteResult = 'success';
 
-    imageDeleteResult = await ImageUploader.deleteImage('places', id);
+    //imageDeleteResult = await ImageUploader.deleteImage('places', id);
+    imageDeleteResult = await imageUploader.removeImage(ImageFolderEnum.places, id);
 
     // TODO По хорошему надо удалять и мероприятия и акции из удаляемых заведений
 

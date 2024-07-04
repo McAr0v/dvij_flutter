@@ -30,7 +30,7 @@ import '../../elements/choose_dialogs/city_choose_dialog.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../widgets_global/images/image_in_edit_screen.dart';
 import '../../elements/loading_screen.dart';
-import '../../image_Uploader/image_uploader.dart';
+import '../../image_uploader/image_uploader.dart';
 import '../../image_uploader/image_picker.dart';
 import '../../themes/app_colors.dart';
 
@@ -662,7 +662,7 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
                             });
 
                             // Создаем переменную для нового аватара
-                            String? avatarURL;
+                            String? imageUrl;
 
                             // ---- ЕСЛИ ВЫБРАНА НОВАЯ КАРТИНКА -------
                             if (_imageFile != null) {
@@ -673,13 +673,21 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
 
 
                               // Выгружаем изображение в БД и получаем URL картинки
-                              avatarURL = await ImageUploader.uploadImageInPromo(promoId, compressedImage);
+                              imageUrl = await imageUploader.uploadImage(promoId, compressedImage, ImageFolderEnum.promos);
 
                               // Если URL аватарки есть
-                              if (avatarURL != null) {
-                                // TODO: Сделать вывод какой-то, что картинка загружена
+                              if (imageUrl != null) {
+                                _showSnackBar(
+                                  "Изображение загружено",
+                                  Colors.green,
+                                  1,
+                                );
                               } else {
-                                // TODO: Сделать обработку ошибок, если не удалось загрузить картинку в базу данных пользователя
+                                _showSnackBar(
+                                  "Изображение загружено",
+                                  Colors.green,
+                                  1,
+                                );
                               }
                             }
 
@@ -708,7 +716,7 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
                                 whatsapp: whatsappController.text,
                                 telegram: telegramController.text,
                                 instagram: instagramController.text,
-                                imageUrl: avatarURL ?? widget.promoInfo.imageUrl,
+                                imageUrl: imageUrl ?? widget.promoInfo.imageUrl,
                                 placeId: chosenPlace.id, // сделать функционал
                                 onceDay: widget.promoInfo.onceDay.generateDateForEntity(
                                     OnceDate.generateOnceMapForEntity(
@@ -775,8 +783,7 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
                                 saving = false;
                               });
                               // Показываем всплывающее сообщение
-                              showSnackBar(
-                                context,
+                              _showSnackBar(
                                 "Прекрасно! Данные опубликованы!",
                                 Colors.green,
                                 1,
@@ -806,6 +813,10 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
             ]
         )
     );
+  }
+
+  void _showSnackBar(String text, Color color, int time){
+    showSnackBar(context, text, color, time);
   }
 
   void _showCityPickerDialog() async {

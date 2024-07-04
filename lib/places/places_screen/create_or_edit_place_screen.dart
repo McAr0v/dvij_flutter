@@ -16,7 +16,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../widgets_global/images/image_in_edit_screen.dart';
 import '../../elements/loading_screen.dart';
 import '../../elements/types_of_date_time_pickers/regular_two_type_date_time_picker_widget.dart';
-import '../../image_Uploader/image_uploader.dart';
+import '../../image_uploader/image_uploader.dart';
 import '../../image_uploader/image_picker.dart';
 import '../places_elements/place_category_picker_page.dart';
 
@@ -340,7 +340,7 @@ class CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
                         });
 
                         // Создаем переменную для нового аватара
-                        String? avatarURL;
+                        String? imageUrl;
 
                         // ---- ЕСЛИ ВЫБРАНА НОВАЯ КАРТИНКА -------
                         if (_imageFile != null) {
@@ -349,7 +349,8 @@ class CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
                           final compressedImage = await imagePickerService.compressImage(_imageFile!);
 
                           // Выгружаем изображение в БД и получаем URL картинки
-                          avatarURL = await ImageUploader.uploadImageInPlace(placeId, compressedImage);
+                          //imageUrl = await ImageUploader.uploadImageInPlace(placeId, compressedImage);
+                          imageUrl = await imageUploader.uploadImage(placeId, compressedImage, ImageFolderEnum.places);
 
                         }
 
@@ -367,7 +368,7 @@ class CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
                             whatsapp: whatsappController.text,
                             telegram: telegramController.text,
                             instagram: instagramController.text,
-                            imageUrl: avatarURL ?? widget.placeInfo.imageUrl,
+                            imageUrl: imageUrl ?? widget.placeInfo.imageUrl,
                             openingHours: widget.placeInfo.openingHours.generateDateForEntity(
                                 RegularDate.generateOnceMapForEntity(regularStartTimes, regularFinishTimes)
                             ),

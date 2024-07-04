@@ -15,7 +15,7 @@ import '../../elements/custom_snack_bar.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../widgets_global/images/image_in_edit_screen.dart';
 import '../../elements/loading_screen.dart';
-import '../../image_Uploader/image_uploader.dart';
+import '../../image_uploader/image_uploader.dart';
 import '../../image_uploader/image_picker.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -310,13 +310,21 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                         final compressedImage = await imagePickerService.compressImage(_imageFile!);
 
                         // Выгружаем изображение в БД и получаем URL картинки
-                        avatarURL = await imageUploader.uploadImageInProfile(widget.userInfo.uid, compressedImage);
+                        avatarURL = await imageUploader.uploadImage(widget.userInfo.uid, compressedImage, ImageFolderEnum.users);
 
                         // Если URL аватарки есть
                         if (avatarURL != null) {
-                          // TODO: Сделать вывод какой-то, что картинка загружена
+                          showSnackBar(
+                            "Изображение загружено",
+                            Colors.green,
+                            1,
+                          );
                         } else {
-                          // TODO: Сделать обработку ошибок, если не удалось загрузить картинку в базу данных пользователя
+                          showSnackBar(
+                            "Изображение загружено",
+                            Colors.green,
+                            1,
+                          );
                         }
                       }
 

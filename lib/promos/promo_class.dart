@@ -230,6 +230,9 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
 
   @override
   Future<String> deleteFromDb() async {
+
+    ImageUploader imageUploader = ImageUploader();
+
     String entityPath = 'promos/$id';
     String creatorPath = 'users/$creatorId/myPromos/$id';
     String placePath = 'places/$placeId/promos/$id';
@@ -242,7 +245,8 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
 
     String imageDeleteResult = 'success';
 
-    imageDeleteResult = await ImageUploader.deleteImage('promos', id);
+    //imageDeleteResult = await ImageUploader.deleteImage('promos', id);
+    imageDeleteResult = await imageUploader.removeImage(ImageFolderEnum.promos, id);
 
     if (placeId != ''){
       placeDeleteResult = await MixinDatabase.deleteFromDb(placePath);

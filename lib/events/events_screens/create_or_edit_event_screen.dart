@@ -843,8 +843,7 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                               saving = false;
                             });
                             // Показываем всплывающее сообщение
-                            showSnackBar(
-                              context,
+                            _showSnackBar(
                               "Прекрасно! Данные опубликованы!",
                               Colors.green,
                               1,
