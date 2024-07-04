@@ -21,8 +21,6 @@ mixin UserAuthMixin{
       PlaceListManager.currentFavPlacesList = PlaceList();
 
       EventListsManager.currentFeedEventsList = EventsList();
-      EventListsManager.currentFavEventsList = EventsList();
-      EventListsManager.currentMyEventsList = EventsList();
 
       PromoListsManager.currentFeedPromosList = PromoList();
       PromoListsManager.currentFavPromoList = PromoList();
@@ -77,8 +75,6 @@ mixin UserAuthMixin{
       PlaceListManager.currentFavPlacesList = PlaceList();
 
       EventListsManager.currentFeedEventsList = EventsList();
-      EventListsManager.currentFavEventsList = EventsList();
-      EventListsManager.currentMyEventsList = EventsList();
 
       PromoListsManager.currentFeedPromosList = PromoList();
       PromoListsManager.currentFavPromoList = PromoList();

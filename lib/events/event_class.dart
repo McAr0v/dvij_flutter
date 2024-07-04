@@ -174,7 +174,7 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
       desc: '',
       creatorId: '',
       createDate: DateTime(2100),
-      category: EventCategory.emptyEventCategory,
+      category: EventCategory.empty(),
       city: City.empty(),
       street: '',
       house: '',
@@ -204,34 +204,22 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
 
   @override
   Future<String> addToFav() async {
-    EventsList favEvents = EventsList();
 
     if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
 
       String eventPath = 'events/$id/addedToFavourites/${UserCustom.currentUser?.uid}';
-      //String userPath = 'users/${UserCustom.currentUser?.uid}/favEvents/$id';
 
       Map<String, dynamic> eventData = MixinDatabase.generateDataCode('userId', UserCustom.currentUser?.uid);
-      //Map<String, dynamic> userData = MixinDatabase.generateDataCode('eventId', id);
 
       String eventPublish = await MixinDatabase.publishToDB(eventPath, eventData);
-      //String userPublish = await MixinDatabase.publishToDB(userPath, userData);
 
-      /*if (UserCustom.currentUser != null){
-        UserCustom.currentUser!.addEventToFav(id);
-      }*/
       if (!favUsersIds.contains(UserCustom.currentUser!.uid)){
         favUsersIds.add(UserCustom.currentUser!.uid);
       }
 
-      favEvents.addEntityToCurrentFavList(id);
-
-
-
       String result = 'success';
 
       if (eventPublish != 'success') result = eventPublish;
-      //if (userPublish != 'success') result = userPublish;
 
       return result;
 
@@ -253,10 +241,8 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
     String entityPath = 'events/$id';
     String creatorPath = 'users/$creatorId/myEvents/$id';
     String placePath = 'places/$placeId/events/$id';
-    //String inFavPath = 'users/${UserCustom.currentUser?.uid ?? ''}/favEvents/$id';
 
     String placeDeleteResult = 'success';
-    //String inFavListDeleteResult = 'success';
     String imageDeleteResult = 'success';
 
     String entityDeleteResult = await MixinDatabase.deleteFromDb(entityPath);
@@ -268,38 +254,23 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
       placeDeleteResult = await MixinDatabase.deleteFromDb(placePath);
     }
 
-    /*if (inFav){
-      inFavListDeleteResult = await MixinDatabase.deleteFromDb(inFavPath);
-    }*/
-
     return checkSuccessFromDb(entityDeleteResult, creatorDeleteResult, placeDeleteResult, imageDeleteResult);
   }
 
   @override
   Future<String> deleteFromFav() async {
-    EventsList favEvents = EventsList();
 
     if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
 
       String eventPath = 'events/$id/addedToFavourites/${UserCustom.currentUser?.uid}';
-      //String userPath = 'users/${UserCustom.currentUser?.uid}/favEvents/$id';
 
       String eventDelete = await MixinDatabase.deleteFromDb(eventPath);
-      //String userDelete = await MixinDatabase.deleteFromDb(userPath);
-
-      /*if (UserCustom.currentUser != null){
-        UserCustom.currentUser!.deleteEventFromFav(id);
-      }*/
-
 
       favUsersIds.removeWhere((element) => element == UserCustom.currentUser?.uid);
-
-      favEvents.deleteEntityFromCurrentFavList(id);
 
       String result = 'success';
 
       if (eventDelete != 'success') result = eventDelete;
-      //if (userDelete != 'success') result = userDelete;
 
       return result;
 
@@ -358,30 +329,16 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
   Future<String> publishToDb() async {
     String placePublishResult = 'success';
     String entityPath = 'events/$id/event_info';
-    //String creatorPath = 'users/$creatorId/myEvents/$id';
-
 
     Map<String, dynamic> data = generateEntityDataCode();
     Map<String, dynamic> dataToCreatorAndPlace = MixinDatabase.generateDataCode('eventId', id);
 
     String entityPublishResult = await MixinDatabase.publishToDB(entityPath, data);
-    //String creatorPublishResult = await MixinDatabase.publishToDB(creatorPath, dataToCreatorAndPlace);
 
     if (placeId != '') {
       String placePath = 'places/$placeId/events/$id';
       placePublishResult = await MixinDatabase.publishToDB(placePath, dataToCreatorAndPlace);
     }
-
-    // Если текущий пользователь не налл и создатель
-    /*if(UserCustom.currentUser != null && UserCustom.currentUser!.uid == creatorId){
-      // Проверяем, содержит ли в списке его мероприятий уже мероприятие
-      if (!UserCustom.currentUser!.myEvents.contains(id)){
-        // Если нет, то добавляем
-        UserCustom.currentUser!.myEvents.add(id);
-      }
-
-    }*/
-
 
     return checkSuccessFromDb(entityPublishResult, placePublishResult, 'success', 'success');
   }

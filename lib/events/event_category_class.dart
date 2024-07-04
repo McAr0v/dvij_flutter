@@ -17,14 +17,16 @@ class EventCategory with MixinDatabase implements IAppServices<EventCategory>{
     );
     
   }
-  
-  static EventCategory emptyEventCategory = EventCategory(name: '', id: '');
-  
+
+  factory EventCategory.empty(){
+    return EventCategory(name: '', id: '');
+  }
+
   static List<EventCategory> currentEventCategoryList = [];
 
   static Future<void> getEventCategoryAndSave({bool order = true}) async {
 
-    EventCategory tempEventCategory = emptyEventCategory;
+    EventCategory tempEventCategory = EventCategory.empty();
     currentEventCategoryList = await tempEventCategory.getEntitiesListFromDb();
 
   }
@@ -90,7 +92,7 @@ class EventCategory with MixinDatabase implements IAppServices<EventCategory>{
   }
 
   static EventCategory getEventCategoryFromCategoriesList (String id) {
-    EventCategory tempEventCategory = emptyEventCategory;
+    EventCategory tempEventCategory = EventCategory.empty();
     return tempEventCategory.getEntityByIdFromList(id);
     
   }

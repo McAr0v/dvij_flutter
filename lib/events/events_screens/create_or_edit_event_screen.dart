@@ -30,12 +30,11 @@ import '../../elements/choose_dialogs/city_choose_dialog.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../widgets_global/images/image_in_edit_screen.dart';
 import '../../elements/loading_screen.dart';
-import '../../image_Uploader/image_uploader.dart';
+import '../../image_uploader/image_uploader.dart';
 import '../../image_uploader/image_picker.dart';
 import '../../themes/app_colors.dart';
 import '../events_elements/event_category_picker_page.dart';
 import '../../widgets_global/price_widgets/price_widget.dart';
-
 
 
 class CreateOrEditEventScreen extends StatefulWidget {
@@ -52,12 +51,8 @@ class CreateOrEditEventScreen extends StatefulWidget {
 
 class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
-  // Инициализируем классы
-  // TODO - эти классы так надо инициализировать? помоему можно будет просто обращаться к ним и все
   final ImagePickerService imagePickerService = ImagePickerService();
   final ImageUploader imageUploader = ImageUploader();
-
-  final DateTypeEnumClass dateTypeEnumClass = DateTypeEnumClass();
 
   late TextEditingController headlineController;
   late TextEditingController descController;
@@ -76,8 +71,6 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
   late DateTime createdTime;
 
   File? _imageFile;
-
-  late int accessLevel;
 
   DateTypeEnum eventTypeEnum = DateTypeEnum.once;
 
@@ -109,7 +102,6 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
   // Выбранные даты завершения
   List<String> chosenIrregularEndTime = [];
 
-
   PlaceList myPlaces = PlaceList();
 
   bool loading = true;
@@ -120,7 +112,7 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
   List<City> _cities = [];
   List<EventCategory> _categories = [];
-  EventCategory chosenCategory = EventCategory.emptyEventCategory;
+  EventCategory chosenCategory = EventCategory.empty();
 
   // --- Функция перехода на страницу профиля ----
 
@@ -211,7 +203,6 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
     }
 
     if (widget.eventInfo.placeId != '') {
-      //chosenPlace = await Place.getPlaceById(widget.eventInfo.placeId);
       if (PlaceListManager.currentFeedPlacesList.placeList.isNotEmpty){
         chosenPlace = chosenPlace.getEntityFromFeedList(widget.eventInfo.placeId);
       } else {
@@ -219,6 +210,7 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
       }
 
       inPlace = true;
+
     } else {
       inPlace = false;
     }
@@ -240,17 +232,8 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
       createdTime = widget.eventInfo.createDate;
     }
 
-    //Place.currentMyPlaceList.isNotEmpty
-    if (PlaceListManager.currentMyPlacesList.placeList.isNotEmpty){
-
-      myPlaces = PlaceListManager.currentMyPlacesList;
-
-    } else if (UserCustom.currentUser != null && UserCustom.currentUser!.uid != ''){
-
+    if (UserCustom.currentUser != null && UserCustom.currentUser!.myPlaces.isNotEmpty){
       myPlaces = await myPlaces.getMyListFromDb(UserCustom.currentUser!.uid);
-
-      //myPlaces = await Place.getMyPlaces(UserCustom.currentUser!.uid);
-
     }
 
     priceType = widget.eventInfo.priceType;
@@ -273,7 +256,6 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
       startPriceController = TextEditingController(text: temp[0]);
       endPriceController = TextEditingController(text: temp[1]);
     }
-
 
     headlineController = TextEditingController(text: widget.eventInfo.headline);
     descController = TextEditingController(text: widget.eventInfo.desc);
@@ -346,17 +328,10 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
 
-                    // Новая картинка
-                    if (_imageFile != null) ImageInEditScreen(
-
-                        backgroundImageFile: _imageFile,
-                        onEditPressed: () => _pickImage()
-                    )
-
-                    // Картинка из БД
-                    else if (_imageFile == null && widget.eventInfo.imageUrl != '' ) ImageInEditScreen(
-                      onEditPressed: () => _pickImage(),
-                      backgroundImageUrl: widget.eventInfo.imageUrl,
+                    ImageInEditScreen(
+                        onEditPressed: () => _pickImage(),
+                      backgroundImageFile: _imageFile,
+                      backgroundImageUrl: widget.eventInfo.imageUrl.isNotEmpty ? widget.eventInfo.imageUrl : null,
                     ),
 
                     const SizedBox(height: 16.0),
@@ -392,7 +367,6 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                     if (chosenCategory.id == '') CategoryElementInEditScreen(
                       categoryName: 'Категория не выбрана',
                       onActionPressed: () {
-                        //_showCityPickerDialog();
                         _showCategoryPickerDialog();
                       },
                     ),
@@ -400,7 +374,6 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                     if (chosenCategory.id != '') CategoryElementInEditScreen(
                       categoryName: chosenCategory.name,
                       onActionPressed: () {
-                        //_showCityPickerDialog();
                         _showCategoryPickerDialog();
                       },
                     ),
@@ -428,7 +401,6 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                             const SizedBox(height: 20.0),
 
                             if (eventTypeEnum == DateTypeEnum.once) OnceTypeDateTimePickerWidget(
-                              //title: 'Выбери дату и время проведения мероприятия',
                                 dateLabelText: 'Дата проведения мероприятия',
                                 startTimeLabelText: "Начало",
                                 endTimeLabelText: "Завершение",
@@ -445,7 +417,6 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                                 },
                                 onDateActionPressedWithChosenDate:  () {
                                   _selectDate(context, selectedDayInOnceType);
-                                  //_selectDate(context);
                                 },
                                 onStartTimeChanged: (String? time) {
                                   setState(() {
@@ -476,12 +447,11 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                                     selectedStartDayInLongType = temp;
                                   });
                                   _selectDate(context, selectedStartDayInLongType, needClearInitialDate: true, isOnce: false, isStart: true, endDate: selectedEndDayInLongType);
-                                  //_isStartBeforeEnd(true);
+
 
                                 },
                                 onStartDateActionPressedWithChosenDate: () {
                                   _selectDate(context, selectedStartDayInLongType, isOnce: false, isStart: true, endDate: selectedEndDayInLongType);
-                                  //_isStartBeforeEnd(true);
                                 },
                                 onEndDateActionPressed: (){
                                   // TODO Сделать проверку, чтобы по умолчанию выставлялись граничные даты в пикере, в зависимости от выбранной даты начала и конца
@@ -490,7 +460,6 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                                     selectedEndDayInLongType = temp;
                                   });
                                   _selectDate(context, selectedEndDayInLongType, needClearInitialDate: true, isOnce: false, isStart: false, firstDate: selectedStartDayInLongType);
-                                  //_isStartBeforeEnd(false);
                                 },
                                 onEndDateActionPressedWithChosenDate: () {
                                   _selectDate(context, selectedEndDayInLongType, isOnce: false, isStart: false, firstDate: selectedStartDayInLongType);
@@ -549,7 +518,6 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                                     },
                                     onDateActionPressedWithChosenDate:  () {
                                       _selectDate(context, chosenIrregularDays[index], isIrregular: true, index: index);
-                                      //_selectDate(context);
                                     },
                                     onStartTimeChanged: (String? time) {
                                       setState(() {
@@ -583,7 +551,6 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                                   });
                                 }
                             ),
-
                           ],
                         ),
                       ),
@@ -731,7 +698,7 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                           });
 
                           // Создаем переменную для нового аватара
-                          String? avatarURL;
+                          String? imageUrl;
 
                           // ---- ЕСЛИ ВЫБРАНА НОВАЯ КАРТИНКА -------
                           if (_imageFile != null) {
@@ -739,16 +706,22 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                             // Сжимаем изображение
                             final compressedImage = await imagePickerService.compressImage(_imageFile!);
 
-
-
                             // Выгружаем изображение в БД и получаем URL картинки
-                            avatarURL = await ImageUploader.uploadImageInEvent(eventId, compressedImage);
+                            imageUrl = await imageUploader.uploadImage(eventId, compressedImage, ImageFolderEnum.events);
 
                             // Если URL аватарки есть
-                            if (avatarURL != null) {
-                              // TODO: Сделать вывод какой-то, что картинка загружена
+                            if (imageUrl != null) {
+                              _showSnackBar(
+                                "Изображение загружено",
+                                Colors.green,
+                                1,
+                              );
                             } else {
-                              // TODO: Сделать обработку ошибок, если не удалось загрузить картинку в базу данных пользователя
+                              _showSnackBar(
+                                "Загрузка изображения не удалась(",
+                                AppColors.attentionRed,
+                                1,
+                              );
                             }
                           }
 
@@ -777,7 +750,7 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                               whatsapp: whatsappController.text,
                               telegram: telegramController.text,
                               instagram: instagramController.text,
-                              imageUrl: avatarURL ?? widget.eventInfo.imageUrl,
+                              imageUrl: imageUrl ?? widget.eventInfo.imageUrl,
                               placeId: chosenPlace.id, // сделать функционал
                               onceDay: widget.eventInfo.onceDay.generateDateForEntity(
                                   OnceDate.generateOnceMapForEntity(
@@ -830,7 +803,27 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                             }
 
                             if (PlaceListManager.currentFeedPlacesList.placeList.isNotEmpty){
-                              // TODO После создания мероприятия или акции нужно добавлять их в списки акций или мероприятий места. При условии, что они прогружены
+
+                              // При смене места удаляем мероприятие из подгруженного старого места
+
+                              for(Place tempPlace in PlaceListManager.currentFeedPlacesList.placeList){
+                                if (tempPlace.id == widget.eventInfo.placeId){
+                                  tempPlace.eventsList.removeWhere((element) => element == eventId);
+                                  break;
+                                }
+                              }
+
+                              // И добавляем мероприятие в новое выбранное место
+
+                              for(Place tempPlace in PlaceListManager.currentFeedPlacesList.placeList){
+                                if (tempPlace.id == chosenPlace.id){
+                                  if (!tempPlace.eventsList.contains(eventId)){
+                                    tempPlace.eventsList.add(eventId);
+                                    break;
+                                  }
+                                }
+                              }
+
                             }
 
                             // Если в передаваемом месте нет имени, т.е это создание
@@ -881,6 +874,10 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
             ]
         )
     );
+  }
+
+  void _showSnackBar(String text, Color color, int time){
+    showSnackBar(context, text, color, time);
   }
 
   void _showCityPickerDialog() async {

@@ -750,6 +750,8 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
 
                               newPromo = await newPromo.getEntityByIdFromDb(promoId);
 
+                              // TODO Сделать как в мероприятиях - добавление акций в список в заведении и удаление из заведения, если его поменяли на другое
+
                               if (widget.promoInfo.placeId != '' && widget.promoInfo.placeId != chosenPlace.id) {
 
                                 await widget.promoInfo.deleteEntityIdFromPlace(widget.promoInfo.placeId);

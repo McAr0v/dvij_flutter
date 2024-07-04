@@ -40,7 +40,7 @@ class ImageInEditScreen extends StatelessWidget {
 
                 // ФОТО ЗАГРУЖЕННОЕ ИЗ БД
 
-                if (backgroundImageUrl != null)
+                if (backgroundImageUrl != null && backgroundImageFile == null)
                   Ink.image(
                     image: NetworkImage(backgroundImageUrl!),
                     fit: BoxFit.cover,

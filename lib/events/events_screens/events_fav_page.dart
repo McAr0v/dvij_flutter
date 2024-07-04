@@ -14,7 +14,6 @@ import '../../widgets_global/filter_widgets/filter_widget.dart';
 import '../../widgets_global/text_widgets/headline_and_desc.dart';
 import '../event_class.dart';
 import '../events_elements/event_filter_page.dart';
-import '../events_list_manager.dart';
 import 'event_view_screen.dart';
 
 
@@ -333,7 +332,12 @@ class EventsFavPageState extends State<EventsFavPage> {
       });
 
       // --- Заново подгружаем список из БД ---
-      eventsList.eventsList = EventListsManager.currentFavEventsList.eventsList;
+
+      if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
+        eventsList = await eventsList.getFavListFromDb(UserCustom.currentUser!.uid);
+      }
+
+      //eventsList.eventsList = EventListsManager.currentFavEventsList.eventsList;
       //tempList = EventCustom.currentFavEventsList;
 
       // --- Фильтруем список согласно новым выбранным данным из фильтра ----

@@ -15,7 +15,6 @@ import '../../elements/loading_screen.dart';
 import '../../elements/snack_bar.dart';
 import '../../widgets_global/text_widgets/headline_and_desc.dart';
 import '../events_elements/event_filter_page.dart';
-import '../events_list_manager.dart';
 import 'create_or_edit_event_screen.dart';
 import 'event_view_screen.dart';
 
@@ -115,23 +114,6 @@ class EventsMyPageState extends State<EventsMyPage> {
     if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
       eventsList = await eventsList.getMyListFromDb(UserCustom.currentUser!.uid);
     }
-
-    /*if (EventListsManager.currentMyEventsList.eventsList.isEmpty){
-      // ---- Если список пуст ----
-      // ---- И Юзер залогинен
-      // ---- Считываем с БД заведения -----
-
-      if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
-        eventsList = await eventsList.getMyListFromDb(UserCustom.currentUser!.uid);
-      }
-
-    } else {
-      // --- Если список не пустой ----
-      // --- Подгружаем готовый список ----
-
-      eventsList = EventListsManager.currentMyEventsList;
-
-    }*/
 
     // --- Фильтруем список ----
 
@@ -352,9 +334,10 @@ class EventsMyPageState extends State<EventsMyPage> {
       });
 
       // --- Заново подгружаем список из БД ---
-      //List<EventCustom> tempList = [];
-      //tempList = EventCustom.currentMyEventsList;
-      eventsList.eventsList = EventListsManager.currentMyEventsList.eventsList;
+
+      if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
+        eventsList = await eventsList.getMyListFromDb(UserCustom.currentUser!.uid);
+      }
 
       // --- Фильтруем список согласно новым выбранным данным из фильтра ----
       setState(() {
@@ -369,7 +352,6 @@ class EventsMyPageState extends State<EventsMyPage> {
                 selectedEndDatePeriod
             )
         );
-        //eventsList = EventCustom.filterEvents(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, tempList, selectedStartDatePeriod, selectedEndDatePeriod);
       });
 
 

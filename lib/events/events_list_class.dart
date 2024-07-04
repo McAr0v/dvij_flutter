@@ -6,7 +6,6 @@ import 'package:dvij_flutter/interfaces/lists_interface.dart';
 import 'package:dvij_flutter/places/users_my_place/my_places_class.dart';
 import 'package:dvij_flutter/users/place_users_roles.dart';
 import 'package:firebase_database/firebase_database.dart';
-
 import '../cities/city_class.dart';
 import '../database/database_mixin.dart';
 import 'event_class.dart';
@@ -54,7 +53,6 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
   @override
   Future<EventsList> getFavListFromDb(String userId, {bool refresh = false}) async {
     EventsList events = EventsList();
-    EventListsManager.currentFavEventsList = EventsList();
 
     EventsList downloadedEventsList = EventListsManager.currentFeedEventsList;
 
@@ -68,34 +66,6 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
         events.eventsList.add(event);
       }
     }
-
-    // Если список всей ленты не пустой и не была вызвана функция обновления, то будем забирать данные из него
-    /*if (EventListsManager.currentFeedEventsList.eventsList.isNotEmpty && !refresh){
-
-      for (String id in eventsId) {
-        EventCustom favEvent = getEntityFromFeedListById(id);
-        if (favEvent.id != ''){
-          if (favEvent.id == id){
-            EventListsManager.currentFavEventsList.eventsList.add(favEvent);
-            events.eventsList.add(favEvent);
-          }
-        }
-      }
-
-    } else {
-
-      // Если список ленты не прогружен, то считываем каждую сущность из БД
-      for (String event in eventsId){
-
-        EventCustom temp = EventCustom.emptyEvent;
-        temp = await temp.getEntityByIdFromDb(event);
-
-        if (temp.id != ''){
-          EventListsManager.currentFavEventsList.eventsList.add(temp);
-          events.eventsList.add(temp);
-        }
-      }
-    }*/
 
     return events;
   }
@@ -111,8 +81,6 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
     List<MyPlaces> myPlaces = UserCustom.currentUser!.myPlaces;
 
     EventsList events = EventsList();
-    EventListsManager.currentMyEventsList = EventsList();
-
 
     EventsList downloadedEventsList = EventListsManager.currentFeedEventsList;
 
@@ -135,46 +103,6 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
       }
     }
 
-    /*String myPath = 'users/$userId/myEvents/';
-    DataSnapshot? myFolder = await MixinDatabase.getInfoFromDB(myPath);
-
-    if (myFolder != null) {
-      for (var idFolder in myFolder.children) {
-
-        // ---- Считываем ID и добавляем в список ID
-
-        DataSnapshot idSnapshot = idFolder.child('eventId');
-
-        if (idSnapshot.exists){
-          eventsId.add(idSnapshot.value.toString());
-        }
-      }
-    }*/
-
-    // Если список ID не пустой, и не была вызвана функция обновления
-    /*if (eventsId.isNotEmpty){
-
-      // Если список всей ленты не пустой, то будем забирать данные из него
-      if (EventListsManager.currentFeedEventsList.eventsList.isNotEmpty && !refresh) {
-        for (String id in eventsId) {
-          EventCustom myEvent = getEntityFromFeedListById(id);
-          if (myEvent.id == id) {
-            EventListsManager.currentMyEventsList.eventsList.add(myEvent);
-            events.eventsList.add(myEvent);
-          }
-        }
-      } else {
-        // Если список ленты не прогружен, то считываем каждую сущность из БД
-        for (var event in eventsId){
-          EventCustom temp = EventCustom.emptyEvent;
-          temp = await temp.getEntityByIdFromDb(event);
-          if (temp.id != ''){
-            EventListsManager.currentMyEventsList.eventsList.add(temp);
-            events.eventsList.add(temp);
-          }
-        }
-      }
-    }*/
     return events;
   }
 
@@ -243,23 +171,6 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
   }
 
   @override
-  void deleteEntityFromCurrentFavList(String entityId) {
-    EventListsManager.currentFavEventsList.eventsList.removeWhere((event) => event.id == entityId);
-  }
-
-  @override
-  void addEntityToCurrentFavList(String entityId) {
-    for (var event in EventListsManager.currentFeedEventsList.eventsList){
-      if (event.id == entityId){
-        if (!EventListsManager.currentFavEventsList.eventsList.any((element) => element.id == entityId)){
-          EventListsManager.currentFavEventsList.eventsList.add(event);
-          break;
-        }
-      }
-    }
-  }
-
-  @override
   void updateCurrentListFavInformation(String entityId, List<String> usersIdsList, bool inFav) {
     // ---- Функция обновления списка из БД при добавлении или удалении из избранного
 
@@ -271,28 +182,11 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
       }
     }
 
-    for (EventCustom event in EventListsManager.currentFavEventsList.eventsList){
-      if (event.id == entityId){
-        event.favUsersIds = usersIdsList;
-        event.inFav = inFav;
-        break;
-      }
-    }
-
-    for (EventCustom event in EventListsManager.currentMyEventsList.eventsList){
-      if (event.id == entityId){
-        event.favUsersIds = usersIdsList;
-        event.inFav = inFav;
-        break;
-      }
-    }
   }
 
   @override
   void deleteEntityFromCurrentEntitiesLists(String eventId) {
     EventListsManager.currentFeedEventsList.eventsList.removeWhere((event) => event.id == eventId);
-    EventListsManager.currentFavEventsList.eventsList.removeWhere((event) => event.id == eventId);
-    EventListsManager.currentMyEventsList.eventsList.removeWhere((event) => event.id == eventId);
   }
 
   @override
@@ -318,7 +212,5 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
   @override
   void addEntityFromCurrentEntitiesLists(EventCustom entity) {
     EventListsManager.currentFeedEventsList.eventsList.add(entity);
-    EventListsManager.currentMyEventsList.eventsList.add(entity);
-    if(entity.inFav) EventListsManager.currentFavEventsList.eventsList.add(entity);
   }
 }

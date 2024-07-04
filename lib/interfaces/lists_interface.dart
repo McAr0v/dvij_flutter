@@ -57,7 +57,7 @@ abstract class ILists<T, K, J>{
   /// удаляет эту сущность
   /// <br>
   /// <br> Принимает [id] для поиска
-  void deleteEntityFromCurrentFavList(String entityId);
+  //void deleteEntityFromCurrentFavList(String entityId);
 
   /// ФУНКЦИЯ ДОБАВЛЕНИЯ СУЩНОСТИ В СПИСОК Fav_List
   /// <br><br>
@@ -65,7 +65,7 @@ abstract class ILists<T, K, J>{
   /// и добавляет эту сущность в Fav_List
   /// <br>
   /// <br> Принимает [id] для поиска
-  void addEntityToCurrentFavList(String entityId);
+ // void addEntityToCurrentFavList(String entityId);
 
   /// ФУНКЦИЯ ОБНОВЛЕНИЯ НЕОБХОДИМЫХ СПИСКОВ ИНФОРМАЦИЕЙ ОБ ИЗБРАННОМ СУЩНОСТИ
   /// <br><br>
