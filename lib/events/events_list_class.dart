@@ -159,13 +159,19 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
   void sortEntitiesList(EventSortingOption sorting) {
     switch (sorting){
 
-      case EventSortingOption.nameAsc: eventsList.sort((a, b) => a.headline.compareTo(b.headline)); break;
+      case EventSortingOption.nameAsc: eventsList.sort((a, b) => b.headline.compareTo(a.headline)); break;
 
-      case EventSortingOption.nameDesc: eventsList.sort((a, b) => b.headline.compareTo(a.headline)); break;
+      case EventSortingOption.nameDesc: eventsList.sort((a, b) => a.headline.compareTo(b.headline)); break;
 
-      case EventSortingOption.favCountAsc: eventsList.sort((a, b) => a.favUsersIds.length.compareTo(b.favUsersIds.length)); break;
+      case EventSortingOption.favCountAsc: eventsList.sort((a, b) => b.favUsersIds.length.compareTo(a.favUsersIds.length)); break;
 
-      case EventSortingOption.favCountDesc: eventsList.sort((a, b) => b.favUsersIds.length.compareTo(a.favUsersIds.length)); break;
+      case EventSortingOption.favCountDesc: eventsList.sort((a, b) => a.favUsersIds.length.compareTo(b.favUsersIds.length)); break;
+
+      case EventSortingOption.fromDb: eventsList; break;
+
+      case EventSortingOption.createDateAsc: eventsList.sort((a,b) => b.createDate.compareTo(a.createDate)); break;
+
+      case EventSortingOption.createDateDesc: eventsList.sort((a,b) => a.createDate.compareTo(b.createDate)); break;
 
     }
   }

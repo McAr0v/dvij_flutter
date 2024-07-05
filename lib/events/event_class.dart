@@ -457,6 +457,16 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
   List<DropdownMenuItem<EventSortingOption>> getEventSortingOptionsList(){
     return [
       const DropdownMenuItem(
+        value: EventSortingOption.createDateAsc,
+        child: Text('Сначала новые'),
+      ),
+
+      const DropdownMenuItem(
+        value: EventSortingOption.createDateDesc,
+        child: Text('Сначала старые'),
+      ),
+
+      const DropdownMenuItem(
         value: EventSortingOption.nameAsc,
         child: Text('По имени: А-Я'),
       ),
@@ -466,11 +476,11 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
       ),
       const DropdownMenuItem(
         value: EventSortingOption.favCountAsc,
-        child: Text('В избранном: по возрастанию'),
+        child: Text('Самые популярные'),
       ),
       const DropdownMenuItem(
         value: EventSortingOption.favCountDesc,
-        child: Text('В избранном: по убыванию'),
+        child: Text('Менее популярные'),
       ),
     ];
   }

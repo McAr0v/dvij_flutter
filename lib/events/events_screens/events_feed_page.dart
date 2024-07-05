@@ -55,7 +55,7 @@ class EventsFeedPageState extends State<EventsFeedPage> {
 
   // --- Переменная сортировки по умолчанию ----
 
-  EventSortingOption _selectedSortingOption = EventSortingOption.nameAsc;
+  EventSortingOption _selectedSortingOption = EventSortingOption.createDateAsc;
 
   // ---- Переменные состояния экрана ----
 
@@ -94,72 +94,19 @@ class EventsFeedPageState extends State<EventsFeedPage> {
 
     eventCategoriesList = EventCategory.currentEventCategoryList;
 
+    // --- Считываем индексы, где будет стоять реклама ----
+
+    adIndexesList = AdUser.getAdIndexesList(adList, adStep, firstIndexOfAd);
+
     // ---- Подгружаем город в фильтр из данных пользователя ---
 
     if (UserCustom.currentUser != null){
       setState(() {
         cityFromFilter = UserCustom.currentUser!.city;
       });
-      /*if (UserCustom.currentUser!.city != ''){
-        City usersCity = City.getCityByIdFromList(UserCustom.currentUser!.city);
-        setState(() {
-          cityFromFilter = usersCity;
-        });
-      }*/
-
     }
 
-    // ---- Устанавливаем счетчик выбранных настроек в фильтре ----
-
-    _setFiltersCount(
-        eventCategoryFromFilter,
-        cityFromFilter,
-        freePrice,
-        today,
-        onlyFromPlaceEvents,
-        selectedStartDatePeriod,
-        selectedEndDatePeriod
-    );
-
-    // ----- РАБОТАЕМ СО СПИСКОМ МЕРОПРИЯТИЙ -----
-
-    if (EventListsManager.currentFeedEventsList.eventsList.isEmpty){
-      // ---- Если список пуст ----
-      // ---- Считываем с БД заведения -----
-
-      eventsList = await eventsList.getListFromDb();
-
-    } else {
-      // --- Если список не пустой ----
-      // --- Подгружаем готовый список ----
-
-      eventsList = EventListsManager.currentFeedEventsList;
-
-    }
-
-    // --- Фильтруем список ----
-
-    setState(() {
-      eventsList.filterLists(
-          eventsList.generateMapForFilter(
-              eventCategoryFromFilter,
-              cityFromFilter,
-              freePrice,
-              today,
-              onlyFromPlaceEvents,
-              selectedStartDatePeriod,
-              selectedEndDatePeriod
-          )
-      );
-    });
-
-    // --- Считываем индексы, где будет стоять реклама ----
-
-    adIndexesList = AdUser.getAdIndexesList(adList, adStep, firstIndexOfAd);
-
-    setState(() {
-      allElementsList = AdUser.generateIndexedList(adIndexesList, eventsList.eventsList.length);
-    });
+    _getEventsList();
 
     setState(() {
       loading = false;
@@ -319,37 +266,63 @@ class EventsFeedPageState extends State<EventsFeedPage> {
         selectedStartDatePeriod = results[5];
         selectedEndDatePeriod = results[6];
         eventsList = EventsList();
-
-        // ---- Обновляем счетчик выбранных настроек ----
-        _setFiltersCount(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, selectedStartDatePeriod, selectedEndDatePeriod);
-
       });
 
-      // --- Заново подгружаем список из БД ---
-
-      eventsList.eventsList = EventListsManager.currentFeedEventsList.eventsList;
-
-      // --- Фильтруем список согласно новым выбранным данным из фильтра ----
-      setState(() {
-
-        eventsList.filterLists(
-            eventsList.generateMapForFilter(
-                eventCategoryFromFilter,
-                cityFromFilter,
-                freePrice,
-                today,
-                onlyFromPlaceEvents,
-                selectedStartDatePeriod,
-                selectedEndDatePeriod
-            )
-        );
-      });
+      _getEventsList();
 
       setState(() {
-        allElementsList = AdUser.generateIndexedList(adIndexesList, eventsList.eventsList.length);
         loading = false;
       });
     }
+  }
+
+  void _getEventsList() async {
+
+    // ---- Обновляем счетчик выбранных настроек ----
+    setState(() {
+      _setFiltersCount(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, selectedStartDatePeriod, selectedEndDatePeriod);
+    });
+
+    // ----- РАБОТАЕМ СО СПИСКОМ МЕРОПРИЯТИЙ -----
+
+    if (EventListsManager.currentFeedEventsList.eventsList.isEmpty){
+      // ---- Если список пуст ----
+      // ---- Считываем с БД заведения -----
+
+      eventsList = await eventsList.getListFromDb();
+
+    } else {
+      // --- Если список не пустой ----
+      // --- Подгружаем готовый список ----
+
+      eventsList.eventsList = EventListsManager.currentFeedEventsList.eventsList;
+
+    }
+
+    // --- Фильтруем список ----
+
+    setState(() {
+      eventsList.filterLists(
+          eventsList.generateMapForFilter(
+              eventCategoryFromFilter,
+              cityFromFilter,
+              freePrice,
+              today,
+              onlyFromPlaceEvents,
+              selectedStartDatePeriod,
+              selectedEndDatePeriod
+          )
+      );
+    });
+
+    // Сортируем список
+
+    eventsList.sortEntitiesList(_selectedSortingOption);
+
+    setState(() {
+      allElementsList = AdUser.generateIndexedList(adIndexesList, eventsList.eventsList.length);
+    });
+
   }
 
   // ----- Путь для открытия всплывающей страницы фильтра ----

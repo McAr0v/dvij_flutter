@@ -2,5 +2,8 @@ enum EventSortingOption {
   nameAsc,
   nameDesc,
   favCountAsc,
-  favCountDesc
+  favCountDesc,
+  fromDb,
+  createDateAsc,
+  createDateDesc
 }
