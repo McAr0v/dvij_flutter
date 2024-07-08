@@ -181,7 +181,8 @@ class EventsFeedPageState extends State<EventsFeedPage> {
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(
                                       vertical: 20,
-                                      horizontal: 20),
+                                      horizontal: 20
+                                  ),
                                   child: HeadlineAndDesc(headline: adList[allElementsList[index].second], description: 'реклама'),
                                 );
                               } else {
@@ -299,8 +300,27 @@ class EventsFeedPageState extends State<EventsFeedPage> {
 
     }
 
-    // --- Фильтруем список ----
+    _filterListAndIncludeAd();
 
+  }
+
+  Future<void> refreshList() async {
+    setState(() {
+      refresh = true;
+    });
+
+    eventsList = EventsList();
+
+    eventsList = await eventsList.getListFromDb();
+
+    _filterListAndIncludeAd();
+
+    setState(() {
+      refresh = false;
+    });
+  }
+
+  void _filterListAndIncludeAd(){
     setState(() {
       eventsList.filterLists(
           eventsList.generateMapForFilter(
@@ -313,16 +333,12 @@ class EventsFeedPageState extends State<EventsFeedPage> {
               selectedEndDatePeriod
           )
       );
-    });
 
-    // Сортируем список
+      eventsList.sortEntitiesList(_selectedSortingOption);
 
-    eventsList.sortEntitiesList(_selectedSortingOption);
-
-    setState(() {
       allElementsList = AdUser.generateIndexedList(adIndexesList, eventsList.eventsList.length);
-    });
 
+    });
   }
 
   // ----- Путь для открытия всплывающей страницы фильтра ----
@@ -455,36 +471,6 @@ class EventsFeedPageState extends State<EventsFeedPage> {
     showSnackBar(context, text, color, secondsToShow);
   }
 
-  Future<void> refreshList() async {
-    setState(() {
-      refresh = true;
-    });
 
-    eventsList = EventsList();
-
-    eventsList = await eventsList.getListFromDb();
-
-    setState(() {
-
-      eventsList.filterLists(
-          eventsList.generateMapForFilter(
-              eventCategoryFromFilter,
-              cityFromFilter,
-              freePrice,
-              today,
-              onlyFromPlaceEvents,
-              selectedStartDatePeriod,
-              selectedEndDatePeriod
-          )
-      );
-
-    });
-
-    allElementsList = AdUser.generateIndexedList(adIndexesList, eventsList.eventsList.length);
-
-    setState(() {
-      refresh = false;
-    });
-  }
 
 }
