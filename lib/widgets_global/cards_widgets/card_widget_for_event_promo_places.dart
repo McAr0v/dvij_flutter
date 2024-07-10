@@ -34,7 +34,7 @@ class CardWidgetForEventPromoPlaces extends StatefulWidget {
         this.place,
         required this.onFavoriteIconPressed,
         required this.onTap,
-        this.height
+        this.height,
       }
       );
   @override
@@ -59,6 +59,22 @@ class CardWidgetForEventPromoPlacesState extends State<CardWidgetForEventPromoPl
   LongDate longDate = LongDate();
   RegularDate regularDate = RegularDate();
   IrregularDate irregularDate = IrregularDate();
+
+  bool _isLoading = false;
+
+  void _handlePressed() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await widget.onFavoriteIconPressed();
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +125,7 @@ class CardWidgetForEventPromoPlacesState extends State<CardWidgetForEventPromoPl
                     borderRadius: BorderRadius.circular(15), // настройте радиус скругления углов для фона
                   ),
                 ),
-                Positioned(
+                if (!_isLoading) Positioned(
                   top: 10.0,
                   right: 10.0,
                   child: IconAndTextInTransparentSurfaceWidget(
@@ -118,7 +134,20 @@ class CardWidgetForEventPromoPlacesState extends State<CardWidgetForEventPromoPl
                     iconColor: inFav ? AppColors.brandColor : AppColors.white,
                     side: false,
                     backgroundColor: AppColors.greyBackground.withOpacity(0.8),
-                    onPressed: widget.onFavoriteIconPressed,
+                    onPressed: _handlePressed,
+                  ),
+                ),
+
+                if (_isLoading) Positioned(
+                  top: 10.0,
+                  right: 10.0,
+                  child: IconAndTextInTransparentSurfaceWidget(
+                    icon: FontAwesomeIcons.circle,
+                    text: 'в процессе...',
+                    iconColor: AppColors.brandColor,
+                    side: false,
+                    backgroundColor: AppColors.greyBackground.withOpacity(0.8),
+                    onPressed: (){},
                   ),
                 ),
 

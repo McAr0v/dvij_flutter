@@ -219,4 +219,14 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
   void addEntityFromCurrentEntitiesLists(EventCustom entity) {
     EventListsManager.currentFeedEventsList.eventsList.add(entity);
   }
+
+  @override
+  void updateCurrentEntityInEntitiesList(EventCustom newEvent) {
+    for (EventCustom oldEvent in EventListsManager.currentFeedEventsList.eventsList){
+      if (oldEvent.id == newEvent.id){
+        oldEvent = newEvent;
+        break;
+      }
+    }
+  }
 }

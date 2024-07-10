@@ -12,9 +12,11 @@ import 'package:dvij_flutter/dates/regular_date_class.dart';
 import 'package:dvij_flutter/dates/time_mixin.dart';
 import 'package:dvij_flutter/events/event_sorting_options.dart';
 import 'package:dvij_flutter/events/events_list_class.dart';
+import 'package:dvij_flutter/events/events_list_manager.dart';
 import 'package:dvij_flutter/filters/filter_mixin.dart';
 import 'package:dvij_flutter/image_uploader/image_uploader.dart';
 import 'package:dvij_flutter/interfaces/entity_interface.dart';
+import 'package:dvij_flutter/promos/promos_list_manager.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'event_category_class.dart';
@@ -215,6 +217,11 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
 
       if (!favUsersIds.contains(UserCustom.currentUser!.uid)){
         favUsersIds.add(UserCustom.currentUser!.uid);
+        inFav = true;
+      }
+
+      if(EventListsManager.currentFeedEventsList.eventsList.isNotEmpty){
+        updateCurrentEntityInEntitiesList();
       }
 
       String result = 'success';
@@ -267,7 +274,14 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
 
       String eventDelete = await MixinDatabase.deleteFromDb(eventPath);
 
-      favUsersIds.removeWhere((element) => element == UserCustom.currentUser?.uid);
+      if (favUsersIds.contains(UserCustom.currentUser?.uid)){
+        favUsersIds.removeWhere((element) => element == UserCustom.currentUser?.uid);
+        inFav = false;
+      }
+
+      if(EventListsManager.currentFeedEventsList.eventsList.isNotEmpty){
+        updateCurrentEntityInEntitiesList();
+      }
 
       String result = 'success';
 
@@ -483,6 +497,12 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
         child: Text('Менее популярные'),
       ),
     ];
+  }
+
+  @override
+  void updateCurrentEntityInEntitiesList() {
+    EventsList eventsList = EventsList();
+    eventsList.updateCurrentEntityInEntitiesList(this);
   }
 
 }

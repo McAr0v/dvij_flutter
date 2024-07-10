@@ -294,27 +294,14 @@ class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
     }
   }
 
-  /*void updateCurrentListAdminsInformation(String entityId, List<PlaceAdminsListItem> admins) {
-    for (Place place in PlaceListManager.currentFeedPlacesList.placeList){
-      if (place.id == entityId){
-        place.admins = admins;
+  @override
+  void updateCurrentEntityInEntitiesList(Place newPlace) {
+    for (Place oldPlace in PlaceListManager.currentFeedPlacesList.placeList){
+      if (oldPlace.id == newPlace.id){
+        oldPlace = newPlace;
         break;
       }
     }
-
-    for (Place place in PlaceListManager.currentFavPlacesList.placeList){
-      if (place.id == entityId){
-        place.admins = admins;
-        break;
-      }
-    }
-
-    for (Place place in PlaceListManager.currentMyPlacesList.placeList){
-      if (place.id == entityId){
-        place.admins = admins;
-        break;
-      }
-    }
-  }*/
+  }
 
 }

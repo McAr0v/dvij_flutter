@@ -5,6 +5,7 @@ import 'package:dvij_flutter/places/place_category_class.dart';
 import 'package:dvij_flutter/places/place_list_class.dart';
 import 'package:dvij_flutter/current_user/user_class.dart';
 import 'package:dvij_flutter/places/place_sorting_options.dart';
+import 'package:dvij_flutter/promos/promos_list_class.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import '../database/database_mixin.dart';
@@ -561,6 +562,12 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
         child: Text('Мероприятия: по убыванию'),
       ),
     ];
+  }
+
+  @override
+  void updateCurrentEntityInEntitiesList() {
+    PlaceList placeList = PlaceList();
+    placeList.updateCurrentEntityInEntitiesList(this);
   }
 
 }

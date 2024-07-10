@@ -491,4 +491,10 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
     // Возвращаем список
     return returnedPromo;
   }
+
+  @override
+  void updateCurrentEntityInEntitiesList() {
+    PromoList promoList = PromoList();
+    promoList.updateCurrentEntityInEntitiesList(this);
+  }
 }

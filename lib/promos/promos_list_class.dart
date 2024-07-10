@@ -372,4 +372,14 @@ class PromoList implements ILists<PromoList, PromoCustom, PromoSortingOption>{
     PromoListsManager.currentMyPromoList.promosList.add(entity);
     if(entity.inFav) PromoListsManager.currentFavPromoList.promosList.add(entity);
   }
+
+  @override
+  void updateCurrentEntityInEntitiesList(PromoCustom newPromo) {
+    for (PromoCustom oldPromo in PromoListsManager.currentFeedPromosList.promosList){
+      if (oldPromo.id == newPromo.id){
+        oldPromo = newPromo;
+        break;
+      }
+    }
+  }
 }

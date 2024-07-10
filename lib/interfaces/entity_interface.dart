@@ -19,6 +19,8 @@ abstract class IEntity <T> {
   /// <br>My
   void updateCurrentListFavInformation();
 
+  void updateCurrentEntityInEntitiesList();
+
   /// ФУНКЦИЯ ПУБЛИКАЦИИ СУЩНОСТИ В БД
   /// <br><br>
   /// Так же делает необходимые записи с ID сущности в БД в

@@ -78,6 +78,8 @@ abstract class ILists<T, K, J>{
   /// Принимает [entityId], [usersIdsList], [inFav] для поиска сущности и обновления данных
   void updateCurrentListFavInformation(String entityId, List<String> usersIdsList, bool inFav);
 
+  void updateCurrentEntityInEntitiesList(K entity);
+
   /// ФУНКЦИЯ УдАЛЕНИЯ СУЩНОСТИ ИЗ НЕОБХОДИМЫХ СПИСКОВ
   /// <br><br>
   /// Удаляет из списков:
