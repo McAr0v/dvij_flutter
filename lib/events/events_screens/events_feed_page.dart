@@ -106,7 +106,7 @@ class EventsFeedPageState extends State<EventsFeedPage> {
       });
     }
 
-    _getEventsList();
+    await _getEventsList();
 
     setState(() {
       loading = false;
@@ -269,7 +269,7 @@ class EventsFeedPageState extends State<EventsFeedPage> {
         eventsList = EventsList();
       });
 
-      _getEventsList();
+      await _getEventsList();
 
       setState(() {
         loading = false;
@@ -277,7 +277,7 @@ class EventsFeedPageState extends State<EventsFeedPage> {
     }
   }
 
-  void _getEventsList() async {
+  Future<void> _getEventsList() async {
 
     // ---- Обновляем счетчик выбранных настроек ----
     setState(() {
@@ -437,7 +437,5 @@ class EventsFeedPageState extends State<EventsFeedPage> {
   void _showSnackBar(String text, Color color, int secondsToShow){
     showSnackBar(context, text, color, secondsToShow);
   }
-
-
 
 }
