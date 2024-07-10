@@ -365,10 +365,6 @@ class EventsMyPageState extends State<EventsMyPage> {
         selectedStartDatePeriod = results[5];
         selectedEndDatePeriod = results[6];
         eventsList = EventsList();
-
-        // ---- Обновляем счетчик выбранных настроек ----
-        _setFiltersCount(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, selectedStartDatePeriod, selectedEndDatePeriod);
-
       });
 
       await _getEventsList();
