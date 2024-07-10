@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import '../../ads/ad_user_class.dart';
+import '../../constants/constants.dart';
 import '../../widgets_global/cards_widgets/card_widget_for_event_promo_places.dart';
 import '../../widgets_global/filter_widgets/filter_widget.dart';
 import '../event_class.dart';
@@ -55,7 +56,7 @@ class EventsMyPageState extends State<EventsMyPage> {
 
   // --- Переменная сортировки по умолчанию ----
 
-  EventSortingOption _selectedSortingOption = EventSortingOption.nameAsc;
+  EventSortingOption _selectedSortingOption = EventSortingOption.createDateAsc;
 
   // ---- Переменные состояния экрана ----
 
@@ -74,6 +75,8 @@ class EventsMyPageState extends State<EventsMyPage> {
   int adStep = 2;
   // --- Индекс первого рекламного элемента
   int firstIndexOfAd = 1;
+
+  // Переменная проверки пользователя на авторизацию
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -96,48 +99,13 @@ class EventsMyPageState extends State<EventsMyPage> {
 
     eventCategoriesList = EventCategory.currentEventCategoryList;
 
-    // ---- Устанавливаем счетчик выбранных настроек в фильтре ----
-
-    _setFiltersCount(
-        eventCategoryFromFilter,
-        cityFromFilter,
-        freePrice,
-        today,
-        onlyFromPlaceEvents,
-        selectedStartDatePeriod,
-        selectedEndDatePeriod
-    );
-
-    // ----- РАБОТАЕМ СО СПИСКОМ МЕРОПРИЯТИЙ -----
-
-
-    if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
-      eventsList = await eventsList.getMyListFromDb(UserCustom.currentUser!.uid);
-    }
-
-    // --- Фильтруем список ----
-
-    setState(() {
-      eventsList.filterLists(
-          eventsList.generateMapForFilter(
-              eventCategoryFromFilter,
-              cityFromFilter,
-              freePrice,
-              today,
-              onlyFromPlaceEvents,
-              selectedStartDatePeriod,
-              selectedEndDatePeriod
-          )
-      );
-    });
-
-    // --- Считываем индексы, где будет стоять реклама ----
+    // Расчитываем индексы рекламы
 
     adIndexesList = AdUser.getAdIndexesList(adList, adStep, firstIndexOfAd);
 
-    setState(() {
-      allElementsList = AdUser.generateIndexedList(adIndexesList, eventsList.eventsList.length);
-    });
+    // Получаем список мероприятий и рекламы
+
+    await _getEventsList(refresh: false);
 
     setState(() {
       loading = false;
@@ -158,22 +126,35 @@ class EventsMyPageState extends State<EventsMyPage> {
           },
           child: Stack (
             children: [
-              if (UserCustom.currentUser?.uid == null || UserCustom.currentUser?.uid == '') Center(
+
+              // Если пользователь не зарегистрирован или не подтвердил почту
+
+              if (UserCustom.currentUser == null || UserCustom.currentUser!.uid == '' || !_auth.currentUser!.emailVerified) Center(
                 child: Text(
                   'Чтобы создавать мероприятия, нужно зарегистрироваться',
                   style: Theme.of(context).textTheme.bodyMedium,
                   textAlign: TextAlign.center,
                 ),
               )
+
+              // Если идет загрузка
+
               else if (loading) const LoadingScreen(loadingText: 'Подожди, идет загрузка мероприятий')
+
+              // Если обновляется экран
+
               else if (refresh) Center(
                   child: Text(
                     'Подожди, идет обновление мероприятий',
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 )
+
+                // Экран с фильтром и мероприятиями
                 else Column(
                     children: [
+
+                      // Виджет фильтра
 
                       FilterWidget(
                         onFilterTap: (){
@@ -192,19 +173,9 @@ class EventsMyPageState extends State<EventsMyPage> {
 
                       // ---- Если список пустой -----
 
-                      if (eventsList.eventsList.isEmpty) Expanded(
-                          child: ListView.builder(
-                              padding: const EdgeInsets.all(15.0),
-                              itemCount: 1,
-                              itemBuilder: (context, index) {
-                                return const Column(
-                                    children: [
-                                      Center(
-                                        child: Text('Пусто'),
-                                      )
-                                    ]
-                                );
-                              }
+                      if (eventsList.eventsList.isEmpty) const Expanded(
+                          child: Center(
+                            child: Text(AppConstants.emptyMessage),
                           )
                       ),
 
@@ -215,6 +186,9 @@ class EventsMyPageState extends State<EventsMyPage> {
                               padding: const EdgeInsets.all(10.0),
                               itemCount: allElementsList.length,
                               itemBuilder: (context, index) {
+
+                                // Если это реклама, показываем виджет рекламы
+
                                 if (allElementsList[index].first == 'ad')  {
                                   return Padding(
                                     padding: const EdgeInsets.symmetric(
@@ -222,8 +196,14 @@ class EventsMyPageState extends State<EventsMyPage> {
                                         horizontal: 20),
                                     child: HeadlineAndDesc(headline: adList[allElementsList[index].second], description: 'реклама'),
                                   );
-                                } else {
+                                }
+
+                                else {
+                                  // Если мероприятие, показываем виджет мероприятия
+
+                                  // Индекс мероприятия из списка мероприятий до подмешивания в него рекламы
                                   int indexWithAddCountCorrection = allElementsList[index].second;
+
                                   return CardWidgetForEventPromoPlaces(
                                     height: 450,
                                     event: eventsList.eventsList[indexWithAddCountCorrection],
@@ -233,11 +213,10 @@ class EventsMyPageState extends State<EventsMyPage> {
 
                                     // --- Функция на нажатие на карточке кнопки ИЗБРАННОЕ ---
                                     onFavoriteIconPressed: () async {
-                                      await addOrDeleteFromFav(indexWithAddCountCorrection);
+                                      await addOrDeleteInFav(indexWithAddCountCorrection);
                                     },
                                   );
                                 }
-
                               }
                           )
                       )
@@ -246,18 +225,31 @@ class EventsMyPageState extends State<EventsMyPage> {
             ],
           ),
         ),
+
+      // Плавающая иконка создания мероприятия
       floatingActionButton: FloatingActionButton(
         onPressed: () {
+
+          // Если пользователь зарегистрирован и подтвердил email
+
           if (UserCustom.currentUser != null && UserCustom.currentUser!.uid != '' && _auth.currentUser!.emailVerified) {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => CreateOrEditEventScreen(eventInfo: EventCustom.emptyEvent)),
             );
-          } else if (_auth.currentUser != null && !_auth.currentUser!.emailVerified) {
+          }
+
+          // Если пользователь не подтвредил почту
+
+          else if (_auth.currentUser != null && !_auth.currentUser!.emailVerified) {
 
             showSnackBar(context,'Чтобы создать мероприятие, нужно подтвердить почту', AppColors.attentionRed, 2);
 
-          } else {
+          }
+
+          // Если пользователь совсем не проходил никакую регистрацию
+
+          else {
 
             showSnackBar(context,'Чтобы создать мероприятие, нужно зарегистрироваться', AppColors.attentionRed, 2);
 
@@ -269,6 +261,52 @@ class EventsMyPageState extends State<EventsMyPage> {
       ),
 
     );
+  }
+
+
+  Future<void> _getEventsList({bool refresh = false}) async {
+
+    // ---- Обновляем счетчик выбранных настроек ----
+    setState(() {
+      _setFiltersCount(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, selectedStartDatePeriod, selectedEndDatePeriod);
+    });
+
+    if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
+      eventsList = await eventsList.getMyListFromDb(UserCustom.currentUser!.uid, refresh: refresh);
+    }
+
+    // Фильтруем список и внедряем в него рекламу
+    _filterListAndIncludeAd();
+
+  }
+
+  void _filterListAndIncludeAd(){
+
+    setState(() {
+
+      // Фильтруем список
+
+      eventsList.filterLists(
+          eventsList.generateMapForFilter(
+              eventCategoryFromFilter,
+              cityFromFilter,
+              freePrice,
+              today,
+              onlyFromPlaceEvents,
+              selectedStartDatePeriod,
+              selectedEndDatePeriod
+          )
+      );
+
+      // Сортируем список
+
+      eventsList.sortEntitiesList(_selectedSortingOption);
+
+      // Внедряем рекламу
+
+      allElementsList = AdUser.generateIndexedList(adIndexesList, eventsList.eventsList.length);
+
+    });
   }
 
   // ---- Функция обвноления счетчика выбранных настроек фильтра ----
@@ -333,31 +371,9 @@ class EventsMyPageState extends State<EventsMyPage> {
 
       });
 
-      // --- Заново подгружаем список из БД ---
-
-      if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
-        eventsList = await eventsList.getMyListFromDb(UserCustom.currentUser!.uid);
-      }
-
-      // --- Фильтруем список согласно новым выбранным данным из фильтра ----
-      setState(() {
-        eventsList.filterLists(
-            eventsList.generateMapForFilter(
-                eventCategoryFromFilter,
-                cityFromFilter,
-                freePrice,
-                today,
-                onlyFromPlaceEvents,
-                selectedStartDatePeriod,
-                selectedEndDatePeriod
-            )
-        );
-      });
-
-
+      await _getEventsList();
 
       setState(() {
-        allElementsList = AdUser.generateIndexedList(adIndexesList, eventsList.eventsList.length);
         loading = false;
       });
     }
@@ -402,29 +418,7 @@ class EventsMyPageState extends State<EventsMyPage> {
 
     eventsList = EventsList();
 
-    if (UserCustom.currentUser?.uid != null || UserCustom.currentUser?.uid != ''){
-
-      eventsList = await eventsList.getMyListFromDb(UserCustom.currentUser!.uid, refresh: true);
-
-      setState(() {
-
-        eventsList.filterLists(
-            eventsList.generateMapForFilter(
-                eventCategoryFromFilter,
-                cityFromFilter,
-                freePrice,
-                today,
-                onlyFromPlaceEvents,
-                selectedStartDatePeriod,
-                selectedEndDatePeriod
-            )
-        );
-
-      });
-
-      allElementsList = AdUser.generateIndexedList(adIndexesList, eventsList.eventsList.length);
-
-    }
+    await _getEventsList(refresh: true);
 
     setState(() {
       refresh = false;
@@ -432,6 +426,9 @@ class EventsMyPageState extends State<EventsMyPage> {
   }
 
   Future<void> goToEventViewScreen(int indexWithAddCountCorrection) async {
+
+    // Переходим на страницу заведения
+
     final results = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -439,17 +436,21 @@ class EventsMyPageState extends State<EventsMyPage> {
       ),
     );
 
+    // Если есть результат с той страницы
+
     if (results != null) {
 
+      // Подгружаем мероприятие из общего списка
       EventCustom eventCustom = eventsList.getEntityFromFeedListById(eventsList.eventsList[indexWithAddCountCorrection].id);
 
+      // Заменяем мероприятие на обновленное
       setState(() {
         eventsList.eventsList[indexWithAddCountCorrection] = eventCustom;
       });
     }
   }
 
-  Future<void> addOrDeleteFromFav(int indexWithAddCountCorrection) async {
+  Future<void> addOrDeleteInFav(int indexWithAddCountCorrection) async {
 
     // ---- Если не зарегистрирован или не вошел ----
     if (UserCustom.currentUser?.uid == '' || UserCustom.currentUser?.uid == null)
@@ -463,26 +464,13 @@ class EventsMyPageState extends State<EventsMyPage> {
       // --- Если уже в избранном ----
       if (eventsList.eventsList[indexWithAddCountCorrection].inFav == true)
       {
+
         // --- Удаляем из избранных ---
         String resDel = await eventsList.eventsList[indexWithAddCountCorrection].deleteFromFav();
-        // ---- Инициализируем счетчик -----
-        //int favCounter = eventsList.eventsList[indexWithAddCountCorrection].favUsersIds.length;
 
         if (resDel == 'success'){
-          // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
-          setState(() {
-            // Обновляем текущий список
-            eventsList.eventsList[indexWithAddCountCorrection].inFav = false;
-
-            //favCounter --;
-            //eventsList.eventsList[indexWithAddCountCorrection].favUsersIds = favCounter;
-            // Обновляем общий список из БД
-            eventsList.eventsList[indexWithAddCountCorrection].updateCurrentListFavInformation();
-
-          });
           _showSnackBar('Удалено из избранных', AppColors.attentionRed, 1);
         } else {
-          // Если удаление из избранных не прошло, показываем сообщение
           _showSnackBar(resDel, AppColors.attentionRed, 1);
         }
       }
@@ -492,25 +480,11 @@ class EventsMyPageState extends State<EventsMyPage> {
         // -- Добавляем в избранное ----
         String res = await eventsList.eventsList[indexWithAddCountCorrection].addToFav();
 
-        // ---- Инициализируем счетчик добавивших в избранное
-        //int favCounter = eventsList.eventsList[indexWithAddCountCorrection].favUsersIds;
-
         if (res == 'success') {
-          // --- Если добавилось успешно, так же обновляем текущий список и список из БД
-          setState(() {
-            // Обновляем текущий список
-            eventsList.eventsList[indexWithAddCountCorrection].inFav = true;
-            //favCounter ++;
-            //eventsList.eventsList[indexWithAddCountCorrection].favUsersIds = favCounter;
-            // Обновляем список из БД
-            eventsList.eventsList[indexWithAddCountCorrection].updateCurrentListFavInformation();
-
-          });
 
           _showSnackBar('Добавлено в избранные', Colors.green, 1);
 
         } else {
-          // Если добавление прошло неудачно, отображаем всплывающее окно
           _showSnackBar(res, AppColors.attentionRed, 1);
         }
       }

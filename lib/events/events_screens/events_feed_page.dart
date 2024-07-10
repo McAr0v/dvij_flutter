@@ -32,8 +32,6 @@ class EventsFeedPage extends StatefulWidget {
 
 class EventsFeedPageState extends State<EventsFeedPage> {
 
-  // --- ОБЪЯВЛЯЕМ ПЕРЕМЕННЫЕ -----
-
   EventsList eventsList = EventListsManager.currentFeedEventsList;
   late List<EventCategory> eventCategoriesList;
 
@@ -106,6 +104,8 @@ class EventsFeedPageState extends State<EventsFeedPage> {
       });
     }
 
+    // ---- Получаем список мероприятий и рекламы
+
     await _getEventsList();
 
     setState(() {
@@ -127,15 +127,26 @@ class EventsFeedPageState extends State<EventsFeedPage> {
           },
           child: Stack (
             children: [
+
+              // Экран загрузки
+
               if (loading) const LoadingScreen(loadingText: AppConstants.eventsLoadingMessage)
+
+              // Экран обновления
+
               else if (refresh) Center(
                 child: Text(
                   AppConstants.eventsRefreshMessage,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               )
+
+              // Экран с фильтром и мероприятиями
+
               else Column(
                   children: [
+
+                    // ---- Виджет фильтра
 
                     FilterWidget(
                       onFilterTap: (){
@@ -154,19 +165,9 @@ class EventsFeedPageState extends State<EventsFeedPage> {
 
                     // ---- Если список пустой -----
 
-                    if (eventsList.eventsList.isEmpty) Expanded(
-                        child: ListView.builder(
-                            padding: const EdgeInsets.all(15.0),
-                            itemCount: 1,
-                            itemBuilder: (context, index) {
-                              return const Column(
-                                  children: [
-                                    Center(
-                                      child: Text(AppConstants.emptyMessage),
-                                    )
-                                  ]
-                              );
-                            }
+                    if (eventsList.eventsList.isEmpty) const Expanded(
+                        child: Center(
+                          child: Text(AppConstants.emptyMessage),
                         )
                     ),
 
@@ -177,6 +178,9 @@ class EventsFeedPageState extends State<EventsFeedPage> {
                             padding: const EdgeInsets.all(10.0),
                             itemCount: allElementsList.length,
                             itemBuilder: (context, index) {
+
+                              // --- ЕСЛИ ЭТО РЕКЛАМА, ОТОБРАЖАЕМ ВИДЖЕТ РЕКЛАМЫ ----
+
                               if (allElementsList[index].first == 'ad')  {
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(
@@ -185,8 +189,17 @@ class EventsFeedPageState extends State<EventsFeedPage> {
                                   ),
                                   child: HeadlineAndDesc(headline: adList[allElementsList[index].second], description: 'реклама'),
                                 );
-                              } else {
+                              }
+
+                              // ----- ЕСЛИ МЕРОПРИЯТИЕ, ТО КАРТОЧКУ МЕРОПРИЯТИЯ ----
+
+                              else {
+
+                                // Переменная индекса мероприятия в списке, до смешивания с сущностями рекламы
                                 int indexWithAddCountCorrection = allElementsList[index].second;
+
+                                // ---- Виджет карточки
+
                                 return CardWidgetForEventPromoPlaces(
                                   height: 450,
                                   event: eventsList.eventsList[indexWithAddCountCorrection],
@@ -269,6 +282,7 @@ class EventsFeedPageState extends State<EventsFeedPage> {
         eventsList = EventsList();
       });
 
+      // Подгружаем список мероприятий и рекламы
       await _getEventsList();
 
       setState(() {
@@ -300,6 +314,7 @@ class EventsFeedPageState extends State<EventsFeedPage> {
 
     }
 
+    // Фильтруем список и внедряем в него рекламу
     _filterListAndIncludeAd();
 
   }
@@ -311,6 +326,8 @@ class EventsFeedPageState extends State<EventsFeedPage> {
 
     eventsList = EventsList();
 
+    // Подгружаем список мероприятий с базы данных
+
     eventsList = await eventsList.getListFromDb();
 
     _filterListAndIncludeAd();
@@ -321,7 +338,13 @@ class EventsFeedPageState extends State<EventsFeedPage> {
   }
 
   void _filterListAndIncludeAd(){
+
+
+
     setState(() {
+
+      // Фильтруем список
+
       eventsList.filterLists(
           eventsList.generateMapForFilter(
               eventCategoryFromFilter,
@@ -334,7 +357,11 @@ class EventsFeedPageState extends State<EventsFeedPage> {
           )
       );
 
+      // Сортируем список
+
       eventsList.sortEntitiesList(_selectedSortingOption);
+
+      // Внедряем рекламу
 
       allElementsList = AdUser.generateIndexedList(adIndexesList, eventsList.eventsList.length);
 
@@ -374,6 +401,9 @@ class EventsFeedPageState extends State<EventsFeedPage> {
   }
 
   Future<void> goToEventViewScreen(int indexWithAddCountCorrection) async {
+
+    // Переходим на страницу заведения
+
     final results = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -381,10 +411,14 @@ class EventsFeedPageState extends State<EventsFeedPage> {
       ),
     );
 
+    // Если есть результат с той страницы
+
     if (results != null) {
 
+      // Подгружаем мероприятие из общего списка
       EventCustom eventCustom = eventsList.getEntityFromFeedListById(eventsList.eventsList[indexWithAddCountCorrection].id);
 
+      // Заменяем мероприятие на обновленное
       setState(() {
         eventsList.eventsList[indexWithAddCountCorrection] = eventCustom;
       });
@@ -412,7 +446,6 @@ class EventsFeedPageState extends State<EventsFeedPage> {
         if (resDel == 'success'){
           _showSnackBar('Удалено из избранных', AppColors.attentionRed, 1);
         } else {
-          // Если удаление из избранных не прошло, показываем сообщение
           _showSnackBar(resDel, AppColors.attentionRed, 1);
         }
       }
@@ -427,7 +460,6 @@ class EventsFeedPageState extends State<EventsFeedPage> {
           _showSnackBar('Добавлено в избранные', Colors.green, 1);
 
         } else {
-          // Если добавление прошло неудачно, отображаем всплывающее окно
           _showSnackBar(res, AppColors.attentionRed, 1);
         }
       }
