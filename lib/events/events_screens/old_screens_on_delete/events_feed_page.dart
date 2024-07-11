@@ -1,39 +1,38 @@
 import 'package:dvij_flutter/cities/city_class.dart';
+import 'package:dvij_flutter/constants/constants.dart';
 import 'package:dvij_flutter/events/event_category_class.dart';
+import 'package:dvij_flutter/events/event_class.dart';
 import 'package:dvij_flutter/events/event_sorting_options.dart';
 import 'package:dvij_flutter/events/events_list_class.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
-import '../../ads/ad_user_class.dart';
-import '../../classes/pair.dart';
-import '../../constants/constants.dart';
-import '../../current_user/user_class.dart';
-import '../../elements/loading_screen.dart';
-import '../../elements/snack_bar.dart';
-import '../../widgets_global/cards_widgets/card_widget_for_event_promo_places.dart';
-import '../../widgets_global/filter_widgets/filter_widget.dart';
-import '../../widgets_global/text_widgets/headline_and_desc.dart';
-import '../event_class.dart';
-import '../events_elements/event_filter_page.dart';
-import 'event_view_screen.dart';
+import '../../../ads/ad_user_class.dart';
+import '../../../classes/pair.dart';
+import '../../../current_user/user_class.dart';
+import '../../../elements/loading_screen.dart';
+import '../../../elements/snack_bar.dart';
+import '../../../widgets_global/filter_widgets/filter_widget.dart';
+import '../../../widgets_global/text_widgets/headline_and_desc.dart';
+import '../../../widgets_global/cards_widgets/card_widget_for_event_promo_places.dart';
+import '../../events_elements/event_filter_page.dart';
+import '../../events_list_manager.dart';
+import '../event_view_screen.dart';
 
 
-// ---- ЭКРАН ИЗБРАННЫХ ЗАВЕДЕНИЙ ------
+// ---- ЭКРАН ЛЕНТЫ ЗАВЕДЕНИЙ ------
 
-class EventsFavPage extends StatefulWidget {
-  const EventsFavPage({Key? key}) : super(key: key);
+class EventsFeedPage extends StatefulWidget {
+  const EventsFeedPage({Key? key}) : super(key: key);
 
   @override
-  EventsFavPageState createState() => EventsFavPageState();
+  EventsFeedPageState createState() => EventsFeedPageState();
 }
 
 
 
-class EventsFavPageState extends State<EventsFavPage> {
+class EventsFeedPageState extends State<EventsFeedPage> {
 
-  // --- ОБЪЯВЛЯЕМ ПЕРЕМЕННЫЕ -----
-
-  EventsList eventsList = EventsList();
+  EventsList eventsList = EventListsManager.currentFeedEventsList;
   late List<EventCategory> eventCategoriesList;
 
   // --- Переменные фильтра по умолчанию ----
@@ -65,7 +64,7 @@ class EventsFavPageState extends State<EventsFavPage> {
   // --- Рекламные переменные -----
 
   // --- Список рекламы ---
-  List<String> adList = ['Реклама №1', 'Реклама №2'];
+  List<String> adList = ['Реклама №1', 'Реклама №2', 'Реклама №3', 'Реклама №4', 'Реклама №5'];
   List<Pair> allElementsList = [];
   // ---- Список для хранения индексов элементов рекламы
   List<int> adIndexesList = [];
@@ -73,10 +72,6 @@ class EventsFavPageState extends State<EventsFavPage> {
   int adStep = 2;
   // --- Индекс первого рекламного элемента
   int firstIndexOfAd = 1;
-
-  void _showSnackBar(String text, Color color, int showSeconds){
-    showSnackBar(context, text, color, showSeconds);
-  }
 
   @override
   void initState(){
@@ -101,9 +96,17 @@ class EventsFavPageState extends State<EventsFavPage> {
 
     adIndexesList = AdUser.getAdIndexesList(adList, adStep, firstIndexOfAd);
 
-    // --- Подгружаем список мероприятий
+    // ---- Подгружаем город в фильтр из данных пользователя ---
 
-    await _getEventsList(refresh: false);
+    if (UserCustom.currentUser != null){
+      setState(() {
+        cityFromFilter = UserCustom.currentUser!.city;
+      });
+    }
+
+    // ---- Получаем список мероприятий и рекламы
+
+    await _getEventsList();
 
     setState(() {
       loading = false;
@@ -124,27 +127,26 @@ class EventsFavPageState extends State<EventsFavPage> {
           },
           child: Stack (
             children: [
-              if (UserCustom.currentUser?.uid == null || UserCustom.currentUser?.uid == '') Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Text(
-                    'Чтобы добавлять мероприятия в избранные, нужно зарегистрироваться',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    textAlign: TextAlign.center,
-                  ),
-                )
-              )
-              else if (loading) const LoadingScreen(loadingText: 'Подожди, идет загрузка мероприятий')
+
+              // Экран загрузки
+
+              if (loading) const LoadingScreen(loadingText: AppConstants.eventsLoadingMessage)
+
+              // Экран обновления
+
               else if (refresh) Center(
                 child: Text(
-                  'Подожди, идет обновление мероприятий',
+                  AppConstants.eventsRefreshMessage,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               )
+
+              // Экран с фильтром и мероприятиями
+
               else Column(
                   children: [
 
-                    // ВИДЖЕТ ФИЛЬТРА
+                    // ---- Виджет фильтра
 
                     FilterWidget(
                       onFilterTap: (){
@@ -177,28 +179,34 @@ class EventsFavPageState extends State<EventsFavPage> {
                             itemCount: allElementsList.length,
                             itemBuilder: (context, index) {
 
-                              // ЕСЛИ ЭЛЕМЕНТ СПИСКА - РЕКЛАМА
+                              // --- ЕСЛИ ЭТО РЕКЛАМА, ОТОБРАЖАЕМ ВИДЖЕТ РЕКЛАМЫ ----
 
                               if (allElementsList[index].first == 'ad')  {
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(
                                       vertical: 20,
-                                      horizontal: 20),
+                                      horizontal: 20
+                                  ),
                                   child: HeadlineAndDesc(headline: adList[allElementsList[index].second], description: 'реклама'),
                                 );
                               }
 
-                              // ЕСЛИ ЭЛЕМЕНТ СПИСКА - МЕРОПРИЯТИЕ
+                              // ----- ЕСЛИ МЕРОПРИЯТИЕ, ТО КАРТОЧКУ МЕРОПРИЯТИЯ ----
 
                               else {
+
+                                // Переменная индекса мероприятия в списке, до смешивания с сущностями рекламы
                                 int indexWithAddCountCorrection = allElementsList[index].second;
+
+                                // ---- Виджет карточки
+
                                 return CardWidgetForEventPromoPlaces(
                                   height: 450,
                                   event: eventsList.eventsList[indexWithAddCountCorrection],
                                   onTap: () async {
+                                    // --- Переход на страницу просмотра мероприятия
                                     await goToEventViewScreen(indexWithAddCountCorrection);
                                   },
-
                                   // --- Функция на нажатие на карточке кнопки ИЗБРАННОЕ ---
                                   onFavoriteIconPressed: () async {
                                     await addOrDeleteInFav(indexWithAddCountCorrection);
@@ -214,51 +222,6 @@ class EventsFavPageState extends State<EventsFavPage> {
           ),
         )
     );
-  }
-
-  Future<void> _getEventsList({bool refresh = false}) async {
-
-    // ---- Обновляем счетчик выбранных настроек ----
-    setState(() {
-      _setFiltersCount(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, selectedStartDatePeriod, selectedEndDatePeriod);
-    });
-
-    if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
-      eventsList = await eventsList.getFavListFromDb(UserCustom.currentUser!.uid, refresh: refresh);
-    }
-
-    // Фильтруем список и внедряем в него рекламу
-    _filterListAndIncludeAd();
-
-  }
-
-  void _filterListAndIncludeAd(){
-
-    setState(() {
-
-      // Фильтруем список
-
-      eventsList.filterLists(
-          eventsList.generateMapForFilter(
-              eventCategoryFromFilter,
-              cityFromFilter,
-              freePrice,
-              today,
-              onlyFromPlaceEvents,
-              selectedStartDatePeriod,
-              selectedEndDatePeriod
-          )
-      );
-
-      // Сортируем список
-
-      eventsList.sortEntitiesList(_selectedSortingOption);
-
-      // Внедряем рекламу
-
-      allElementsList = AdUser.generateIndexedList(adIndexesList, eventsList.eventsList.length);
-
-    });
   }
 
   // ---- Функция обвноления счетчика выбранных настроек фильтра ----
@@ -319,13 +282,90 @@ class EventsFavPageState extends State<EventsFavPage> {
         eventsList = EventsList();
       });
 
-      await _getEventsList(refresh: false);
+      // Подгружаем список мероприятий и рекламы
+      await _getEventsList();
 
       setState(() {
         loading = false;
       });
+    }
+  }
+
+  Future<void> _getEventsList() async {
+
+    // ---- Обновляем счетчик выбранных настроек ----
+    setState(() {
+      _setFiltersCount(eventCategoryFromFilter, cityFromFilter, freePrice, today, onlyFromPlaceEvents, selectedStartDatePeriod, selectedEndDatePeriod);
+    });
+
+    // ----- РАБОТАЕМ СО СПИСКОМ МЕРОПРИЯТИЙ -----
+
+    if (EventListsManager.currentFeedEventsList.eventsList.isEmpty){
+      // ---- Если список пуст ----
+      // ---- Считываем с БД заведения -----
+
+      eventsList = await eventsList.getListFromDb();
+
+    } else {
+      // --- Если список не пустой ----
+      // --- Подгружаем готовый список ----
+
+      eventsList.eventsList = EventListsManager.currentFeedEventsList.eventsList;
 
     }
+
+    // Фильтруем список и внедряем в него рекламу
+    _filterListAndIncludeAd();
+
+  }
+
+  Future<void> refreshList() async {
+    setState(() {
+      refresh = true;
+    });
+
+    eventsList = EventsList();
+
+    // Подгружаем список мероприятий с базы данных
+
+    eventsList = await eventsList.getListFromDb();
+
+    _filterListAndIncludeAd();
+
+    setState(() {
+      refresh = false;
+    });
+  }
+
+  void _filterListAndIncludeAd(){
+
+
+
+    setState(() {
+
+      // Фильтруем список
+
+      eventsList.filterLists(
+          eventsList.generateMapForFilter(
+              eventCategoryFromFilter,
+              cityFromFilter,
+              freePrice,
+              today,
+              onlyFromPlaceEvents,
+              selectedStartDatePeriod,
+              selectedEndDatePeriod
+          )
+      );
+
+      // Сортируем список
+
+      eventsList.sortEntitiesList(_selectedSortingOption);
+
+      // Внедряем рекламу
+
+      allElementsList = AdUser.generateIndexedList(adIndexesList, eventsList.eventsList.length);
+
+    });
   }
 
   // ----- Путь для открытия всплывающей страницы фильтра ----
@@ -337,14 +377,14 @@ class EventsFavPageState extends State<EventsFavPage> {
 
         // --- Сама страница фильтра ---
         return EventFilterPage(
-          categories: categories,
-          chosenCategory: eventCategoryFromFilter,
-          chosenCity: cityFromFilter,
-          freePrice: freePrice,
-          onlyFromPlaceEvents: onlyFromPlaceEvents,
-          today: today,
-          selectedEndDatePeriod: selectedEndDatePeriod,
-          selectedStartDatePeriod: selectedStartDatePeriod,
+            categories: categories,
+            chosenCategory: eventCategoryFromFilter,
+            chosenCity: cityFromFilter,
+            freePrice: freePrice,
+            onlyFromPlaceEvents: onlyFromPlaceEvents,
+            today: today,
+            selectedEndDatePeriod: selectedEndDatePeriod,
+            selectedStartDatePeriod: selectedStartDatePeriod,
         );
       },
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
@@ -361,6 +401,9 @@ class EventsFavPageState extends State<EventsFavPage> {
   }
 
   Future<void> goToEventViewScreen(int indexWithAddCountCorrection) async {
+
+    // Переходим на страницу заведения
+
     final results = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -423,17 +466,8 @@ class EventsFavPageState extends State<EventsFavPage> {
     }
   }
 
-  Future<void> refreshList() async {
-    setState(() {
-      refresh = true;
-    });
-
-    eventsList = EventsList();
-
-    await _getEventsList(refresh: true);
-
-    setState(() {
-      refresh = false;
-    });
+  void _showSnackBar(String text, Color color, int secondsToShow){
+    showSnackBar(context, text, color, secondsToShow);
   }
+
 }

@@ -5,19 +5,19 @@ import 'package:dvij_flutter/events/events_list_class.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
-import '../../ads/ad_user_class.dart';
-import '../../constants/constants.dart';
-import '../../widgets_global/cards_widgets/card_widget_for_event_promo_places.dart';
-import '../../widgets_global/filter_widgets/filter_widget.dart';
-import '../event_class.dart';
-import '../../classes/pair.dart';
-import '../../current_user/user_class.dart';
-import '../../elements/loading_screen.dart';
-import '../../elements/snack_bar.dart';
-import '../../widgets_global/text_widgets/headline_and_desc.dart';
-import '../events_elements/event_filter_page.dart';
-import 'create_or_edit_event_screen.dart';
-import 'event_view_screen.dart';
+import '../../../ads/ad_user_class.dart';
+import '../../../constants/constants.dart';
+import '../../../widgets_global/cards_widgets/card_widget_for_event_promo_places.dart';
+import '../../../widgets_global/filter_widgets/filter_widget.dart';
+import '../../event_class.dart';
+import '../../../classes/pair.dart';
+import '../../../current_user/user_class.dart';
+import '../../../elements/loading_screen.dart';
+import '../../../elements/snack_bar.dart';
+import '../../../widgets_global/text_widgets/headline_and_desc.dart';
+import '../../events_elements/event_filter_page.dart';
+import '../create_or_edit_event_screen.dart';
+import '../event_view_screen.dart';
 
 
 // ---- ЭКРАН ЛЕНТЫ ЗАВЕДЕНИЙ ------

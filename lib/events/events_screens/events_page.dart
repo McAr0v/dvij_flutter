@@ -1,12 +1,8 @@
-import 'package:dvij_flutter/current_user/user_class.dart';
+import 'package:dvij_flutter/classes/entity_page_type_enum.dart';
+import 'package:dvij_flutter/events/events_screens/events_lists_page.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../../navigation/custom_drawer.dart';
-import 'events_fav_page.dart';
-import 'events_feed_page.dart';
-import 'events_my_page.dart';
+
 
 
 class EventsPage extends StatelessWidget {
@@ -31,9 +27,12 @@ class EventsPage extends StatelessWidget {
             Expanded(
               child: TabBarView(
                 children: [
-                  EventsFeedPage(),
-                  EventsFavPage(),
-                  EventsMyPage()
+                  //EventsFeedPage(),
+                  //EventsFavPage(),
+                  //EventsMyPage()
+                  EventsListsPage(pageTypeEnum: EntityPageTypeEnum.feed),
+                  EventsListsPage(pageTypeEnum: EntityPageTypeEnum.fav),
+                  EventsListsPage(pageTypeEnum: EntityPageTypeEnum.my),
                 ],
               ),
             ),

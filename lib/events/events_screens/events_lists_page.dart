@@ -1,4 +1,5 @@
 import 'package:dvij_flutter/classes/entity_page_type_enum.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../ads/ad_user_class.dart';
 import '../../cities/city_class.dart';
@@ -17,6 +18,7 @@ import '../event_sorting_options.dart';
 import '../events_elements/event_filter_page.dart';
 import '../events_list_class.dart';
 import '../events_list_manager.dart';
+import 'create_or_edit_event_screen.dart';
 import 'event_view_screen.dart';
 
 class EventsListsPage extends StatefulWidget {
@@ -71,6 +73,8 @@ class _EventsListsPageState extends State<EventsListsPage> {
   // --- Индекс первого рекламного элемента
   int firstIndexOfAd = 1;
 
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   @override
   void initState() {
     super.initState();
@@ -123,9 +127,34 @@ class _EventsListsPageState extends State<EventsListsPage> {
           child: Stack (
             children: [
 
+              if ((UserCustom.currentUser?.uid == null || UserCustom.currentUser?.uid == '') && widget.pageTypeEnum == EntityPageTypeEnum.fav) Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Text(
+                      'Чтобы добавлять мероприятия в избранные, нужно зарегистрироваться',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                      textAlign: TextAlign.center,
+                    ),
+                  )
+              )
+
+              else if (
+              (UserCustom.currentUser == null || UserCustom.currentUser!.uid == '' || !_auth.currentUser!.emailVerified)
+                  && widget.pageTypeEnum == EntityPageTypeEnum.my
+              ) Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Text(
+                      'Чтобы создавать мероприятия, нужно зарегистрироваться',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                      textAlign: TextAlign.center,
+                    ),
+                  )
+              )
+
               // Экран загрузки
 
-              if (loading) const LoadingScreen(loadingText: AppConstants.eventsLoadingMessage)
+              else if (loading) const LoadingScreen(loadingText: AppConstants.eventsLoadingMessage)
 
               // Экран обновления
 
@@ -215,7 +244,40 @@ class _EventsListsPageState extends State<EventsListsPage> {
                 ),
             ],
           ),
-        )
+        ),
+      floatingActionButton: widget.pageTypeEnum == EntityPageTypeEnum.my ? FloatingActionButton(
+        onPressed: () {
+
+          // Если пользователь зарегистрирован и подтвердил email
+
+          if ((UserCustom.currentUser != null && UserCustom.currentUser!.uid != '' && _auth.currentUser!.emailVerified) && widget.pageTypeEnum == EntityPageTypeEnum.my ) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => CreateOrEditEventScreen(eventInfo: EventCustom.emptyEvent)),
+            );
+          }
+
+          // Если пользователь не подтвредил почту
+
+          else if (_auth.currentUser != null && !_auth.currentUser!.emailVerified) {
+
+            showSnackBar(context,'Чтобы создать мероприятие, нужно подтвердить почту', AppColors.attentionRed, 2);
+
+          }
+
+          // Если пользователь совсем не проходил никакую регистрацию
+
+          else {
+
+            showSnackBar(context,'Чтобы создать мероприятие, нужно зарегистрироваться', AppColors.attentionRed, 2);
+
+          }
+
+        },
+        backgroundColor: AppColors.brandColor,
+        child: const Icon(Icons.add), // Цвет кнопки
+      ) : null
+
     );
   }
 
@@ -272,8 +334,6 @@ class _EventsListsPageState extends State<EventsListsPage> {
     } else {
       await _getEventsList(pageTypeEnum: widget.pageTypeEnum, refresh: true);
     }
-
-
 
     _filterListAndIncludeAd();
 
