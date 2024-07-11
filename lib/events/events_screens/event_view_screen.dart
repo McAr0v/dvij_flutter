@@ -1,5 +1,6 @@
 import 'package:dvij_flutter/events/event_class.dart';
 import 'package:dvij_flutter/events/events_list_manager.dart';
+import 'package:dvij_flutter/widgets_global/images/image_in_view_screen_widget.dart';
 import 'package:dvij_flutter/widgets_global/place_or_location_widgets/place_or_location_widget.dart';
 import 'package:dvij_flutter/widgets_global/schedule_widgets/schedule_widget.dart';
 import 'package:dvij_flutter/widgets_global/social_widgets/callback_widget.dart';
@@ -14,7 +15,6 @@ import '../../places/place_class.dart';
 import '../../classes/priceTypeOptions.dart';
 import '../../current_user/user_class.dart';
 import '../../elements/exit_dialog/exit_dialog.dart';
-import '../../widgets_global/images/image_for_view_screen.dart';
 import '../../widgets_global/text_widgets/expandable_text.dart';
 import '../../elements/loading_screen.dart';
 import '../../elements/snack_bar.dart';
@@ -33,21 +33,13 @@ class EventViewScreenState extends State<EventViewScreen> {
 
   // ---- Инициализируем пустые переменные ----
 
-  bool today = false;
-
   UserCustom creator = UserCustom.empty();
   PlaceUserRole currentUserPlaceRole = PlaceUserRole();
 
   EventCustom event = EventCustom.emptyEvent;
 
-  DateTime currentDate = DateTime.now();
-
   Place place = Place.emptyPlace;
   PlaceUser currentPlaceUser = PlaceUser();
-
-  String price = '';
-  int favCounter = 0;
-  bool inFav = false;
 
   // --- Переключатель показа экрана загрузки -----
 
@@ -67,15 +59,14 @@ class EventViewScreenState extends State<EventViewScreen> {
 
   Future<void> fetchAndSetData() async {
 
-    // Подгружаем данные заведения
+    // Подгружаем мероприятие
     if (EventListsManager.currentFeedEventsList.eventsList.isNotEmpty){
       event = event.getEntityFromFeedList(widget.eventId);
     } else {
       event = await event.getEntityByIdFromDb(widget.eventId);
     }
 
-    price = PriceTypeEnumClass.getFormattedPriceString(event.priceType, event.price);
-
+    // Подгружаем данные заведения
     if (event.placeId != '') {
 
       if (PlaceListManager.currentFeedPlacesList.placeList.isNotEmpty){
@@ -108,17 +99,12 @@ class EventViewScreenState extends State<EventViewScreen> {
 
       currentPlaceUser.placeUserRole = UserCustom.currentUser!.getPlaceRoleFromMyPlaces(event.placeId);
 
-      //currentUserPlaceRole = currentUserPlaceRole.searchPlaceUserRoleInAdminsList(place.admins!, currentPlaceUser);
-      //currentPlaceUser.placeUserRole = currentUserPlaceRole;
       // Грузим создателя из БД
       creator = await creator.getUserByEmailOrId(uid: event.creatorId);
 
     } else {
       creator = await creator.getUserByEmailOrId(uid: event.creatorId);
     }
-
-    inFav = event.inFav;
-    favCounter = event.favUsersIds.length;
 
     // ---- Убираем экран загрузки -----
     setState(() {
@@ -180,7 +166,7 @@ class EventViewScreenState extends State<EventViewScreen> {
             onPressed: () {
               // Возвращаем данные о состоянии избранного на экран ленты
               // На случай, если мы добавляли/убирали из избранного
-              List<dynamic> result = [inFav, favCounter];
+              List<dynamic> result = [true];
               Navigator.of(context).pop(result);
             },
           ),
@@ -190,6 +176,7 @@ class EventViewScreenState extends State<EventViewScreen> {
 
             if (currentPlaceUser.placeUserRole.controlLevel >= 90) IconButton(
                 onPressed: () async {
+                  // TODO сделать возвращение с экрана редактирования с ожиданием результата
                   Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => CreateOrEditEventScreen(eventInfo: event,))
@@ -214,16 +201,17 @@ class EventViewScreenState extends State<EventViewScreen> {
             // ---- Экран загрузки ----
             if (loading) const LoadingScreen(loadingText: 'Подожди, идет загрузка данных',)
             else if (deleting) const LoadingScreen(loadingText: 'Подожди, удаляем мероприятие',)
-            else if (!loading && !deleting) CustomScrollView(
+            else CustomScrollView(
                 slivers: <Widget> [
                   SliverList(delegate: SliverChildListDelegate(
                       [
-                        ImageForViewScreen(
+
+                        ImageInViewScreenWidget(
                             imagePath: event.imageUrl,
-                            favCounter: favCounter,
-                            inFav: inFav,
+                            favCounter: event.favUsersIds.length,
+                            inFav: event.inFav,
                             onTap: () async {
-                              addOrDeleteFromFav();
+                              await addOrDeleteFromFav();
                             },
                             categoryName: event.category.name,
                             headline: event.headline,
@@ -253,7 +241,7 @@ class EventViewScreenState extends State<EventViewScreen> {
                                 whatsapp: event.whatsapp,
                                 phone: event.phone,
                                 instagram: event.instagram,
-                                price: price,
+                                price: PriceTypeEnumClass.getFormattedPriceString(event.priceType, event.price),
                               ),
 
                               const SizedBox(height: 16.0),
@@ -297,22 +285,11 @@ class EventViewScreenState extends State<EventViewScreen> {
     }
     else {
 
-      setState(() {
-        loading = true;
-      });
-
-      if (inFav)
+      if (event.inFav)
       {
         String resDel = await event.deleteFromFav();
 
         if (resDel == 'success'){
-          setState(() {
-            inFav = false;
-            favCounter --;
-            event.inFav = inFav;
-            //event.favUsersIds = favCounter;
-            event.updateCurrentListFavInformation();
-          });
 
           _showSnackBar('Удалено из избранных', AppColors.attentionRed, 1);
 
@@ -325,14 +302,6 @@ class EventViewScreenState extends State<EventViewScreen> {
 
         if (res == 'success') {
 
-          setState(() {
-            inFav = true;
-            favCounter ++;
-            event.inFav = inFav;
-            //event.favUsersIds = favCounter;
-            event.updateCurrentListFavInformation();
-          });
-
           _showSnackBar('Добавлено в избранные', Colors.green, 1);
 
         } else {
@@ -340,9 +309,12 @@ class EventViewScreenState extends State<EventViewScreen> {
         }
       }
 
+      EventCustom tempEvent = await event.getEntityByIdFromDb(event.id);
+
       setState(() {
-        loading = false;
+        event = tempEvent;
       });
+
     }
   }
 }

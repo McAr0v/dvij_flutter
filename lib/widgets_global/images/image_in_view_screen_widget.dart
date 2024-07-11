@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../themes/app_colors.dart';
 import '../text_widgets/for_cards_small_widget_with_icon_and_text.dart';
 import '../text_widgets/headline_and_desc.dart';
@@ -7,7 +7,7 @@ import '../text_widgets/now_is_work_widget.dart';
 import '../text_widgets/text_size_enum.dart';
 import 'image_with_placeholder.dart';
 
-class ImageForViewScreen extends StatelessWidget {
+class ImageInViewScreenWidget extends StatefulWidget {
   final String imagePath;
   final int favCounter;
   final bool inFav;
@@ -19,8 +19,7 @@ class ImageForViewScreen extends StatelessWidget {
   final String trueText;
   final String falseText;
 
-
-  const ImageForViewScreen({
+  const ImageInViewScreenWidget({
     required this.imagePath,
     required this.favCounter,
     required this.inFav,
@@ -31,7 +30,30 @@ class ImageForViewScreen extends StatelessWidget {
     required this.openOrToday,
     required this.trueText,
     required this.falseText,
-    super.key});
+    Key? key
+  }) : super(key: key);
+
+  @override
+  State<ImageInViewScreenWidget> createState() => _ImageInViewScreenWidgetState();
+}
+
+class _ImageInViewScreenWidgetState extends State<ImageInViewScreenWidget> {
+
+  bool _isLoading = false;
+
+  void _handlePressed() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await widget.onTap();
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,20 +62,33 @@ class ImageForViewScreen extends StatelessWidget {
 
         // Картинка
 
-        ImageWithPlaceHolderWidget(imagePath: imagePath),
+        ImageWithPlaceHolderWidget(imagePath: widget.imagePath),
 
         // Виджет ИЗБРАННОЕ
 
-        Positioned(
+        if (_isLoading) Positioned(
+          top: 10.0,
+          right: 10.0,
+          child: IconAndTextInTransparentSurfaceWidget(
+            icon: FontAwesomeIcons.circle,
+            text: 'в процессе...',
+            iconColor: AppColors.brandColor,
+            side: false,
+            backgroundColor: AppColors.greyBackground.withOpacity(0.8),
+            onPressed: (){},
+          ),
+        ),
+
+        if (!_isLoading) Positioned(
           top: 10.0,
           right: 10.0,
           child: IconAndTextInTransparentSurfaceWidget(
             icon: Icons.bookmark,
-            text: '$favCounter',
-            iconColor: inFav ? AppColors.brandColor : AppColors.white,
+            text: '${widget.favCounter}',
+            iconColor: widget.inFav ? AppColors.brandColor : AppColors.white,
             side: false,
             backgroundColor: AppColors.greyBackground.withOpacity(0.8),
-            onPressed: onTap,
+            onPressed: _handlePressed,
           ),
         ),
 
@@ -63,7 +98,7 @@ class ImageForViewScreen extends StatelessWidget {
           top: 10.0,
           left: 10.0,
           child: IconAndTextInTransparentSurfaceWidget(
-              text: categoryName,
+              text: widget.categoryName,
               iconColor: AppColors.white,
               side: true,
               backgroundColor: AppColors.greyBackground.withOpacity(0.8)
@@ -81,15 +116,15 @@ class ImageForViewScreen extends StatelessWidget {
 
                 // ФЛАГ - СЕЙЧАС ОТКРЫТО / ЗАКРЫТО
 
-                TextOnBoolResultWidget(isTrue: openOrToday, trueText: trueText, falseText: falseText),
+                TextOnBoolResultWidget(isTrue: widget.openOrToday, trueText: widget.trueText, falseText: widget.falseText),
 
                 const SizedBox(height: 5,),
 
                 // НАЗВАНИЕ И АДРЕС
 
                 HeadlineAndDesc(
-                  headline: headline,
-                  description: desc,
+                  headline: widget.headline,
+                  description: widget.desc,
                   textSize: TextSizeEnum.headlineLarge,
                   descSize: TextSizeEnum.bodySmall,
                   descColor: AppColors.white,
@@ -102,5 +137,4 @@ class ImageForViewScreen extends StatelessWidget {
       ],
     );
   }
-
 }

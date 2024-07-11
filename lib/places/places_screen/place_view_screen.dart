@@ -5,10 +5,9 @@ import 'package:dvij_flutter/events/events_list_class.dart';
 import 'package:dvij_flutter/places/place_admins_screens/place_admins_screen.dart';
 import 'package:dvij_flutter/places/place_list_class.dart';
 import 'package:dvij_flutter/places/places_elements/add_managers_widget.dart';
-import 'package:dvij_flutter/widgets_global/images/image_for_view_screen.dart';
+import 'package:dvij_flutter/widgets_global/images/image_in_view_screen_widget.dart';
 import 'package:dvij_flutter/widgets_global/schedule_widgets/schedule_regular_widget.dart';
 import 'package:dvij_flutter/widgets_global/text_widgets/expandable_text.dart';
-import 'package:dvij_flutter/widgets_global/social_widgets/social_buttons_widget.dart';
 import 'package:dvij_flutter/promos/promos_list_class.dart';
 import 'package:dvij_flutter/users/place_user_class.dart';
 import 'package:dvij_flutter/users/place_users_roles.dart';
@@ -160,12 +159,12 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
                   delegate: SliverChildListDelegate(
                     [
 
-                      ImageForViewScreen(
+                      ImageInViewScreenWidget(
                           imagePath: place.imageUrl,
                           favCounter: favCounter,
                           inFav: inFav,
                           onTap: () async {
-                            addOrDeleteFromFav();
+                            await addOrDeleteFromFav();
                           },
                           categoryName: place.category.name,
                           headline: place.name,
