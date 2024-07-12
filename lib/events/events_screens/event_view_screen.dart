@@ -135,19 +135,12 @@ class EventViewScreenState extends State<EventViewScreen> {
     Navigator.of(context).pop(result);
   }
 
-  Future<bool> _onPop() async {
-    // Возвращаем данные о состоянии избранного на экран ленты
-    // На случай, если мы добавляли/убирали из избранного
-    List<dynamic> result = [true];
-    Navigator.of(context).pop(result);
-    return true;
-  }
-
   void _showSnackBar(String text, Color color, int time){
     showSnackBar(context, text, color, time);
   }
 
   Future<void> deleteEvent() async {
+
 
     bool? confirmed = await exitDialog(context, "Ты правда хочешь удалить мероприятие? Ты не сможешь восстановить данные" , 'Да', 'Нет', 'Удаление мероприятия');
 

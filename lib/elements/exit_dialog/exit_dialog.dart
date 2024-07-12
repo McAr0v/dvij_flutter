@@ -1,135 +1,49 @@
+import 'package:dvij_flutter/elements/buttons/custom_only_text_button.dart';
 import 'package:flutter/material.dart';
 import '../../themes/app_colors.dart';
+
+// TODO обернуть виджет exitDialog в нормальный виджет
 
 Future<bool?> exitDialog(BuildContext context, String message, String confirmText, String cancelText, String headline) async {
   return await showDialog<bool>(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
+        buttonPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+        contentPadding: const EdgeInsets.fromLTRB(30, 10, 30, 15),
         backgroundColor: AppColors.greyOnBackground,
-        title: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-
-            Text(
-              headline,
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-
-            const SizedBox(height: 20,),
-
-            Text(
-              message,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-
-          ],
+        actionsPadding: const EdgeInsets.fromLTRB(30, 10, 30, 30),
+        titlePadding: const EdgeInsets.fromLTRB(30, 30, 30, 10),
+        title: Text(
+          headline,
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
+        content: Text(
+          message,
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
 
+        actionsAlignment: MainAxisAlignment.end,
+
         actions: [
-          TextButton(
-            style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.resolveWith<Color?>(
-                    (Set<MaterialState> states) {
-                  return Colors.transparent;
-                },
-              ),
-              padding: MaterialStateProperty.resolveWith<EdgeInsets?>(
-                    (Set<MaterialState> states) {
-                  return const EdgeInsets.fromLTRB(20, 0, 0, 20);
-                },
-              ),
-              textStyle: MaterialStateProperty.resolveWith<TextStyle?>(
-                    (Set<MaterialState> states) {
-                  return const TextStyle(
-                      fontSize: 16,
-                      fontFamily: 'SfProDisplay',
-                      fontWeight: FontWeight.normal,
-                      height: 1.3
-                  );
-                },
-              ),
-              foregroundColor: MaterialStateProperty.resolveWith<Color?>(
-                    (Set<MaterialState> states) {
-                  return AppColors.attentionRed;
-                },
-              ),
-              side: MaterialStateProperty.resolveWith<BorderSide?>(
-                    (Set<MaterialState> states) {
-                  return const BorderSide(
-                    color: Colors.transparent, // Цвет границы
-                    width: 0.0, // Толщина границы
-                  );
-                },
-              ),
-              minimumSize: MaterialStateProperty.resolveWith<Size?>(
-                    (Set<MaterialState> states) {
-                  return const Size(0, 0); // Задайте минимальную ширину и высоту
-                },
-              ),
-            ),
-            onPressed: () {
+          CustomOnlyTextButton(
+            buttonText: cancelText,
+            textColor: AppColors.attentionRed,
+            onTap: (){
               Navigator.of(context).pop(false); // Закрыть диалог и вернуть `false`
             },
-            child: Text(
-              cancelText,
-              style: const TextStyle(
-                color: Colors.red, // Устанавливаем цвет текста для кнопки "Нет"
-              ),
-            ),
+            smallOrBig: false,
           ),
-          TextButton(
-            style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.resolveWith<Color?>(
-                    (Set<MaterialState> states) {
-                  return Colors.transparent;
-                },
-              ),
-              padding: MaterialStateProperty.resolveWith<EdgeInsets?>(
-                    (Set<MaterialState> states) {
-                  return const EdgeInsets.fromLTRB(20, 0, 0, 20);
-                },
-              ),
-              textStyle: MaterialStateProperty.resolveWith<TextStyle?>(
-                    (Set<MaterialState> states) {
-                  return const TextStyle(
-                      fontSize: 16,
-                      fontFamily: 'SfProDisplay',
-                      fontWeight: FontWeight.normal,
-                      height: 1.3
-                  );
-                },
-              ),
-              foregroundColor: MaterialStateProperty.resolveWith<Color?>(
-                    (Set<MaterialState> states) {
-                  return AppColors.attentionRed;
-                },
-              ),
-              side: MaterialStateProperty.resolveWith<BorderSide?>(
-                    (Set<MaterialState> states) {
-                  return const BorderSide(
-                    color: Colors.transparent, // Цвет границы
-                    width: 0.0, // Толщина границы
-                  );
-                },
-              ),
-              minimumSize: MaterialStateProperty.resolveWith<Size?>(
-                    (Set<MaterialState> states) {
-                  return const Size(0, 0); // Задайте минимальную ширину и высоту
-                },
-              ),
-            ),
-            onPressed: () {
+
+          CustomOnlyTextButton(
+            buttonText: confirmText,
+            textColor: Colors.green,
+            onTap: () {
               Navigator.of(context).pop(true); // Закрыть диалог и вернуть `true`
             },
-            child: Text(
-              confirmText,
-              style: const TextStyle(
-                color: Colors.green, // Устанавливаем цвет текста для кнопки "Да"
-              ),
-            ),
+            smallOrBig: false,
           ),
+
         ],
       );
     },

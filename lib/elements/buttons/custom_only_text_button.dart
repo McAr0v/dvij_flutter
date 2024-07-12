@@ -5,12 +5,14 @@ class CustomOnlyTextButton extends StatelessWidget {
   final String buttonText;
   final Function()? onTap;
   final Color textColor;
+  final bool smallOrBig;
 
   const CustomOnlyTextButton({
     Key? key,
     required this.buttonText,
     this.onTap,
     this.textColor = AppColors.brandColor,
+    this.smallOrBig = true
   }) : super(key: key);
 
   @override
@@ -25,7 +27,7 @@ class CustomOnlyTextButton extends StatelessWidget {
         ),
         child: Text(
           buttonText,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: textColor),
+          style: smallOrBig ? Theme.of(context).textTheme.bodySmall?.copyWith(color: textColor) : Theme.of(context).textTheme.bodyMedium?.copyWith(color: textColor),
         ),
       ),
     );
