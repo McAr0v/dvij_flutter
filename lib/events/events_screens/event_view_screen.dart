@@ -1,4 +1,5 @@
 import 'package:dvij_flutter/events/event_class.dart';
+import 'package:dvij_flutter/events/events_list_class.dart';
 import 'package:dvij_flutter/events/events_list_manager.dart';
 import 'package:dvij_flutter/widgets_global/images/image_in_view_screen_widget.dart';
 import 'package:dvij_flutter/widgets_global/place_or_location_widgets/place_or_location_widget.dart';
@@ -34,12 +35,12 @@ class EventViewScreenState extends State<EventViewScreen> {
   // ---- Инициализируем пустые переменные ----
 
   UserCustom creator = UserCustom.empty();
-  PlaceUserRole currentUserPlaceRole = PlaceUserRole();
-
-  EventCustom event = EventCustom.emptyEvent;
 
   Place place = Place.emptyPlace;
   PlaceUser currentPlaceUser = PlaceUser();
+  PlaceUserRole currentUserPlaceRole = PlaceUserRole();
+
+  EventCustom event = EventCustom.emptyEvent;
 
   // --- Переключатель показа экрана загрузки -----
 
@@ -62,7 +63,10 @@ class EventViewScreenState extends State<EventViewScreen> {
     // Подгружаем мероприятие
     if (EventListsManager.currentFeedEventsList.eventsList.isNotEmpty){
       event = event.getEntityFromFeedList(widget.eventId);
-    } else {
+    }
+
+    // Если вдруг мероприятия не оказалось в списке, подгружаем из БД
+    if (event.id == '') {
       event = await event.getEntityByIdFromDb(widget.eventId);
     }
 
@@ -71,10 +75,13 @@ class EventViewScreenState extends State<EventViewScreen> {
 
       if (PlaceListManager.currentFeedPlacesList.placeList.isNotEmpty){
         place = place.getEntityFromFeedList(event.placeId);
-      } else {
-        place = await place.getEntityByIdFromDb(event.placeId);
-
       }
+
+      // Если заведения не окзалось в списке, подгружаем из БД
+      if (place.id == ''){
+        place = await place.getEntityByIdFromDb(event.placeId);
+      }
+
     }
 
     // Заполняем текущего пользователя в PlaceUser данными из профиля
@@ -112,13 +119,28 @@ class EventViewScreenState extends State<EventViewScreen> {
     });
   }
 
-  // ---- Функция перехода в профиль ----
-  void navigateToEvents() {
+  // ---- Функция перехода на страницу мероприятий ----
+  void _navigateToEventsAfterDelete() {
     Navigator.pushNamedAndRemoveUntil(
       context,
       '/Events',
           (route) => false,
     );
+  }
+
+  void _navigateToEvents() {
+    // Возвращаем данные о состоянии избранного на экран ленты
+    // На случай, если мы добавляли/убирали из избранного
+    List<dynamic> result = [true];
+    Navigator.of(context).pop(result);
+  }
+
+  Future<bool> _onPop() async {
+    // Возвращаем данные о состоянии избранного на экран ленты
+    // На случай, если мы добавляли/убирали из избранного
+    List<dynamic> result = [true];
+    Navigator.of(context).pop(result);
+    return true;
   }
 
   void _showSnackBar(String text, Color color, int time){
@@ -141,7 +163,8 @@ class EventViewScreenState extends State<EventViewScreen> {
         event.deleteEntityFromCurrentEntityLists();
 
         _showSnackBar('Мероприятие успешно удалено', Colors.green, 2);
-        navigateToEvents();
+
+        _navigateToEventsAfterDelete();
 
         setState(() {
           deleting = false;
@@ -160,14 +183,11 @@ class EventViewScreenState extends State<EventViewScreen> {
 
     return Scaffold(
         appBar: AppBar(
-          title: Text(event.headline != '' ? event.headline : 'Загрузка...'),
+          title: Text(event.headline.isNotEmpty ? event.headline : 'Загрузка...'),
           leading: IconButton(
             icon: const Icon(FontAwesomeIcons.chevronLeft, size: 18,),
             onPressed: () {
-              // Возвращаем данные о состоянии избранного на экран ленты
-              // На случай, если мы добавляли/убирали из избранного
-              List<dynamic> result = [true];
-              Navigator.of(context).pop(result);
+              _navigateToEvents();
             },
           ),
           actions: [
@@ -176,11 +196,9 @@ class EventViewScreenState extends State<EventViewScreen> {
 
             if (currentPlaceUser.placeUserRole.controlLevel >= 90) IconButton(
                 onPressed: () async {
-                  // TODO сделать возвращение с экрана редактирования с ожиданием результата
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => CreateOrEditEventScreen(eventInfo: event,))
-                  );
+
+                  await goToEventEditScreen();
+
                 },
                 icon: const Icon(Icons.edit)
             ),
@@ -196,86 +214,130 @@ class EventViewScreenState extends State<EventViewScreen> {
 
           ],
         ),
-        body: Stack (
-          children: [
-            // ---- Экран загрузки ----
-            if (loading) const LoadingScreen(loadingText: 'Подожди, идет загрузка данных',)
-            else if (deleting) const LoadingScreen(loadingText: 'Подожди, удаляем мероприятие',)
-            else CustomScrollView(
-                slivers: <Widget> [
-                  SliverList(delegate: SliverChildListDelegate(
-                      [
+        body: PopScope(
+          // POP SCOPE для обработки кнопки назад
+          canPop: false,
+          onPopInvoked: (bool didPop) async{
+            if (didPop){
+              return;
+            }
+            _navigateToEvents();
 
-                        ImageInViewScreenWidget(
-                            imagePath: event.imageUrl,
-                            favCounter: event.favUsersIds.length,
-                            inFav: event.inFav,
-                            onTap: () async {
-                              await addOrDeleteFromFav();
-                            },
-                            categoryName: event.category.name,
-                            headline: event.headline,
-                            desc: place.id != '' ? '${place.name}, ${place.city.name}, ${place.street}, ${place.house}' :  '${event.city.name}, ${event.street}, ${event.house}',
-                            openOrToday: event.today,
-                            trueText: 'Сегодня',
-                            falseText: ''
-                        ),
 
-                        // ВИДЖЕТЫ ПОД КАРТИНКОЙ
+          },
+          child: Stack (
+            children: [
+              // ---- Экран загрузки ----
+              if (loading) const LoadingScreen(loadingText: 'Подожди, идет загрузка данных',)
+              else if (deleting) const LoadingScreen(loadingText: 'Подожди, удаляем мероприятие',)
+              else CustomScrollView(
+                  slivers: <Widget> [
+                    SliverList(delegate: SliverChildListDelegate(
+                        [
 
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-
-                              if (event.desc != '') ExpandableText(text: event.desc),
-
-                              const SizedBox(height: 20.0),
-
-                              // ВИДЖЕТ ЦЕНЫ И ОБРАТНОЙ СВЯЗИ
-
-                              CallbackWidget(
-                                priceType: event.priceType,
-                                telegram: event.telegram,
-                                whatsapp: event.whatsapp,
-                                phone: event.phone,
-                                instagram: event.instagram,
-                                price: PriceTypeEnumClass.getFormattedPriceString(event.priceType, event.price),
-                              ),
-
-                              const SizedBox(height: 16.0),
-
-                              // ВИДЖЕТ РАСПИСАНИЯ
-
-                              ScheduleWidget(event: event),
-
-                              const SizedBox(height: 16.0),
-
-                              PlaceOrLocationWidget(
-                                  city: event.city,
-                                  desc: event.placeId != '' ? 'Ты можешь перейти в заведение и ознакомиться с ним подробнее' : 'Адрес, где будет проводится мероприятие',
-                                  headline: event.placeId != '' ? 'Место проведения: ${place.name}' : 'Место проведения',
-                                  house: event.house,
-                                  street: event.street,
-                                place: place,
-                              ),
-
-                              if (creator.uid != '') const SizedBox(height: 16.0),
-
-                              if (creator.uid != '') CreatorWidget(headline: 'Создатель мероприятия', desc: 'Ты можешь написать создателю и задать вопросы', user: creator),
-
-                            ],
+                          ImageInViewScreenWidget(
+                              imagePath: event.imageUrl,
+                              favCounter: event.favUsersIds.length,
+                              inFav: event.inFav,
+                              onTap: () async {
+                                await addOrDeleteFromFav();
+                              },
+                              categoryName: event.category.name,
+                              headline: event.headline,
+                              desc: place.id != '' ? '${place.name}, ${place.city.name}, ${place.street}, ${place.house}' :  '${event.city.name}, ${event.street}, ${event.house}',
+                              openOrToday: event.today,
+                              trueText: 'Сегодня',
+                              falseText: ''
                           ),
-                        )
-                      ]
+
+                          // ВИДЖЕТЫ ПОД КАРТИНКОЙ
+
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+
+                                if (event.desc != '') ExpandableText(text: event.desc),
+
+                                const SizedBox(height: 20.0),
+
+                                // ВИДЖЕТ ЦЕНЫ И ОБРАТНОЙ СВЯЗИ
+
+                                CallbackWidget(
+                                  priceType: event.priceType,
+                                  telegram: event.telegram,
+                                  whatsapp: event.whatsapp,
+                                  phone: event.phone,
+                                  instagram: event.instagram,
+                                  price: PriceTypeEnumClass.getFormattedPriceString(event.priceType, event.price),
+                                ),
+
+                                const SizedBox(height: 16.0),
+
+                                // ВИДЖЕТ РАСПИСАНИЯ
+
+                                ScheduleWidget(event: event),
+
+                                const SizedBox(height: 16.0),
+
+                                PlaceOrLocationWidget(
+                                    city: event.city,
+                                    desc: event.placeId != '' ? 'Ты можешь перейти в заведение и ознакомиться с ним подробнее' : 'Адрес, где будет проводится мероприятие',
+                                    headline: event.placeId != '' ? 'Место проведения: ${place.name}' : 'Место проведения',
+                                    house: event.house,
+                                    street: event.street,
+                                  place: place,
+                                ),
+
+                                if (creator.uid != '') const SizedBox(height: 16.0),
+
+                                if (creator.uid != '') CreatorWidget(headline: 'Создатель мероприятия', desc: 'Ты можешь написать создателю и задать вопросы', user: creator),
+
+                              ],
+                            ),
+                          )
+                        ]
+                      )
                     )
-                  )
-                ],
-              )
-          ],
+                  ],
+                )
+            ],
+          ),
         )
     );
+  }
+
+  Future<void> goToEventEditScreen() async {
+
+    // Переходим на страницу редактирования
+
+    final results = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CreateOrEditEventScreen(eventInfo: event,),
+      ),
+    );
+
+    // Если есть результат с той страницы
+
+    if (results != null) {
+
+      setState(() {
+        loading = true;
+      });
+
+      EventsList eventsList = EventsList();
+
+      // Подгружаем мероприятие из общего списка
+      EventCustom eventCustom = eventsList.getEntityFromFeedListById(event.id);
+
+      // Заменяем мероприятие на обновленное
+      setState(() {
+        event = eventCustom;
+        loading = false;
+      });
+    }
   }
 
   Future<void> addOrDeleteFromFav() async {

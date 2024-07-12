@@ -124,6 +124,11 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
     );
   }
 
+  void navigateToPreviousScreen(){
+    List<dynamic> result = [true];
+    Navigator.of(context).pop(result);
+  }
+
   // ------ Функция выбора изображения -------
 
   Future<void> _pickImage() async {
@@ -849,8 +854,13 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                               1,
                             );
 
-                            // Уходим в профиль
-                            navigateToEvents();
+                            if (widget.eventInfo.id.isNotEmpty){
+                              navigateToPreviousScreen();
+                            } else {
+                              // Уходим на страницу мероприятий
+                              navigateToEvents();
+                            }
+
 
                           }
 
