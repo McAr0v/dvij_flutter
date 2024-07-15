@@ -78,24 +78,39 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
 
   @override
   Future<EventsList> getMyListFromDb(String userId, {bool refresh = false}) async {
+
+    // Берем список моих мест из данных профиля
     List<MyPlaces> myPlaces = UserCustom.currentUser!.myPlaces;
 
+    // Создаем пустой список мероприятий
     EventsList events = EventsList();
 
+    // Дублируем уже скачанный список мероприятий
     EventsList downloadedEventsList = EventListsManager.currentFeedEventsList;
 
+    // Если скаченных мероприятий нет или нам нужно обновить список
     if (downloadedEventsList.eventsList.isEmpty || refresh) {
+      // Подгружаем заново список мероприятий
       EventsList tempList = await getListFromDb();
+      // Дублируем его в список скаченных
       downloadedEventsList = tempList;
     }
 
+    // Читаем каждое мероприятие из списка скаченных
     for (EventCustom event in downloadedEventsList.eventsList){
+      // Если создатель у мероприятия как ID пользователя
       if (event.creatorId == userId){
+        // Добавляем в список мероприятий
         events.eventsList.add(event);
       } else if (event.placeId != '' && myPlaces.isNotEmpty) {
+        // Если создатель не я, то проверяем мероприятие на заведение
+        // есть ли у меня как у администратора заведения права на редактирование мероприятия
+        // Пробегаемся по списку моих мест
         for (MyPlaces place in myPlaces){
+          // Если роль не читатель и не организатор
           if (place.placeId == event.placeId
               && (place.placeRole.roleInPlaceEnum != PlaceUserRoleEnum.reader && place.placeRole.roleInPlaceEnum != PlaceUserRoleEnum.org)){
+            // Так же добавляем в список
             events.eventsList.add(event);
             break;
           }

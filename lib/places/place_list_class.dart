@@ -206,42 +206,31 @@ class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
 
   @override
   Future<PlaceList> getMyListFromDb(String userId, {bool refresh = false}) async {
-    PlaceList places = PlaceList();
-    PlaceListManager.currentMyPlacesList = PlaceList();
-    List<String> placesId = [];
+    PlaceList placesToReturn = PlaceList();
 
-    if (UserCustom.currentUser != null) {
+    List<MyPlaces> myPlaces = UserCustom.currentUser!.myPlaces;
 
-      for (MyPlaces place in UserCustom.currentUser!.myPlaces){
-        placesId.add(place.placeId);
+    // Все нижеследующее имеет смысл, если есть хоть 1 мое заведение
+    if (myPlaces.isNotEmpty){
+
+      // Если список всех заведений пустой или нужно обновить список, подгружаем из базы данных
+      if (PlaceListManager.currentFeedPlacesList.placeList.isEmpty || refresh) {
+        await getListFromDb();
       }
-    }
 
-    // Если список ID не пустой, и не была вызвана функция обновления
-    if (placesId.isNotEmpty){
-
-      // Если список всей ленты не пустой, то будем забирать данные из него
-      if (PlaceListManager.currentFeedPlacesList.placeList.isNotEmpty && !refresh) {
-        for (String id in placesId) {
-          Place myPlace = getEntityFromFeedListById(id);
-          if (myPlace.id == id) {
-            PlaceListManager.currentMyPlacesList.placeList.add(myPlace);
-            places.placeList.add(myPlace);
-          }
-        }
-      } else {
-        // Если список ленты не прогружен, то считываем каждую сущность из БД
-        for (var place in placesId){
-          Place temp = Place.emptyPlace;
-          temp = await temp.getEntityByIdFromDb(place);
-          if (temp.id != ''){
-            PlaceListManager.currentMyPlacesList.placeList.add(temp);
-            places.placeList.add(temp);
+      // Если общий список заведений не пустой
+      if (PlaceListManager.currentFeedPlacesList.placeList.isNotEmpty){
+        // Подгружаем сущности моих заведений и добавляем в список
+        for (MyPlaces tempMyPlace in myPlaces) {
+          Place searchingPlace = getEntityFromFeedListById(tempMyPlace.placeId);
+          if (searchingPlace.id == tempMyPlace.placeId) {
+            placesToReturn.placeList.add(searchingPlace);
           }
         }
       }
+
     }
-    return places;
+    return placesToReturn;
   }
 
   @override

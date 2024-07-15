@@ -25,7 +25,7 @@ class RegularTwoTypeDateTimePickerWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text(DateMixin.getHumanWeekday(index, true), style: Theme.of(context).textTheme.bodyMedium,),
+        Text(DateMixin.getHumanWeekday(index+1, true), style: Theme.of(context).textTheme.bodyMedium,),
         const SizedBox(width: 20.0),
         _buildTimeDropdown(
             startTimeLabelText,

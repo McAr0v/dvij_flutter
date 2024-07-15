@@ -320,7 +320,7 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(widget.eventInfo.id != '' ? 'Редактирование мероприятия' : 'Создание мероприятия'),
+          title: Text(widget.eventInfo.id.isNotEmpty ? 'Редактирование мероприятия' : 'Создание мероприятия'),
         ),
         body: Stack (
             children: [
@@ -598,7 +598,7 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                         onDeletePlace: (){
                           setState(() {
                             chosenPlace = Place.emptyPlace;
-                            chosenCity = City(name: '', id: '');
+                            chosenCity = City.empty();
                           });
                         },
                         onShowPickerPlace: _showPlacePickerDialog,
@@ -610,14 +610,14 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                             inPlace = true;
                             streetController.text = '';
                             houseController.text = '';
-                            chosenCity = City(id: '', name: '');
+                            chosenCity = City.empty();
                           });
                         },
                         onTapInputAddress: (){
                           setState(() {
                             inPlace = false;
                             chosenPlace = Place.emptyPlace;
-                            chosenCity = City(id: '', name: '');
+                            chosenCity = City.empty();
                           });
                         },
                         streetController: streetController,
