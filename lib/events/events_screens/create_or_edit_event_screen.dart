@@ -47,7 +47,7 @@ class CreateOrEditEventScreen extends StatefulWidget {
 
 }
 
-// ----- ЭКРАН РЕДАКТИРОВАНИЯ ПРОФИЛЯ -------
+// ----- ЭКРАН РЕДАКТИРОВАНИЯ МЕРОПРИЯТИЯ -------
 
 class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
@@ -80,7 +80,7 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
   late TextEditingController startPriceController;
   late TextEditingController endPriceController;
 
-  // ПЕРЕМЕННЫЕ ВРЕМЕНИ РАБОТЫ?
+  // ПЕРЕМЕННЫЕ ВРЕМЕНИ РАБОТЫ
   late DateTime selectedDayInOnceType;
   String onceDayStartTime = 'Не выбрано';
   String onceDayFinishTime = 'Не выбрано';
@@ -888,7 +888,7 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
   }
 
   void _showCityPickerDialog() async {
-    final selectedCity = await Navigator.of(context).push(_createPopup(_cities));
+    final selectedCity = await Navigator.of(context).push(_createCitiesPopup(_cities));
 
     if (selectedCity != null) {
       setState(() {
@@ -897,7 +897,7 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
     }
   }
 
-  Route _createPopup(List<City> cities) {
+  Route _createCitiesPopup(List<City> cities) {
     return PageRouteBuilder(
 
       pageBuilder: (context, animation, secondaryAnimation) {
