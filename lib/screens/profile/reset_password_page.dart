@@ -142,7 +142,7 @@ class _ResetPasswordPage extends State<ResetPasswordPage> {
                 if (showRegButton) const SizedBox(height: 20.0),
 
                 if (showRegButton) CustomButton(
-                  state: 'secondary',
+                  state: CustomButtonState.secondary,
                   buttonText: 'Зарегистрироваться',
                   onTapMethod: () {
                     Navigator.push(

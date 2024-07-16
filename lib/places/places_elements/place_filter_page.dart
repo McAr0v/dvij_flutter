@@ -211,7 +211,7 @@ class PlaceFilterPageState extends State<PlaceFilterPage> {
 
                           CustomButton(
                             buttonText: 'Очистить фильтр',
-                            state: 'error',
+                            state: CustomButtonState.error,
                             onTapMethod: (){
                               setState(() {
                                 chosenCategory = PlaceCategory(name: '', id: '');
@@ -246,7 +246,7 @@ class PlaceFilterPageState extends State<PlaceFilterPage> {
                   Expanded(
                     child: CustomButton(
                       buttonText: 'Отменить',
-                      state: 'secondary',
+                      state: CustomButtonState.secondary,
                       onTapMethod: (){
                         setState(() {
                           Navigator.of(context).pop();

@@ -333,7 +333,7 @@ class EventFilterPageState extends State<EventFilterPage> {
                   Expanded(
                     child: CustomButton(
                       buttonText: 'Отменить',
-                      state: 'secondary',
+                      state: CustomButtonState.secondary,
                       onTapMethod: (){
                         setState(() {
                           // --- При отмене просто уходим, без аргументов

@@ -34,7 +34,7 @@ class PopUpDialog {
               },
             ),
             CustomButton(
-              state: 'error',
+              state: CustomButtonState.error,
               buttonText: confirmButtonText,
               onTapMethod: () {
                 Navigator.of(context).pop(true); // Закрыть диалоговое окно

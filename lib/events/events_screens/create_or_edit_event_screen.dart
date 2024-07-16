@@ -742,7 +742,7 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
                           EventCustom event = EventCustom(
                               id: eventId,
-                              dateType: eventTypeEnum, // сделать функционал
+                              dateType: eventTypeEnum,
                               headline: headlineController.text,
                               desc: descController.text,
                               creatorId: creatorId,
@@ -756,14 +756,14 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                               telegram: telegramController.text,
                               instagram: instagramController.text,
                               imageUrl: imageUrl ?? widget.eventInfo.imageUrl,
-                              placeId: chosenPlace.id, // сделать функционал
+                              placeId: chosenPlace.id,
                               onceDay: widget.eventInfo.onceDay.generateDateForEntity(
                                   OnceDate.generateOnceMapForEntity(
                                       selectedDayInOnceType,
                                       onceDayStartTime,
                                       onceDayFinishTime
                                   )
-                              ), // сделать функционал
+                              ),
                               longDays: widget.eventInfo.longDays.generateDateForEntity(
                                 LongDate.generateLongMapForEntity(
                                     selectedStartDayInLongType,
@@ -771,7 +771,7 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                                     longDayStartTime,
                                     longDayFinishTime
                                 )
-                              ), // сделать функционал
+                              ),
                               regularDays: widget.eventInfo.regularDays.generateDateForEntity(
                                 RegularDate.generateOnceMapForEntity(regularStartTimes, regularFinishTimes)
                               ),
@@ -784,8 +784,7 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                                   )
                               ),
 
-                              // сделать функционал
-                              price: PriceTypeEnumClass.getPriceString(priceType, fixedPriceController.text, startPriceController.text, endPriceController.text), // сделать функционал
+                              price: PriceTypeEnumClass.getPriceString(priceType, fixedPriceController.text, startPriceController.text, endPriceController.text),
                               priceType: priceType,
                             inFav: false,
                             today: false,
@@ -799,10 +798,13 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
                             EventCustom newEvent = EventCustom.emptyEvent;
 
+                            // Подгружаем из БД мероприятие
                             newEvent = await newEvent.getEntityByIdFromDb(eventId);
 
+                            // Если у мероприятия сменилось заведение
                             if (widget.eventInfo.placeId != '' && widget.eventInfo.placeId != chosenPlace.id) {
 
+                              // Удаляем мероприятие из списка сущностей заведения в БД
                               await widget.eventInfo.deleteEntityIdFromPlace(widget.eventInfo.placeId);
 
                             }
@@ -860,17 +862,13 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                               // Уходим на страницу мероприятий
                               navigateToEvents();
                             }
-
-
                           }
-
                         }
-
                       },
                     ),
                     const SizedBox(height: 16.0),
                     CustomButton(
-                      state: 'error',
+                      state: CustomButtonState.error,
                       buttonText: 'Отмена',
                       onTapMethod: () {
                         Navigator.pop(context);

@@ -193,7 +193,7 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
                     const SizedBox(height: 20.0),
 
                     if (user.uid != '' && user.uid != _place.creatorId && user.placeUserRole.roleInPlaceEnum != chosenRole.roleInPlaceEnum) CustomButton(
-                        state: 'success',
+                        state: CustomButtonState.success,
                         buttonText: "Сохранить изменения",
                         onTapMethod: () async {
                           _saveAdmin();
@@ -203,7 +203,7 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
                     if (user.uid != '') const SizedBox(height: 10.0),
 
                     if (user.uid != '') CustomButton(
-                        state: 'secondary',
+                        state: CustomButtonState.secondary,
                         buttonText: "Отменить",
                         onTapMethod: () {
                           _navigateBackWithoutResult();
@@ -213,7 +213,7 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
                     if (user.uid != '' && user.uid != _place.creatorId && user.placeUserRole.roleInPlaceEnum != PlaceUserRoleEnum.reader) const SizedBox(height: 20.0),
 
                     if (user.uid != '' && user.uid != _place.creatorId && user.placeUserRole.roleInPlaceEnum != PlaceUserRoleEnum.reader) CustomButton(
-                        state: 'error',
+                        state: CustomButtonState.error,
                         buttonText: "Удалить пользователя",
                         onTapMethod: () async {
                           bool? confirmed = await exitDialog(context, "Ты правда хочешь удалить пользователя?" , 'Да', 'Нет', 'Удаление пользователя');

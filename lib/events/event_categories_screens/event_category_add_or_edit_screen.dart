@@ -116,7 +116,7 @@ class EventCategoryAddOrEditScreenState extends State<EventCategoryAddOrEditScre
                   // -- Кнопка отменить ----
 
                   CustomButton(
-                      state: 'secondary',
+                      state: CustomButtonState.secondary,
                       buttonText: "Отменить",
                       onTapMethod: () {
                         Navigator.pushReplacement(

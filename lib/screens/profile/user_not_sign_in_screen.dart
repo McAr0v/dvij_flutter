@@ -48,7 +48,7 @@ class UserNotSignInScreen extends StatelessWidget {
         const SizedBox(height: 15.0),
 
         CustomButton(
-          state: 'secondary',
+          state: CustomButtonState.secondary,
           buttonText: 'Зарегистрироваться',
           onTapMethod: () {
             Navigator.push(

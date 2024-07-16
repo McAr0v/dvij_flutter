@@ -416,7 +416,7 @@ class CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
                     ),
                     const SizedBox(height: 16.0),
                     CustomButton(
-                      state: 'error',
+                      state: CustomButtonState.error,
                       buttonText: 'Отмена',
                       onTapMethod: () {
                         Navigator.pop(context);

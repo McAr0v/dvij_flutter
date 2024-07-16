@@ -126,7 +126,7 @@ class PlaceCategoryEditScreenState extends State<PlaceCategoryEditScreen> {
                   // -- Кнопка отменить ----
 
                   CustomButton(
-                      state: 'secondary',
+                      state: CustomButtonState.secondary,
                       buttonText: "Отменить",
                       onTapMethod: () {
                         Navigator.pushReplacement(

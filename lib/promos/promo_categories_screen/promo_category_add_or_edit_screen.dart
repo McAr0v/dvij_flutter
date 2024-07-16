@@ -117,7 +117,7 @@ class PromoCategoryAddOrEditScreenState extends State<PromoCategoryAddOrEditScre
                   // -- Кнопка отменить ----
 
                   CustomButton(
-                      state: 'secondary',
+                      state: CustomButtonState.secondary,
                       buttonText: "Отменить",
                       onTapMethod: navigateToPromoCategoriesListScreen
                   )

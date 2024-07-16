@@ -45,7 +45,7 @@ class UserNotVerifiedScreen extends StatelessWidget {
 
           CustomButton(
               buttonText: 'Зарегистрироваться',
-              state: 'secondary',
+              state: CustomButtonState.secondary,
               onTapMethod: () {
                 Navigator.push(
                   context,

@@ -150,7 +150,7 @@ class _UsersChangeRoleAdminScreenState extends State<UsersChangeRoleAdminScreen>
                     ),
                     const SizedBox(height: 16.0),
                     CustomButton(
-                      state: 'error',
+                      state: CustomButtonState.error,
                       buttonText: 'Отмена',
                       onTapMethod: () {
                         Navigator.pop(context);

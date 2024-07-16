@@ -370,7 +370,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 if (showLogInButton) const SizedBox(height: 20.0),
 
                 if (showLogInButton) CustomButton(
-                  state: 'secondary',
+                  state: CustomButtonState.secondary,
                   buttonText: 'Войти?',
                   onTapMethod: () {
                     Navigator.push(

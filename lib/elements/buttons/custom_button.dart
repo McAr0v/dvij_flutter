@@ -2,14 +2,21 @@ import 'package:dvij_flutter/elements/icons_elements/svg_icon.dart';
 import 'package:flutter/material.dart';
 import '../../themes/app_colors.dart';
 
+enum CustomButtonState {
+  normal,
+  success,
+  error,
+  secondary
+}
+
 class CustomButton extends StatelessWidget {
-  final String state;
+  final CustomButtonState state;
   final String buttonText;
   final VoidCallback onTapMethod;
   final String leftIconRoot;
   final String rightIconRoot;
 
-  const CustomButton({super.key, this.state = 'normal', required this.buttonText, required this.onTapMethod, this.leftIconRoot = '', this.rightIconRoot = ''}); // Указываем значения по умолчанию
+  const CustomButton({super.key, this.state = CustomButtonState.normal, required this.buttonText, required this.onTapMethod, this.leftIconRoot = '', this.rightIconRoot = ''}); // Указываем значения по умолчанию
 
   // --- ВИДЖЕТ КАСТОМНОЙ КНОПКИ ------
 
@@ -20,13 +27,13 @@ class CustomButton extends StatelessWidget {
 
     Color getButtonColor() {
       switch (state) {
-        case 'normal':
+        case CustomButtonState.normal:
           return Theme.of(context).colorScheme.primary;
-        case 'success':
+        case CustomButtonState.success:
           return Colors.green;
-        case 'error':
+        case CustomButtonState.error:
           return AppColors.attentionRed;
-        case 'secondary':
+        case CustomButtonState.secondary:
           return Theme.of(context).colorScheme.background;
         default:
           return Theme.of(context).colorScheme.primary;
@@ -37,13 +44,13 @@ class CustomButton extends StatelessWidget {
 
     Color getBorderColor() {
       switch (state) {
-        case 'normal':
+        case CustomButtonState.normal:
           return Theme.of(context).colorScheme.primary;
-        case 'success':
+        case CustomButtonState.success:
           return Colors.green;
-        case 'error':
+        case CustomButtonState.error:
           return AppColors.attentionRed;
-        case 'secondary':
+        case CustomButtonState.secondary:
           return Theme.of(context).colorScheme.primary;
         default:
           return Theme.of(context).colorScheme.primary;
@@ -54,7 +61,7 @@ class CustomButton extends StatelessWidget {
 
     Color getTextAndIconColor() {
       switch (state) {
-        case 'secondary':
+        case CustomButtonState.secondary:
           return Theme.of(context).colorScheme.primary;
         default:
           return Theme.of(context).colorScheme.onBackground;

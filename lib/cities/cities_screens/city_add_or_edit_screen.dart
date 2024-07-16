@@ -125,7 +125,7 @@ class _CityEditScreenState extends State<CityEditScreen> {
                 // -- Кнопка отменить ----
 
                 CustomButton(
-                    state: 'secondary',
+                    state: CustomButtonState.secondary,
                     buttonText: "Отменить",
                     onTapMethod: () {
                       Navigator.pushReplacement(

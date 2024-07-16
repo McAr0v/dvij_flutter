@@ -431,7 +431,7 @@ class PromoViewScreenState extends State<PromoViewScreen> {
                             }
 
                           },
-                          state: 'error',
+                          state: CustomButtonState.error,
                         )
                       ],
                     ),

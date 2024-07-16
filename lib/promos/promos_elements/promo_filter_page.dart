@@ -318,7 +318,7 @@ class _PromoFilterPageState extends State<PromoFilterPage> {
                   Expanded(
                     child: CustomButton(
                       buttonText: 'Отменить',
-                      state: 'secondary',
+                      state: CustomButtonState.secondary,
                       onTapMethod: (){
                         setState(() {
                           // --- При отмене просто уходим, без аргументов

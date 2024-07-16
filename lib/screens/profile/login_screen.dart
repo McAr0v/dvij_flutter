@@ -216,7 +216,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 if (showForgotPasswordButton) const SizedBox(height: 20.0),
 
                 if (showForgotPasswordButton) CustomButton(
-                  state: 'secondary',
+                  state: CustomButtonState.secondary,
                   buttonText: 'Восстановить доступ',
                   onTapMethod: () {
                     Navigator.push(
@@ -238,7 +238,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 if (showRegButton) const SizedBox(height: 20.0),
 
                 if (showRegButton) CustomButton(
-                  state: 'secondary',
+                  state: CustomButtonState.secondary,
                   buttonText: 'Зарегистрироваться',
                   onTapMethod: () {
                     Navigator.push(
