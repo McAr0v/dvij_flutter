@@ -26,7 +26,7 @@ class PlaceAdminsScreenState extends State<PlaceAdminsScreen> {
   PlaceUser creator = PlaceUser();
 
   // Переменная для внесений изменений
-  Place currentPlace = Place.emptyPlace;
+  Place currentPlace = Place.empty();
 
   bool loading = true;
 

@@ -374,7 +374,9 @@ class CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
                             ),
                             eventsList: widget.placeInfo.eventsList,
                             promosList: widget.placeInfo.promosList,
-                            favUsersIds: widget.placeInfo.favUsersIds
+                            favUsersIds: widget.placeInfo.favUsersIds,
+                          inFav: widget.placeInfo.inFav,
+                          nowIsOpen: widget.placeInfo.nowIsOpen
                         );
 
                         // Выгружаем пользователя в БД

@@ -108,7 +108,7 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
   bool saving = false;
 
   bool inPlace = true;
-  Place chosenPlace = Place.emptyPlace;
+  Place chosenPlace = Place.empty();
 
   List<City> _cities = [];
   List<EventCategory> _categories = [];
@@ -597,7 +597,7 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                         chosenPlace: chosenPlace,
                         onDeletePlace: (){
                           setState(() {
-                            chosenPlace = Place.emptyPlace;
+                            chosenPlace = Place.empty();
                             chosenCity = City.empty();
                           });
                         },
@@ -616,7 +616,7 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
                         onTapInputAddress: (){
                           setState(() {
                             inPlace = false;
-                            chosenPlace = Place.emptyPlace;
+                            chosenPlace = Place.empty();
                             chosenCity = City.empty();
                           });
                         },

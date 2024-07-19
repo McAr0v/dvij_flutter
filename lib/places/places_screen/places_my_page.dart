@@ -43,7 +43,7 @@ class PlacesMyPageState extends State<PlacesMyPage> {
   bool haveEventsFromFilter = false;
   bool havePromosFromFilter = false;
 
-  Place placeEmpty = Place.emptyPlace;
+  Place placeEmpty = Place.empty();
 
   // --- Переменная сортировки по умолчанию ----
 
@@ -199,7 +199,7 @@ class PlacesMyPageState extends State<PlacesMyPage> {
                             placesMyList.sortEntitiesList(_selectedSortingOption);
                           });
                         },
-                        sortingItems: Place.emptyPlace.getPlaceSortingOptionsList(),
+                        sortingItems: Place.empty().getPlaceSortingOptionsList(),
                       ),
 
                       // ---- Если список заведений пустой -----

@@ -47,7 +47,7 @@ class PlaceManagerAddScreenState extends State<PlaceManagerAddScreen> {
   bool showNotFound = false;
   PlaceUserRole chosenRole = PlaceUserRole();
 
-  Place _place = Place.emptyPlace;
+  Place _place = Place.empty();
   //List<PlaceAdminsListItem> admins = [];
 
   // --- Инициализируем состояние ----

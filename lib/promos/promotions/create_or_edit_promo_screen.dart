@@ -106,7 +106,7 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
   bool saving = false;
 
   bool inPlace = true;
-  Place chosenPlace = Place.emptyPlace;
+  Place chosenPlace = Place.empty();
 
   List<City> _cities = [];
   List<PromoCategory> _categories = [];
@@ -225,7 +225,7 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
       createdTime = widget.promoInfo.createDate;
     }
 
-    if (PlaceListManager.currentMyPlacesList.placeList.isNotEmpty){
+    /*if (PlaceListManager.currentMyPlacesList.placeList.isNotEmpty){
 
       myPlaces = PlaceListManager.currentMyPlacesList;
 
@@ -234,6 +234,10 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
       //myPlaces = await Place.getMyPlaces(UserCustom.currentUser!.uid);
       myPlaces = await myPlaces.getMyListFromDb(UserCustom.currentUser!.uid);
 
+    }*/
+
+    if (UserCustom.currentUser != null && UserCustom.currentUser!.myPlaces.isNotEmpty){
+      myPlaces = await myPlaces.getMyListFromDb(UserCustom.currentUser!.uid);
     }
 
     headlineController = TextEditingController(text: widget.promoInfo.headline);
@@ -556,7 +560,7 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
                           chosenPlace: chosenPlace,
                           onDeletePlace: (){
                             setState(() {
-                              chosenPlace = Place.emptyPlace;
+                              chosenPlace = Place.empty();
                               chosenCity = City(name: '', id: '');
                             });
                           },
@@ -575,7 +579,7 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
                           onTapInputAddress: (){
                             setState(() {
                               inPlace = false;
-                              chosenPlace = Place.emptyPlace;
+                              chosenPlace = Place.empty();
                               chosenCity = City(id: '', name: '');
                             });
                           },

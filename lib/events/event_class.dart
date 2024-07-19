@@ -16,7 +16,6 @@ import 'package:dvij_flutter/events/events_list_manager.dart';
 import 'package:dvij_flutter/filters/filter_mixin.dart';
 import 'package:dvij_flutter/image_uploader/image_uploader.dart';
 import 'package:dvij_flutter/interfaces/entity_interface.dart';
-import 'package:dvij_flutter/promos/promos_list_manager.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'event_category_class.dart';
@@ -260,6 +259,12 @@ class EventCustom with MixinDatabase, TimeMixin implements IEntity{
 
     if (placeId != ''){
       placeDeleteResult = await MixinDatabase.deleteFromDb(placePath);
+    }
+
+    // Удаляем записи у пользователей, добавивших в избранное
+    for (String favUser in favUsersIds){
+      String favUserPath = 'users/$favUser/favEvents/$id';
+      String deleteFavUser = await MixinDatabase.deleteFromDb(favUserPath);
     }
 
     return checkSuccessFromDb(entityDeleteResult, creatorDeleteResult, placeDeleteResult, imageDeleteResult);

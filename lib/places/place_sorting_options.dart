@@ -6,5 +6,7 @@ enum PlaceSortingOption {
   eventCountAsc,
   eventCountDesc,
   favCountAsc,
-  favCountDesc
+  favCountDesc,
+  createDateAsc,
+  createDateDesc
 }

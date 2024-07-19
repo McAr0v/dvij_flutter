@@ -38,7 +38,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
   List<PlaceUser> admins = [];
   PlaceUser currentPlaceUser = PlaceUser();
 
-  Place place = Place.emptyPlace;
+  Place place = Place.empty();
 
   EventsList eventsInThatPlace = EventsList();
   PromoList promosInThatPlace = PromoList();

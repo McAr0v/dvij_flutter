@@ -5,11 +5,9 @@ import 'package:dvij_flutter/places/place_list_manager.dart';
 import 'package:dvij_flutter/places/place_sorting_options.dart';
 import 'package:dvij_flutter/places/users_my_place/my_places_class.dart';
 import 'package:firebase_database/firebase_database.dart';
-
 import '../cities/city_class.dart';
 import '../database/database_mixin.dart';
 import '../interfaces/lists_interface.dart';
-import '../users/place_admins_item_class.dart';
 
 class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
   List<Place> placeList = [];
@@ -21,11 +19,9 @@ class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
   @override
   void addEntityFromCurrentEntitiesLists(Place entity) {
     PlaceListManager.currentFeedPlacesList.placeList.add(entity);
-    PlaceListManager.currentMyPlacesList.placeList.add(entity);
-    if(entity.inFav != null && entity.inFav!) PlaceListManager.currentFavPlacesList.placeList.add(entity);
   }
 
-  @override
+  /*@override
   void addEntityToCurrentFavList(String entityId) {
     for (var place in PlaceListManager.currentFeedPlacesList.placeList){
       if (place.id == entityId){
@@ -33,19 +29,19 @@ class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
         break;
       }
     }
-  }
+  }*/
 
   @override
   void deleteEntityFromCurrentEntitiesLists(String id) {
     PlaceListManager.currentFeedPlacesList.placeList.removeWhere((place) => place.id == id);
-    PlaceListManager.currentFavPlacesList.placeList.removeWhere((place) => place.id == id);
-    PlaceListManager.currentMyPlacesList.placeList.removeWhere((place) => place.id == id);
+    //PlaceListManager.currentFavPlacesList.placeList.removeWhere((place) => place.id == id);
+    //PlaceListManager.currentMyPlacesList.placeList.removeWhere((place) => place.id == id);
   }
 
-  @override
+  /*@override
   void deleteEntityFromCurrentFavList(String entityId) {
     PlaceListManager.currentFavPlacesList.placeList.removeWhere((place) => place.id == entityId);
-  }
+  }*/
 
   /// ФУНКЦИЯ ГЕНЕРАЦИИ СЛОВАРЯ ФИЛЬТРА ДЛЯ ПЕРЕДАЧИ В ФУНКЦИЮ
   /// <br><br>
@@ -108,13 +104,12 @@ class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
   @override
   Place getEntityFromFeedListById(String id) {
     return PlaceListManager.currentFeedPlacesList.placeList.firstWhere((
-        element) => element.id == id, orElse: () => Place.emptyPlace);
+        element) => element.id == id, orElse: () => Place.empty());
   }
 
   @override
   Future<PlaceList> getFavListFromDb(String userId, {bool refresh = false}) async {
     PlaceList places = PlaceList();
-    PlaceListManager.currentFavPlacesList = PlaceList();
 
     PlaceList downloadedPlacesList = PlaceListManager.currentFeedPlacesList;
 
@@ -128,57 +123,6 @@ class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
         places.placeList.add(place);
       }
     }
-
-    /*
-    EventsList events = EventsList();
-    EventListsManager.currentFavEventsList = EventsList();
-
-
-
-
-
-     */
-
-    /*String myPath = 'users/$userId/favPlaces/';
-    DataSnapshot? myFolder = await MixinDatabase.getInfoFromDB(myPath);
-
-    if (myFolder != null) {
-      for (var idFolder in myFolder.children) {
-
-        // ---- Считываем ID и добавляем в список ID
-
-        DataSnapshot idSnapshot = idFolder.child('placeId');
-
-        if (idSnapshot.exists){
-          placesId.add(idSnapshot.value.toString());
-        }
-      }
-    }*/
-
-    // Если список ID не пустой, и не была вызвана функция обновления
-    /*if (placesId.isNotEmpty){
-
-      // Если список всей ленты не пустой, то будем забирать данные из него
-      if (PlaceListManager.currentFeedPlacesList.placeList.isNotEmpty && !refresh) {
-        for (String id in placesId) {
-          Place myPlace = getEntityFromFeedListById(id);
-          if (myPlace.id == id) {
-            PlaceListManager.currentFavPlacesList.placeList.add(myPlace);
-            places.placeList.add(myPlace);
-          }
-        }
-      } else {
-        // Если список ленты не прогружен, то считываем каждую сущность из БД
-        for (var place in placesId){
-          Place temp = Place.emptyPlace;
-          temp = await temp.getEntityByIdFromDb(place);
-          if (temp.id != ''){
-            PlaceListManager.currentFavPlacesList.placeList.add(temp);
-            places.placeList.add(temp);
-          }
-        }
-      }
-    }*/
     return places;
   }
 
@@ -192,7 +136,7 @@ class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
     if (placesSnapshot != null) {
       for (var placeIdsFolder in placesSnapshot.children) {
 
-        Place place = Place.emptyPlace;
+        Place place = Place.empty();
 
         place = place.getEntityFromSnapshot(placeIdsFolder);
 
@@ -253,6 +197,10 @@ class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
 
       case PlaceSortingOption.favCountDesc: placeList.sort((a, b) => b.favUsersIds.length.compareTo(a.favUsersIds.length)); break;
 
+      case PlaceSortingOption.createDateAsc: placeList.sort((a,b) => a.createDate.compareTo(b.createDate)); break;
+
+      case PlaceSortingOption.createDateDesc: placeList.sort((a,b) => b.createDate.compareTo(a.createDate)); break;
+
     }
   }
 
@@ -266,7 +214,7 @@ class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
       }
     }
 
-    for (Place place in PlaceListManager.currentFavPlacesList.placeList){
+    /*for (Place place in PlaceListManager.currentFavPlacesList.placeList){
       if (place.id == entityId){
         place.favUsersIds = usersIdsList;
         place.inFav = inFav;
@@ -280,7 +228,7 @@ class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
         place.inFav = inFav;
         break;
       }
-    }
+    }*/
   }
 
   @override

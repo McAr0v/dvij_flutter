@@ -17,8 +17,8 @@ mixin UserAuthMixin{
       UserCustom.currentUser = null; // Обнуляем текущего пользователя при выходе
 
       PlaceListManager.currentFeedPlacesList = PlaceList();
-      PlaceListManager.currentMyPlacesList = PlaceList();
-      PlaceListManager.currentFavPlacesList = PlaceList();
+      //PlaceListManager.currentMyPlacesList = PlaceList();
+      //PlaceListManager.currentFavPlacesList = PlaceList();
 
       EventListsManager.currentFeedEventsList = EventsList();
 
@@ -71,8 +71,8 @@ mixin UserAuthMixin{
       await tempUser.readUserDataFromDb(uid: credential.user!.uid);
 
       PlaceListManager.currentFeedPlacesList = PlaceList();
-      PlaceListManager.currentMyPlacesList = PlaceList();
-      PlaceListManager.currentFavPlacesList = PlaceList();
+      //PlaceListManager.currentMyPlacesList = PlaceList();
+      //PlaceListManager.currentFavPlacesList = PlaceList();
 
       EventListsManager.currentFeedEventsList = EventsList();
 

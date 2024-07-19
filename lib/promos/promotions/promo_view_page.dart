@@ -57,7 +57,7 @@ class PromoViewScreenState extends State<PromoViewScreen> {
   DateTime currentDate = DateTime.now();
 
   PlaceUser currentPlaceUser = PlaceUser();
-  Place place = Place.emptyPlace;
+  Place place = Place.empty();
 
   int favCounter = 0;
   bool inFav = false;

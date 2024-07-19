@@ -197,7 +197,7 @@ class PlacesFeedPageState extends State<PlacesFeedPage> {
                             placesList.sortEntitiesList(_selectedSortingOption);
                           });
                         },
-                        sortingItems: Place.emptyPlace.getPlaceSortingOptionsList(),
+                        sortingItems: Place.empty().getPlaceSortingOptionsList(),
                     ),
 
                     // ---- Если список заведений пустой -----

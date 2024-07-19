@@ -83,7 +83,7 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
     List<MyPlaces> myPlaces = UserCustom.currentUser!.myPlaces;
 
     // Создаем пустой список мероприятий
-    EventsList events = EventsList();
+    EventsList eventsToReturn = EventsList();
 
     // Дублируем уже скачанный список мероприятий
     EventsList downloadedEventsList = EventListsManager.currentFeedEventsList;
@@ -101,7 +101,7 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
       // Если создатель у мероприятия как ID пользователя
       if (event.creatorId == userId){
         // Добавляем в список мероприятий
-        events.eventsList.add(event);
+        eventsToReturn.eventsList.add(event);
       } else if (event.placeId != '' && myPlaces.isNotEmpty) {
         // Если создатель не я, то проверяем мероприятие на заведение
         // есть ли у меня как у администратора заведения права на редактирование мероприятия
@@ -111,14 +111,14 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
           if (place.placeId == event.placeId
               && (place.placeRole.roleInPlaceEnum != PlaceUserRoleEnum.reader && place.placeRole.roleInPlaceEnum != PlaceUserRoleEnum.org)){
             // Так же добавляем в список
-            events.eventsList.add(event);
+            eventsToReturn.eventsList.add(event);
             break;
           }
         }
       }
     }
 
-    return events;
+    return eventsToReturn;
   }
 
   /// ФУНКЦИЯ ГЕНЕРАЦИИ СЛОВАРЯ ДЛЯ ФИЛЬТРА

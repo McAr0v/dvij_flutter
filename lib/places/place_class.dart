@@ -1,11 +1,14 @@
 import 'package:dvij_flutter/cities/city_class.dart';
 import 'package:dvij_flutter/constants/constants.dart';
 import 'package:dvij_flutter/dates/regular_date_class.dart';
+import 'package:dvij_flutter/events/event_class.dart';
+import 'package:dvij_flutter/events/events_list_manager.dart';
 import 'package:dvij_flutter/places/place_category_class.dart';
 import 'package:dvij_flutter/places/place_list_class.dart';
 import 'package:dvij_flutter/current_user/user_class.dart';
 import 'package:dvij_flutter/places/place_sorting_options.dart';
-import 'package:dvij_flutter/promos/promos_list_class.dart';
+import 'package:dvij_flutter/promos/promo_class.dart';
+import 'package:dvij_flutter/promos/promos_list_manager.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import '../database/database_mixin.dart';
@@ -13,7 +16,6 @@ import '../dates/date_mixin.dart';
 import '../dates/time_mixin.dart';
 import '../image_uploader/image_uploader.dart';
 import '../interfaces/entity_interface.dart';
-import '../users/place_admins_item_class.dart';
 import '../users/place_user_class.dart';
 import '../users/place_users_roles.dart';
 
@@ -34,13 +36,10 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
   String imageUrl;
   RegularDate openingHours;
   List<String> favUsersIds;
-  //int? eventsCount;
-  //int? promoCount;
-  bool? inFav;
-  bool? nowIsOpen;
+  bool inFav;
+  bool nowIsOpen;
   List<String> eventsList;
   List<String> promosList;
-  //List<PlaceAdminsListItem>? admins;
 
   Place({
     required this.id,
@@ -59,21 +58,21 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
     required this.imageUrl,
     required this.openingHours,
     required this.favUsersIds,
-    this.inFav,
-    this.nowIsOpen,
+    required this.inFav,
+    required this.nowIsOpen,
     required this.eventsList,
     required this.promosList,
-    //this.admins
 
   });
 
   factory Place.fromSnapshot(DataSnapshot snapshot) {
+
+    Place emptyPlace = Place.empty();
+
     DataSnapshot infoSnapshot = snapshot.child('place_info');
     DataSnapshot favSnapshot = snapshot.child('addedToFavourites');
     DataSnapshot eventsSnapshot = snapshot.child('events');
     DataSnapshot promosSnapshot = snapshot.child('promos');
-    //DataSnapshot managersSnapshot = snapshot.child('managers');
-
 
     PlaceCategory placeCategory = PlaceCategory(name: '', id: infoSnapshot.child('category').value.toString());
     City city = City(name: '', id: infoSnapshot.child('city').value.toString());
@@ -83,20 +82,11 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
 
     List<String> events = emptyPlace.getNeededIdsFromSnapshot(eventsSnapshot, 'eventId');
     List<String> promos = emptyPlace.getNeededIdsFromSnapshot(promosSnapshot, 'promoId');
-    List<PlaceAdminsListItem> adminsList = [];
 
     if (openingHoursString != ''){
       openingHours = openingHours.getFromJson(openingHoursString);
       nowIsOpen = openingHours.todayOrNot();
     }
-
-    /*for (var idFolder in managersSnapshot.children){
-      PlaceAdminsListItem tempAdmin = PlaceAdminsListItem();
-      PlaceUserRole tempRole = PlaceUserRole();
-      tempAdmin.userId = idFolder.child('userId').value.toString();
-      tempAdmin.placeRole = tempRole.getPlaceUserRole(tempRole.getPlaceUserEnumFromString(idFolder.child('roleId').value.toString()));
-      adminsList.add(tempAdmin);
-    }*/
 
     return Place(
       id: infoSnapshot.child('id').value.toString(),
@@ -119,74 +109,74 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
       favUsersIds: emptyPlace.getFavIdsList(favSnapshot),
       eventsList: events,
       promosList: promos,
-      //admins: adminsList
-
     );
   }
 
-  /// Переменная пустого [Place]
-  static Place emptyPlace = Place(
-      id: '',
-      name: '',
-      desc: '',
-      creatorId: '',
-      createDate: DateTime(2100),
-      category: PlaceCategory.empty,
-      city: City.empty(),
-      street: '',
-      house: '',
-      phone: '',
-      whatsapp: '',
-      telegram: '',
-      instagram: '',
-      imageUrl: AppConstants.defaultAvatar,
-      openingHours: RegularDate(),
-      favUsersIds: [],
-    eventsList: [],
-    promosList: []
-  );
+  factory Place.empty(){
+    return Place(
+        id: '',
+        name: '',
+        desc: '',
+        creatorId: '',
+        createDate: DateTime(2100),
+        category: PlaceCategory.empty,
+        city: City.empty(),
+        street: '',
+        house: '',
+        phone: '',
+        whatsapp: '',
+        telegram: '',
+        instagram: '',
+        imageUrl: AppConstants.defaultAvatar,
+        openingHours: RegularDate(),
+        favUsersIds: [],
+        eventsList: [],
+        promosList: [],
+        nowIsOpen: false,
+        inFav: false
+    );
+  }
 
   @override
   Future<String> publishToDb() async {
-    PlaceUserRole creatorPlaceRole = PlaceUserRole();
 
+
+    // Задаем пути для публикации
+
+    // -- Путь самого заведения ---
     String entityPath = 'places/$id/place_info';
+    // -- Путь данных создателя ---
     String creatorPath = 'users/$creatorId/myPlaces/$id';
 
-    // Добавляем создателя в папку админов
-    //   ----- String creatorInAdminsPath = 'places/$id/managers/$creatorId';
-
+    // --- Генерируем словарь для публикации заведения в БД
     Map<String, dynamic> data = generateEntityDataCode();
 
-    /*Map<String, dynamic> dataToCreatorAndPlace = {
-      'placeId': id,
-    };*/
 
-    /*Map <String, dynamic> creatorDataToAdminsList = {
-      'userId': creatorId,
-      'roleId': creatorPlaceRole.generatePlaceRoleEnumForPlaceUser(PlaceUserRoleEnum.creator)
-    };*/
+    // Объявляем класс роли в заведении для генерации роли создателя
+    PlaceUserRole creatorPlaceRole = PlaceUserRole();
 
+    // --- Генерируем словарь для публикации данных создателя
     Map <String, dynamic> creatorDataToAdminsList = {
       'placeId': id,
       'roleId': creatorPlaceRole.generatePlaceRoleEnumForPlaceUser(PlaceUserRoleEnum.creator)
     };
 
+    // --- Публикуем данные ----
     String entityPublishResult = await MixinDatabase.publishToDB(entityPath, data);
-    //String creatorPublishResult = await MixinDatabase.publishToDB(creatorPath, dataToCreatorAndPlace);
     String creatorPublishResult = await MixinDatabase.publishToDB(creatorPath, creatorDataToAdminsList);
 
-    // ------ String creatorToAdminResult = await MixinDatabase.publishToDB(creatorInAdminsPath, creatorDataToAdminsList);
-
+    // TODO Может быть косяк, если редактирование - админу дастся доступ создателя! Проверить
+    // Добавляем заведение в список моих заведений в пользователя
+    // В нем по идее есть проверка - содержится ли это заведение уже в списке моих или нет
     if (UserCustom.currentUser != null){
       UserCustom.currentUser!.addPlaceToMy(id);
     }
 
+    // Переменная для возвращения результата операции
     String result = 'success';
 
     if (entityPublishResult != 'success') result = entityPublishResult;
     if (creatorPublishResult != 'success') result = creatorPublishResult;
-    //if (creatorToAdminResult != 'success') result = creatorToAdminResult;
 
     return result;
 
@@ -199,7 +189,7 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
   /// [folderPath] - Путь до папки с нужными Id (например: places/$id/managers)
   /// <br>
   /// [fieldName] - Название поля с нужным Id (например: userId)
-  Future<List<String>> getNeededIds(String folderPath, String fieldName) async {
+  Future<List<String>> getNeededIdsFromDb(String folderPath, String fieldName) async {
     List<String> list = [];
 
     DataSnapshot? foldersSnapshot = await MixinDatabase.getInfoFromDB(folderPath);
@@ -237,44 +227,66 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
   Future<String> deleteFromDb() async {
 
     ImageUploader imageUploader = ImageUploader();
+    PlaceUser placeUser = PlaceUser();
 
     // Путь самого заведения
     String entityPath = 'places/$id';
     // Путь создателя заведения
-    String creatorPath = 'users/$creatorId/myPromos/$id';
+    String creatorPath = 'users/$creatorId/myPlaces/$id';
 
-    // Получаем список админов
-    List<PlaceUser> admins = [];
-    // Объявляем класс placeUser
-    PlaceUser placeUser = PlaceUser();
+    String imageDeleteResult = await imageUploader.removeImage(ImageFolderEnum.places, id);
 
-    // Получаем списки добавивших заведение в избранное
-    // TODO - сделать такое же удаление добавивших в изрбанное, как в заведениях, в мероприятиях и акциях
-    List<String> favUsersList = await getNeededIds('places/$id/addedToFavourites', 'userId');
+    // Удаляем мероприятия от имени заведения
 
-    String imageDeleteResult = 'success';
+    if (eventsList.isNotEmpty) {
+      EventCustom emptyEvent = EventCustom.emptyEvent;
+      for (String eventId in eventsList){
+        EventCustom tempEvent = EventCustom.emptyEvent;
+        if (EventListsManager.currentFeedEventsList.eventsList.isNotEmpty){
+          tempEvent = emptyEvent.getEntityFromFeedList(eventId);
+        } else {
+          tempEvent = await emptyEvent.getEntityByIdFromDb(eventId);
+        }
 
-    //imageDeleteResult = await ImageUploader.deleteImage('places', id);
-    imageDeleteResult = await imageUploader.removeImage(ImageFolderEnum.places, id);
+        await tempEvent.deleteFromDb();
 
-    // TODO По хорошему надо удалять и мероприятия и акции из удаляемых заведений
+       }
+    }
+
+    // Удаляем акции от имени заведения
+
+    if (promosList.isNotEmpty) {
+      PromoCustom emptyPromo = PromoCustom.emptyPromo;
+      for (String promoId in promosList){
+        PromoCustom tempPromo = PromoCustom.emptyPromo;
+        if (PromoListsManager.currentFeedPromosList.promosList.isNotEmpty){
+          tempPromo = emptyPromo.getEntityFromFeedList(promoId);
+        } else {
+          tempPromo = await emptyPromo.getEntityByIdFromDb(promoId);
+        }
+
+        await tempPromo.deleteFromDb();
+
+      }
+    }
 
     // Удаляем заведение
     String entityDeleteResult = await MixinDatabase.deleteFromDb(entityPath);
+
     // Удаляем запись у создателя
     String creatorDeleteResult = await MixinDatabase.deleteFromDb(creatorPath);
 
+    // Получаем список админов
+    List<PlaceUser> admins = await placeUser.getAdminsFromDb(id);
+
     // Удаляем записи у админов
-
-    admins = await placeUser.getAdminsFromDb(id);
-
     for (PlaceUser adminUser in admins){
       String adminPath = 'users/${adminUser.uid}/myPlaces/$id';
       String deleteAdminResult = await MixinDatabase.deleteFromDb(adminPath);
     }
 
     // Удаляем записи у пользователей, добавивших в избранное
-    for (String favUser in favUsersList){
+    for (String favUser in favUsersIds){
       String favUserPath = 'users/$favUser/favPlaces/$id';
       String deleteAdminResult = await MixinDatabase.deleteFromDb(favUserPath);
     }
@@ -303,7 +315,7 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
 
   @override
   Future<Place> getEntityByIdFromDb(String entityId) async {
-    Place returnedPlace = Place.emptyPlace;
+    Place returnedPlace = Place.empty();
 
     String path = 'places/$entityId';
 
@@ -316,6 +328,7 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
   }
 
 
+  // TODO ВОТ ЗДЕСЬ ЗАКОНЧИЛ
   @override
   Future<String> addToFav() async {
     PlaceList favPlaces = PlaceList();
@@ -339,7 +352,7 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
         favUsersIds.add(UserCustom.currentUser!.uid);
       }
 
-      favPlaces.addEntityToCurrentFavList(id);
+      //favPlaces.addEntityToCurrentFavList(id);
 
       String result = 'success';
 
@@ -371,7 +384,7 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
 
       favUsersIds.removeWhere((element) => element == UserCustom.currentUser?.uid);
 
-      favPLaces.deleteEntityFromCurrentFavList(id);
+      //favPLaces.deleteEntityFromCurrentFavList(id);
 
       String result = 'success';
 
@@ -519,7 +532,7 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
 
   @override
   Place getEntityFromSnapshot(DataSnapshot snapshot) {
-    Place returnedPlace = Place.emptyPlace;
+    Place returnedPlace = Place.empty();
 
     if (snapshot.exists){
       return Place.fromSnapshot(snapshot);

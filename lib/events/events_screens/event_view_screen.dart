@@ -36,7 +36,7 @@ class EventViewScreenState extends State<EventViewScreen> {
 
   UserCustom creator = UserCustom.empty();
 
-  Place place = Place.emptyPlace;
+  Place place = Place.empty();
   PlaceUser currentPlaceUser = PlaceUser();
   PlaceUserRole currentUserPlaceRole = PlaceUserRole();
 

@@ -256,6 +256,12 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
       inFavListDeleteResult = await MixinDatabase.deleteFromDb(inFavPath);
     }
 
+    // Удаляем записи у пользователей, добавивших в избранное
+    for (String favUser in favUsersIds){
+      String favUserPath = 'users/$favUser/favPromos/$id';
+      String deleteFavUser = await MixinDatabase.deleteFromDb(favUserPath);
+    }
+
     return checkSuccessFromDb(entityDeleteResult, creatorDeleteResult, placeDeleteResult, inFavListDeleteResult);
   }
 
