@@ -174,9 +174,9 @@ class EventsList implements ILists<EventsList, EventCustom, EventSortingOption>{
   void sortEntitiesList(EventSortingOption sorting) {
     switch (sorting){
 
-      case EventSortingOption.nameAsc: eventsList.sort((a, b) => b.headline.compareTo(a.headline)); break;
+      case EventSortingOption.nameAsc: eventsList.sort((a, b) => a.headline.compareTo(b.headline)); break;
 
-      case EventSortingOption.nameDesc: eventsList.sort((a, b) => a.headline.compareTo(b.headline)); break;
+      case EventSortingOption.nameDesc: eventsList.sort((a, b) => b.headline.compareTo(a.headline)); break;
 
       case EventSortingOption.favCountAsc: eventsList.sort((a, b) => b.favUsersIds.length.compareTo(a.favUsersIds.length)); break;
 

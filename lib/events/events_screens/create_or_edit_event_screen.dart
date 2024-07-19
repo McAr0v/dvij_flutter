@@ -998,12 +998,10 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
       bool isIrregular = false,
         // для нерегулярных дат
       int index = 0,
-      DateTime? firstDate = null,
-      DateTime? endDate = null,
+      DateTime? firstDate,
+      DateTime? endDate,
       }
       ) async {
-    //DateTime initial = selectedDayInOnceType;
-    //DateTime initialInMethod = initial;
     if (needClearInitialDate == true) initial = DateTime.now();
 
     final DateTime? picked = await showDatePicker(
@@ -1045,14 +1043,7 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
           _isStartBeforeEnd(false);
         }
       }
-
     }
-
-    /*if (picked != null && picked != selectedDayInOnceType) {
-      setState(() {
-        selectedDayInOnceType = picked;
-      });
-    }*/
   }
 
   void _isStartBeforeEnd (bool startAfterEnd){
