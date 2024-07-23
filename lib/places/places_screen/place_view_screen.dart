@@ -43,12 +43,8 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
   EventsList eventsInThatPlace = EventsList();
   PromoList promosInThatPlace = PromoList();
 
-  DateTime currentDate = DateTime.now();
-
   bool loading = true;
   bool deleting = false;
-  bool inFav = false;
-  int favCounter = 0;
 
   @override
   void initState() {
@@ -65,14 +61,14 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
     // Подгружаем данные заведения
     if (PlaceListManager.currentFeedPlacesList.placeList.isNotEmpty){
       place = place.getEntityFromFeedList(widget.placeId);
-    } else {
-      place = await place.getEntityByIdFromDb(widget.placeId);
+    }
 
+    // Если вдруг мероприятия не оказалось в списке, подгружаем из БД
+    if (place.id == '') {
+      place = await place.getEntityByIdFromDb(widget.placeId);
     }
 
     // Подгружаем список администраторов
-    //admins = await currentPlaceUser.getAdminsInfoFromDb(place.admins!);
-
     admins = await currentPlaceUser.getAdminsFromDb(place.id);
 
     // Устанавливаем роль текущему пользователю
@@ -90,16 +86,13 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
     }
 
     // Подгружаем акции и мероприятия заведения
-    if (place.eventsList != null && place.eventsList!.isNotEmpty){
-      eventsInThatPlace = await eventsInThatPlace.getEntitiesFromStringList(place.eventsList!);
+    if (place.eventsList.isNotEmpty){
+      eventsInThatPlace = await eventsInThatPlace.getEntitiesFromStringList(place.eventsList);
 
     }
-    if (place.promosList != null && place.promosList!.isNotEmpty){
-      promosInThatPlace = await promosInThatPlace.getEntitiesFromStringList(place.promosList!);
+    if (place.promosList.isNotEmpty){
+      promosInThatPlace = await promosInThatPlace.getEntitiesFromStringList(place.promosList);
     }
-
-    inFav = place.inFav!;
-    favCounter = place.favUsersIds.length;
 
     setState(() {
       loading = false;
@@ -118,7 +111,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
             onPressed: () {
               // Возвращаем данные о состоянии избранного на экран ленты
               // На случай, если мы добавляли/убирали из избранного
-              List<dynamic> result = [inFav, favCounter];
+              List<dynamic> result = [true];
               Navigator.of(context).pop(result);
             },
           ),
@@ -129,10 +122,12 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
             if (currentPlaceUser.placeUserRole.controlLevel >= 90) IconButton(
                 onPressed: () async {
-                  Navigator.push(
+                  // TODO Сделать ожидание результата с экрана редактирования
+                  await goToPlaceEditScreen();
+                  /*Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => CreateOrEditPlaceScreen(placeInfo: place))
-                  );
+                  );*/
                 },
                 icon: const Icon(Icons.edit)
             ),
@@ -161,15 +156,15 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
 
                       ImageInViewScreenWidget(
                           imagePath: place.imageUrl,
-                          favCounter: favCounter,
-                          inFav: inFav,
+                          favCounter: place.favUsersIds.length,
+                          inFav: place.inFav,
                           onTap: () async {
                             await addOrDeleteFromFav();
                           },
                           categoryName: place.category.name,
                           headline: place.name,
                           desc: '${place.city.name}, ${place.street}, ${place.house}',
-                          openOrToday: place.nowIsOpen!,
+                          openOrToday: place.nowIsOpen,
                           trueText: 'Сейчас открыто',
                           falseText: 'Сейчас закрыто'
                       ),
@@ -515,7 +510,14 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
   }
 
   void deletePlace() async {
-    bool? confirmed = await exitDialog(context, "Ты правда хочешь удалить заведение? Ты не сможешь восстановить данные" , 'Да', 'Нет', 'Удаление заведения');
+    bool? confirmed = await exitDialog(
+        context,
+        "Ты правда хочешь удалить заведение? Ты не сможешь восстановить данные. "
+            "Так же удалятся все менеджеры, мероприятия и акции, опубликованные от имени этого заведения",
+        'Да',
+        'Нет',
+        'Удаление заведения'
+    );
 
     if (confirmed != null && confirmed){
 
@@ -574,17 +576,12 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
     if (UserCustom.currentUser?.uid == '' || UserCustom.currentUser?.uid == null) {
       showSnackBar(context, 'Чтобы добавлять в избранное, нужно зарегистрироваться!', AppColors.attentionRed, 2);
     } else {
-      if (inFav) {
+      if (place.inFav) {
         String resDel = await place.deleteFromFav();
         if (resDel == 'success'){
-          setState(() {
-            inFav = false;
-            favCounter --;
-            place.inFav = inFav;
-            //place.favUsersIds = favCounter;
-            place.updateCurrentListFavInformation();
-          });
+
           _showSnackBar('Удалено из избранных', AppColors.attentionRed, 1);
+
         } else {
           _showSnackBar(resDel, AppColors.attentionRed, 1);
         }
@@ -592,22 +589,43 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
         String res = await place.addToFav();
         if (res == 'success') {
 
-          setState(() {
-            inFav = true;
-            favCounter ++;
-            place.inFav = inFav;
-            //place.favUsersIds = favCounter;
-            place.updateCurrentListFavInformation();
-          });
-
           _showSnackBar('Добавлено в избранные', Colors.green, 1);
 
         } else {
-
           _showSnackBar(res, AppColors.attentionRed, 1);
-
         }
       }
+
+      Place tempPlace = await place.getEntityByIdFromDb(place.id);
+
+      setState(() {
+        place = tempPlace;
+      });
+
+    }
+  }
+
+  Future<void> goToPlaceEditScreen() async {
+    final results = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CreateOrEditPlaceScreen(placeInfo: place),
+      ),
+    );
+
+    if (results != null) {
+
+      PlaceList placesList = PlaceList();
+
+      Place tempPlace = placesList.getEntityFromFeedListById(place.id);
+
+      if (tempPlace.id.isEmpty){
+        tempPlace = await place.getEntityByIdFromDb(place.id);
+      }
+
+      setState(() {
+        place = tempPlace;
+      });
     }
   }
 }

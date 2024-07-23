@@ -1,39 +1,36 @@
 import 'package:dvij_flutter/cities/city_class.dart';
+import 'package:dvij_flutter/classes/pair.dart';
 import 'package:dvij_flutter/places/place_category_class.dart';
 import 'package:dvij_flutter/places/place_class.dart';
+import 'package:dvij_flutter/widgets_global/default_screens/empty_screen.dart';
+import 'package:dvij_flutter/widgets_global/filter_widgets/filter_widget.dart';
+import 'package:dvij_flutter/widgets_global/text_widgets/headline_and_desc.dart';
 import 'package:dvij_flutter/places/place_list_class.dart';
+import 'package:dvij_flutter/places/place_list_manager.dart';
 import 'package:dvij_flutter/places/places_screen/place_view_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
-import '../../widgets_global/cards_widgets/card_widget_for_event_promo_places.dart';
-import '../../widgets_global/filter_widgets/filter_widget.dart';
-import '../place_list_manager.dart';
-import '../place_sorting_options.dart';
-import '../../current_user/user_class.dart';
-import '../../elements/custom_snack_bar.dart';
-import '../../elements/loading_screen.dart';
-import '../places_elements/place_filter_page.dart';
-import 'create_or_edit_place_screen.dart';
+import '../../../ads/ad_user_class.dart';
+import '../../../widgets_global/cards_widgets/card_widget_for_event_promo_places.dart';
+import '../../place_sorting_options.dart';
+import '../../../current_user/user_class.dart';
+import '../../../elements/custom_snack_bar.dart';
+import '../../../elements/loading_screen.dart';
+import '../../places_elements/place_filter_page.dart';
 
 
 // ---- ЭКРАН ЛЕНТЫ ЗАВЕДЕНИЙ ------
 
-/*class PlacesMyPage extends StatefulWidget {
-  const PlacesMyPage({Key? key}) : super(key: key);
+class PlacesFeedPage extends StatefulWidget {
+  const PlacesFeedPage({Key? key}) : super(key: key);
 
   @override
-  PlacesMyPageState createState() => PlacesMyPageState();
+  PlacesFeedPageState createState() => PlacesFeedPageState();
 }
 
-
-
-class PlacesMyPageState extends State<PlacesMyPage> {
-
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  PlaceList placesMyList = PlaceList();
-  late List<PlaceCategory> placeCategoriesList;
+class PlacesFeedPageState extends State<PlacesFeedPage> {
+  PlaceList placesList = PlaceList(); // Список мест
+  late List<PlaceCategory> placeCategoriesList; // Список категорий мест
 
   // --- Переменные фильтра по умолчанию ----
 
@@ -42,8 +39,6 @@ class PlacesMyPageState extends State<PlacesMyPage> {
   bool nowIsOpenFromFilter = false;
   bool haveEventsFromFilter = false;
   bool havePromosFromFilter = false;
-
-  Place placeEmpty = Place.empty();
 
   // --- Переменная сортировки по умолчанию ----
 
@@ -57,6 +52,21 @@ class PlacesMyPageState extends State<PlacesMyPage> {
 
   // Счетчик выбранных значений фильтра
   int filterCount = 0;
+
+  // TODO - Сделать загрузку рекламы из БД
+  // --- Рекламные переменные -----
+
+  // --- Список рекламы ---
+  List<String> adList = ['Реклама №1', 'Реклама №2', 'Реклама №3', 'Реклама №4', 'Реклама №5'];
+  List<Pair> allElementsList = [];
+  // ---- Список для хранения индексов элементов рекламы
+  List<int> adIndexesList = [];
+  // --- Шаг - сколько элементов списка будет между рекламными постами
+  int adStep = 2;
+  // --- Индекс первого рекламного элемента
+  int firstIndexOfAd = 1;
+
+  List<Pair> pairList = [];
 
   @override
   void initState(){
@@ -73,20 +83,55 @@ class PlacesMyPageState extends State<PlacesMyPage> {
       loading = true;
     });
 
+    // ---- Подгружаем город в фильтр из данных пользователя ---
+    if (UserCustom.currentUser != null){
+      setState(() {
+        cityFromFilter = UserCustom.currentUser!.city;
+      });
+      /*if (UserCustom.currentUser!.city != ''){
+        City usersCity = City.getCityByIdFromList(UserCustom.currentUser!.city);
+        setState(() {
+          cityFromFilter = usersCity;
+        });
+      }*/
+
+    }
+
     // ---- Устанавливаем счетчик выбранных в фильтре настроек ----
 
     _setFiltersCount(placeCategoryFromFilter, cityFromFilter, nowIsOpenFromFilter, haveEventsFromFilter, havePromosFromFilter);
 
     // ----- Работаем со списком заведений -----
 
-    if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
+    // ---- Если список пуст ----
+    if (PlaceListManager.currentFeedPlacesList.placeList.isEmpty){
 
-      placesMyList = await placesMyList.getMyListFromDb(UserCustom.currentUser!.uid);
+      // ---- Считываем с БД заведения -----
+      placesList = await placesList.getListFromDb();
+
+      // --- Фильтруем список -----
+      if (placesList.placeList.isNotEmpty){
+        setState(() {
+          placesList.filterLists(
+              placesList.generateMapForFilter(
+                  placeCategoryFromFilter,
+                  cityFromFilter,
+                  haveEventsFromFilter,
+                  nowIsOpenFromFilter,
+                  havePromosFromFilter
+              )
+          );
+        });
+      }
+    } else {
+      // --- Если список не пустой ----
+      // --- Подгружаем готовый список ----
 
       // --- Фильтруем список -----
       setState(() {
-        placesMyList.filterLists(
-            placesMyList.generateMapForFilter(
+        placesList = PlaceListManager.currentFeedPlacesList;
+        placesList.filterLists(
+            placesList.generateMapForFilter(
                 placeCategoryFromFilter,
                 cityFromFilter,
                 haveEventsFromFilter,
@@ -97,49 +142,16 @@ class PlacesMyPageState extends State<PlacesMyPage> {
       });
     }
 
-    // ---- Если список пуст ----
-    /*if (PlaceListManager.currentMyPlacesList.placeList.isEmpty){
-
-      // ---- Считываем с БД заведения -----
-      if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
-
-        placesMyList = await placesMyList.getMyListFromDb(UserCustom.currentUser!.uid);
-
-        // --- Фильтруем список -----
-        setState(() {
-          placesMyList.filterLists(
-              placesMyList.generateMapForFilter(
-                  placeCategoryFromFilter,
-                  cityFromFilter,
-                  haveEventsFromFilter,
-                  nowIsOpenFromFilter,
-                  havePromosFromFilter
-              )
-          );
-        });
-      }
-
-    } else {
-      // --- Если список не пустой ----
-      // --- Подгружаем готовый список ----
-      placesMyList = PlaceListManager.currentMyPlacesList;
-
-      // --- Фильтруем список ----
-      setState(() {
-        placesMyList.filterLists(
-            placesMyList.generateMapForFilter(
-                placeCategoryFromFilter,
-                cityFromFilter,
-                haveEventsFromFilter,
-                nowIsOpenFromFilter,
-                havePromosFromFilter
-            )
-        );
-      });
-    }*/
-
     // Подгружаем список категорий заведений
     placeCategoriesList = PlaceCategory.currentPlaceCategoryList;
+
+    // --- Считываем индексы, где будет стоять реклама ----
+
+    adIndexesList = AdUser.getAdIndexesList(adList, adStep, firstIndexOfAd);
+
+    setState(() {
+      allElementsList = AdUser.generateIndexedList(adIndexesList, placesList.placeList.length);
+    });
 
     setState(() {
       loading = false;
@@ -159,35 +171,21 @@ class PlacesMyPageState extends State<PlacesMyPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // - Обновление списка, если тянуть экран вниз
+        // - Обновление списка, если тянуть экран вниз
         body: RefreshIndicator (
           onRefresh: () async {
-
-            await refreshList();
-
+            await _refreshFeed();
           },
           child: Stack (
             children: [
-              if (UserCustom.currentUser?.uid == null || UserCustom.currentUser?.uid == '') Center(
-                child: Text(
-                  'Чтобы создавать места или участвовать в их управлении, нужно зарегистрироваться',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                  textAlign: TextAlign.center,
-                ),
-              )
-              else if (loading) const LoadingScreen(loadingText: 'Подожди, идет загрузка мест')
-              else if (refresh) Center(
-                  child: Text(
-                    'Подожди, идет загрузка мест',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                )
-                else Column(
-                    children: [
+              if (loading) const LoadingScreen(loadingText: 'Подожди, идет загрузка мест')
+              else if (refresh) const EmptyScreenWidget(messageText: 'Подожди, идет обновление',)
+              else Column(
+                  children: [
 
-                      // ---- Фильтр и сортировка -----
+                    // ---- Фильтр и сортировка -----
 
-                      FilterWidget(
+                    FilterWidget(
                         onFilterTap: (){
                           _showFilterDialog();
                         },
@@ -196,90 +194,76 @@ class PlacesMyPageState extends State<PlacesMyPage> {
                         onSortingValueChanged: (PlaceSortingOption? newValue) {
                           setState(() {
                             _selectedSortingOption = newValue!;
-                            placesMyList.sortEntitiesList(_selectedSortingOption);
+                            placesList.sortEntitiesList(_selectedSortingOption);
                           });
                         },
                         sortingItems: Place.empty().getPlaceSortingOptionsList(),
-                      ),
+                    ),
 
-                      // ---- Если список заведений пустой -----
+                    // ---- Если список заведений пустой -----
 
-                      if (placesMyList.placeList.isEmpty) Expanded(
-                          child: ListView.builder(
-                              padding: const EdgeInsets.all(15.0),
-                              itemCount: 1,
-                              itemBuilder: (context, index) {
-                                return const Column(
-                                    children: [
-                                      Center(
-                                        child: Text('Пусто'),
-                                      )
-                                    ]
+                    if (placesList.placeList.isEmpty) Expanded(
+                        child: ListView.builder(
+                            padding: const EdgeInsets.all(15.0),
+                            itemCount: 1,
+                            itemBuilder: (context, index) {
+                              return const EmptyScreenWidget();
+                            }
+                        )
+                    ),
+
+                    // ---- Если список заведений не пустой -----
+
+                    if (placesList.placeList.isNotEmpty) Expanded(
+
+                        child: ListView.builder(
+                            padding: const EdgeInsets.all(10.0),
+                            itemCount: allElementsList.length,
+                            itemBuilder: (context, index) {
+                              if (allElementsList[index].first == 'ad')  {
+                                return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 20,
+                                        horizontal: 20),
+                                  child: HeadlineAndDesc(headline: adList[allElementsList[index].second], description: 'реклама'),
                                 );
-                              }
-                          )
-                      ),
+                              } else {
 
-                      // ---- Если список заведений не пустой -----
+                                int indexWithAddCountCorrection = allElementsList[index].second;
 
-                      if (placesMyList.placeList.isNotEmpty) Expanded(
-                          child: ListView.builder(
-                              padding: const EdgeInsets.all(10.0),
-                              itemCount: placesMyList.placeList.length,
-                              itemBuilder: (context, index) {
                                 return CardWidgetForEventPromoPlaces(
-                                  // TODO Сделать обновление иконки избранного и счетчика при возврате из экрана просмотра заведения
-                                  place: placesMyList.placeList[index],
-                                  height: 450,
 
-                                  onTap: () async {
-                                    await goToPlaceViewScreen(index);
-                                  },
+                                place: placesList.placeList[indexWithAddCountCorrection],
+                                height: 450,
 
-                                  // --- Функция на нажатие на карточке кнопки ИЗБРАННОЕ ---
-                                  onFavoriteIconPressed: () async {
-                                    await addOrDeleteFromFav(index);
-                                  },
-                                );
+                                onTap: () async {
+                                  await goToPlaceViewScreen(indexWithAddCountCorrection);
+                                },
+
+                                // --- Функция на нажатие на карточке кнопки ИЗБРАННОЕ ---
+                                onFavoriteIconPressed: () async {
+                                  await addOrDeleteFromFav(indexWithAddCountCorrection);
+                                },
+                              );
                               }
-                          )
-                      )
-                    ],
-                  ),
+                            }
+                        )
+                    )
+                  ],
+                ),
             ],
           ),
-        ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          if (UserCustom.currentUser != null && UserCustom.currentUser!.uid != '' && _auth.currentUser!.emailVerified) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => CreateOrEditPlaceScreen(placeInfo: placeEmpty)),
-            );
-          } else if (_auth.currentUser != null && !_auth.currentUser!.emailVerified) {
-
-            showSnackBar('Чтобы создать заведение, нужно подтвердить почту', AppColors.attentionRed, 2);
-
-          } else {
-
-            showSnackBar('Чтобы создать заведение, нужно зарегистрироваться', AppColors.attentionRed, 2);
-
-          }
-
-        },
-        backgroundColor: AppColors.brandColor,
-        child: const Icon(Icons.add), // Цвет кнопки
-      ),
+        )
     );
   }
 
   // ---- Функция обвноления счетчика выбранных настроек фильтра ----
   void _setFiltersCount(
-      PlaceCategory placeCategoryFromFilter,
-      City cityFromFilter,
-      bool nowIsOpenFromFilter,
-      bool haveEventsFromFilter,
-      bool havePromosFromFilter,
+  PlaceCategory placeCategoryFromFilter,
+  City cityFromFilter,
+  bool nowIsOpenFromFilter,
+  bool haveEventsFromFilter,
+  bool havePromosFromFilter,
       ){
 
     int count = 0;
@@ -322,20 +306,20 @@ class PlacesMyPageState extends State<PlacesMyPage> {
         nowIsOpenFromFilter = results [2];
         haveEventsFromFilter = results [3];
         havePromosFromFilter = results [4];
-        placesMyList = PlaceList();
+        placesList = PlaceList();
 
         // ---- Обновляем счетчик выбранных настроек ----
         _setFiltersCount(placeCategoryFromFilter, cityFromFilter, nowIsOpenFromFilter, haveEventsFromFilter, havePromosFromFilter);
 
       });
 
-      placesMyList.placeList = PlaceListManager.currentMyPlacesList.placeList;
+      // --- Заново подгружаем список из БД ---
 
       // --- Фильтруем список согласно новым выбранным данным из фильтра ----
-      // --- Фильтруем список ----
       setState(() {
-        placesMyList.filterLists(
-            placesMyList.generateMapForFilter(
+        placesList.placeList = PlaceListManager.currentFeedPlacesList.placeList;
+        placesList.filterLists(
+            placesList.generateMapForFilter(
                 placeCategoryFromFilter,
                 cityFromFilter,
                 haveEventsFromFilter,
@@ -343,6 +327,9 @@ class PlacesMyPageState extends State<PlacesMyPage> {
                 havePromosFromFilter
             )
         );
+
+        allElementsList = AdUser.generateIndexedList(adIndexesList, placesList.placeList.length);
+
       });
 
       setState(() {
@@ -381,54 +368,38 @@ class PlacesMyPageState extends State<PlacesMyPage> {
     );
   }
 
-  Future<void> refreshList() async {
+  Future<void> _refreshFeed() async {
     setState(() {
       refresh = true;
     });
 
-    placesMyList = PlaceList();
+    placesList = PlaceList();
 
-    if (UserCustom.currentUser?.uid != null || UserCustom.currentUser?.uid != ''){
+    placesList = await placesList.getListFromDb();
 
-      placesMyList = await placesMyList.getMyListFromDb(UserCustom.currentUser!.uid, refresh: true);
+    // --- Фильтруем список -----
+    setState(() {
+      placesList.filterLists(
+          placesList.generateMapForFilter(
+              placeCategoryFromFilter,
+              cityFromFilter,
+              haveEventsFromFilter,
+              nowIsOpenFromFilter,
+              havePromosFromFilter
+          )
+      );
 
-      setState(() {
-        placesMyList.filterLists(
-            placesMyList.generateMapForFilter(
-                placeCategoryFromFilter,
-                cityFromFilter,
-                haveEventsFromFilter,
-                nowIsOpenFromFilter,
-                havePromosFromFilter
-            )
-        );
-      });
+      allElementsList = AdUser.generateIndexedList(adIndexesList, placesList.placeList.length);
 
-    }
+    });
 
     setState(() {
       refresh = false;
     });
   }
 
-  Future<void> goToPlaceViewScreen(int index) async {
-    final results = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PlaceViewScreen(placeId: placesMyList.placeList[index].id),
-      ),
-    );
-
-    if (results != null) {
-      setState(() {
-        placesMyList.placeList[index].inFav = results[0];
-        placesMyList.placeList[index].favUsersIds = results[1];
-      });
-    }
-  }
-
   Future<void> addOrDeleteFromFav(int index) async {
-
+    // TODO Сделать проверку на подтвержденный Email
     // ---- Если не зарегистрирован или не вошел ----
     if (UserCustom.currentUser?.uid == '' || UserCustom.currentUser?.uid == null)
     {
@@ -441,23 +412,27 @@ class PlacesMyPageState extends State<PlacesMyPage> {
       setState(() {
         loading = true;
       });
+
       // --- Если уже в избранном ----
-      if (placesMyList.placeList[index].inFav!)
+      if (placesList.placeList[index].inFav!)
       {
         // --- Удаляем из избранных ---
-        String resDel = await placesMyList.placeList[index].deleteFromFav();
+        //String resDel = await Place.deletePlaceFromFav(placesList[indexWithAddCountCorrection].id);
+        String resDel = await placesList.placeList[index].deleteFromFav();
         // ---- Инициализируем счетчик -----
-        //int favCounter = placesMyList.placeList[index].favUsersIds!;
+        //int favCounter = placesList.placeList[index].favUsersIds!;
 
         if (resDel == 'success'){
           // Если удаление успешное, обновляем 2 списка - текущий на экране, и общий загруженный из БД
           setState(() {
             // Обновляем текущий список
-            placesMyList.placeList[index].inFav = false;
+            placesList.placeList[index].inFav = false;
             //favCounter --;
-            //placesMyList.placeList[index].favUsersIds = favCounter;
-            // Обновляем списки из БД
-            placesMyList.placeList[index].updateCurrentListFavInformation();
+            //placesList.placeList[index].favUsersIds = favCounter;
+
+            // Обновляем общий список из БД
+            //Place.updateCurrentPlaceListFavInformation(placesList[indexWithAddCountCorrection].id, favCounter.toString(), 'false');
+            placesList.placeList[index].updateCurrentListFavInformation();
 
           });
           showSnackBar('Удалено из избранных', AppColors.attentionRed, 1);
@@ -470,19 +445,21 @@ class PlacesMyPageState extends State<PlacesMyPage> {
         // --- Если заведение не в избранном ----
 
         // -- Добавляем в избранное ----
-        String res = await placesMyList.placeList[index].addToFav();
+        //String res = await Place.addPlaceToFav(placesList[indexWithAddCountCorrection].id);
+        String res = await placesList.placeList[index].addToFav();
         // ---- Инициализируем счетчик добавивших в избранное
-        //int favCounter = placesMyList.placeList[index].favUsersIds!;
+        //int favCounter = placesList.placeList[index].favUsersIds!;
 
         if (res == 'success') {
           // --- Если добавилось успешно, так же обновляем текущий список и список из БД
           setState(() {
             // Обновляем текущий список
-            placesMyList.placeList[index].inFav = true;
-            //favCounter ++;
-            //placesMyList.placeList[index].favUsersIds = favCounter;
-            // Обновляем списки из БД
-            placesMyList.placeList[index].updateCurrentListFavInformation();
+            placesList.placeList[index].inFav = true;
+           // favCounter ++;
+            //placesList.placeList[index].favUsersIds = favCounter;
+            // Обновляем список из БД
+            placesList.placeList[index].updateCurrentListFavInformation();
+            //Place.updateCurrentPlaceListFavInformation(placesList[indexWithAddCountCorrection].id, favCounter.toString(), 'true');
           });
 
           showSnackBar('Добавлено в избранные', Colors.green, 1);
@@ -498,4 +475,20 @@ class PlacesMyPageState extends State<PlacesMyPage> {
       });
     }
   }
-}*/
+
+  Future<void> goToPlaceViewScreen(int indexWithAddCountCorrection) async {
+    final results = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PlaceViewScreen(placeId: placesList.placeList[indexWithAddCountCorrection].id),
+      ),
+    );
+
+    if (results != null) {
+      setState(() {
+        placesList.placeList[indexWithAddCountCorrection].inFav = results[0];
+        placesList.placeList[indexWithAddCountCorrection].favUsersIds = results[1];
+      });
+    }
+  }
+}

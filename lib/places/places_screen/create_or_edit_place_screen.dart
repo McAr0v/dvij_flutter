@@ -80,6 +80,11 @@ class CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
     );
   }
 
+  void navigateBackWithResult(){
+    List<dynamic> result = [true];
+    Navigator.of(context).pop(result);
+  }
+
   // ----- Отображение всплывающего сообщения ----
 
   void showSnackBar(String message, Color color, int showTime) {
@@ -409,8 +414,13 @@ class CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
                             1,
                           );
 
-                          // Уходим в профиль
-                          navigateToPlaces();
+                          if (widget.placeInfo.id.isEmpty){
+                            // Уходим в профиль
+                            navigateToPlaces();
+                          } else {
+                            navigateBackWithResult();
+                          }
+
 
                         }
 

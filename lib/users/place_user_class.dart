@@ -165,6 +165,8 @@ class PlaceUser {
             placeRole = placeRole.getPlaceUserRole(
                 placeRole.getPlaceUserEnumFromString(roleId));
             user.placeUserRole = placeRole;
+          } else {
+            user.placeUserRole = PlaceUserRole().getPlaceUserRole(PlaceUserRoleEnum.reader);
           }
           return user;
         }

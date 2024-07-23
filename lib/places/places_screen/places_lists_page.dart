@@ -510,23 +510,6 @@ class _PlacesListsPageState extends State<PlacesListsPage> {
       setState(() {
         placesList.placeList[indexWithAddCountCorrection] = place;
       });
-
-      /*setState(() {
-        placesList.placeList[indexWithAddCountCorrection].inFav = results[0];
-        placesList.placeList[indexWithAddCountCorrection].favUsersIds = results[1];
-      });*/
     }
-
-    /*if (results != null) {
-
-      // Подгружаем мероприятие из общего списка
-      EventCustom eventCustom = eventsList.getEntityFromFeedListById(eventsList.eventsList[indexWithAddCountCorrection].id);
-
-      // Заменяем мероприятие на обновленное
-      setState(() {
-        eventsList.eventsList[indexWithAddCountCorrection] = eventCustom;
-      });
-    }*/
-
   }
 }

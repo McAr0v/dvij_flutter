@@ -5,14 +5,14 @@ import 'package:dvij_flutter/places/place_list_manager.dart';
 import 'package:dvij_flutter/places/places_screen/place_view_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
-import '../../widgets_global/cards_widgets/card_widget_for_event_promo_places.dart';
-import '../../widgets_global/filter_widgets/filter_widget.dart';
-import '../place_class.dart';
-import '../place_sorting_options.dart';
-import '../../current_user/user_class.dart';
-import '../../elements/custom_snack_bar.dart';
-import '../../elements/loading_screen.dart';
-import '../places_elements/place_filter_page.dart';
+import '../../../widgets_global/cards_widgets/card_widget_for_event_promo_places.dart';
+import '../../../widgets_global/filter_widgets/filter_widget.dart';
+import '../../place_class.dart';
+import '../../place_sorting_options.dart';
+import '../../../current_user/user_class.dart';
+import '../../../elements/custom_snack_bar.dart';
+import '../../../elements/loading_screen.dart';
+import '../../places_elements/place_filter_page.dart';
 
 
 // ---- ЭКРАН ЛЕНТЫ ЗАВЕДЕНИЙ ------
