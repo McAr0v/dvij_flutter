@@ -17,7 +17,7 @@ import '../places_elements/place_filter_page.dart';
 
 // ---- ЭКРАН ЛЕНТЫ ЗАВЕДЕНИЙ ------
 
-class PlacesFavPage extends StatefulWidget {
+/*class PlacesFavPage extends StatefulWidget {
   const PlacesFavPage({Key? key}) : super(key: key);
 
   @override
@@ -496,4 +496,4 @@ class PlacesFavPageState extends State<PlacesFavPage> {
       });
     }
   }
-}
+}*/

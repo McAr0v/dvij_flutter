@@ -6,6 +6,7 @@ import 'package:dvij_flutter/events/events_list_manager.dart';
 import 'package:dvij_flutter/places/place_category_class.dart';
 import 'package:dvij_flutter/places/place_list_class.dart';
 import 'package:dvij_flutter/current_user/user_class.dart';
+import 'package:dvij_flutter/places/place_list_manager.dart';
 import 'package:dvij_flutter/places/place_sorting_options.dart';
 import 'package:dvij_flutter/promos/promo_class.dart';
 import 'package:dvij_flutter/promos/promos_list_manager.dart';
@@ -234,7 +235,7 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
     // Путь создателя заведения
     String creatorPath = 'users/$creatorId/myPlaces/$id';
 
-    String imageDeleteResult = await imageUploader.removeImage(ImageFolderEnum.places, id);
+    await imageUploader.removeImage(ImageFolderEnum.places, id);
 
     // Удаляем мероприятия от имени заведения
 
@@ -274,7 +275,7 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
     String entityDeleteResult = await MixinDatabase.deleteFromDb(entityPath);
 
     // Удаляем запись у создателя
-    String creatorDeleteResult = await MixinDatabase.deleteFromDb(creatorPath);
+    await MixinDatabase.deleteFromDb(creatorPath);
 
     // Получаем список админов
     List<PlaceUser> admins = await placeUser.getAdminsFromDb(id);
@@ -282,13 +283,13 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
     // Удаляем записи у админов
     for (PlaceUser adminUser in admins){
       String adminPath = 'users/${adminUser.uid}/myPlaces/$id';
-      String deleteAdminResult = await MixinDatabase.deleteFromDb(adminPath);
+      await MixinDatabase.deleteFromDb(adminPath);
     }
 
     // Удаляем записи у пользователей, добавивших в избранное
     for (String favUser in favUsersIds){
       String favUserPath = 'users/$favUser/favPlaces/$id';
-      String deleteAdminResult = await MixinDatabase.deleteFromDb(favUserPath);
+      await MixinDatabase.deleteFromDb(favUserPath);
     }
 
     // Возвращаем результат удаления самого заведения
@@ -306,7 +307,7 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
 
     bool category = placeCategoryFromFilter.id == '' || placeCategoryFromFilter.id == this.category.id;
     bool city = cityFromFilter.id == '' || cityFromFilter.id == this.city.id;
-    bool checkNowIsOpen = nowIsOpenFromFilter == false ||  nowIsOpen!;
+    bool checkNowIsOpen = nowIsOpenFromFilter == false ||  nowIsOpen;
     bool events = haveEventsFromFilter == false || eventsList.isNotEmpty;
     bool promos = havePromosFromFilter == false || promosList.isNotEmpty;
 
@@ -327,37 +328,29 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
     return returnedPlace;
   }
 
-
-  // TODO ВОТ ЗДЕСЬ ЗАКОНЧИЛ
   @override
   Future<String> addToFav() async {
-    PlaceList favPlaces = PlaceList();
 
     if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
 
       String placePath = 'places/$id/addedToFavourites/${UserCustom.currentUser?.uid}';
-      //String userPath = 'users/${UserCustom.currentUser?.uid}/favPlaces/$id';
 
       Map<String, dynamic> placeData = MixinDatabase.generateDataCode('userId', UserCustom.currentUser?.uid);
-      Map<String, dynamic> userData = MixinDatabase.generateDataCode('placeId', id);
 
       String placePublish = await MixinDatabase.publishToDB(placePath, placeData);
-      //String userPublish = await MixinDatabase.publishToDB(userPath, userData);
-
-      /*if (UserCustom.currentUser != null){
-        UserCustom.currentUser!.addPlaceToFav(id);
-      }*/
 
       if (!favUsersIds.contains(UserCustom.currentUser!.uid)){
         favUsersIds.add(UserCustom.currentUser!.uid);
+        inFav = true;
       }
 
-      //favPlaces.addEntityToCurrentFavList(id);
+      if (PlaceListManager.currentFeedPlacesList.placeList.isNotEmpty){
+        updateCurrentEntityInEntitiesList();
+      }
 
       String result = 'success';
 
       if (placePublish != 'success') result = placePublish;
-      //if (userPublish != 'success') result = userPublish;
 
       return result;
 
@@ -368,28 +361,25 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
 
   @override
   Future<String> deleteFromFav() async {
-    PlaceList favPLaces = PlaceList();
 
     if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
 
-      String eventPath = 'places/$id/addedToFavourites/${UserCustom.currentUser?.uid}';
-      //String userPath = 'users/${UserCustom.currentUser?.uid}/favPlaces/$id';
+      String placePath = 'places/$id/addedToFavourites/${UserCustom.currentUser?.uid}';
 
-      String eventDelete = await MixinDatabase.deleteFromDb(eventPath);
-      //String userDelete = await MixinDatabase.deleteFromDb(userPath);
+      String placeDelete = await MixinDatabase.deleteFromDb(placePath);
 
-      /*if (UserCustom.currentUser != null){
-        UserCustom.currentUser!.deletePlaceFromFav(id);
-      }*/
+      if (favUsersIds.contains(UserCustom.currentUser!.uid)){
+        favUsersIds.removeWhere((element) => element == UserCustom.currentUser?.uid);
+        inFav = false;
+      }
 
-      favUsersIds.removeWhere((element) => element == UserCustom.currentUser?.uid);
-
-      //favPLaces.deleteEntityFromCurrentFavList(id);
+      if (PlaceListManager.currentFeedPlacesList.placeList.isNotEmpty){
+        updateCurrentEntityInEntitiesList();
+      }
 
       String result = 'success';
 
-      if (eventDelete != 'success') result = eventDelete;
-      //if (userDelete != 'success') result = userDelete;
+      if (placeDelete != 'success') result = placeDelete;
 
       return result;
 
@@ -401,7 +391,18 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
   // --- ФУНКЦИЯ ЗАПИСИ ДАННЫХ Места -----
   static Future<String?> writeUserRoleInPlace(String placeId, String userId, String roleId) async {
 
-    try {
+    String userPath = 'users/$userId/myPlaces/$placeId';
+
+    Map<String, dynamic> userData = {
+      'placeId': placeId,
+      'roleId': roleId,
+    };
+
+    String userRolePublish = await MixinDatabase.publishToDB(userPath, userData);
+
+    return userRolePublish;
+
+    /*try {
 
       String placePath = 'places/$placeId/managers/$userId';
       String userPath = 'users/$userId/myPlaces/$placeId';
@@ -423,12 +424,18 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
 
     } catch (e) {
       return 'Failed to write user data. Error: $e';
-    }
+    }*/
   }
 
   static Future<String?> deleteUserRoleInPlace(String placeId, String userId) async {
 
-    try {
+    String userPath = "users/$userId/myPlaces/$placeId";
+
+    String userDelete = await MixinDatabase.deleteFromDb(userPath);
+
+    return userDelete;
+
+    /*try {
 
       String placePath = 'places/$placeId/managers/$userId';
       String userPath = 'users/$userId/myPlaces/$placeId';
@@ -442,7 +449,7 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
 
     } catch (e) {
       return 'Failed to write user data. Error: $e';
-    }
+    }*/
   }
 
   @override
@@ -496,7 +503,7 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
   @override
   void updateCurrentListFavInformation() {
     PlaceList placeList = PlaceList();
-    placeList.updateCurrentListFavInformation(id, favUsersIds, inFav!);
+    placeList.updateCurrentListFavInformation(id, favUsersIds, inFav);
   }
 
   @override
@@ -552,11 +559,11 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
       ),
       const DropdownMenuItem(
         value: PlaceSortingOption.favCountAsc,
-        child: Text('В избранном: по возрастанию'),
+        child: Text('Менее популярные'),
       ),
       const DropdownMenuItem(
         value: PlaceSortingOption.favCountDesc,
-        child: Text('В избранном: по убыванию'),
+        child: Text('Самые популярные'),
       ),
       const DropdownMenuItem(
         value: PlaceSortingOption.promoCountAsc,
@@ -573,6 +580,14 @@ class Place with MixinDatabase, TimeMixin implements IEntity<Place> {
       const DropdownMenuItem(
         value: PlaceSortingOption.eventCountDesc,
         child: Text('Мероприятия: по убыванию'),
+      ),
+      const DropdownMenuItem(
+        value: PlaceSortingOption.createDateAsc,
+        child: Text('Сначала старые'),
+      ),
+      const DropdownMenuItem(
+        value: PlaceSortingOption.createDateDesc,
+        child: Text('Сначала новые'),
       ),
     ];
   }

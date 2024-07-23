@@ -1,3 +1,5 @@
+import 'package:dvij_flutter/classes/entity_page_type_enum.dart';
+import 'package:dvij_flutter/places/places_screen/places_lists_page.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'places_fav_page.dart';
@@ -26,9 +28,12 @@ class PlacesPage extends StatelessWidget {
             Expanded(
               child: TabBarView(
                 children: [
-                  PlacesFeedPage(),
-                  PlacesFavPage(),
-                  PlacesMyPage()
+                  PlacesListsPage(pageTypeEnum: EntityPageTypeEnum.feed),
+                  PlacesListsPage(pageTypeEnum: EntityPageTypeEnum.fav),
+                  PlacesListsPage(pageTypeEnum: EntityPageTypeEnum.my),
+                  //PlacesFeedPage(),
+                  //PlacesFavPage(),
+                  //PlacesMyPage()
                 ],
               ),
             ),

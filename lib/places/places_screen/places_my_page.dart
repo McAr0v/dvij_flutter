@@ -19,7 +19,7 @@ import 'create_or_edit_place_screen.dart';
 
 // ---- ЭКРАН ЛЕНТЫ ЗАВЕДЕНИЙ ------
 
-class PlacesMyPage extends StatefulWidget {
+/*class PlacesMyPage extends StatefulWidget {
   const PlacesMyPage({Key? key}) : super(key: key);
 
   @override
@@ -498,4 +498,4 @@ class PlacesMyPageState extends State<PlacesMyPage> {
       });
     }
   }
-}
+}*/

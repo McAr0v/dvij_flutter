@@ -18,7 +18,18 @@ class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
 
   @override
   void addEntityFromCurrentEntitiesLists(Place entity) {
-    PlaceListManager.currentFeedPlacesList.placeList.add(entity);
+    // Если в списке еще нет сущности с таким id, то добавляем в список
+    if (!PlaceListManager.currentFeedPlacesList.placeList.any((element) => element.id == entity.id)){
+      PlaceListManager.currentFeedPlacesList.placeList.add(entity);
+    } else {
+      // Если есть, заменяем на новую копию
+      for (Place tempPlace in PlaceListManager.currentFeedPlacesList.placeList){
+        if (tempPlace.id == entity.id){
+          tempPlace = entity;
+          break;
+        }
+      }
+    }
   }
 
   /*@override
