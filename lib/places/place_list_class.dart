@@ -45,14 +45,8 @@ class PlaceList implements ILists<PlaceList, Place, PlaceSortingOption>{
   @override
   void deleteEntityFromCurrentEntitiesLists(String id) {
     PlaceListManager.currentFeedPlacesList.placeList.removeWhere((place) => place.id == id);
-    //PlaceListManager.currentFavPlacesList.placeList.removeWhere((place) => place.id == id);
-    //PlaceListManager.currentMyPlacesList.placeList.removeWhere((place) => place.id == id);
   }
 
-  /*@override
-  void deleteEntityFromCurrentFavList(String entityId) {
-    PlaceListManager.currentFavPlacesList.placeList.removeWhere((place) => place.id == entityId);
-  }*/
 
   /// ФУНКЦИЯ ГЕНЕРАЦИИ СЛОВАРЯ ФИЛЬТРА ДЛЯ ПЕРЕДАЧИ В ФУНКЦИЮ
   /// <br><br>

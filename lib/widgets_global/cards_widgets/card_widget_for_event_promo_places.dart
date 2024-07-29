@@ -25,6 +25,7 @@ class CardWidgetForEventPromoPlaces extends StatefulWidget {
   final Function() onFavoriteIconPressed; // Добавьте функцию обратного вызова
   final Function() onTap; // Добавьте функцию обратного вызова
   final double? height;
+  final double? width;
 
   const CardWidgetForEventPromoPlaces(
       {
@@ -35,6 +36,7 @@ class CardWidgetForEventPromoPlaces extends StatefulWidget {
         required this.onFavoriteIconPressed,
         required this.onTap,
         this.height,
+        this.width,
       }
       );
   @override
@@ -99,7 +101,7 @@ class CardWidgetForEventPromoPlacesState extends State<CardWidgetForEventPromoPl
           ),
           child: Container(
             height: widget.height ?? 400,
-            width: 330,
+            width: widget.width ?? 330,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15), // настройте радиус скругления углов для контейнера
               image: DecorationImage(
