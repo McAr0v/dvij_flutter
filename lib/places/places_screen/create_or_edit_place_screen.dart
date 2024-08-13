@@ -189,19 +189,6 @@ class CreateOrEditPlaceScreenState extends State<CreateOrEditPlaceScreen> {
                       backgroundImageUrl: widget.placeInfo.imageUrl.isNotEmpty ? widget.placeInfo.imageUrl : null,
                     ),
 
-                    // Новая картинка
-                    /*if (_imageFile != null) ImageInEditScreen(
-
-                        backgroundImageFile: _imageFile,
-                        onEditPressed: () => _pickImage()
-                    )
-
-                    // Картинка из БД
-                    else if (_imageFile == null && widget.placeInfo.imageUrl != '' ) ImageInEditScreen(
-                      onEditPressed: () => _pickImage(),
-                      backgroundImageUrl: widget.placeInfo.imageUrl,
-                    ),*/
-
                     const SizedBox(height: 16.0),
 
                     const SizedBox(height: 16.0),
