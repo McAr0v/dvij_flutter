@@ -17,14 +17,11 @@ mixin UserAuthMixin{
       UserCustom.currentUser = null; // Обнуляем текущего пользователя при выходе
 
       PlaceListManager.currentFeedPlacesList = PlaceList();
-      //PlaceListManager.currentMyPlacesList = PlaceList();
-      //PlaceListManager.currentFavPlacesList = PlaceList();
 
       EventListsManager.currentFeedEventsList = EventsList();
 
       PromoListsManager.currentFeedPromosList = PromoList();
-      PromoListsManager.currentFavPromoList = PromoList();
-      PromoListsManager.currentMyPromoList = PromoList();
+
 
       return 'ok';
     } catch (e) {
@@ -71,14 +68,10 @@ mixin UserAuthMixin{
       await tempUser.readUserDataFromDb(uid: credential.user!.uid);
 
       PlaceListManager.currentFeedPlacesList = PlaceList();
-      //PlaceListManager.currentMyPlacesList = PlaceList();
-      //PlaceListManager.currentFavPlacesList = PlaceList();
 
       EventListsManager.currentFeedEventsList = EventsList();
 
       PromoListsManager.currentFeedPromosList = PromoList();
-      PromoListsManager.currentFavPromoList = PromoList();
-      PromoListsManager.currentMyPromoList = PromoList();
 
       // и возвращаем uid
       return credential.user?.uid;

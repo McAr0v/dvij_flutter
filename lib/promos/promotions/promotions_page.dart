@@ -1,9 +1,7 @@
+import 'package:dvij_flutter/classes/entity_page_type_enum.dart';
+import 'package:dvij_flutter/promos/promotions/promos_lists_page.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:flutter/material.dart';
-import 'promotions_fav_page.dart';
-import 'promotions_feed_page.dart';
-import 'promotions_my_page.dart';
-
 
 class PromotionsPage extends StatelessWidget {
   const PromotionsPage({Key? key}) : super(key: key);
@@ -27,9 +25,12 @@ class PromotionsPage extends StatelessWidget {
             Expanded(
               child: TabBarView(
                 children: [
-                  PromotionsFeedPage(),
-                  PromotionsFavPage(),
-                  PromotionsMyPage()
+                  PromosListsPage(pageTypeEnum: EntityPageTypeEnum.feed),
+                  PromosListsPage(pageTypeEnum: EntityPageTypeEnum.fav),
+                  PromosListsPage(pageTypeEnum: EntityPageTypeEnum.my),
+                  //PromotionsFeedPage(),
+                  //PromotionsFavPage(),
+                  //PromotionsMyPage()
                 ],
               ),
             ),

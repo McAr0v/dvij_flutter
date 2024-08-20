@@ -53,7 +53,6 @@ class PromoList implements ILists<PromoList, PromoCustom, PromoSortingOption>{
   @override
   Future<PromoList> getFavListFromDb(String userId, {bool refresh = false}) async {
     PromoList promos = PromoList();
-    PromoListsManager.currentFavPromoList = PromoList();
 
     PromoList downloadedPromosList = PromoListsManager.currentFeedPromosList;
 
@@ -68,78 +67,6 @@ class PromoList implements ILists<PromoList, PromoCustom, PromoSortingOption>{
       }
     }
 
-
-    /*
-
-
-
-    EventsList downloadedEventsList = EventListsManager.currentFeedEventsList;
-
-    if (downloadedEventsList.eventsList.isEmpty || refresh) {
-      EventsList tempList = await getListFromDb();
-      downloadedEventsList = tempList;
-    }
-
-    for (EventCustom event in downloadedEventsList.eventsList){
-      if (event.favUsersIds.contains(userId)){
-        events.eventsList.add(event);
-      }
-    }
-
-     */
-
-    // TODO !!! Сделать загрузку списка избранного при загрузке информации пользователя. Здесь обращаться к уже готовому списку
-    // TODO !!! Не забыть реализовать обновление списка избранных при добавлении и удалении из избранных
-
-    // --- Читаем папку избранных сущностей у пользователя ----
-
-    /*String favPath = 'users/$userId/favPromos/';
-    DataSnapshot? favFolder = await MixinDatabase.getInfoFromDB(favPath);
-
-    if (favFolder != null) {
-      for (var idFolder in favFolder.children) {
-
-        DataSnapshot idSnapshot = idFolder.child('promoId');
-
-        // ---- Считываем ID и добавляем в список ID
-        if (idSnapshot.exists){
-          promosId.add(idSnapshot.value.toString());
-        }
-      }
-    }
-
-    // Если список ID не пустой
-
-    if (promosId.isNotEmpty){
-
-      // Если список всей ленты не пустой и не была вызвана функция обновления, то будем забирать данные из него
-      if (PromoListsManager.currentFeedPromosList.promosList.isNotEmpty && !refresh){
-
-        for (String id in promosId) {
-          PromoCustom favPromo = getEntityFromFeedListById(id);
-          if (favPromo.id != ''){
-            if (favPromo.id == id){
-              PromoListsManager.currentFavPromoList.promosList.add(favPromo);
-              promos.promosList.add(favPromo);
-            }
-          }
-        }
-
-      } else {
-
-        // Если список ленты не прогружен, то считываем каждую сущность из БД
-        for (String promo in promosId){
-
-          PromoCustom temp = PromoCustom.emptyPromo;
-          temp = await temp.getEntityByIdFromDb(promo);
-
-          if (temp.id != ''){
-            PromoListsManager.currentFavPromoList.promosList.add(temp);
-            promos.promosList.add(temp);
-          }
-        }
-      }
-    }*/
     return promos;
   }
 
@@ -154,84 +81,43 @@ class PromoList implements ILists<PromoList, PromoCustom, PromoSortingOption>{
 
     List<MyPlaces> myPlaces = UserCustom.currentUser!.myPlaces;
 
-    PromoList promos = PromoList();
-    PromoListsManager.currentMyPromoList = PromoList();
+    // Создаем пустой список акций
+    PromoList promosToReturn = PromoList();
+
+    // Дублируем уже скачанный список акций
     PromoList downloadedPromosList = PromoListsManager.currentFeedPromosList;
 
+    // Если скаченных акций нет или нам нужно обновить список
     if (downloadedPromosList.promosList.isEmpty || refresh) {
+      // Подгружаем заново список акций
       PromoList tempList = await getListFromDb();
+      // Дублируем его в список скаченных
       downloadedPromosList = tempList;
     }
 
+    // Читаем каждую акцию из списка скаченных
     for (PromoCustom promo in downloadedPromosList.promosList){
+      // Если создатель у акции как ID пользователя
       if (promo.creatorId == userId){
-        promos.promosList.add(promo);
+        // Добавляем в список акций
+        promosToReturn.promosList.add(promo);
       } else if (promo.placeId != '' && myPlaces.isNotEmpty) {
+        // Если создатель не я, то проверяем акцию на заведение
+        // есть ли у меня как у администратора заведения права на редактирование акции
+        // Пробегаемся по списку моих мест
         for (MyPlaces place in myPlaces){
+          // Если роль не читатель и не организатор
           if (place.placeId == promo.placeId
               && (place.placeRole.roleInPlaceEnum != PlaceUserRoleEnum.reader && place.placeRole.roleInPlaceEnum != PlaceUserRoleEnum.org)){
-            promos.promosList.add(promo);
+            // Так же добавляем в список
+            promosToReturn.promosList.add(promo);
             break;
           }
         }
       }
     }
 
-    /*
-
-
-    EventsList events = EventsList();
-    EventListsManager.currentMyEventsList = EventsList();
-
-
-
-
-
-     */
-
-    // --- Читаем папку моих сущностей у пользователя ----
-
-    /*String myPath = 'users/$userId/myPromos/';
-    DataSnapshot? myFolder = await MixinDatabase.getInfoFromDB(myPath);
-
-    if (myFolder != null) {
-      for (var idFolder in myFolder.children) {
-
-        // ---- Считываем ID и добавляем в список ID
-
-        DataSnapshot idSnapshot = idFolder.child('promoId');
-
-        if (idSnapshot.exists){
-          promoId.add(idSnapshot.value.toString());
-        }
-      }
-    }
-
-    // Если список ID не пустой, и не была вызвана функция обновления
-    if (promoId.isNotEmpty){
-
-      // Если список всей ленты не пустой, то будем забирать данные из него
-      if (PromoListsManager.currentFeedPromosList.promosList.isNotEmpty && !refresh) {
-        for (String id in promoId) {
-          PromoCustom myPromo = getEntityFromFeedListById(id);
-          if (myPromo.id == id) {
-            PromoListsManager.currentMyPromoList.promosList.add(myPromo);
-            promos.promosList.add(myPromo);
-          }
-        }
-      } else {
-        // Если список ленты не прогружен, то считываем каждую сущность из БД
-        for (var promo in promoId){
-          PromoCustom temp = PromoCustom.emptyPromo;
-          temp = await temp.getEntityByIdFromDb(promo);
-          if (temp.id != ''){
-            PromoListsManager.currentMyPromoList.promosList.add(temp);
-            promos.promosList.add(temp);
-          }
-        }
-      }
-    }*/
-    return promos;
+    return promosToReturn;
   }
 
   /// ФУНКЦИЯ ГЕНЕРАЦИИ СЛОВАРЯ ДЛЯ ФИЛЬТРА
@@ -292,21 +178,12 @@ class PromoList implements ILists<PromoList, PromoCustom, PromoSortingOption>{
 
       case PromoSortingOption.favCountDesc: promosList.sort((a, b) => b.favUsersIds.length.compareTo(a.favUsersIds.length)); break;
 
-    }
-  }
+      case PromoSortingOption.fromDb: promosList; break;
 
-  @override
-  void deleteEntityFromCurrentFavList(String entityId) {
-    PromoListsManager.currentFavPromoList.promosList.removeWhere((promo) => promo.id == entityId);
-  }
+      case PromoSortingOption.createDateAsc: promosList.sort((a,b) => b.createDate.compareTo(a.createDate)); break;
 
-  @override
-  void addEntityToCurrentFavList(String entityId) {
-    for (var promo in PromoListsManager.currentFeedPromosList.promosList){
-      if (promo.id == entityId){
-        PromoListsManager.currentFavPromoList.promosList.add(promo);
-        break;
-      }
+      case PromoSortingOption.createDateDesc: promosList.sort((a,b) => a.createDate.compareTo(b.createDate)); break;
+
     }
   }
 
@@ -321,29 +198,11 @@ class PromoList implements ILists<PromoList, PromoCustom, PromoSortingOption>{
         break;
       }
     }
-
-    for (PromoCustom promo in PromoListsManager.currentFavPromoList.promosList){
-      if (promo.id == entityId){
-        promo.favUsersIds = usersIdsList;
-        promo.inFav = inFav;
-        break;
-      }
-    }
-
-    for (PromoCustom promo in PromoListsManager.currentMyPromoList.promosList){
-      if (promo.id == entityId){
-        promo.favUsersIds = usersIdsList;
-        promo.inFav = inFav;
-        break;
-      }
-    }
   }
 
   @override
   void deleteEntityFromCurrentEntitiesLists(String promoId) {
     PromoListsManager.currentFeedPromosList.promosList.removeWhere((promo) => promo.id == promoId);
-    PromoListsManager.currentFavPromoList.promosList.removeWhere((promo) => promo.id == promoId);
-    PromoListsManager.currentMyPromoList.promosList.removeWhere((promo) => promo.id == promoId);
   }
 
   @override
@@ -369,8 +228,6 @@ class PromoList implements ILists<PromoList, PromoCustom, PromoSortingOption>{
   @override
   void addEntityFromCurrentEntitiesLists(PromoCustom entity) {
     PromoListsManager.currentFeedPromosList.promosList.add(entity);
-    PromoListsManager.currentMyPromoList.promosList.add(entity);
-    if(entity.inFav) PromoListsManager.currentFavPromoList.promosList.add(entity);
   }
 
   @override

@@ -12,9 +12,13 @@ import 'package:dvij_flutter/dates/time_mixin.dart';
 import 'package:dvij_flutter/filters/filter_mixin.dart';
 import 'package:dvij_flutter/interfaces/entity_interface.dart';
 import 'package:dvij_flutter/promos/promo_category_class.dart';
+import 'package:dvij_flutter/promos/promo_sorting_options.dart';
 import 'package:dvij_flutter/promos/promos_list_class.dart';
+import 'package:dvij_flutter/promos/promos_list_manager.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/material.dart';
 
+import '../events/event_sorting_options.dart';
 import '../image_uploader/image_uploader.dart';
 
 class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
@@ -151,8 +155,8 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
       regularDays: regularDate,
       irregularDays: irregularDate,
       today: today,
-        inFav: promoTemp.addedInFavOrNot(favSnapshot),
-        favUsersIds: promoTemp.getFavIdsList(favSnapshot)
+      inFav: promoTemp.addedInFavOrNot(favSnapshot),
+      favUsersIds: promoTemp.getFavIdsList(favSnapshot)
     );
   }
 
@@ -178,9 +182,9 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
       longDays: LongDate(),
       regularDays: RegularDate(),
       irregularDays: IrregularDate(),
-    inFav: false,
-    favUsersIds: [],
-    today: false
+      inFav: false,
+      favUsersIds: [],
+      today: false
   );
 
 
@@ -192,28 +196,27 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
 
   @override
   Future<String> addToFav() async {
-    PromoList favPromos = PromoList();
 
     if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
 
       String promoPath = 'promos/$id/addedToFavourites/${UserCustom.currentUser?.uid}';
-      //String userPath = 'users/${UserCustom.currentUser?.uid}/favPromos/$id';
 
       Map<String, dynamic> promoData = MixinDatabase.generateDataCode('userId', UserCustom.currentUser?.uid);
-      //Map<String, dynamic> userData = MixinDatabase.generateDataCode('promoId', id);
 
       String promoPublish = await MixinDatabase.publishToDB(promoPath, promoData);
-      //String userPublish = await MixinDatabase.publishToDB(userPath, userData);
 
       if (!favUsersIds.contains(UserCustom.currentUser!.uid)){
         favUsersIds.add(UserCustom.currentUser!.uid);
+        inFav = true;
       }
-      favPromos.addEntityToCurrentFavList(id);
+
+      if(PromoListsManager.currentFeedPromosList.promosList.isNotEmpty){
+        updateCurrentEntityInEntitiesList();
+      }
 
       String result = 'success';
 
       if (promoPublish != 'success') result = promoPublish;
-      //if (userPublish != 'success') result = userPublish;
 
       return result;
 
@@ -236,56 +239,49 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
     String entityPath = 'promos/$id';
     String creatorPath = 'users/$creatorId/myPromos/$id';
     String placePath = 'places/$placeId/promos/$id';
-    String inFavPath = 'users/${UserCustom.currentUser?.uid ?? ''}/favPromos/$id';
 
     String placeDeleteResult = 'success';
-    String inFavListDeleteResult = 'success';
+    String imageDeleteResult = 'success';
     String entityDeleteResult = await MixinDatabase.deleteFromDb(entityPath);
     String creatorDeleteResult = await MixinDatabase.deleteFromDb(creatorPath);
 
-    String imageDeleteResult = 'success';
-
-    //imageDeleteResult = await ImageUploader.deleteImage('promos', id);
     imageDeleteResult = await imageUploader.removeImage(ImageFolderEnum.promos, id);
 
     if (placeId != ''){
       placeDeleteResult = await MixinDatabase.deleteFromDb(placePath);
     }
 
-    if (inFav){
-      inFavListDeleteResult = await MixinDatabase.deleteFromDb(inFavPath);
-    }
-
     // Удаляем записи у пользователей, добавивших в избранное
     for (String favUser in favUsersIds){
       String favUserPath = 'users/$favUser/favPromos/$id';
-      String deleteFavUser = await MixinDatabase.deleteFromDb(favUserPath);
+      await MixinDatabase.deleteFromDb(favUserPath);
     }
 
-    return checkSuccessFromDb(entityDeleteResult, creatorDeleteResult, placeDeleteResult, inFavListDeleteResult);
+    return checkSuccessFromDb(entityDeleteResult, creatorDeleteResult, placeDeleteResult, imageDeleteResult);
   }
 
   @override
   Future<String> deleteFromFav() async {
-    PromoList favPromos = PromoList();
 
     if (UserCustom.currentUser?.uid != null && UserCustom.currentUser?.uid != ''){
 
       String promoPath = 'promos/$id/addedToFavourites/${UserCustom.currentUser?.uid}';
-      //String userPath = 'users/${UserCustom.currentUser?.uid}/favPromos/$id';
 
       String promoDelete = await MixinDatabase.deleteFromDb(promoPath);
-      //String userDelete = await MixinDatabase.deleteFromDb(userPath);
 
-      favUsersIds.removeWhere((element) => element == UserCustom.currentUser?.uid);
-      favPromos.deleteEntityFromCurrentFavList(id);
+      if (favUsersIds.contains(UserCustom.currentUser?.uid)){
+        favUsersIds.removeWhere((element) => element == UserCustom.currentUser?.uid);
+        inFav = false;
+      }
 
+      if(PromoListsManager.currentFeedPromosList.promosList.isNotEmpty){
+        updateCurrentEntityInEntitiesList();
+      }
 
 
       String result = 'success';
 
       if (promoDelete != 'success') result = promoDelete;
-      //if (userDelete != 'success') result = userDelete;
 
       return result;
 
@@ -331,9 +327,7 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
     DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB(path);
 
     if (snapshot != null){
-      PromoCustom promo = PromoCustom.fromSnapshot(snapshot);
-
-      returnedPromo = promo;
+      return PromoCustom.fromSnapshot(snapshot);
     }
     // Возвращаем список
     return returnedPromo;
@@ -343,27 +337,18 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
   Future<String> publishToDb() async {
     String placePublishResult = 'success';
     String entityPath = 'promos/$id/promo_info';
-    String creatorPath = 'users/$creatorId/myPromos/$id';
-
 
     Map<String, dynamic> data = generateEntityDataCode();
     Map<String, dynamic> dataToCreatorAndPlace = MixinDatabase.generateDataCode('promoId', id);
 
     String entityPublishResult = await MixinDatabase.publishToDB(entityPath, data);
-    String creatorPublishResult = await MixinDatabase.publishToDB(creatorPath, dataToCreatorAndPlace);
 
     if (placeId != '') {
       String placePath = 'places/$placeId/promos/$id';
       placePublishResult = await MixinDatabase.publishToDB(placePath, dataToCreatorAndPlace);
     }
 
-    /*if (UserCustom.currentUser != null){
-      if (!UserCustom.currentUser!.myPromos.contains(id)){
-        UserCustom.currentUser!.myPromos.add(id);
-      }
-    }*/
-
-    return checkSuccessFromDb(entityPublishResult, creatorPublishResult, placePublishResult, 'success');
+    return checkSuccessFromDb(entityPublishResult, placePublishResult, 'success', 'success');
   }
 
   /// МЕТОД ПРОВЕРКИ РЕЗУЛЬТАТОВ ВЫГРУЗКИ В БД
@@ -404,7 +389,6 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
   bool addedInFavOrNot(DataSnapshot? snapshot) {
     if (UserCustom.currentUser?.uid != null)
     {
-      //DataSnapshot? snapshot = await MixinDatabase.getInfoFromDB('promos/$id/addedToFavourites/${UserCustom.currentUser?.uid}');
       if (snapshot != null){
         DataSnapshot userIdSnapshot = snapshot.child(UserCustom.currentUser!.uid).child('userId');
         if (userIdSnapshot.value == UserCustom.currentUser?.uid) return true;
@@ -503,4 +487,36 @@ class PromoCustom with MixinDatabase, TimeMixin implements IEntity{
     PromoList promoList = PromoList();
     promoList.updateCurrentEntityInEntitiesList(this);
   }
+
+  List<DropdownMenuItem<PromoSortingOption>> getPromoSortingOptionsList(){
+    return [
+      const DropdownMenuItem(
+        value: PromoSortingOption.createDateAsc,
+        child: Text('Сначала новые'),
+      ),
+
+      const DropdownMenuItem(
+        value: PromoSortingOption.createDateDesc,
+        child: Text('Сначала старые'),
+      ),
+
+      const DropdownMenuItem(
+        value: PromoSortingOption.nameAsc,
+        child: Text('По имени: А-Я'),
+      ),
+      const DropdownMenuItem(
+        value: PromoSortingOption.nameDesc,
+        child: Text('По имени: Я-А'),
+      ),
+      const DropdownMenuItem(
+        value: PromoSortingOption.favCountAsc,
+        child: Text('Самые популярные'),
+      ),
+      const DropdownMenuItem(
+        value: PromoSortingOption.favCountDesc,
+        child: Text('Менее популярные'),
+      ),
+    ];
+  }
+
 }

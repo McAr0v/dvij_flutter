@@ -4,17 +4,16 @@ import 'package:dvij_flutter/promos/promo_sorting_options.dart';
 import 'package:dvij_flutter/promos/promos_elements/promo_card_widget.dart';
 import 'package:dvij_flutter/promos/promos_elements/promo_filter_page.dart';
 import 'package:dvij_flutter/promos/promos_list_class.dart';
-import 'package:dvij_flutter/promos/promos_list_manager.dart';
 import 'package:dvij_flutter/promos/promotions/promo_view_page.dart';
 import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../../ads/ad_user_class.dart';
-import '../../classes/pair.dart';
-import '../../current_user/user_class.dart';
-import '../../elements/loading_screen.dart';
-import '../../elements/snack_bar.dart';
-import '../../widgets_global/text_widgets/headline_and_desc.dart';
+import '../../../ads/ad_user_class.dart';
+import '../../../classes/pair.dart';
+import '../../../current_user/user_class.dart';
+import '../../../elements/loading_screen.dart';
+import '../../../elements/snack_bar.dart';
+import '../../../widgets_global/text_widgets/headline_and_desc.dart';
 
 
 // ---- ЭКРАН ЛЕНТЫ ЗАВЕДЕНИЙ ------
@@ -324,7 +323,7 @@ class PromotionsFavPageState extends State<PromotionsFavPage> {
                                       );
 
                                       if (results != null) {
-                                        promosList = PromoListsManager.currentFavPromoList;
+                                        //promosList = PromoListsManager.currentFavPromoList;
                                         setState(() {
                                           promosList.filterLists(
                                               promosList.generateMapForFilter(
@@ -497,7 +496,7 @@ class PromotionsFavPageState extends State<PromotionsFavPage> {
       });
 
       // --- Заново подгружаем список из БД ---
-      promosList.promosList = PromoListsManager.currentFavPromoList.promosList;
+      //promosList.promosList = PromoListsManager.currentFavPromoList.promosList;
       //tempList = EventCustom.currentFavEventsList;
 
       // --- Фильтруем список согласно новым выбранным данным из фильтра ----

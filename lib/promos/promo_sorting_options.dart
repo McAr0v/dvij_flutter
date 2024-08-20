@@ -2,5 +2,8 @@ enum PromoSortingOption {
   nameAsc,
   nameDesc,
   favCountAsc,
-  favCountDesc
+  favCountDesc,
+  fromDb,
+  createDateAsc,
+  createDateDesc
 }
