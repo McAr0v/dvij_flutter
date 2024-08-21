@@ -1,35 +1,23 @@
-import 'package:dvij_flutter/dates/date_mixin.dart';
-import 'package:dvij_flutter/events/event_class.dart';
+import 'package:dvij_flutter/promos/promos_list_class.dart';
 import 'package:dvij_flutter/promos/promos_list_manager.dart';
-import 'package:dvij_flutter/widgets_global/text_widgets/headline_and_desc.dart';
-import 'package:dvij_flutter/widgets_global/schedule_widgets/shedule_once_and_long_widget.dart';
-import 'package:dvij_flutter/widgets_global/social_widgets/social_buttons_widget.dart';
-import 'package:dvij_flutter/elements/user_element_widget.dart';
 import 'package:dvij_flutter/promos/promo_class.dart';
 import 'package:dvij_flutter/promos/promotions/create_or_edit_promo_screen.dart';
 import 'package:dvij_flutter/users/place_users_roles.dart';
 import 'package:flutter/material.dart';
-import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
-import '../../cities/city_class.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../places/place_list_manager.dart';
-import '../../places/places_elements/place_widget_in_view_screen_in_event_and_promo.dart';
-import '../../places/places_screen/place_view_screen.dart';
-import '../../dates/date_type_enum.dart';
 import '../../places/place_class.dart';
-import '../../classes/priceTypeOptions.dart';
 import '../../current_user/user_class.dart';
 import '../../elements/exit_dialog/exit_dialog.dart';
+import '../../widgets_global/images/image_in_view_screen_widget.dart';
 import '../../widgets_global/place_or_location_widgets/place_or_location_widget.dart';
-import '../../widgets_global/schedule_widgets/schedule_regular_widget.dart';
 import '../../widgets_global/schedule_widgets/schedule_widget.dart';
 import '../../widgets_global/social_widgets/callback_widget.dart';
-import '../../widgets_global/text_widgets/for_cards_small_widget_with_icon_and_text.dart';
+import '../../widgets_global/text_widgets/expandable_text.dart';
 import '../../elements/loading_screen.dart';
-import '../../widgets_global/schedule_widgets/schedule_irregular_widget.dart';
 import '../../elements/snack_bar.dart';
 import '../../users/place_user_class.dart';
-import '../../widgets_global/text_widgets/now_is_work_widget.dart';
 import '../../widgets_global/users_widgets/creator_widget.dart';
 
 
@@ -47,22 +35,13 @@ class PromoViewScreenState extends State<PromoViewScreen> {
 
   // ---- Инициализируем пустые переменные ----
 
-  bool today = false;
-
   UserCustom creator = UserCustom.empty();
+
+  Place place = Place.empty();
+  PlaceUser currentPlaceUser = PlaceUser();
   PlaceUserRole currentUserPlaceRole = PlaceUserRole();
 
   PromoCustom promo = PromoCustom.emptyPromo;
-
-  DateTime currentDate = DateTime.now();
-
-  PlaceUser currentPlaceUser = PlaceUser();
-  Place place = Place.empty();
-
-  int favCounter = 0;
-  bool inFav = false;
-
-  // --- Переключатель показа экрана загрузки -----
 
   bool loading = true;
   bool deleting = false;
@@ -85,26 +64,29 @@ class PromoViewScreenState extends State<PromoViewScreen> {
 
     if (PromoListsManager.currentFeedPromosList.promosList.isNotEmpty){
       promo = promo.getEntityFromFeedList(widget.promoId);
-    } else {
-      promo = await promo.getEntityByIdFromDb(widget.promoId);
     }
 
-
+    if (promo.id.isEmpty) {
+      promo = await promo.getEntityByIdFromDb(widget.promoId);
+    }
 
     if (promo.placeId != '') {
 
       if (PlaceListManager.currentFeedPlacesList.placeList.isNotEmpty){
         place = place.getEntityFromFeedList(promo.placeId);
-      } else {
+      }
+
+      if (place.id.isEmpty) {
         place = await place.getEntityByIdFromDb(promo.placeId);
       }
+
     }
 
     if (UserCustom.currentUser != null){
       currentPlaceUser = currentPlaceUser.generatePlaceUserFromUserCustom(UserCustom.currentUser!);
     }
 
-    // Выдаем права на редактирование мероприятия
+    // Выдаем права на редактирование акции
     // Если наш пользователь создатель
     if (UserCustom.currentUser != null && UserCustom.currentUser!.uid == promo.creatorId){
 
@@ -121,18 +103,12 @@ class PromoViewScreenState extends State<PromoViewScreen> {
 
       currentPlaceUser.placeUserRole = UserCustom.currentUser!.getPlaceRoleFromMyPlaces(promo.placeId);
 
-      //currentUserPlaceRole = currentUserPlaceRole.searchPlaceUserRoleInAdminsList(place.admins!, currentPlaceUser);
-      //currentPlaceUser.placeUserRole = currentUserPlaceRole;
       // Грузим создателя из БД
       creator = await creator.getUserByEmailOrId(uid: promo.creatorId);
 
     } else {
       creator = await creator.getUserByEmailOrId(uid: promo.creatorId);
     }
-
-
-    inFav = promo.inFav;
-    favCounter = promo.favUsersIds.length;
 
     // ---- Убираем экран загрузки -----
     setState(() {
@@ -141,7 +117,7 @@ class PromoViewScreenState extends State<PromoViewScreen> {
   }
 
   // ---- Функция перехода в профиль ----
-  void navigateToPromos() {
+  void _navigateToPromosAfterDelete() {
     Navigator.pushNamedAndRemoveUntil(
       context,
       '/Promotions',
@@ -149,297 +125,246 @@ class PromoViewScreenState extends State<PromoViewScreen> {
     );
   }
 
+  void _navigateToPromos() {
+    // Возвращаем данные о состоянии избранного на экран ленты
+    // На случай, если мы добавляли/убирали из избранного
+    List<dynamic> result = [true];
+    Navigator.of(context).pop(result);
+  }
+
+  void _showSnackBar(String text, Color color, int time){
+    showSnackBar(context, text, color, time);
+  }
+
+  Future<void> deletePromo() async {
+
+
+    bool? confirmed = await exitDialog(context, "Ты правда хочешь удалить мероприятие? Ты не сможешь восстановить данные" , 'Да', 'Нет', 'Удаление мероприятия');
+
+    if (confirmed != null && confirmed){
+      setState(() {
+        deleting = true;
+      });
+
+      String delete = await promo.deleteFromDb();
+
+      if (delete == 'success'){
+
+        promo.deleteEntityFromCurrentEntityLists();
+
+        _showSnackBar('Мероприятие успешно удалено', Colors.green, 2);
+
+        _navigateToPromosAfterDelete();
+
+        setState(() {
+          deleting = false;
+        });
+      } else {
+        _showSnackBar('Акция не была удалена по ошибке: $delete', AppColors.attentionRed, 2);
+        setState(() {
+          deleting = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
 
     return Scaffold(
         appBar: AppBar(
-          title: Text(promo.headline != '' ? promo.headline : 'Загрузка...'),
+          title: Text(promo.headline.isNotEmpty ? promo.headline : 'Загрузка...'),
           leading: IconButton(
-            icon: const Icon(Icons.chevron_left),
+            icon: const Icon(FontAwesomeIcons.chevronLeft, size: 18,),
             onPressed: () {
-              List<dynamic> result = [inFav, favCounter];
-              Navigator.of(context).pop(result); // Это закроет текущий экран и вернется на предыдущий
+              _navigateToPromos();
             },
           ),
-        ),
-        body: Stack (
-          children: [
-            // ---- Экран загрузки ----
-            if (loading) const LoadingScreen(loadingText: 'Подожди, идет загрузка данных',)
-            else if (deleting) const LoadingScreen(loadingText: 'Подожди, удаляем акцию',)
-            else ListView(
+          actions: [
 
-                children: [
-                  if (promo.imageUrl != '') // Проверяем, есть ли ссылка на аватар
-                  // TODO - Сделать более проработанную проверку аватарки
+            // ---- Кнопка редактирования ---
 
-                    Stack(
-                      alignment: Alignment.topRight,
-                      children: [
-                        // Изображение
-                        Container(
-                          height: MediaQuery.of(context).size.width * 0.7, // Ширина экрана
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: NetworkImage(promo.imageUrl), // Используйте ссылку на изображение из вашего Place
-                              fit: BoxFit.cover,
-                            ),
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(10.0),
-                              topRight: Radius.circular(10.0),
-                            ),
-                          ),
-                        ),
-                        // Значок избранных
-                        Positioned(
-                          top: 10.0,
-                          right: 10.0,
-                          child: IconAndTextInTransparentSurfaceWidget(
-                            icon: Icons.bookmark,
-                            text: '$favCounter',
-                            iconColor: inFav ? AppColors.brandColor : AppColors.white,
-                            side: false,
-                            backgroundColor: AppColors.greyBackground.withOpacity(0.8),
-                            onPressed: () async {
+            if (currentPlaceUser.placeUserRole.controlLevel >= 90) IconButton(
+                onPressed: () async {
 
-                              // TODO Сделать проверку на подтвержденный Email
-                              if (UserCustom.currentUser?.uid == '' || UserCustom.currentUser?.uid == null)
-                              {
+                  await goToPromoEditScreen();
 
-                                showSnackBar(context, 'Чтобы добавлять в избранное, нужно зарегистрироваться!', AppColors.attentionRed, 2);
+                },
+                icon: const Icon(Icons.edit)
+            ),
 
-                              }
+            // ---- Кнопка удаления ---
 
-                              else {
+            if (currentPlaceUser.placeUserRole.controlLevel == 100) IconButton(
+                onPressed: () async {
+                  deletePromo();
+                },
+                icon: const Icon(Icons.delete_forever, color: AppColors.attentionRed,)
+            ),
 
-                                setState(() {
-                                  loading = true;
-                                });
-
-                                if (inFav)
-                                {
-
-                                  String resDel = await promo.deleteFromFav();
-
-                                  if (resDel == 'success'){
-                                    setState(() {
-                                      inFav = false;
-                                      favCounter --;
-                                      promo.inFav = inFav;
-                                      //promo.usersIdsFav = favCounter;
-                                      promo.updateCurrentListFavInformation();
-                                      //EventCustom.updateCurrentEventListFavInformation(event.id, favCounter, inFav);
-                                    });
-
-                                    showSnackBar(context, 'Удалено из избранных', AppColors.attentionRed, 1);
-
-                                  } else {
-
-                                    showSnackBar(context, resDel, AppColors.attentionRed, 1);
-                                  }
-
-
-
-                                }
-                                else {
-                                  String res = await promo.addToFav();
-
-                                  if (res == 'success') {
-
-                                    setState(() {
-                                      inFav = true;
-                                      favCounter ++;
-                                      promo.inFav = inFav;
-                                      //promo.usersIdsFav = favCounter;
-                                      promo.updateCurrentListFavInformation();
-                                      //EventCustom.updateCurrentEventListFavInformation(event.id, favCounter, inFav);
-                                    });
-
-                                    showSnackBar(context, 'Добавлено в избранные', Colors.green, 1);
-
-                                  } else {
-
-                                    showSnackBar(context, res, AppColors.attentionRed, 1);
-
-                                  }
-
-                                }
-
-                                setState(() {
-                                  loading = false;
-                                });
-
-                              }
-
-                            },
-                          ),
-                        ),
-
-                        Positioned(
-                          top: 10.0,
-                          left: 10.0,
-                          child: IconAndTextInTransparentSurfaceWidget(
-                            //icon: Icons.visibility,
-                              text: promo.category.name,
-                              iconColor: AppColors.white,
-                              side: true,
-                              backgroundColor: AppColors.greyBackground.withOpacity(0.8)
-                          ),
-                        ),
-                      ],
-                    ),
-
-                  // --- Контент под аватаркой -----
-
-                  SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-
-                        // TODO - Такая проверка не пойдет. Иначе пользователь никак не сможет перейти на экран редактирования
-
-                        if (promo.headline != '') Row(
-                          children: [
-                            Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      promo.headline,
-                                      style: Theme.of(context).textTheme.titleMedium,
-                                    ),
-                                    if (place.id != '') Text(
-                                      '${place.name}, ${place.city.name}, ${place.street}, ${place.house}',
-                                      style: Theme.of(context).textTheme.bodySmall,
-                                    ),
-                                    if (place.id == '') Text(
-                                      '${promo.city.name}, ${promo.street}, ${promo.house}',
-                                      style: Theme.of(context).textTheme.bodySmall,
-                                    )
-                                  ],
-                                )
-                            ),
-
-                            const SizedBox(width: 16.0),
-
-                            // TODO - сделать скрытие кнопки редактирования места если нет доступа к редактированию
-                            // --- Кнопка редактирования ----
-                            if (currentUserPlaceRole.controlLevel >= 90) IconButton(
-                              icon: Icon(
-                                Icons.edit,
-                                color: Theme.of(context).colorScheme.background,
-                              ),
-                              style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(AppColors.brandColor),
-                              ),
-                              onPressed: () async {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => CreateOrEditPromoScreen(promoInfo: promo,))
-                                );
-                              },
-                              // Действие при нажатии на кнопку редактирования
-                            ),
-                          ],
-                        ),
-
-                        // ---- Остальные данные пользователя ----
-
-                        // TODO Проверить вывод времени в функции определения сегодня
-                        if (promo.today!) const SizedBox(height: 5.0),
-
-                        // ПЕРЕДЕЛАТЬ ПОД СЕГОДНЯ
-                        if (promo.today!) TextOnBoolResultWidget(isTrue: promo.today, trueText: 'Сегодня', falseText: '',),
-
-                        const SizedBox(height: 16.0),
-
-                        CallbackWidget(
-                          telegram: promo.telegram,
-                          whatsapp: promo.whatsapp,
-                          phone: promo.phone,
-                          instagram: promo.instagram,
-                        ),
-
-                        const SizedBox(height: 16.0),
-
-                        if (promo.desc != '') HeadlineAndDesc(headline: promo.desc, description: 'Описание акции'),
-
-                        const SizedBox(height: 16.0),
-
-                        ScheduleWidget(promo: promo),
-
-                        const SizedBox(height: 16.0),
-
-                        PlaceOrLocationWidget(
-                          city: promo.city,
-                          desc: promo.placeId != '' ? 'Ты можешь перейти в заведение и ознакомиться с ним подробнее' : 'Адрес, где будет проводится акция',
-                          headline: promo.placeId != '' ? 'Место проведения: ${place.name}' : 'Место проведения',
-                          house: promo.house,
-                          street: promo.street,
-                          place: place,
-                        ),
-
-
-                        if (creator.uid != '') const SizedBox(height: 16.0),
-
-                        if (creator.uid != '') CreatorWidget(headline: 'Создатель ации', desc: 'Ты можешь написать создателю и задать вопросы', user: creator),
-
-                        if (promo.createDate != DateTime(2100) && currentUserPlaceRole.controlLevel >= 90) const SizedBox(height: 30.0),
-
-                        if (promo.createDate != DateTime(2100) && currentUserPlaceRole.controlLevel >= 90) HeadlineAndDesc(headline: DateMixin.getHumanDateFromDateTime(promo.createDate), description: 'Создано в движе', ),
-
-                        const SizedBox(height: 30.0),
-
-                        if (
-                        currentUserPlaceRole.controlLevel != ''
-                            && currentUserPlaceRole.controlLevel >= 90
-                        ) CustomButton(
-                          buttonText: 'Удалить акцию',
-                          onTapMethod: () async {
-                            bool? confirmed = await exitDialog(context, "Ты правда хочешь удалить акцию? Ты не сможешь восстановить данные" , 'Да', 'Нет', 'Удаление акции');
-
-                            if (confirmed != null && confirmed){
-
-                              setState(() {
-                                deleting = true;
-                              });
-
-                              String delete = await promo.deleteFromDb();
-
-                              if (delete == 'success'){
-
-                                promo.deleteEntityFromCurrentEntityLists();
-                                //EventCustom.deleteEventFromCurrentEventLists(widget.eventId);
-                                //Place.deletePlaceFormCurrentPlaceLists(widget.eventId);
-
-                                showSnackBar(context, 'Акция успешно удалена', Colors.green, 2);
-                                navigateToPromos();
-
-                                setState(() {
-                                  deleting = false;
-                                });
-                              } else {
-                                showSnackBar(context, 'Акция не была удалена по ошибке: $delete', AppColors.attentionRed, 2);
-                                setState(() {
-                                  deleting = false;
-                                });
-                              }
-
-                            }
-
-                          },
-                          state: CustomButtonState.error,
-                        )
-                      ],
-                    ),
-                  ),
-                ],
-              )
           ],
+        ),
+        body: PopScope(
+          // POP SCOPE для обработки кнопки назад
+          canPop: false,
+          onPopInvoked: (bool didPop) async{
+            if (didPop){
+              return;
+            }
+            _navigateToPromos();
+
+
+          },
+          child: Stack (
+            children: [
+              // ---- Экран загрузки ----
+              if (loading) const LoadingScreen(loadingText: 'Подожди, идет загрузка данных',)
+              else if (deleting) const LoadingScreen(loadingText: 'Подожди, удаляем мероприятие',)
+              else CustomScrollView(
+                  slivers: <Widget> [
+                    SliverList(delegate: SliverChildListDelegate(
+                        [
+
+                          ImageInViewScreenWidget(
+                              imagePath: promo.imageUrl,
+                              favCounter: promo.favUsersIds.length,
+                              inFav: promo.inFav,
+                              onTap: () async {
+                                await addOrDeleteFromFav();
+                              },
+                              categoryName: promo.category.name,
+                              headline: promo.headline,
+                              desc: place.id != '' ? '${place.name}, ${place.city.name}, ${place.street}, ${place.house}' :  '${promo.city.name}, ${promo.street}, ${promo.house}',
+                              openOrToday: promo.today,
+                              trueText: 'Сегодня',
+                              falseText: ''
+                          ),
+
+                          // ВИДЖЕТЫ ПОД КАРТИНКОЙ
+
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+
+                                if (promo.desc != '') ExpandableText(text: promo.desc),
+
+                                const SizedBox(height: 20.0),
+
+                                // ВИДЖЕТ ЦЕНЫ И ОБРАТНОЙ СВЯЗИ
+
+                                CallbackWidget(
+                                  telegram: promo.telegram,
+                                  whatsapp: promo.whatsapp,
+                                  phone: promo.phone,
+                                  instagram: promo.instagram,
+                                ),
+
+                                const SizedBox(height: 16.0),
+
+                                // ВИДЖЕТ РАСПИСАНИЯ
+
+                                ScheduleWidget(promo: promo),
+
+                                const SizedBox(height: 16.0),
+
+                                PlaceOrLocationWidget(
+                                  city: promo.city,
+                                  desc: promo.placeId != '' ? 'Ты можешь перейти в заведение и ознакомиться с ним подробнее' : 'Адрес, где будет проводится мероприятие',
+                                  headline: promo.placeId != '' ? 'Место проведения: ${place.name}' : 'Место проведения',
+                                  house: promo.house,
+                                  street: promo.street,
+                                  place: place,
+                                ),
+
+                                if (creator.uid != '') const SizedBox(height: 16.0),
+
+                                if (creator.uid != '') CreatorWidget(headline: 'Создатель мероприятия', desc: 'Ты можешь написать создателю и задать вопросы', user: creator),
+
+                              ],
+                            ),
+                          )
+                        ]
+                    )
+                    )
+                  ],
+                )
+            ],
+          ),
         )
     );
+  }
+
+  Future<void> goToPromoEditScreen() async {
+
+    // Переходим на страницу редактирования
+
+    final results = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CreateOrEditPromoScreen(promoInfo: promo,),
+      ),
+    );
+
+    // Если есть результат с той страницы
+
+    if (results != null) {
+
+      setState(() {
+        loading = true;
+      });
+
+      PromoList promosList = PromoList();
+
+      // Подгружаем мероприятие из общего списка
+      PromoCustom promoCustom = promosList.getEntityFromFeedListById(promo.id);
+
+      // Заменяем мероприятие на обновленное
+      setState(() {
+        promo = promoCustom;
+        loading = false;
+      });
+    }
+  }
+
+  Future<void> addOrDeleteFromFav() async {
+    if (UserCustom.currentUser?.uid == '' || UserCustom.currentUser?.uid == null)
+    {
+      _showSnackBar('Чтобы добавлять в избранное, нужно зарегистрироваться!', AppColors.attentionRed, 2);
+    }
+    else {
+
+      if (promo.inFav)
+      {
+        String resDel = await promo.deleteFromFav();
+
+        if (resDel == 'success'){
+
+          _showSnackBar('Удалено из избранных', AppColors.attentionRed, 1);
+
+        } else {
+          _showSnackBar(resDel, AppColors.attentionRed, 1);
+        }
+      }
+      else {
+        String res = await promo.addToFav();
+
+        if (res == 'success') {
+
+          _showSnackBar('Добавлено в избранные', Colors.green, 1);
+
+        } else {
+          _showSnackBar(res, AppColors.attentionRed, 1);
+        }
+      }
+
+      PromoCustom tempPromo = await promo.getEntityByIdFromDb(promo.id);
+
+      setState(() {
+        promo = tempPromo;
+      });
+
+    }
   }
 }
