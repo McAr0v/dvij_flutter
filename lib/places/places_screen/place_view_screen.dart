@@ -355,6 +355,20 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
           eventsList.eventsList[index] = tempEvent;
         }
       });
+
+      Place tempPlace = Place.empty();
+      tempPlace = await tempPlace.getEntityByIdFromDb(place.id);
+
+      EventsList tempEventsList = EventsList();
+      if (tempPlace.eventsList.isNotEmpty){
+        tempEventsList = await tempEventsList.getEntitiesFromStringList(place.eventsList);
+      }
+
+      setState(() {
+        place = tempPlace;
+        eventsInThatPlace = tempEventsList;
+      });
+
     }
   }
 
@@ -495,6 +509,20 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
           promosList.promosList[index] = tempPromo;
         }
       });
+
+      Place tempPlace = Place.empty();
+      tempPlace = await tempPlace.getEntityByIdFromDb(place.id);
+
+      PromoList tempPromoList = PromoList();
+      if (tempPlace.promosList.isNotEmpty){
+        tempPromoList = await tempPromoList.getEntitiesFromStringList(place.promosList);
+      }
+
+      setState(() {
+        place = tempPlace;
+        promosInThatPlace = tempPromoList;
+      });
+
     }
   }
 
@@ -661,6 +689,7 @@ class PlaceViewScreenState extends State<PlaceViewScreen> {
       setState(() {
         place = tempPlace;
       });
+
     }
   }
 }
