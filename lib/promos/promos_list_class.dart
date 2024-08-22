@@ -174,9 +174,9 @@ class PromoList implements ILists<PromoList, PromoCustom, PromoSortingOption>{
 
       case PromoSortingOption.nameDesc: promosList.sort((a, b) => b.headline.compareTo(a.headline)); break;
 
-      case PromoSortingOption.favCountAsc: promosList.sort((a, b) => a.favUsersIds.length.compareTo(b.favUsersIds.length)); break;
+      case PromoSortingOption.favCountDesc: promosList.sort((a, b) => a.favUsersIds.length.compareTo(b.favUsersIds.length)); break;
 
-      case PromoSortingOption.favCountDesc: promosList.sort((a, b) => b.favUsersIds.length.compareTo(a.favUsersIds.length)); break;
+      case PromoSortingOption.favCountAsc: promosList.sort((a, b) => b.favUsersIds.length.compareTo(a.favUsersIds.length)); break;
 
       case PromoSortingOption.fromDb: promosList; break;
 

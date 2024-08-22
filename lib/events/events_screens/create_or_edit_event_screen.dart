@@ -369,15 +369,8 @@ class CreateOrEditEventScreenState extends State<CreateOrEditEventScreen> {
 
                     const SizedBox(height: 20.0),
 
-                    if (chosenCategory.id == '') CategoryElementInEditScreen(
-                      categoryName: 'Категория не выбрана',
-                      onActionPressed: () {
-                        _showCategoryPickerDialog();
-                      },
-                    ),
-
-                    if (chosenCategory.id != '') CategoryElementInEditScreen(
-                      categoryName: chosenCategory.name,
+                    CategoryElementInEditScreen(
+                      categoryName: chosenCategory.id.isNotEmpty ? chosenCategory.name : 'Категория не выбрана',
                       onActionPressed: () {
                         _showCategoryPickerDialog();
                       },

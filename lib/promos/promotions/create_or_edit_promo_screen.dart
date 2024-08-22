@@ -15,7 +15,6 @@ import 'package:dvij_flutter/elements/types_of_date_time_pickers/once_type_date_
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/regular_two_type_date_time_picker_widget.dart';
 import 'package:dvij_flutter/elements/types_of_date_time_pickers/type_of_date_widget.dart';
 import 'package:dvij_flutter/places/place_list_class.dart';
-import 'package:dvij_flutter/places/place_list_manager.dart';
 import 'package:dvij_flutter/promos/promo_category_class.dart';
 import 'package:dvij_flutter/promos/promo_class.dart';
 import 'package:dvij_flutter/promos/promos_elements/promo_category_picker_page.dart';
@@ -24,6 +23,7 @@ import 'package:dvij_flutter/elements/buttons/custom_button.dart';
 import '../../cities/city_class.dart';
 import '../../dates/date_mixin.dart';
 import '../../elements/snack_bar.dart';
+import '../../places/place_list_manager.dart';
 import '../../places/places_elements/place_picker_page.dart';
 import '../../current_user/user_class.dart';
 import '../../elements/choose_dialogs/city_choose_dialog.dart';
@@ -48,12 +48,8 @@ class CreateOrEditPromoScreen extends StatefulWidget {
 
 class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
 
-  // Инициализируем классы
-  // TODO - эти классы так надо инициализировать? помоему можно будет просто обращаться к ним и все
   final ImagePickerService imagePickerService = ImagePickerService();
   final ImageUploader imageUploader = ImageUploader();
-
-  final DateTypeEnumClass dateTypeEnumClass = DateTypeEnumClass();
 
   late TextEditingController headlineController;
   late TextEditingController descController;
@@ -72,8 +68,6 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
   late DateTime createdTime;
 
   File? _imageFile;
-
-  late int accessLevel;
 
   DateTypeEnum dateTypeEnum = DateTypeEnum.once;
 
@@ -120,6 +114,11 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
       '/Promotions',
           (route) => false,
     );
+  }
+
+  void navigateToPreviousScreen(){
+    List<dynamic> result = [true];
+    Navigator.of(context).pop(result);
   }
 
   // ------ Функция выбора изображения -------
@@ -201,8 +200,12 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
     }
 
     if (widget.promoInfo.placeId != '') {
-      //chosenPlace = await Place.getPlaceById(widget.promoInfo.placeId);
-      chosenPlace = await chosenPlace.getEntityByIdFromDb(widget.promoInfo.placeId);
+      if (PlaceListManager.currentFeedPlacesList.placeList.isNotEmpty){
+        chosenPlace = chosenPlace.getEntityFromFeedList(widget.promoInfo.placeId);
+      } else {
+        chosenPlace = await chosenPlace.getEntityByIdFromDb(widget.promoInfo.placeId);
+      }
+
       inPlace = true;
     } else {
       inPlace = false;
@@ -224,17 +227,6 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
     else {
       createdTime = widget.promoInfo.createDate;
     }
-
-    /*if (PlaceListManager.currentMyPlacesList.placeList.isNotEmpty){
-
-      myPlaces = PlaceListManager.currentMyPlacesList;
-
-    } else if (UserCustom.currentUser != null && UserCustom.currentUser!.uid != ''){
-
-      //myPlaces = await Place.getMyPlaces(UserCustom.currentUser!.uid);
-      myPlaces = await myPlaces.getMyListFromDb(UserCustom.currentUser!.uid);
-
-    }*/
 
     if (UserCustom.currentUser != null && UserCustom.currentUser!.myPlaces.isNotEmpty){
       myPlaces = await myPlaces.getMyListFromDb(UserCustom.currentUser!.uid);
@@ -311,17 +303,10 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
 
-                      // Новая картинка
-                      if (_imageFile != null) ImageInEditScreen(
-
-                          backgroundImageFile: _imageFile,
-                          onEditPressed: () => _pickImage()
-                      )
-
-                      // Картинка из БД
-                      else if (_imageFile == null && widget.promoInfo.imageUrl != '' ) ImageInEditScreen(
+                      ImageInEditScreen(
                         onEditPressed: () => _pickImage(),
-                        backgroundImageUrl: widget.promoInfo.imageUrl,
+                        backgroundImageFile: _imageFile,
+                        backgroundImageUrl: widget.promoInfo.imageUrl.isNotEmpty ? widget.promoInfo.imageUrl : null,
                       ),
 
                       const SizedBox(height: 16.0),
@@ -354,18 +339,9 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
 
                       const SizedBox(height: 20.0),
 
-                      if (chosenCategory.id == '') CategoryElementInEditScreen(
-                        categoryName: 'Категория не выбрана',
+                      CategoryElementInEditScreen(
+                        categoryName: chosenCategory.id.isNotEmpty ? chosenCategory.name : 'Категория не выбрана',
                         onActionPressed: () {
-                          //_showCityPickerDialog();
-                          _showCategoryPickerDialog();
-                        },
-                      ),
-
-                      if (chosenCategory.id != '') CategoryElementInEditScreen(
-                        categoryName: chosenCategory.name,
-                        onActionPressed: () {
-                          //_showCityPickerDialog();
                           _showCategoryPickerDialog();
                         },
                       ),
@@ -410,7 +386,7 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
                                   },
                                   onDateActionPressedWithChosenDate:  () {
                                     _selectDate(context, selectedDayInOnceType);
-                                    //_selectDate(context);
+
                                   },
                                   onStartTimeChanged: (String? time) {
                                     setState(() {
@@ -561,7 +537,7 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
                           onDeletePlace: (){
                             setState(() {
                               chosenPlace = Place.empty();
-                              chosenCity = City(name: '', id: '');
+                              chosenCity = City.empty();
                             });
                           },
                           onShowPickerPlace: _showPlacePickerDialog,
@@ -573,14 +549,14 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
                               inPlace = true;
                               streetController.text = '';
                               houseController.text = '';
-                              chosenCity = City(id: '', name: '');
+                              chosenCity = City.empty();
                             });
                           },
                           onTapInputAddress: (){
                             setState(() {
                               inPlace = false;
                               chosenPlace = Place.empty();
-                              chosenCity = City(id: '', name: '');
+                              chosenCity = City.empty();
                             });
                           },
                           streetController: streetController,
@@ -762,11 +738,33 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
 
                               newPromo = await newPromo.getEntityByIdFromDb(promoId);
 
-                              // TODO Сделать как в мероприятиях - добавление акций в список в заведении и удаление из заведения, если его поменяли на другое
-
                               if (widget.promoInfo.placeId != '' && widget.promoInfo.placeId != chosenPlace.id) {
 
                                 await widget.promoInfo.deleteEntityIdFromPlace(widget.promoInfo.placeId);
+
+                              }
+
+                              if (PlaceListManager.currentFeedPlacesList.placeList.isNotEmpty){
+
+                                // При смене места удаляем акцию из подгруженного старого места
+
+                                for(Place tempPlace in PlaceListManager.currentFeedPlacesList.placeList){
+                                  if (tempPlace.id == widget.promoInfo.placeId){
+                                    tempPlace.promosList.removeWhere((element) => element == promoId);
+                                    break;
+                                  }
+                                }
+
+                                // И добавляем акию в новое выбранное место
+
+                                for(Place tempPlace in PlaceListManager.currentFeedPlacesList.placeList){
+                                  if (tempPlace.id == chosenPlace.id){
+                                    if (!tempPlace.promosList.contains(promoId)){
+                                      tempPlace.promosList.add(promoId);
+                                      break;
+                                    }
+                                  }
+                                }
 
                               }
 
@@ -793,8 +791,12 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
                                 1,
                               );
 
-                              // Уходим в профиль
-                              navigateToPromos();
+                              if (widget.promoInfo.id.isNotEmpty){
+                                navigateToPreviousScreen();
+                              } else {
+                                // Уходим на страницу мероприятий
+                                navigateToPromos();
+                              }
 
                             }
 
@@ -935,12 +937,11 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
         bool isIrregular = false,
         // для нерегулярных дат
         int index = 0,
-        DateTime? firstDate = null,
-        DateTime? endDate = null,
+        DateTime? firstDate,
+        DateTime? endDate,
       }
       ) async {
-    //DateTime initial = selectedDayInOnceType;
-    //DateTime initialInMethod = initial;
+
     if (needClearInitialDate == true) initial = DateTime.now();
 
     final DateTime? picked = await showDatePicker(
@@ -984,12 +985,6 @@ class CreateOrEditPromoScreenState extends State<CreateOrEditPromoScreen> {
       }
 
     }
-
-    /*if (picked != null && picked != selectedDayInOnceType) {
-      setState(() {
-        selectedDayInOnceType = picked;
-      });
-    }*/
   }
 
   void _isStartBeforeEnd (bool startAfterEnd){
