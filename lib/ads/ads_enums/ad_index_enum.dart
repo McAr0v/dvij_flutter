@@ -3,7 +3,8 @@ import 'enums_interface.dart';
 enum AdIndexEnum {
   first,
   second,
-  third
+  third,
+  all
 }
 
 class AdIndexEnumClass implements CustomEnums<AdIndexEnum> {
@@ -14,6 +15,7 @@ class AdIndexEnumClass implements CustomEnums<AdIndexEnum> {
       case 'first': return AdIndexEnum.first;
       case 'second': return AdIndexEnum.second;
       case 'third': return AdIndexEnum.third;
+      case 'all': return AdIndexEnum.all;
       default: return AdIndexEnum.first;
     }
   }
@@ -27,6 +29,8 @@ class AdIndexEnumClass implements CustomEnums<AdIndexEnum> {
         return !translate ? 'second' : 'Слот №2';
       case AdIndexEnum.third:
         return !translate ? 'third' : 'Слот №3';
+      case AdIndexEnum.all:
+        return !translate ? 'all' : 'Везде';
     }
   }
 

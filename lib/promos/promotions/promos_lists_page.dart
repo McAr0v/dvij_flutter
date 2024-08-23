@@ -64,7 +64,9 @@ class _PromosListsPageState extends State<PromosListsPage> {
   // --- Рекламные переменные -----
 
   // --- Список рекламы ---
-  List<String> adList = ['Реклама №1', 'Реклама №2', 'Реклама №3', 'Реклама №4', 'Реклама №5'];
+  //List<String> adList = ['Реклама №1', 'Реклама №2', 'Реклама №3', 'Реклама №4', 'Реклама №5'];
+
+  List<AdUser> adList = AdUser.currentAllAdsList;
   List<Pair> allElementsList = [];
   // ---- Список для хранения индексов элементов рекламы
   List<int> adIndexesList = [];
@@ -211,7 +213,7 @@ class _PromosListsPageState extends State<PromosListsPage> {
                                           vertical: 20,
                                           horizontal: 20
                                       ),
-                                      child: HeadlineAndDesc(headline: adList[allElementsList[index].second], description: 'реклама'),
+                                      child: HeadlineAndDesc(headline: adList[allElementsList[index].second].headline, description: 'реклама'),
                                     );
                                   }
 

@@ -1,3 +1,5 @@
+import 'package:dvij_flutter/ads/ads_elements/card_for_ad.dart';
+import 'package:dvij_flutter/ads/ads_enums/ad_location_enum.dart';
 import 'package:dvij_flutter/classes/entity_page_type_enum.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -64,7 +66,12 @@ class _EventsListsPageState extends State<EventsListsPage> {
   // --- Рекламные переменные -----
 
   // --- Список рекламы ---
-  List<String> adList = ['Реклама №1', 'Реклама №2', 'Реклама №3', 'Реклама №4', 'Реклама №5'];
+  //List<String> adList = ['Реклама №1', 'Реклама №2', 'Реклама №3', 'Реклама №4', 'Реклама №5'];
+
+  AdUser adUser = AdUser.empty();
+
+  List<AdUser> adList = [AdUser.adEventFirst, AdUser.adEventSecond, AdUser.adEventThird];
+
   List<Pair> allElementsList = [];
   // ---- Список для хранения индексов элементов рекламы
   List<int> adIndexesList = [];
@@ -206,13 +213,7 @@ class _EventsListsPageState extends State<EventsListsPage> {
                               // --- ЕСЛИ ЭТО РЕКЛАМА, ОТОБРАЖАЕМ ВИДЖЕТ РЕКЛАМЫ ----
 
                               if (allElementsList[index].first == 'ad')  {
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 20,
-                                      horizontal: 20
-                                  ),
-                                  child: HeadlineAndDesc(headline: adList[allElementsList[index].second], description: 'реклама'),
-                                );
+                                return CardForAd(ad: adList[allElementsList[index].second]);
                               }
 
                               // ----- ЕСЛИ МЕРОПРИЯТИЕ, ТО КАРТОЧКУ МЕРОПРИЯТИЯ ----
@@ -327,6 +328,8 @@ class _EventsListsPageState extends State<EventsListsPage> {
 
     eventsList = EventsList();
 
+    adList = [];
+
     // Подгружаем список мероприятий с базы данных
 
     if (pageTypeEnum == EntityPageTypeEnum.feed){
@@ -334,6 +337,10 @@ class _EventsListsPageState extends State<EventsListsPage> {
     } else {
       await _getEventsList(pageTypeEnum: widget.pageTypeEnum, refresh: true);
     }
+
+    await adUser.getAllAds();
+
+    adList = [AdUser.adEventFirst, AdUser.adEventSecond, AdUser.adEventThird];
 
     _filterListAndIncludeAd();
 

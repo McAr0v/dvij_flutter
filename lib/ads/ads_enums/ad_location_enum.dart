@@ -3,7 +3,8 @@ import 'enums_interface.dart';
 enum AdLocationEnum {
   places,
   events,
-  promos
+  promos,
+  all
 }
 
 class AdLocationEnumClass implements CustomEnums<AdLocationEnum>{
@@ -15,6 +16,7 @@ class AdLocationEnumClass implements CustomEnums<AdLocationEnum>{
       case 'places': return AdLocationEnum.places;
       case 'promos': return AdLocationEnum.promos;
       case 'events': return AdLocationEnum.events;
+      case 'all': return AdLocationEnum.all;
       default: return AdLocationEnum.events;
     }
 
@@ -29,6 +31,8 @@ class AdLocationEnumClass implements CustomEnums<AdLocationEnum>{
         return !translate ? 'promos' : 'В акциях';
       case AdLocationEnum.events:
         return !translate ? 'events' : 'В мероприятиях';
+      case AdLocationEnum.all:
+        return !translate ? 'all' : 'Везде';
     }
   }
 

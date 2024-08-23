@@ -1,5 +1,6 @@
 class AppConstants {
   static const String defaultAvatar = 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/no_user.jpg?alt=media&token=0816b49c-d291-47d5-a415-db5f90a773f4';
+  static const String defaultAdImage = 'https://firebasestorage.googleapis.com/v0/b/dvij-flutter.appspot.com/o/ad_no_image.jpg?alt=media&token=b2f05a8c-7f88-4127-baa7-a25c25292c3a';
   static const String successResult = 'Ok';
 
 

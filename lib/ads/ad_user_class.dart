@@ -1,4 +1,5 @@
 import 'package:dvij_flutter/classes/pair.dart';
+import 'package:dvij_flutter/constants/constants.dart';
 import 'package:dvij_flutter/database/database_mixin.dart';
 import 'package:dvij_flutter/dates/date_mixin.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -66,35 +67,35 @@ class AdUser with MixinDatabase, DateMixin implements IAds {
     );
   }
 
-  static AdUser emptyAd = AdUser(
-      id: '',
-      headline: '',
-      desc: '',
-      url: '',
-      imageUrl: '',
-      startDate: DateTime(2100),
-      endDate: DateTime(2100),
-      location: AdLocationEnum.events,
-      adIndex: AdIndexEnum.first,
-      active: AdActiveEnum.notActive
-  );
+  factory AdUser.empty(){
+    return AdUser(
+        id: '',
+        headline: 'Место для рекламы',
+        desc: 'Вы можете заказать рекламу в приложении. Подробности можете уточнить у администраторов приложения, написав им.',
+        url: '',
+        imageUrl: AppConstants.defaultAdImage,
+        startDate: DateTime(2100),
+        endDate: DateTime(2100),
+        location: AdLocationEnum.all,
+        adIndex: AdIndexEnum.all
+    );
+  }
+
 
   // Статическая переменная для хранения списка городов
   static List<AdUser> currentAllAdsList = [];
 
-  static List<AdUser> currentPlacesAdsList = [];
-  static List<AdUser> currentEventsAdsList = [];
-  static List<AdUser> currentPromosAdsList = [];
+  static AdUser adEventFirst = AdUser.empty();
+  static AdUser adEventSecond = AdUser.empty();
+  static AdUser adEventThird = AdUser.empty();
 
+  static AdUser adPlaceFirst = AdUser.empty();
+  static AdUser adPlaceSecond = AdUser.empty();
+  static AdUser adPlaceThird = AdUser.empty();
 
-
-  static void resetAdsList(){
-
-    currentPromosAdsList = [];
-    currentPlacesAdsList = [];
-    currentEventsAdsList = [];
-
-  }
+  static AdUser adPromoFirst = AdUser.empty();
+  static AdUser adPromoSecond = AdUser.empty();
+  static AdUser adPromoThird = AdUser.empty();
 
   static List<Pair> generateIndexedList(List<int> adIndexes, int feedElementsListCount)
   {
@@ -133,7 +134,7 @@ class AdUser with MixinDatabase, DateMixin implements IAds {
 
   }
 
-  static List<int> getAdIndexesList (List<String> adList, int step, int firstAdIndex){
+  static List<int> getAdIndexesList (List<AdUser> adList, int step, int firstAdIndex){
 
     List<int> indexesList = [];
 
@@ -158,11 +159,76 @@ class AdUser with MixinDatabase, DateMixin implements IAds {
     return temp;
   }
 
+  void resetAdsEntities(){
+    adEventFirst = AdUser.empty();
+    adEventSecond = AdUser.empty();
+    adEventThird = AdUser.empty();
+
+    adPromoFirst = AdUser.empty();
+    adPromoSecond = AdUser.empty();
+    adPromoThird = AdUser.empty();
+
+    adPlaceFirst = AdUser.empty();
+    adPlaceSecond = AdUser.empty();
+    adPlaceThird = AdUser.empty();
+  }
+
+  void setAdsInCurrentBox(){
+
+    // Сбрасываем все слоты рекламы на дефолт
+    resetAdsEntities();
+
+    if (currentAllAdsList.isNotEmpty) {
+
+      for (AdUser ad in currentAllAdsList){
+
+        // Если реклама для мероприятий
+        if (ad.location == AdLocationEnum.events){
+
+          // Вставляем внужный слот для мероприятий
+          if (ad.adIndex == AdIndexEnum.first) {
+            adEventFirst = ad;
+          } else if (ad.adIndex == AdIndexEnum.second){
+            adEventSecond = ad;
+          } else if (ad.adIndex == AdIndexEnum.third){
+            adEventThird = ad;
+          }
+        } else if (ad.location == AdLocationEnum.places){
+
+          // Вставляем внужный слот для заведений
+          if (ad.adIndex == AdIndexEnum.first) {
+            adPlaceFirst = ad;
+          } else if (ad.adIndex == AdIndexEnum.second){
+            adPlaceSecond = ad;
+          } else if (ad.adIndex == AdIndexEnum.third){
+            adPlaceThird = ad;
+          }
+        } else if (ad.location == AdLocationEnum.promos){
+
+          // Вставляем внужный слот для акций
+          if (ad.adIndex == AdIndexEnum.first) {
+            adPromoFirst = ad;
+          } else if (ad.adIndex == AdIndexEnum.second){
+            adPromoSecond = ad;
+          } else if (ad.adIndex == AdIndexEnum.third){
+            adPromoThird = ad;
+          }
+        }
+
+      }
+    }
+  }
+
   static Future<void> getAllAdsAndSave() async {
     // Метод вызывается при загрузке приложения
     // Для подгрузки списка рекламы
-    AdUser adUser = AdUser.emptyAd;
+    AdUser adUser = AdUser.empty();
+
+    // Подгружаем полный список рекламы
     currentAllAdsList = await adUser.getAllAds();
+
+    // Вставляем в нужные слоты рекламы рекламу
+    adUser.setAdsInCurrentBox();
 
   }
 
@@ -194,6 +260,8 @@ class AdUser with MixinDatabase, DateMixin implements IAds {
     }
 
     currentAllAdsList = ads;
+
+    setAdsInCurrentBox();
 
     return ads;
   }
