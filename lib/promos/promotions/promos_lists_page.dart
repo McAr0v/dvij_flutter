@@ -9,6 +9,7 @@ import 'package:dvij_flutter/promos/promotions/promo_view_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../ads/ad_user_class.dart';
+import '../../ads/ads_elements/card_for_ad.dart';
 import '../../cities/city_class.dart';
 import '../../classes/pair.dart';
 import '../../constants/constants.dart';
@@ -18,7 +19,6 @@ import '../../elements/snack_bar.dart';
 import '../../themes/app_colors.dart';
 import '../../widgets_global/cards_widgets/card_widget_for_event_promo_places.dart';
 import '../../widgets_global/filter_widgets/filter_widget.dart';
-import '../../widgets_global/text_widgets/headline_and_desc.dart';
 import '../promos_elements/promo_filter_page.dart';
 
 
@@ -64,9 +64,11 @@ class _PromosListsPageState extends State<PromosListsPage> {
   // --- Рекламные переменные -----
 
   // --- Список рекламы ---
-  //List<String> adList = ['Реклама №1', 'Реклама №2', 'Реклама №3', 'Реклама №4', 'Реклама №5'];
 
-  List<AdUser> adList = AdUser.currentAllAdsList;
+  AdUser adUser = AdUser.empty();
+
+  List<AdUser> adList = [AdUser.adPromoFirst, AdUser.adPromoSecond, AdUser.adPromoThird];
+
   List<Pair> allElementsList = [];
   // ---- Список для хранения индексов элементов рекламы
   List<int> adIndexesList = [];
@@ -208,13 +210,7 @@ class _PromosListsPageState extends State<PromosListsPage> {
                                   // --- ЕСЛИ ЭТО РЕКЛАМА, ОТОБРАЖАЕМ ВИДЖЕТ РЕКЛАМЫ ----
 
                                   if (allElementsList[index].first == 'ad')  {
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 20,
-                                          horizontal: 20
-                                      ),
-                                      child: HeadlineAndDesc(headline: adList[allElementsList[index].second].headline, description: 'реклама'),
-                                    );
+                                    return CardForAd(ad: adList[allElementsList[index].second]);
                                   }
 
                                   // ----- ЕСЛИ МЕРОПРИЯТИЕ, ТО КАРТОЧКУ МЕРОПРИЯТИЯ ----
@@ -329,6 +325,7 @@ class _PromosListsPageState extends State<PromosListsPage> {
 
     promosList = PromoList();
 
+    adList = [];
     // Подгружаем список мероприятий с базы данных
 
     if (pageTypeEnum == EntityPageTypeEnum.feed){
@@ -336,6 +333,10 @@ class _PromosListsPageState extends State<PromosListsPage> {
     } else {
       await _getPromosList(pageTypeEnum: widget.pageTypeEnum, refresh: true);
     }
+
+    await adUser.getAllAds();
+
+    adList = [AdUser.adPromoFirst, AdUser.adPromoSecond, AdUser.adPromoThird];
 
     _filterListAndIncludeAd();
 

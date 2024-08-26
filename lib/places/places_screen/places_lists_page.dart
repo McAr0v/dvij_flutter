@@ -3,6 +3,7 @@ import 'package:dvij_flutter/places/places_screen/place_view_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../ads/ad_user_class.dart';
+import '../../ads/ads_elements/card_for_ad.dart';
 import '../../cities/city_class.dart';
 import '../../classes/entity_page_type_enum.dart';
 import '../../classes/pair.dart';
@@ -14,7 +15,6 @@ import '../../themes/app_colors.dart';
 import '../../widgets_global/cards_widgets/card_widget_for_event_promo_places.dart';
 import '../../widgets_global/default_screens/empty_screen.dart';
 import '../../widgets_global/filter_widgets/filter_widget.dart';
-import '../../widgets_global/text_widgets/headline_and_desc.dart';
 import '../place_category_class.dart';
 import '../place_class.dart';
 import '../place_list_class.dart';
@@ -61,9 +61,11 @@ class _PlacesListsPageState extends State<PlacesListsPage> {
   // --- Рекламные переменные -----
 
   // --- Список рекламы ---
-  //List<String> adList = ['Реклама №1', 'Реклама №2', 'Реклама №3', 'Реклама №4', 'Реклама №5'];
+  AdUser adUser = AdUser.empty();
 
-  List<AdUser> adList = AdUser.currentAllAdsList;
+  List<AdUser> adList = [AdUser.adPlaceFirst, AdUser.adPlaceSecond, AdUser.adPlaceThird];
+
+  //List<AdUser> adList = AdUser.currentAllAdsList;
   List<Pair> allElementsList = [];
   // ---- Список для хранения индексов элементов рекламы
   List<int> adIndexesList = [];
@@ -188,12 +190,7 @@ class _PlacesListsPageState extends State<PlacesListsPage> {
                             itemCount: allElementsList.length,
                             itemBuilder: (context, index) {
                               if (allElementsList[index].first == 'ad')  {
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 20,
-                                      horizontal: 20),
-                                  child: HeadlineAndDesc(headline: adList[allElementsList[index].second].headline, description: 'реклама'),
-                                );
+                                return CardForAd(ad: adList[allElementsList[index].second]);
                               } else {
 
                                 int indexWithAddCountCorrection = allElementsList[index].second;
@@ -445,11 +442,17 @@ class _PlacesListsPageState extends State<PlacesListsPage> {
 
     placesList = PlaceList();
 
+    adList = [];
+
     if (pageTypeEnum == EntityPageTypeEnum.feed){
       placesList = await placesList.getListFromDb();
     } else {
       await _getPlacesList(pageTypeEnum: widget.pageTypeEnum, refresh: true);
     }
+
+    await adUser.getAllAds();
+
+    adList = [AdUser.adPlaceFirst, AdUser.adPlaceSecond, AdUser.adPlaceThird];
 
     _filterListAndIncludeAd();
 

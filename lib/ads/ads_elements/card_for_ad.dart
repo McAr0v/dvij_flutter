@@ -39,7 +39,7 @@ class _CardForAdState extends State<CardForAd> {
             child: Stack(
               children: [
                 // Полупрозрачный фон
-                Container(
+                if (widget.ad.id.isNotEmpty) Container(
                   width: double.infinity,
                   height: double.infinity,
                   decoration: BoxDecoration(
@@ -67,7 +67,7 @@ class _CardForAdState extends State<CardForAd> {
                   ),
                 ),
                 // Дочерний элемент
-                Padding(
+                if (widget.ad.id.isNotEmpty) Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
