@@ -19,7 +19,7 @@ class OpenUrlClass {
         path = 'tel:$insertString';
         break;
       case UrlPathEnum.web:
-        path = 'https://$insertString';
+        path = insertString;
     }
 
     launchUrl(Uri.parse(path), mode: LaunchMode.externalApplication);
