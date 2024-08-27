@@ -7,6 +7,7 @@ class ImageWithPlaceHolderWidget extends StatelessWidget {
   final double bottomLeftRadius;
   final double bottomRightRadius;
   final String imagePath;
+  final double? height;
 
   const ImageWithPlaceHolderWidget({
     required this.imagePath,
@@ -15,12 +16,13 @@ class ImageWithPlaceHolderWidget extends StatelessWidget {
     this.bottomRightRadius = 20,
     this.topRightRadius = 0,
     this.topLeftRadius = 0,
+    this.height,
     super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.width * heightPercentFromWidth, // Ширина экрана
+      height: height ?? MediaQuery.of(context).size.width * heightPercentFromWidth, // Ширина экрана
       decoration: BoxDecoration(
         image: DecorationImage(
           image: FadeInImage.assetNetwork(

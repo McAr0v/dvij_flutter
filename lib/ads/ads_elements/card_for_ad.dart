@@ -7,8 +7,9 @@ import '../../widgets_global/text_widgets/for_cards_small_widget_with_icon_and_t
 class CardForAd extends StatefulWidget {
 
   final AdUser ad;
+  final Function() onTap;
 
-  const CardForAd({required this.ad, Key? key}) : super(key: key);
+  const CardForAd({required this.ad, required this.onTap, Key? key}) : super(key: key);
 
   @override
   State<CardForAd> createState() => _CardForAdState();
@@ -20,7 +21,7 @@ class _CardForAdState extends State<CardForAd> {
     return Padding(
       padding: const EdgeInsets.only(right: 5, bottom: 10, top: 10),
       child: GestureDetector(
-        onTap: (){},
+        onTap: widget.onTap,
         child: Card(
           margin: const EdgeInsets.only(left: 5),
           shape: RoundedRectangleBorder(

@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../ads/ad_user_class.dart';
 import '../../ads/ads_elements/card_for_ad.dart';
+import '../../ads/ads_screens/ad_view_screen.dart';
 import '../../cities/city_class.dart';
 import '../../classes/entity_page_type_enum.dart';
 import '../../classes/pair.dart';
@@ -11,6 +12,7 @@ import '../../constants/constants.dart';
 import '../../current_user/user_class.dart';
 import '../../elements/custom_snack_bar.dart';
 import '../../elements/loading_screen.dart';
+import '../../screens/otherPages/about_ad_page.dart';
 import '../../themes/app_colors.dart';
 import '../../widgets_global/cards_widgets/card_widget_for_event_promo_places.dart';
 import '../../widgets_global/default_screens/empty_screen.dart';
@@ -190,7 +192,12 @@ class _PlacesListsPageState extends State<PlacesListsPage> {
                             itemCount: allElementsList.length,
                             itemBuilder: (context, index) {
                               if (allElementsList[index].first == 'ad')  {
-                                return CardForAd(ad: adList[allElementsList[index].second]);
+                                return CardForAd(
+                                    ad: adList[allElementsList[index].second],
+                                  onTap: () async {
+                                      await navigateToAdViewScreen(adList[allElementsList[index].second]);
+                                  },
+                                );
                               } else {
 
                                 int indexWithAddCountCorrection = allElementsList[index].second;
@@ -251,6 +258,23 @@ class _PlacesListsPageState extends State<PlacesListsPage> {
           child: const Icon(Icons.add), // Цвет кнопки
         ) : null
     );
+  }
+
+  Future<void> navigateToAdViewScreen(AdUser ad) async {
+
+    if (ad.id.isNotEmpty){
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => AdViewScreen(ad: ad)
+        ),
+      );
+    } else {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const AboutAdPage()),
+      );
+    }
   }
 
   // --- Функция отображения всплывающего окна ----

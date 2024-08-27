@@ -1,5 +1,5 @@
 import 'package:dvij_flutter/ads/ads_elements/card_for_ad.dart';
-import 'package:dvij_flutter/ads/ads_enums/ad_location_enum.dart';
+import 'package:dvij_flutter/ads/ads_screens/ad_view_screen.dart';
 import 'package:dvij_flutter/classes/entity_page_type_enum.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -10,10 +10,10 @@ import '../../constants/constants.dart';
 import '../../current_user/user_class.dart';
 import '../../elements/loading_screen.dart';
 import '../../elements/snack_bar.dart';
+import '../../screens/otherPages/about_ad_page.dart';
 import '../../themes/app_colors.dart';
 import '../../widgets_global/cards_widgets/card_widget_for_event_promo_places.dart';
 import '../../widgets_global/filter_widgets/filter_widget.dart';
-import '../../widgets_global/text_widgets/headline_and_desc.dart';
 import '../event_category_class.dart';
 import '../event_class.dart';
 import '../event_sorting_options.dart';
@@ -213,7 +213,12 @@ class _EventsListsPageState extends State<EventsListsPage> {
                               // --- ЕСЛИ ЭТО РЕКЛАМА, ОТОБРАЖАЕМ ВИДЖЕТ РЕКЛАМЫ ----
 
                               if (allElementsList[index].first == 'ad')  {
-                                return CardForAd(ad: adList[allElementsList[index].second]);
+                                return CardForAd(
+                                    ad: adList[allElementsList[index].second],
+                                  onTap: () async {
+                                      await navigateToAdViewScreen(adList[allElementsList[index].second]);
+                                  },
+                                );
                               }
 
                               // ----- ЕСЛИ МЕРОПРИЯТИЕ, ТО КАРТОЧКУ МЕРОПРИЯТИЯ ----
@@ -407,6 +412,23 @@ class _EventsListsPageState extends State<EventsListsPage> {
       transitionDuration: const Duration(milliseconds: 100),
 
     );
+  }
+
+  Future<void> navigateToAdViewScreen(AdUser ad) async {
+
+    if (ad.id.isNotEmpty){
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AdViewScreen(ad: ad)
+        ),
+      );
+    } else {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const AboutAdPage()),
+      );
+    }
   }
 
   Future<void> goToEventViewScreen(int indexWithAddCountCorrection) async {

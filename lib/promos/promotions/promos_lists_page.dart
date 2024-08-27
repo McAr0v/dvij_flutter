@@ -10,12 +10,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../ads/ad_user_class.dart';
 import '../../ads/ads_elements/card_for_ad.dart';
+import '../../ads/ads_screens/ad_view_screen.dart';
 import '../../cities/city_class.dart';
 import '../../classes/pair.dart';
 import '../../constants/constants.dart';
 import '../../current_user/user_class.dart';
 import '../../elements/loading_screen.dart';
 import '../../elements/snack_bar.dart';
+import '../../screens/otherPages/about_ad_page.dart';
 import '../../themes/app_colors.dart';
 import '../../widgets_global/cards_widgets/card_widget_for_event_promo_places.dart';
 import '../../widgets_global/filter_widgets/filter_widget.dart';
@@ -210,7 +212,12 @@ class _PromosListsPageState extends State<PromosListsPage> {
                                   // --- ЕСЛИ ЭТО РЕКЛАМА, ОТОБРАЖАЕМ ВИДЖЕТ РЕКЛАМЫ ----
 
                                   if (allElementsList[index].first == 'ad')  {
-                                    return CardForAd(ad: adList[allElementsList[index].second]);
+                                    return CardForAd(
+                                        ad: adList[allElementsList[index].second],
+                                      onTap: () async {
+                                          await navigateToAdViewScreen(adList[allElementsList[index].second]);
+                                      },
+                                    );
                                   }
 
                                   // ----- ЕСЛИ МЕРОПРИЯТИЕ, ТО КАРТОЧКУ МЕРОПРИЯТИЯ ----
@@ -277,6 +284,23 @@ class _PromosListsPageState extends State<PromosListsPage> {
         ) : null
 
     );
+  }
+
+  Future<void> navigateToAdViewScreen(AdUser ad) async {
+
+    if (ad.id.isNotEmpty){
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => AdViewScreen(ad: ad)
+        ),
+      );
+    } else {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const AboutAdPage()),
+      );
+    }
   }
 
   Future<void> _getPromosList({required EntityPageTypeEnum pageTypeEnum, bool refresh = false}) async {
