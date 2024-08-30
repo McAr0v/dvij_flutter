@@ -2,7 +2,6 @@ import 'package:dvij_flutter/feedback_messages/feedback_enums.dart';
 import 'package:flutter/material.dart';
 import '../database/database_mixin.dart';
 import '../dates/date_mixin.dart';
-import '../events/event_sorting_options.dart';
 
 class FeedbackMessages {
 
