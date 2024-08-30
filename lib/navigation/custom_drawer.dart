@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:dvij_flutter/themes/app_colors.dart';
 import 'package:dvij_flutter/screens/otherPages/about_app_page.dart';
 import 'package:dvij_flutter/screens/otherPages/about_ad_page.dart';
-import 'package:dvij_flutter/screens/otherPages/feedback_page.dart';
+import 'package:dvij_flutter/feedback_messages/feedback_page.dart';
 import 'package:dvij_flutter/screens/otherPages/privacy_policy_page.dart';
 import 'package:dvij_flutter/current_user/user_class.dart' as local_user;
 import '../cities/cities_screens/cities_list_screen.dart';
