@@ -1,7 +1,7 @@
 import 'package:dvij_flutter/events/event_category_class.dart';
 import 'package:dvij_flutter/places/place_category_class.dart';
 import 'package:dvij_flutter/promos/promo_category_class.dart';
-import 'package:dvij_flutter/screens/otherPages/privacy_policy_page.dart';
+import 'package:dvij_flutter/privacy_policy/privacy_policy_page.dart';
 import 'package:dvij_flutter/screens/profile/reset_password_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
